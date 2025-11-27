@@ -15,7 +15,7 @@ namespace Framework.Guide.Editor
         static Texture2D s_CustomIcon;
         static GuideSystemEngineInit()
         {
-            s_CustomIcon = GuideEditorResources.LoadTexture("GuideSystem");
+            s_CustomIcon = GuideEditorResources.LoadTexture("GuideSystem.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
 
             //! auto code
