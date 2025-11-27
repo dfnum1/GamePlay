@@ -9,6 +9,7 @@ using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
 using Framework.ED;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Framework.Cutscene.Editor
 {
@@ -128,6 +129,10 @@ namespace Framework.Cutscene.Editor
         public virtual void OnEnableCutscene(CutsceneInstance pCutscene, bool bEnable)
         {
 
+        }
+        //--------------------------------------------------------
+        public virtual void OnPreviewDraw(int controllerId, Camera camera, Event evt)
+        {
         }
     }
 }

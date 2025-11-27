@@ -5,12 +5,16 @@
 描    述:	基础逻辑类
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.AT.Runtime;
 using Framework.ED;
 
 namespace Framework.AT.Editor
 {
     public class AAgentTreeLogic : AEditorLogic
     {
+        public virtual void OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
+        {
+        }
     }
 }
 

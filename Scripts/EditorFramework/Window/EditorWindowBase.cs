@@ -14,6 +14,7 @@ namespace Framework.ED
 {
     public abstract class EditorWindowBase : EditorWindow
     {
+        private bool                                    m_bStarted = false;
         private bool                                    m_bRuntimingOpened = false;
         protected EditorTimer                           m_pTimer = new EditorTimer();
 
@@ -42,6 +43,8 @@ namespace Framework.ED
 
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Enable();
+
+            m_bStarted = false;
         }
         //--------------------------------------------------------
         void OnDisable()
@@ -56,16 +59,34 @@ namespace Framework.ED
             m_pCurrentObj = null;
         }
         //--------------------------------------------------------
+        private void OnDestroy()
+        {
+            for (int i = 0; i < m_vLogics.Count; ++i)
+                m_vLogics[i].Destroy();
+            OnInnerDestroy();
+        }
+        //--------------------------------------------------------
         protected virtual void OnInnerEnable() { }
         protected virtual void OnInnerDisable() { }
+        protected virtual void OnInnerDestroy() { }
         //--------------------------------------------------------
         void Update()
         {
+            if (!m_bStarted)
+            {
+                m_bStarted = true;
+                OnStart();
+                return;
+            }
             m_pTimer.Update();
             OnInnerUpdate();
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Update(m_pTimer.deltaTime);
             this.Repaint();
+        }
+        //--------------------------------------------------------
+        protected virtual void OnStart()
+        {
         }
         //--------------------------------------------------------
         protected virtual void OnInnerUpdate() { }

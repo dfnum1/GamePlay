@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	变量
 *********************************************************************/
+using Framework.AT.Editor;
 using System;
 using UnityEngine;
 namespace Framework.AT.Runtime
@@ -233,6 +234,50 @@ namespace Framework.AT.Runtime
         {
 #if UNITY_EDITOR
             this.name = name;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
+    public class ATEventAttribute : Attribute
+    {
+#if UNITY_EDITOR   
+        public string DisplayName { get; set; }
+        private Type idType = null;
+        private string typeName = null;
+        public System.Type ownerType = null;
+#endif
+        public ATEventAttribute(string displayName, Type idType = null, System.Type ownerType = null)
+        {
+#if UNITY_EDITOR
+            this.idType = idType;
+            this.typeName = null;
+            DisplayName = displayName;
+            this.ownerType = ownerType;
+#endif
+        }
+        public ATEventAttribute(string displayName, string typeName, System.Type ownerType = null)
+        {
+#if UNITY_EDITOR
+            this.idType = null;
+            this.typeName = typeName;
+            DisplayName = displayName;
+            this.ownerType = ownerType;
+#endif
+        }
+
+        public System.Type GetDisplayType()
+        {
+#if UNITY_EDITOR
+            if (this.idType != null) return this.idType;
+
+            if (!string.IsNullOrEmpty(this.typeName))
+            {
+                this.idType = ED.EditorUtils.GetTypeByName(typeName);
+            }
+            return this.idType;
+#else
+            return null;
 #endif
         }
     }

@@ -81,6 +81,11 @@ namespace Framework.AT.Editor
         {
             m_pGraphView.OnSaveChanges();
         }
+        //--------------------------------------------------------
+        public override void OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
+        {
+            m_pGraphView.OnNotifyExecutedNode(pAgentTree, pNode);
+        }
     }
 }
 

@@ -5,6 +5,7 @@
 描    述:	行为树视图控制器
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.AT.Runtime;
 using Framework.ED;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -108,10 +109,15 @@ namespace Framework.AT.Editor
             m_pGraphView.OnSaveChanges();
         }
         //-----------------------------------------------------
-      //  public void OnEnableCutscene(CutsceneInstance pCutscene, bool bEnable)
-      //  {
-      //      m_pGraphView.OnEnableCutscene(pCutscene, bEnable);
-      //  }
+        //  public void OnEnableCutscene(CutsceneInstance pCutscene, bool bEnable)
+        //  {
+        //      m_pGraphView.OnEnableCutscene(pCutscene, bEnable);
+        //  }
+        //--------------------------------------------------------
+        public void OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
+        {
+            m_pGraphView.OnNotifyExecutedNode(pAgentTree, pNode);
+        }
     }
 }
 

@@ -6,14 +6,12 @@
 *********************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 namespace Framework.AT.Runtime
 {
-    public interface IAgentTreeCallback
-    {
-        public void OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode);
-    }
     public class AgentTree
     {
+        AgentTreeManager                            m_pATManager = null;
         bool                                        m_bEnable = false;
         AgentTreeData                               m_pData = null;
         VariableKV                                  m_vRuntimeVariables = null;
@@ -27,7 +25,6 @@ namespace Framework.AT.Runtime
 
         EnterTask                                   m_pTickTask = null;
         LinkedList<BaseNode>                        m_vTickExecuting = null;
-        LinkedList<IAgentTreeCallback>              m_vCallback = null;
 
         LinkedList<BaseNode>                        m_pCurrentExcuting = null;
         bool                                        m_bHasCustomTask = false;
@@ -53,20 +50,6 @@ namespace Framework.AT.Runtime
         {
             if (m_vRuntimeVariables == null) m_vRuntimeVariables = VariablePool.Malloc();
             return m_vRuntimeVariables;
-        }
-        //-----------------------------------------------------
-        public void RegisterCallback(IAgentTreeCallback pCallback)
-        {
-            if (m_vCallback == null) m_vCallback = new LinkedList<IAgentTreeCallback>();
-            if (!m_vCallback.Contains(pCallback))
-                m_vCallback.AddLast(pCallback);
-        }
-        //-----------------------------------------------------
-        public void UnregisterCallback(IAgentTreeCallback pCallback)
-        {
-            if (m_vCallback == null) return;
-            if (m_vCallback.Contains(pCallback))
-                m_vCallback.Remove(pCallback);
         }
         //-----------------------------------------------------
         public bool Create(AgentTreeData agentTree)
@@ -265,13 +248,6 @@ namespace Framework.AT.Runtime
                 bool bSucceed = OnExecute(curNode);
                 if (bSucceed)
                     AddExecuted(curNode);
-                if (m_vCallback != null)
-                {
-                    for (var callback = m_vCallback.First; callback != null; callback = callback.Next)
-                    {
-                        callback.Value.OnNotifyExecutedNode(this, curNode);
-                    }
-                }
                 if (bSucceed)
                 {
                     vList.Remove(node);
@@ -331,6 +307,10 @@ namespace Framework.AT.Runtime
                 case (short)EActionType.eLerp:
                     return VectorOpExecutor.OnExecutor(this, pNode);
                 case (short)EActionType.eCondition: return ConditionExecutor.OnExecute(this, pNode);
+            }
+            if (m_pATManager != null)
+            {
+                return m_pATManager.OnNotifyExecutedNode(this, pNode);
             }
             return false;
         }
@@ -1387,7 +1367,6 @@ namespace Framework.AT.Runtime
         internal void Destroy()
         {
             Clear();
-            if (m_vCallback != null) m_vCallback.Clear();
         }
     }
 }

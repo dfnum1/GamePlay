@@ -45,7 +45,7 @@ namespace Framework.Cutscene.Runtime
 
         private Dictionary<int, ObjCache>           m_vObjIds = null;
         //-----------------------------------------------------
-        internal CutsceneInstance()
+        public CutsceneInstance()
         {
             Debug.Assert(false, "CutsceneInstance must be created by CutsceneManager!");
         }
@@ -519,7 +519,7 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
-        internal bool Update(float deltaTime)
+        public bool Update(float deltaTime)
         {
             if (!m_bEnable)
                 return true;
@@ -548,18 +548,6 @@ namespace Framework.Cutscene.Runtime
             if (m_pPlayable == null)
                 return;
             m_pPlayable.Evaluate(time);
-        }
-        //-----------------------------------------------------
-        public void RegisterAgentTreeCallback(IAgentTreeCallback callback)
-        {
-            if (m_pAgentTree == null) return;
-            m_pAgentTree.RegisterCallback(callback);
-        }
-        //-----------------------------------------------------
-        public void UnregisterAgentTreeCallback(IAgentTreeCallback callback)
-        {
-            if (m_pAgentTree == null) return;
-            m_pAgentTree.UnregisterCallback(callback);
         }
         //-----------------------------------------------------
         internal bool OnAgentTreeExecute(AgentTree pAgentTree, BaseNode pNode)
@@ -762,7 +750,7 @@ namespace Framework.Cutscene.Runtime
 //#endif
         }
         //-----------------------------------------------------
-        internal void Destroy()
+        public void Destroy()
         {
             Clear();
             m_strName = null;

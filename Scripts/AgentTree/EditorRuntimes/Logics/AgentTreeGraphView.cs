@@ -19,7 +19,7 @@ using UnityEngine.UIElements;
 
 namespace Framework.AT.Editor
 {
-    public class AgentTreeGraphView : GraphView , IAgentTreeCallback
+    public class AgentTreeGraphView : GraphView
     {
         bool m_bLastPlaying = false;
    //     CutsceneObject m_pObject;
@@ -68,7 +68,6 @@ namespace Framework.AT.Editor
                             Save(pData);
                             pData.Init(true);
                             agentTree.Create(pData);
-                            agentTree.RegisterCallback(this);
                             agentTree.Enable(true);
                    //         GetCurrentCutscene().Enable(true);
                         }
@@ -911,13 +910,14 @@ namespace Framework.AT.Editor
             return guid;
         }
         //-----------------------------------------------------
-        public void OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
+        public bool OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
         {
             if (m_vNodes.TryGetValue(pNode, out var graphNode) && graphNode != null)
             {
                 graphNode.OnNotifyExcuted();
                 graphNode.FlashRed(1f);
             }
+            return false;
         }
         //-----------------------------------------------------
         public override void AddToSelection(ISelectable selectable)

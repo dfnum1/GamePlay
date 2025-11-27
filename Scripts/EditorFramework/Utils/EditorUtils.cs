@@ -199,6 +199,22 @@ namespace Framework.ED
             return (float)duration.TotalSeconds;
         }
         //------------------------------------------------------
+        public static string GetEditorResourcePath(string scriptLabel, string resSubPath = "EditorResources")
+        {
+            string[] scripts = AssetDatabase.FindAssets($"t:Script {scriptLabel}");
+            if (scripts.Length > 0)
+            {
+                string installPath = System.IO.Path.GetDirectoryName(UnityEditor.AssetDatabase.GUIDToAssetPath(scripts[0])).Replace("\\", "/");
+
+                installPath = Path.Combine(installPath, resSubPath).Replace("\\", "/");
+                if (System.IO.Directory.Exists(installPath))
+                {
+                    return installPath;
+                }
+            }
+            return null;
+        }
+        //------------------------------------------------------
         public static void CommitGit(string commitFile, bool bCommitListFile = false, bool bWait = true)
         {
             if(bCommitListFile)

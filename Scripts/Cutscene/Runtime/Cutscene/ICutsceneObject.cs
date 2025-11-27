@@ -129,6 +129,8 @@ namespace Framework.Cutscene.Runtime
         ParamData           paramData;
         public string       strData;
         public Matrix4x4    matrixData;
+        public ICutsceneData userData;
+        public UnityEngine.Object unityObject;
         public static CutsceneParam DEF = new CutsceneParam() { };
         //------------------------------------------------------
         public void Clear()
@@ -136,14 +138,24 @@ namespace Framework.Cutscene.Runtime
             paramData.longValue0 = 0;
             paramData.longValue1 = 0;
             strData = null;
+            userData = null;
+            unityObject = null;
             matrixData = Matrix4x4.identity;
         }
         //------------------------------------------------------
         public void SetAction(string action, int layer, float time)
         {
-            paramData.intVal0 = layer; //动作层
-            paramData.floatVal1 = time; //动作时间
+            SetInt(layer, 0); //动作层
+            SetFloat(time, 1); //动作时间
             strData = action;          //动作名称
+        }
+        //------------------------------------------------------
+        public void SetAction(ICutsceneData userData, AnimationClip action, int layer, float time)
+        {
+            SetInt(layer, 0); //动作层
+            SetFloat(time, 1); //动作时间
+            this.userData = userData;
+            unityObject = action;          //动作名称
         }
         //------------------------------------------------------
         public void SetActionSpeed(string action, float speed)
@@ -167,8 +179,14 @@ namespace Framework.Cutscene.Runtime
             return paramData.ToInt(offset);
         }
         //------------------------------------------------------
-        public void SetInt(int value)
+        public void SetInt(int value, int offset = 0)
         {
+            switch (offset)
+            {
+                case 1: paramData.intVal1 = value; return;
+                case 2: paramData.intVal2 = value; return;
+                case 3: paramData.intVal3 = value; return;
+            }
             paramData.intVal0 = value;
         }
         //------------------------------------------------------
@@ -177,8 +195,12 @@ namespace Framework.Cutscene.Runtime
             return paramData.ToLong(offset);
         }
         //------------------------------------------------------
-        public void SetLong(long value)
+        public void SetLong(long value, int offset =0)
         {
+            switch (offset)
+            {
+                case 1: paramData.longValue1 = value; return;
+            }
             paramData.longValue0 = value;
         }
         //------------------------------------------------------
@@ -187,8 +209,14 @@ namespace Framework.Cutscene.Runtime
             return paramData.ToFloat(offset);
         }
         //------------------------------------------------------
-        public void SetFloat(float value)
+        public void SetFloat(float value, int offset = 0)
         {
+            switch (offset)
+            {
+                case 1: paramData.floatVal1 = value; return;
+                case 2: paramData.floatVal2 = value; return;
+                case 3: paramData.floatVal3 = value; return;
+            }
             paramData.floatVal0 = value;
         }
         //------------------------------------------------------
@@ -267,6 +295,12 @@ namespace Framework.Cutscene.Runtime
         public void SetMatrix(Matrix4x4 matrix)
         {
             this.matrixData = matrix;
+        }
+        //------------------------------------------------------
+        public T ToUnityObject<T>() where T : UnityEngine.Object
+        {
+            if (unityObject == null) return null;
+            return unityObject as T;
         }
         //------------------------------------------------------
         public override string ToString()

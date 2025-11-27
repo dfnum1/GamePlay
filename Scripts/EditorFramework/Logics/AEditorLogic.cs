@@ -46,6 +46,30 @@ namespace Framework.ED
             Awake();
         }
         //--------------------------------------------------------
+        public void InitRectMethod(System.Type type, string rectMethod)
+        {
+            if (!string.IsNullOrEmpty(rectMethod))
+            {
+                m_pRectField = type.GetField(rectMethod, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (m_pRectField == null)
+                    m_pRectField = type.GetField(rectMethod, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (m_pRectField == null)
+                {
+                    m_pRectProp = type.GetProperty(rectMethod, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (m_pRectProp == null)
+                        m_pRectProp = type.GetProperty(rectMethod, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                    if (m_pRectProp == null)
+                    {
+                        m_pRectMethod = type.GetMethod(rectMethod, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (m_pRectMethod == null)
+                            m_pRectMethod = type.GetMethod(rectMethod, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    }
+                }
+            }
+        }
+        //--------------------------------------------------------
         public void Active(bool bEable)
         {
             m_bActive = bEable;

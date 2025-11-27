@@ -285,6 +285,7 @@ namespace Framework.Cutscene.Editor
             if (bDuration)
             {
                 float time = clip.GetDuration() + timeOffset;
+                if (time < 0.1f) time = 0.1f;
                 if (clip.GetDuration() != time)
                 {
                     bDirty = true;
@@ -298,7 +299,8 @@ namespace Framework.Cutscene.Editor
             else
             {
                 float time = clip.GetTime() + timeOffset;
-                if (clip.GetTime() != time && (time+clip.GetDuration())>1.0f)
+                if (time < 0) time = 0;
+                if (clip.GetTime() != time)
                 {
                     if (bUsed)
                     {

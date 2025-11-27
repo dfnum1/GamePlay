@@ -319,12 +319,16 @@ Math.Abs(c1.GetBegin() - c2.GetBegin()) < ClipDrawUtil.kTimeEpsilon ? c1.GetDura
                 bool bDragValid = true;
                 foreach (var db in m_vDragClips)
                 {
-                    float beginTime = db.GetBegin(false) + m_fDragOfffsetTime;
-                    if(beginTime<0)
+                    if(!m_bDragDuration)
                     {
-                        bDragValid = false;
-                        m_fDragOfffsetTime = Mathf.Max(m_fDragOfffsetTime, -db.GetBegin());
+                        float beginTime = db.GetBegin(false) + m_fDragOfffsetTime;
+                        if (beginTime < 0)
+                        {
+                            bDragValid = false;
+                            m_fDragOfffsetTime = Mathf.Max(m_fDragOfffsetTime, -db.GetBegin());
+                        }
                     }
+
                     if (db.DragOffset(m_fDragOfffsetTime, false, false, m_bDragDuration))
                         bDirty = true;
                 }
@@ -336,9 +340,13 @@ Math.Abs(c1.GetBegin() - c2.GetBegin()) < ClipDrawUtil.kTimeEpsilon ? c1.GetDura
                     }
                     foreach (var db in m_vDragClips)
                     {
-                        float beginTime = db.GetBegin(false) + m_fDragOfffsetTime;
-                        if (beginTime < 0)
-                            continue;
+                        if (!m_bDragDuration)
+                        {
+                            float beginTime = db.GetBegin(false) + m_fDragOfffsetTime;
+                            if (beginTime < 0)
+                                continue;
+                        }
+     
                         if (db.DragOffset(m_fDragOfffsetTime, true, false, m_bDragDuration))
                             bDirty = true;
                     }
