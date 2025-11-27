@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	工具类
 *********************************************************************/
+using Framework.AT.Runtime;
 using UnityEngine;
 namespace Framework.Cutscene.Runtime
 {
@@ -50,6 +51,95 @@ namespace Framework.Cutscene.Runtime
                 }
             }
             return null;
+        }
+        //-----------------------------------------------------
+        internal static void FillCustomAgentParam(ref Variables variable, CutsceneCustomAgent.AgentUnit.ParamData[] paramValues)
+        {
+            if (paramValues.Length > 0)
+            {
+                variable.variables = VariableList.Malloc(paramValues.Length);
+                for (int j = 0; j < paramValues.Length; ++j)
+                {
+                    var param = paramValues[j];
+                    switch (param.type)
+                    {
+                        case EVariableType.eInt:
+                            {
+                                int v = 0;
+                                int.TryParse(param.defaultValue, out v);
+                                variable.variables.AddInt(v);
+                            }
+                            break;
+                        case EVariableType.eFloat:
+                            {
+                                float v = 0;
+                                float.TryParse(param.defaultValue, out v);
+                                variable.variables.AddFloat(v);
+                            }
+                            break;
+                        case EVariableType.eBool:
+                            {
+                                bool v = false;
+                                bool.TryParse(param.defaultValue, out v);
+                                variable.variables.AddBool(v);
+                            }
+                            break;
+                        case EVariableType.eString:
+                            {
+                                variable.variables.AddString(param.defaultValue ?? string.Empty);
+                            }
+                            break;
+                        case EVariableType.eVec2:
+                            {
+                                Vector2 v = Vector2.zero;
+                                var split = (param.defaultValue ?? "").Split('|');
+                                if (split.Length >= 2)
+                                {
+                                    float.TryParse(split[0], out v.x);
+                                    float.TryParse(split[1], out v.y);
+                                }
+                                variable.variables.AddVec2(v);
+                            }
+                            break;
+                        case EVariableType.eVec3:
+                            {
+                                Vector3 v = Vector3.zero;
+                                var split = (param.defaultValue ?? "").Split('|');
+                                if (split.Length >= 3)
+                                {
+                                    float.TryParse(split[0], out v.x);
+                                    float.TryParse(split[1], out v.y);
+                                    float.TryParse(split[2], out v.z);
+                                }
+                                variable.variables.AddVec3(v);
+                            }
+                            break;
+                        case EVariableType.eVec4:
+                            {
+                                Vector4 v = Vector4.zero;
+                                var split = (param.defaultValue ?? "").Split('|');
+                                if (split.Length >= 4)
+                                {
+                                    float.TryParse(split[0], out v.x);
+                                    float.TryParse(split[1], out v.y);
+                                    float.TryParse(split[2], out v.z);
+                                    float.TryParse(split[3], out v.w);
+                                }
+                                variable.variables.AddVec4(v);
+                            }
+                            break;
+                        case EVariableType.eObjId:
+                            {
+                                ObjId obj = new ObjId();
+                                int.TryParse(param.defaultValue, out obj.id);
+                                variable.variables.AddObjId(obj);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 }

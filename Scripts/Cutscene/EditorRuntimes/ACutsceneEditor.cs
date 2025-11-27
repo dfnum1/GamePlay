@@ -8,6 +8,7 @@
 using Framework.ED;
 using Framework.Cutscene.Runtime;
 using UnityEngine;
+using Framework.AT.Editor;
 
 namespace Framework.Cutscene.Editor
 {

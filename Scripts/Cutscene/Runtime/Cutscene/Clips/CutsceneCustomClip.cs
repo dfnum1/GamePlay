@@ -150,8 +150,7 @@ namespace Framework.Cutscene.Runtime
             inputVariables.variables = null;
             if(pAgent.inputVariables!=null && pAgent.inputVariables.Length>0)
             {
-                inputVariables.variables = new VariableList();
-                inputVariables.FillCustomAgentParam(pAgent.inputVariables);
+                CutsceneUtil.FillCustomAgentParam(ref inputVariables, pAgent.inputVariables);
             }
         }
 #endif

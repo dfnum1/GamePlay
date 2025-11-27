@@ -30,8 +30,6 @@ namespace Framework.Cutscene.Editor
                     this.json = ((CutsceneData)data).OnSerialize();
                 else if (data is CutsceneGraph)
                     this.json = ((CutsceneGraph)data).OnSerialize();
-                else if (data is AgentTreeData)
-                    this.json = ((AgentTreeData)data).Serialize(true);
                 else this.json = null;
             }
         }

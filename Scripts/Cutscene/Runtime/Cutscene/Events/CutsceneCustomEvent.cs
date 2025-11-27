@@ -163,11 +163,11 @@ namespace Framework.Cutscene.Runtime
             outputVariables.variables = null;
             if(pAgent.inputVariables!=null && pAgent.inputVariables.Length>0)
             {
-                inputVariables.FillCustomAgentParam(pAgent.inputVariables);
+                CutsceneUtil.FillCustomAgentParam(ref inputVariables,pAgent.inputVariables);
             }
             if (pAgent.outputVariables != null && pAgent.outputVariables.Length > 0)
             {
-                outputVariables.FillCustomAgentParam(pAgent.outputVariables);
+                CutsceneUtil.FillCustomAgentParam(ref outputVariables, pAgent.outputVariables);
             }
         }
 #endif

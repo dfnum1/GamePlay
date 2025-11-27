@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Framework.Guide
 {
-    [CreateAssetMenu]
+    [CreateAssetMenu(menuName = "GamePlay/引导数据集")]
     public class GuideDatas : ScriptableObject
     {
         static GuideDatas ms_Instacne = null;

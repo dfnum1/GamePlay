@@ -13,7 +13,6 @@ namespace Framework.Cutscene.Runtime
         private static int MAX_POOL = 32;
         private static Stack<CutsceneInstance> ms_vCutscenePool = null;
         private static Stack<CutscenePlayable> ms_vPlayablePool = null;
-        private static Stack<AgentTree> ms_vAgentTreePool = null;
         private static Stack<CutsceneTrack> ms_vTrackPool = null;
         private static Dictionary<long, Stack<ACutsceneDriver>> ms_vDriverPools = null;
         static List<ACutsceneDriver> ms_vCacheDrivers = null;
@@ -78,23 +77,6 @@ namespace Framework.Cutscene.Runtime
                 return;
             if (ms_vPlayablePool == null) ms_vPlayablePool = new Stack<CutscenePlayable>(MAX_POOL);
             ms_vPlayablePool.Push(playable);
-        }
-        //-----------------------------------------------------
-        internal static AgentTree MallocAgentTree()
-        {
-            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count > 0)
-                return ms_vAgentTreePool.Pop();
-            return new AgentTree();
-        }
-        //-----------------------------------------------------
-        internal static void FreeAgentTree(AgentTree agentTree)
-        {
-            if (agentTree == null) return;
-            agentTree.Destroy();
-            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count >= MAX_POOL)
-                return;
-            if (ms_vAgentTreePool == null) ms_vAgentTreePool = new Stack<AgentTree>(MAX_POOL);
-            ms_vAgentTreePool.Push(agentTree);
         }
         //-----------------------------------------------------
         internal static CutsceneTrack MallockTrack()

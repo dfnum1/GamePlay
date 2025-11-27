@@ -735,16 +735,6 @@ namespace Framework.Cutscene.Runtime
             CutscenePool.FreePlayable(pDater);
         }
         //-----------------------------------------------------
-        internal AgentTree MallocAgentTree()
-        {
-            return CutscenePool.MallocAgentTree();
-        }
-        //-----------------------------------------------------
-        internal void FreeAgentTree(AgentTree pDater)
-        {
-            CutscenePool.FreeAgentTree(pDater);
-        }
-        //-----------------------------------------------------
         internal static IBaseClip CreateClip(ushort type)
         {
             if (type == (ushort)EClipType.eCustom)

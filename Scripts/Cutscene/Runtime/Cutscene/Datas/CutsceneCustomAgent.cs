@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Framework.Cutscene.Runtime
 {
-    [CreateAssetMenu]
     public class CutsceneCustomAgent : ScriptableObject
     {
         [System.Serializable]

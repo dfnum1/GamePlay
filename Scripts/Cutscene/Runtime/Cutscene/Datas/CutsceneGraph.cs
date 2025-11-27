@@ -21,7 +21,6 @@ namespace Framework.Cutscene.Runtime
     public class CutsceneGraph
     {
         public List<CutsceneNode> vCutscenes;
-        public AgentTreeData agentTree;
 
         [System.NonSerialized]
         private UnityEngine.Object m_pOwnerObject = null;
@@ -80,7 +79,6 @@ namespace Framework.Cutscene.Runtime
                         vCutscenes[j].cutSceneData.OnDeserialize();
                     }
                 }
-                if(agentTree != null) agentTree.Deserialize();
                 return true;
             }
             catch (System.Exception ex)
@@ -94,7 +92,6 @@ namespace Framework.Cutscene.Runtime
         public string OnSerialize()
         {
             // 最终序列化整个 CutsceneData
-            if(agentTree != null) agentTree.Serialize(false);
             if(vCutscenes!=null)
             {
                 for (int i = 0; i < vCutscenes.Count; ++i)

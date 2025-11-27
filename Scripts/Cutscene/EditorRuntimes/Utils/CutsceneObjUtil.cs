@@ -29,11 +29,10 @@ namespace Framework.Cutscene.Editor
             var obj = EditorUtility.InstanceIDToObject(instanceID);
             if (obj != null && obj is Framework.Cutscene.Runtime.CutsceneObject)
             {
-                // 自动打开 CutsceneEdit
                 Framework.Cutscene.Editor.CutsceneEditor.Open(obj as Framework.Cutscene.Runtime.CutsceneObject);
-                return true; // 已处理
+                return true;
             }
-            return false; // 未处理，交给其他处理
+            return false;
         }
         //-----------------------------------------------------
         public static void DrawCutsceneObjectsGUI(List<ICutsceneObject> vObjects)

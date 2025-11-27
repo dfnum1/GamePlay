@@ -166,9 +166,6 @@ namespace Framework.Cutscene.Runtime
             else if(subId>=0 && subId < ushort.MaxValue) playableCutsceneData = data.GetSubCutscene((ushort)subId);
             else playableCutsceneData = data.GetEnterCutscene();
             CreatePlayable(playableCutsceneData);
-
-            //! create agent tree
-            CreateAgentTree(data);
             
             return true;
         }
@@ -192,26 +189,6 @@ namespace Framework.Cutscene.Runtime
         {
             if (m_pPlayable == null) return 0;
             return m_pPlayable.GetId();
-        }
-        //-----------------------------------------------------
-        public bool CreateAgentTree(CutsceneGraph graphData)
-        {
-            if(m_pAgentTree!=null)
-            {
-                m_pMgr.FreeAgentTree(m_pAgentTree);
-                m_pAgentTree = null;
-            }
-            if (graphData.agentTree != null && graphData.agentTree.IsValid())
-            {
-                m_pAgentTree = m_pMgr.MallocAgentTree();
-                m_pAgentTree.SetCutscene(this);
-                if (!m_pAgentTree.Create(graphData))
-                {
-                    m_pMgr.FreeAgentTree(m_pAgentTree);
-                    m_pAgentTree = null;
-                }
-            }
-            return m_pAgentTree != null;
         }
         //-----------------------------------------------------
         public bool ExecuteTask(int type, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
@@ -547,7 +524,7 @@ namespace Framework.Cutscene.Runtime
             if (!m_bEnable)
                 return true;
 
-            if (m_pPlayable == null && m_pAgentTree == null)
+            if (m_pPlayable == null)
                 return false;
 
             if(m_pPlayable != null)
@@ -563,15 +540,7 @@ namespace Framework.Cutscene.Runtime
                     }
                 }
             }
-            if(m_pAgentTree!=null)
-            {
-                if(!m_pAgentTree.Update(deltaTime))
-                {
-                    m_pMgr.FreeAgentTree(m_pAgentTree);
-                    m_pAgentTree = null;
-                }
-            }
-            return !(m_pPlayable == null && m_pAgentTree == null);
+            return !(m_pPlayable == null);
         }
         //-----------------------------------------------------
         public void Evaluate(float time)
@@ -772,7 +741,7 @@ namespace Framework.Cutscene.Runtime
             }
             if(m_pAgentTree!=null)
             {
-                m_pMgr.FreeAgentTree(m_pAgentTree);
+          //      m_pMgr.FreeAgentTree(m_pAgentTree);
                 m_pAgentTree = null;
             }
             m_pData = null;

@@ -47,7 +47,7 @@ namespace Framework.War.Editor
         GUIStyle m_TileStyle;
         string m_lastContentMd5 = null;
         //--------------------------------------------------------
-        [MenuItem("Tools/战争世界编辑器")]
+        [MenuItem("Tools/GamePlay/战争世界编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)

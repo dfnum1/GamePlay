@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using Color = UnityEngine.Color;
 using Framework.Cutscene.Runtime;
+using Framework.AT.Editor;
 
 namespace Framework.Cutscene.Editor
 {
@@ -50,7 +51,7 @@ namespace Framework.Cutscene.Editor
         string m_lastContentMd5 = null;
         bool m_bRuntimeOpenPlayingCutscene = false;
         //--------------------------------------------------------
-        [MenuItem("Tools/过场编辑器")]
+        [MenuItem("Tools/GamePlay/过场编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)
@@ -223,7 +224,8 @@ namespace Framework.Cutscene.Editor
         {
             if (m_pAgentTreeEdit == null || m_pCurrentObj !=null && m_pCurrentObj is CutsceneObject)
             {
-                m_pAgentTreeEdit = AgentTreeWindow.Open(m_pCutscene, (CutsceneObject)m_pCurrentObj);
+                //??????
+         //       m_pAgentTreeEdit = AgentTreeWindow.Open(m_pCutscene, (CutsceneObject)m_pCurrentObj);
             }
             if (m_pAgentTreeEdit) m_pAgentTreeEdit.Focus();
         }
