@@ -18,6 +18,18 @@ namespace Framework.AT.Editor
         GUIStyle                        m_TileStyle;
         AgentTreeData                   m_pATData = null;
         //--------------------------------------------------------
+        [MenuItem("Tools/GamePlay/蓝图脚本")]
+        public static void Open()
+        {
+            if (EditorApplication.isCompiling)
+            {
+                EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
+                return;
+            }
+            AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
+            window.titleContent = new GUIContent("蓝图脚本");
+        }
+        //--------------------------------------------------------
         public static AgentTreeWindow Open(AgentTreeData atData, UnityEngine.Object pObject)
         {
             AgentTreeWindow[] editors = EditorWindow.FindObjectsOfType<AgentTreeWindow>();
