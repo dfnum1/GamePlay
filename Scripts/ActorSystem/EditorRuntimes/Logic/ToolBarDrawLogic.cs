@@ -17,23 +17,31 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnGUI()
         {
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("导入", new GUILayoutOption[] { GUILayout.Width(80) }))
+            try
             {
-                string file = EditorUtility.OpenFilePanel("表现Timeline", Application.dataPath, ".skill");
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("导入", new GUILayoutOption[] { GUILayout.Width(80) }))
+                {
+                    string file = EditorUtility.OpenFilePanel("表现Timeline", Application.dataPath, ".skill");
+                }
+                GUILayout.Button("批量导出", new GUILayoutOption[] { GUILayout.Width(80) });
+                if (GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
+                {
+                    GetOwner().SaveChanges();
+                }
+                if (GUILayout.Button("技能编辑器", new GUILayoutOption[] { GUILayout.Width(80) }))
+                {
+                    ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
+                    editor.OpenSkillEditor();
+                }
+                GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) });
+                GUILayout.EndHorizontal();
             }
-            GUILayout.Button("批量导出", new GUILayoutOption[] { GUILayout.Width(80) });
-            if(GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
+            catch
             {
-                GetOwner().SaveChanges();
+
             }
-            if (GUILayout.Button("技能编辑器", new GUILayoutOption[] { GUILayout.Width(80) }))
-            {
-                ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
-                editor.OpenSkillEditor();
-            }
-            GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) });
-            GUILayout.EndHorizontal();
+
         }
     }
 }

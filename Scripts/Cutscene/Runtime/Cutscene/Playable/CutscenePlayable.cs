@@ -784,6 +784,11 @@ namespace Framework.Cutscene.Runtime
                                 var cutsceneObj = GetObject(obj);
                                 if (cutsceneObj != null)
                                 {
+                                    if(cutsceneObj is BinderUnityObject)
+                                    {
+                                        if (!((BinderUnityObject)cutsceneObj).IsValid())
+                                            continue;
+                                    }
                                     if (vObjects == null) vObjects = UnityEngine.Pool.ListPool<ICutsceneObject>.Get();
                                     if(!vObjects.Contains(cutsceneObj)) vObjects.Add(cutsceneObj);
                                 }
@@ -801,7 +806,19 @@ namespace Framework.Cutscene.Runtime
                     if (!vObjects.Contains(binder)) vObjects.Add(binder);
                 }
             }
-
+            if (vObjects == null || vObjects.Count <= 0)
+            {
+                if (m_pCutscene != null)
+                {
+                    var bindData = m_pCutscene.GetBindData();
+                    if (bindData != null && bindData is ICutsceneObject)
+                    {
+                        if (vObjects == null) vObjects = UnityEngine.Pool.ListPool<ICutsceneObject>.Get();
+                        var cutsceneObj = (ICutsceneObject)bindData;
+                        vObjects.Add(cutsceneObj);
+                    }
+                }
+            }
             return vObjects;
         }
         //-----------------------------------------------------

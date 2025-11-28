@@ -180,7 +180,7 @@ namespace Framework.ActorSystem.Runtime
             m_Player.CrossFade(pAction, 1.0f, blendTime, bForce);
         }
         //--------------------------------------------------------
-        public void PlayAnimation(IContextData pOwner, AnimationClip animationClip, int layer, float blendTime = 0.1f, bool bForce = false)
+        public void PlayAnimation(AT.Runtime.IUserData pOwner, AnimationClip animationClip, int layer, float blendTime = 0.1f, bool bForce = false)
         {
             if (animationClip == null || pOwner == null)
                 return;
@@ -208,7 +208,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //--------------------------------------------------------
-        public bool IsPlaying(IContextData pOwner)
+        public bool IsPlaying(AT.Runtime.IUserData pOwner)
         {
             if (pOwner == null)
                 return false;
@@ -243,7 +243,7 @@ namespace Framework.ActorSystem.Runtime
                 m_Player.Stop(actioName, stopLerp);
         }
         //--------------------------------------------------------
-        public void StopAnimation(IContextData pUserData, float stopLerp = 0.1f)
+        public void StopAnimation(AT.Runtime.IUserData pUserData, float stopLerp = 0.1f)
         {
           //  if (m_pBakerSkin != null)
          //   {
@@ -275,7 +275,7 @@ namespace Framework.ActorSystem.Runtime
                 m_Player.SetSpeed(stateName,speed);
         }
         //--------------------------------------------------------
-        public void SetActionSpeed(IContextData pOwner, float speed)
+        public void SetActionSpeed(AT.Runtime.IUserData pOwner, float speed)
         {
           //  if (m_pBakerSkin != null)
           //  {
@@ -308,7 +308,7 @@ namespace Framework.ActorSystem.Runtime
                 m_Player.SetTime(stateName,time, bOverDoned);
         }
         //--------------------------------------------------------
-        public void SetActionTime(IContextData pOwner, float time, bool bOverDoned = true)
+        public void SetActionTime(AT.Runtime.IUserData pOwner, float time, bool bOverDoned = true)
         {
             //if (m_pBakerSkin != null)
            // {

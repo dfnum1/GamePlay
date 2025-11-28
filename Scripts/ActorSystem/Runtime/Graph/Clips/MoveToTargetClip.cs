@@ -90,11 +90,14 @@ namespace Framework.ActorSystem.Runtime
                 UnityEditor.EditorGUILayout.HelpBox("当前没有绑定对象", UnityEditor.MessageType.Warning);
                 return;
             }
-            UnityEditor.EditorGUILayout.ObjectField("当前绑定对象", m_pSelfTarget.GetObjectAble(), typeof(ActorComponent), true);
-
-            if (m_pLockTarget!=null)
+            if (m_pSelfTarget.GetObjectAble() != null && m_pSelfTarget.GetObjectAble() is UnityEngine.Object)
             {
-                UnityEditor.EditorGUILayout.ObjectField("锁定目标", m_pLockTarget.GetObjectAble(), typeof(ActorComponent), true);
+                UnityEditor.EditorGUILayout.ObjectField("当前绑定对象", m_pSelfTarget.GetObjectAble() as UnityEngine.Object, typeof(UnityEngine.Object), true);
+            }
+
+            if (m_pLockTarget.GetObjectAble() != null && m_pLockTarget.GetObjectAble() is UnityEngine.Object)
+            {
+                UnityEditor.EditorGUILayout.ObjectField("锁定目标", m_pLockTarget.GetObjectAble() as UnityEngine.Object, typeof(UnityEngine.Object), true);
             }
             if(m_pLockTarget == null)
             {

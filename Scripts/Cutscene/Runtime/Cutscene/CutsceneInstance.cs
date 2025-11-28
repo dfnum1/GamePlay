@@ -17,7 +17,7 @@ namespace Framework.Cutscene.Runtime
         public ICutsceneObject pObj; //绑定的对象
     }
     //-----------------------------------------------------
-    public interface ICutsceneData
+    public interface ICutsceneData : AT.Runtime.IUserData
     {
 
     }

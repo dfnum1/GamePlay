@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	CutsceneAnimationClip
 *********************************************************************/
+using Framework.Cutscene.Editor;
 using Framework.DrawProps;
 using UnityEngine;
 
@@ -13,7 +14,10 @@ namespace Framework.Cutscene.Runtime
     public class CutsceneAnimationClip : IBaseClip
     {
         [Display("基本属性")] public BaseClipProp           baseProp;
-        [Display("动作剪辑"),StringViewPlugin("OnDrawSelectAnimationInspector")] public string action;                               
+        [Display("动作剪辑"),StringViewPlugin("OnDrawSelectAnimationInspector")] public string action;
+        [Display("动作层")] public int layer;
+        [Display("动作起始偏移")] public float actionOffset = 0.0f; //动作起始偏移
+        [Display("动作速度")] public float playSpeed = 1.0f;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {
@@ -54,6 +58,24 @@ namespace Framework.Cutscene.Runtime
         {
             return baseProp.GetBlend(bIn);
         }
+#if UNITY_EDITOR
+        [AddInspector]
+        internal void OnInspector()
+        {
+            if (string.IsNullOrEmpty(action))
+                return;
+
+            if(GUILayout.Button("设置为动画时长"))
+            {
+                var actionClip = DataUtils.EditLoadUnityObject(action);
+                if (actionClip != null && actionClip is AnimationClip)
+                {
+                    baseProp.duration = ((AnimationClip)actionClip).length;
+                }
+            }
+
+        }
+#endif
     }
     //-----------------------------------------------------
     //相机移动驱动逻辑
@@ -124,6 +146,11 @@ namespace Framework.Cutscene.Runtime
                 foreach (var db in m_vObjects)
                 {
                     db.SetParamHold(true);
+                    db.SetActionSpeed(clipData.action, clipData.playSpeed);
+                    if (db.PlayAction(this, m_pAnimationClip, clipData.layer, frameData.subTime))
+                    {
+                        continue;
+                    }
                     var obj = db.GetUniyObject();
                     if (obj == null) continue;
                     if (!(obj is GameObject)) continue;

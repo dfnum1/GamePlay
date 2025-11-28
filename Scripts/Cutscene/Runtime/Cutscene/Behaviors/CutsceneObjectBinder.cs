@@ -114,13 +114,23 @@ namespace Framework.Cutscene.Runtime
     }
 #endif
     //-----------------------------------------------------
-    internal struct BinderUnityObject : ICutsceneObject
+    internal class BinderUnityObject : ICutsceneObject
     {
         CutsceneObjectBinder m_pBinder;
         //-----------------------------------------------------
         internal BinderUnityObject(CutsceneObjectBinder binder)
         {
             m_pBinder = binder;
+        }
+        //-----------------------------------------------------
+        internal void SetBinder(CutsceneObjectBinder binder)
+        {
+            m_pBinder = binder;
+        }
+        //-----------------------------------------------------
+        internal void Clear()
+        {
+            m_pBinder = null;
         }
         //-----------------------------------------------------
         public bool IsValid()
@@ -174,11 +184,34 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     internal static class ObjectBinderUtils
     {
+        internal static Stack<BinderUnityObject> ms_vPools = null;
         internal static System.Action<int, BinderUnityObject, bool> OnBinderCutsceneObject;
         static Dictionary<int, BinderUnityObject> ms_Binders = null;
+        static BinderUnityObject ms_Default = new BinderUnityObject(null);
 #if UNITY_EDITOR
         static long ms_LastBindTime = 0;
 #endif
+        //-----------------------------------------------------
+        static BinderUnityObject Malloc(CutsceneObjectBinder uniBinder)
+        {
+            if (ms_vPools == null || ms_vPools.Count<=0) return new BinderUnityObject(uniBinder);
+            BinderUnityObject binder = ms_vPools.Pop();
+            binder.SetBinder(uniBinder);
+            return binder;
+        }
+        //-----------------------------------------------------
+        static void Free(BinderUnityObject binderObj)
+        {
+            if (binderObj == null)
+                return;
+            if (ms_vPools == null)
+                ms_vPools = new Stack<BinderUnityObject>(32);
+            binderObj.Clear();
+            if (ms_vPools.Count<32)
+            {
+                ms_vPools.Push(binderObj);
+            }
+        }
         //-----------------------------------------------------
         internal static BinderUnityObject GetBinder(int bindId)
         {
@@ -192,7 +225,7 @@ namespace Framework.Cutscene.Runtime
             }
             if (ms_Binders == null || !ms_Binders.TryGetValue(bindId, out BinderUnityObject binder))
             {
-                return default;
+                return ms_Default;
             }
             return binder;
         }
@@ -203,7 +236,7 @@ namespace Framework.Cutscene.Runtime
                 return;
             if (ms_Binders == null)
                 ms_Binders = new Dictionary<int, BinderUnityObject>(8);
-            BinderUnityObject unityObj = new BinderUnityObject(gameObject);
+            BinderUnityObject unityObj =  Malloc(gameObject);
             ms_Binders[gameObject.GetBindID()] = unityObj;
             if (OnBinderCutsceneObject != null)
                 OnBinderCutsceneObject(gameObject.GetBindID(), unityObj, true);
@@ -217,6 +250,7 @@ namespace Framework.Cutscene.Runtime
                 ms_Binders.Remove(gameObject.GetBindID());
                 if (OnBinderCutsceneObject != null)
                     OnBinderCutsceneObject(gameObject.GetBindID(), binder, false);
+                Free(binder);
             }
         }
 #if UNITY_EDITOR

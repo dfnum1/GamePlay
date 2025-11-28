@@ -186,12 +186,15 @@ namespace Framework.ActorSystem.Editor
             RefreshLayout();
 #if USE_CUTSCENE
             if (m_pCutsceneInstance != null)
+            {
                 m_pCutsceneInstance.BindData(m_pActor);
-#endif
-            if(m_CutsceneManager!=null)
-                m_CutsceneManager.Update(m_pTimer.deltaTime, m_pCutsceneInstance);
+            }
+#endif           
             if (m_pActorManager != null)
                 m_pActorManager.Update(m_pTimer.deltaTime);
+
+            if (m_CutsceneManager!=null)
+                m_CutsceneManager.Update(m_pTimer.deltaTime);
         }
         //--------------------------------------------------------
         public Rect InspectorRect

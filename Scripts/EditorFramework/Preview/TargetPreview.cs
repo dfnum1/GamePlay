@@ -618,8 +618,8 @@ namespace Framework.ED
                 m_PreviewUtility.camera.cullingMask = cull;// 1 << PreviewCullingLayer;
                 m_PreviewUtility.camera.useOcclusionCulling = false;
 
-                this.m_PreviewUtility.camera.allowHDR = false;
-                this.m_PreviewUtility.camera.allowMSAA = false;
+                this.m_PreviewUtility.camera.allowHDR = true;
+                this.m_PreviewUtility.camera.allowMSAA = true;
                 m_PreviewUtility.ambientColor = new Color(1, 1, 1, 1);
 
                 CreatePreviewInstances();
@@ -791,12 +791,14 @@ namespace Framework.ED
             Vector2 mousePos = evt.mousePosition;
 
             Rect screenRect = EditorGUIUtility.GUIToScreenRect(m_Rect);
-            if (pOwnerWindow != null)
+            if (pOwnerWindow)
             {
-                Vector2 mouseOffset = new Vector2(screenRect.xMin, 0f) - new Vector2(pOwnerWindow.position.xMin, 0f);
+                float scaleFactor = m_PreviewUtility.GetScaleFactor(m_Rect.width, m_Rect.height);
+                Vector2 mouseOffset = new Vector2(screenRect.xMin, screenRect.yMin) - new Vector2(pOwnerWindow.position.xMin, pOwnerWindow.position.yMin);
                 evt.mousePosition -= mouseOffset;
+                Vector2 mouseLocal = evt.mousePosition * scaleFactor;
+                evt.mousePosition = mouseLocal;
             }
-
             UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
             Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
             OnDrawBefore(contollerId, evt);
@@ -1031,9 +1033,8 @@ namespace Framework.ED
 #endif
                 m_PreviewUtility.Cleanup();
                 m_PreviewUtility = null;
-
-                base.Cleanup();
             }
+            base.Cleanup();
         }
         //-----------------------------------------------------
         public void Update(float fFrameTime)
@@ -1529,7 +1530,7 @@ namespace Framework.ED
             }
         }
         //-----------------------------------------------------
-        public void AddPreview(GameObject go, HideFlags falgs = HideFlags.HideAndDontSave)
+        public void AddPreview(GameObject go, HideFlags falgs = HideFlags.HideInInspector| HideFlags.DontSaveInEditor| HideFlags.DontSaveInBuild)
         {
             if (go == null) return;
 

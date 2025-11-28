@@ -151,9 +151,14 @@ namespace Framework.Cutscene.Runtime
                         {
                             foreach (var clip in track.clips)
                             {
-                                if (clip != null && clip.GetTime() + clip.GetDuration() > duration)
+                                if (clip == null)
+                                    continue;
+                                float clipDuration = clip.GetDuration();
+                                if (clip.GetEndEdgeType() == EClipEdgeType.Repeat)
+                                    clipDuration = clipDuration * Mathf.Max(1, Mathf.Min(10, clip.GetRepeatCount()));
+                                if (clip != null && clip.GetTime() + clipDuration > duration)
                                 {
-                                    duration = Mathf.Max(duration, clip.GetTime() + clip.GetDuration());
+                                    duration = Mathf.Max(duration, clip.GetTime() + clipDuration);
                                 }
                             }
                         }

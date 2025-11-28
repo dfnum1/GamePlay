@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Framework.Cutscene.Runtime
 {
-    public abstract class ACutsceneDriver
+    public abstract class ACutsceneDriver : AT.Runtime.IUserData
     {
         long m_nKey = 0;
         CutsceneInstance m_pCutscene = null;

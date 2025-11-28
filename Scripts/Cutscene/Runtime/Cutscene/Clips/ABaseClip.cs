@@ -58,7 +58,7 @@ namespace Framework.Cutscene.Runtime
         [DefaultValue(0), UnEdit, Display("开始时间")] public float time; //开始时间
         [DefaultValue(5), UnEdit, Display("持续时间")] public float duration; //持续时间
         [DefaultValue(EClipEdgeType.None), Display("结束类型")] public EClipEdgeType endEdgeType; //结束边缘类型
-        [DefaultValue(1),StateByField("endEdgeType", "Repeat,KeepState"), Display("重复次数")] public ushort repeatCnt; //重复次数   
+        [DefaultValue(1),StateByField("endEdgeType", "Repeat"), Display("重复次数")] public ushort repeatCnt; //重复次数   
         [DefaultValue(0), UnEdit] public float blendIn;
         [DefaultValue(0), UnEdit] public float blendOut;
 

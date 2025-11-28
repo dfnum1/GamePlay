@@ -50,7 +50,8 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnEnable()
         {
-            m_pActionTimelineTree = new TreeAssetView(new string[] { "ID", "动作名", "类型组", "Tag" });
+            m_pActionTimelineTree = new TreeAssetView(new string[] { "ID", "动作名", "类型组", "Tag","" });
+            m_pActionTimelineTree.SetRowHeight(30);
             m_pActionTimelineTree.OnCellDraw += OnDrawTimelineAction;
             m_pActionTimelineTree.OnSelectChange = OnTimlineTreeItemSelect;
             m_pActionTimelineTree.OnItemDoubleClick = OnTimlineTreeItemSelect;
@@ -123,10 +124,17 @@ namespace Framework.ActorSystem.Editor
 
             Rect infoView = new Rect(viewRect.x, viewRect.y + 25, viewRect.width, viewRect.height - 25);
 
-            if (m_Tab == ETab.Info) DrawInfo(infoView);
-            else if (m_Tab == ETab.AvatarMask) DrawAvatarMask(infoView);
-            else if (m_Tab == ETab.CommonAction) DrawCommonAction(infoView);
-            else if (m_Tab == ETab.TimelineAction) DrawTimelineAction(infoView);
+            try
+            {
+                if (m_Tab == ETab.Info) DrawInfo(infoView);
+                else if (m_Tab == ETab.AvatarMask) DrawAvatarMask(infoView);
+                else if (m_Tab == ETab.CommonAction) DrawCommonAction(infoView);
+                else if (m_Tab == ETab.TimelineAction) DrawTimelineAction(infoView);
+            }
+            catch
+            {
+
+            }
             GUILayout.EndArea();
         }
         //--------------------------------------------------------
@@ -314,10 +322,11 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         void DrawTimelineAction(Rect infoView)
         {
-            m_pActionTimelineTree.GetColumn(0).width = infoView.width / 4;
-            m_pActionTimelineTree.GetColumn(1).width = infoView.width / 4;
-            m_pActionTimelineTree.GetColumn(2).width = infoView.width / 4;
-            m_pActionTimelineTree.GetColumn(3).width = infoView.width / 4;
+            m_pActionTimelineTree.GetColumn(0).width = infoView.width / 5;
+            m_pActionTimelineTree.GetColumn(1).width = infoView.width / 5;
+            m_pActionTimelineTree.GetColumn(2).width = infoView.width / 5;
+            m_pActionTimelineTree.GetColumn(3).width = infoView.width / 5;
+            m_pActionTimelineTree.GetColumn(4).width = infoView.width / 5;
             EditorGUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(infoView.width), GUILayout.Height(20) });
             EditorGUILayout.LabelField("搜索", new GUILayoutOption[] { GUILayout.Width(40) });
             m_pActionTimelineTree.searchString = EditorGUILayout.TextField(m_pActionTimelineTree.searchString);
@@ -374,6 +383,22 @@ namespace Framework.ActorSystem.Editor
             else if (rowData.column == 3)
             {
                 data.asset.actionTag = (ushort)EditorGUI.IntField(rowData.rowRect, data.asset.actionTag);
+            }
+            else if (rowData.column == 4)
+            {
+                GUILayout.BeginArea(rowData.rowRect);
+                if(GUILayout.Button("删除", GUILayout.Height(rowData.rowRect.height)))
+                {
+                    if(EditorUtility.DisplayDialog("提示", "确认是否要删除该动作", "删除", "取消"))
+                    {
+                        if (m_pActor.GetGraphData().timelineActions != null)
+                        {
+                            m_pActor.GetGraphData().timelineActions.Remove(data.asset);
+                            RefreshTimelineAction();
+                        }
+                    }
+                }
+                GUILayout.EndArea();
             }
             return true;
         }

@@ -97,12 +97,24 @@ namespace Framework.ActorSystem.Runtime
                 return;
             }
             m_pObjectAble = pObject;
+
+            GetActorGraph();
+            if (m_vAgents != null)
+            {
+                for (int i = 0; i < m_vAgents.Count; ++i)
+                {
+                    m_vAgents[i].LoadedAble(pObject);
+                }
+            }
+
             if (pObject !=null)
             {
                 if(pObject is ActorComponent)
                 {
                     ActorComponent actorComp = pObject as ActorComponent;
                     m_pUnityTransform = actorComp.GetTransform();
+                    if(actorComp.ActionGraphData!=null)
+                        GetActorGraph().LoadActorGraph(actorComp.ActionGraphData, OnLoadActorGraph);
                 }
                 else if(pObject is Transform)
                 {
@@ -112,6 +124,16 @@ namespace Framework.ActorSystem.Runtime
             }
             OnObjectAble(m_pObjectAble);
             UpdateTransform();
+        }
+        //--------------------------------------------------------
+        public bool LoadActorGraph(string actorGraph)
+        {
+            return GetActorGraph().LoadGraph(actorGraph, OnLoadActorGraph);
+        }
+        //--------------------------------------------------------
+        void OnLoadActorGraph(ActorGraphData graphData)
+        {
+            GetAgent<ActorGraphicAgent>(true).OnLoadActorGraphData(graphData);
         }
         //--------------------------------------------------------
         protected virtual void OnObjectAble(IContextData userData)
@@ -132,8 +154,6 @@ namespace Framework.ActorSystem.Runtime
             m_fDestoryDelta = 0;
             m_fFreezeDuration = 0;
             m_nFreezeCounter = 0;
-            m_pObjectAble = null;
-            m_pUnityTransform = null;
             m_bCutsceneHold = false;
             m_nFlags = (ushort)EActorFlag.Default;
         }
@@ -745,9 +765,9 @@ namespace Framework.ActorSystem.Runtime
             return m_pSkillSystem.GetCurrentSkill(false) != null;
         }
         //--------------------------------------------------------
-        public ActorComponent GetObjectAble()
+        public IContextData GetObjectAble()
         {
-            return null;
+            return m_pObjectAble;
         }
         //--------------------------------------------------------
         public T GetComponent<T>(bool bFindChild = false) where T : Component
@@ -903,8 +923,8 @@ namespace Framework.ActorSystem.Runtime
                             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
                             if (null == pAgent)
                                 return false;
-                            pAgent.PlayAnimation((IContextData)paramData.userData, animationClip, paramData.ToInt(0));
-                            pAgent.SetActionTime((IContextData)paramData.userData, paramData.ToFloat(1));
+                            pAgent.PlayAnimation(paramData.userData, animationClip, paramData.ToInt(0));
+                            pAgent.SetActionTime(paramData.userData, paramData.ToFloat(1));
                         }
                         else
                         {
@@ -935,7 +955,7 @@ namespace Framework.ActorSystem.Runtime
                             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
                             if (null == pAgent)
                                 return false;
-                            pAgent.StopAnimation((IContextData)paramData.userData);
+                            pAgent.StopAnimation(paramData.userData);
                         }
                         else if (string.IsNullOrEmpty(actionName))
                         {

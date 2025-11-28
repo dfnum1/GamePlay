@@ -48,8 +48,8 @@ namespace Framework.ActorSystem.Editor
             if (m_vActors.Contains(pActor))
                 return;
             m_vActors.Add(pActor);
-            if(pActor != null && pActor.GetObjectAble())
-                m_Preview.AddPreview(pActor.GetObjectAble().gameObject);
+            if(pActor != null && pActor.GetUniyTransform()!=null)
+                m_Preview.AddPreview(pActor.GetUniyTransform().gameObject);
         }
         //--------------------------------------------------------
         protected override void OnDisable()
@@ -88,7 +88,7 @@ namespace Framework.ActorSystem.Editor
                 }
 
                 Handles.Label(actor.GetPosition() + Vector3.up * 0.5f, "¹¥»÷×é[" + actor.GetAttackGroup() + "]");
-                Handles.ArrowHandleCap(0, actor.GetPosition(), Quaternion.Euler(actor.GetEulerAngle()), 1.0f, EventType.Repaint);
+        //        Handles.ArrowHandleCap(0, actor.GetPosition(), Quaternion.Euler(actor.GetEulerAngle()), 0.5f, EventType.Repaint);
                 if(Tools.current == Tool.Rotate)
                     actor.SetEulerAngle(Handles.DoRotationHandle(Quaternion.Euler(actor.GetEulerAngle()),actor.GetPosition()).eulerAngles);
                 else
@@ -100,6 +100,7 @@ namespace Framework.ActorSystem.Editor
         protected override void OnUpdate(float delta)
         {
             base.OnUpdate(delta);
+            m_Preview.Update(delta);
         }
         //--------------------------------------------------------
         protected override void OnGUI()

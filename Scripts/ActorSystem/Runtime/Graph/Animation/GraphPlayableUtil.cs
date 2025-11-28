@@ -67,7 +67,7 @@ namespace Framework.ActorSystem.Runtime
         public static void DebugPlayable(Actor target, IUserPlayableExternDraw externDraw = null)
         {
             if (target == null) return;
-            var instance = target.GetObjectAble();
+            var instance = target.GetUniyTransform();
             if (instance == null) return;
             DebugPlayable(instance.gameObject, externDraw);
         }

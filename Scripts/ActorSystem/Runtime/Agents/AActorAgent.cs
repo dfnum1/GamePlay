@@ -33,7 +33,7 @@ namespace Framework.ActorSystem.Runtime
             m_pActor = pActor;
         }
         //--------------------------------------------------------
-        public ActorComponent GetAble()
+        public IContextData GetAble()
         {
             if (m_pActor == null) return null;
             return m_pActor.GetObjectAble();
