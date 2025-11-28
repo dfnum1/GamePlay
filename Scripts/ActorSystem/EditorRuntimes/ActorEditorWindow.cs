@@ -26,6 +26,7 @@ namespace Framework.ActorSystem.Editor
         }
 
         ActorManager                    m_pActorManager;
+        CutsceneManager                 m_CutsceneManager = null;
 
         Rect                            m_PreviewRect;
 
@@ -93,7 +94,10 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnInnerEnable()
         {
+            m_CutsceneManager = new CutsceneManager();
+            m_CutsceneManager.SetEditorMode(true);
             m_pActorManager = new ActorManager();
+            m_pActorManager.Init(m_CutsceneManager);
             m_pActorManager.RegisterCallback(this);
             this.minSize = new Vector2(400, 300);
             this.wantsMouseMove = true;
@@ -174,8 +178,7 @@ namespace Framework.ActorSystem.Editor
             m_pTarget.EnableLogic(true);
             m_pTarget.EnableRVO(false);
             m_pTarget.SetAttackGroup(1);
-   //         m_pActor.GetSkillSystem().AddLockTarget(m_pTarget);
-            SelectActor(m_pTarget);
+            if(m_pActor!=null) m_pActor.GetSkillSystem().AddLockTarget(m_pTarget);
         }
         //--------------------------------------------------------
         protected override void OnInnerUpdate()
@@ -185,8 +188,10 @@ namespace Framework.ActorSystem.Editor
             if (m_pCutsceneInstance != null)
                 m_pCutsceneInstance.BindData(m_pActor);
 #endif
-       //     if (m_pActor != null) m_pActor.Update(m_pTimer.deltaTime);
-       //     if (m_pTarget != null) m_pTarget.Update(m_pTimer.deltaTime);
+            if(m_CutsceneManager!=null)
+                m_CutsceneManager.Update(m_pTimer.deltaTime, m_pCutsceneInstance);
+            if (m_pActorManager != null)
+                m_pActorManager.Update(m_pTimer.deltaTime);
         }
         //--------------------------------------------------------
         public Rect InspectorRect
@@ -586,6 +591,11 @@ namespace Framework.ActorSystem.Editor
                     }
                 }
             }
+            return false;
+        }
+        //--------------------------------------------------------
+        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null)
+        {
             return false;
         }
     }

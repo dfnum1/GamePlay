@@ -132,7 +132,7 @@ namespace Framework.ActorSystem.Runtime
 #if USE_CUTSCENE
             if (m_pCutsceneInstance == null)
             {
-                m_pCutsceneInstance = new Cutscene.Runtime.CutsceneInstance();
+                m_pCutsceneInstance = m_pOwner.GetActorManager().CreateCutsceneInstance();
             }
 #endif
         }

@@ -149,6 +149,7 @@ namespace Framework.ED
 
         public OnCellDrawEvent OnCellDraw = null;
 
+        public bool bDragItemGesture = true;
         public bool buildMutiColumnDepth = false;
         public float DepthIndentWidth
         {
@@ -648,14 +649,17 @@ namespace Framework.ED
         protected override bool CanStartDrag(CanStartDragArgs args)
         {
             if (OnDragItem == null) return false;
-            if (OnDragItem((TreeItemData)args.draggedItem))
+            if(bDragItemGesture)
             {
-                DragAndDrop.PrepareStartDrag();
-                DragAndDrop.SetGenericData("tree_drag_item", args.draggedItem);
-                DragAndDrop.StartDrag(args.draggedItem.displayName);
-                return true;
+                if (OnDragItem((TreeItemData)args.draggedItem))
+                {
+                    DragAndDrop.PrepareStartDrag();
+                    DragAndDrop.SetGenericData("tree_drag_item", args.draggedItem);
+                    DragAndDrop.StartDrag(args.draggedItem.displayName);
+                    return true;
+                }
             }
-            return false;
+            return OnDragItem((TreeItemData)args.draggedItem);
         }
         //--------------------------------------------------------
         protected override void SetupDragAndDrop(SetupDragAndDropArgs args)

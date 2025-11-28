@@ -4,8 +4,11 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.ActorSystem.Editor;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Framework.ActorSystem.Runtime
 {
@@ -58,4 +61,42 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
     }
+#if UNITY_EDITOR
+    [CustomEditor(typeof(ActorComponent))]
+    class ActorComponentEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            if (GUILayout.Button("打开编辑器"))
+            {
+                ActionEditorWindow.OpenTarget(target as ActorComponent);
+            }
+            if (Application.isPlaying)
+            {
+                if (GUILayout.Button("动画调试"))
+                    GraphPlayableUtil.DebugPlayable((target as ActorComponent).gameObject);
+            }
+        }
+        //-----------------------------------------------------
+        [MenuItem("Assets/打开动作编辑器", true)]
+        private static bool ValidateOpenActorComponent()
+        {
+            if (Selection.activeGameObject == null)
+                return false;
+            return Selection.activeGameObject.GetComponent<ActorComponent>() != null;
+        }
+        //-----------------------------------------------------
+
+        [MenuItem("Assets/打开动作编辑器", false, 0)]
+        private static void OpenActorComponent()
+        {
+            var obj = Selection.activeGameObject;
+            if (obj != null)
+            {
+                ActionEditorWindow.OpenTarget(Selection.activeGameObject.GetComponent<ActorComponent>());
+            }
+        }
+    }
+#endif
 }

@@ -101,6 +101,10 @@ namespace Framework.Cutscene.Editor
             {
                 return ((CutsceneObject)pObj).GetCutsceneGraph();
             }
+            else if (pObj is CutsceneGraph)
+            {
+                return (CutsceneGraph)pObj;
+            }
             return null;
         }
         //--------------------------------------------------------

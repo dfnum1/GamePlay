@@ -80,7 +80,7 @@ namespace Framework.ActorSystem.Runtime
                 if(binder!=null)
                 {
                     m_pSelfTarget = binder;
-                    lockTargets = null;// binder.GetSkillSystem().GetLockTargets();???????
+                    lockTargets = binder.GetSkillSystem().GetLockTargets();
                     if (lockTargets != null && lockTargets.Count > 0)
                         m_pLockTarget = lockTargets[0];
                 }
@@ -168,7 +168,7 @@ namespace Framework.ActorSystem.Runtime
             if (moveTo.speedCurve!=null && moveTo.speedCurve.length>0)
                 normalTime = moveTo.speedCurve.Evaluate(normalTime);
 
-            System.Collections.Generic.List<Actor> lockTargets = null;// m_pSelf.GetSkillSystem().GetLockTargets();??????
+            System.Collections.Generic.List<Actor> lockTargets = m_pSelf.GetSkillSystem().GetLockTargets();
             if (lockTargets == null || lockTargets.Count<=0) return true;
             Vector3 targetPos = lockTargets[0].GetPosition();
             if (moveTo.bDirOffset)

@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TagLib.Id3v2;
@@ -22,10 +23,13 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemDespawnInstance(GameObject pInstance, string name = null);
 
         bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null);
+        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null);
 
     }
     public class ActorManager
     {
+        bool                                    m_isInitialized = false;
+        CutsceneManager                         m_CutsceneManager = null;
         bool                                    m_bEditMode = false;
         private List<IActorSystemCallback>      m_vCallbacks = null;
         int                                     m_nAutoGUID = 0;
@@ -33,10 +37,31 @@ namespace Framework.ActorSystem.Runtime
         Actor                                   m_pTail = null;
         Actor                                   m_pRoot = null; 
         List<Actor>                             m_vDestroyList = new List<Actor>(16);
+
+        protected long                          m_lRuntime = 0;
+        protected long                          m_lRuntimeUnScale = 0;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
             return m_bEditMode;
+        }
+        //-----------------------------------------------------
+        public void Init(CutsceneManager cutsceneMgr)
+        {
+            if (m_isInitialized)
+                return;
+            m_isInitialized = true;
+            m_CutsceneManager = cutsceneMgr;
+        }
+        //-------------------------------------------------
+        internal CutsceneInstance CreateCutsceneInstance()
+        {
+            if(!m_isInitialized)
+            {
+                UnityEngine.Debug.LogError("no initialized");
+                return null;
+            }
+            return new CutsceneInstance(m_CutsceneManager);
         }
         //-------------------------------------------------
         public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
@@ -51,6 +76,11 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         Actor InnerCreateActor(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null)
         {
+            if (!m_isInitialized)
+            {
+                UnityEngine.Debug.LogError("no initialized");
+                return null;
+            }
             Actor pActor = null;
             if (pActor == null) pActor = TypeInstancePool.Malloc<Actor>();
             if (pActor == null) return null;
@@ -76,12 +106,8 @@ namespace Framework.ActorSystem.Runtime
             pActor.SetInstanceID(nodeID);
             AddActor(pActor);
 
-            if (OnActorStatusCallback(pActor, bAsync ? EActorStatus.AsyncCreate : EActorStatus.Create, userVariable))
-                pActor.OnCreated();
-            else
-            {
-                UnityEngine.Debug.LogWarning("ActorManager: CreateActor Actor Callback Failed for ID " + nodeID);
-            }
+            OnActorStatusCallback(pActor, bAsync ? EActorStatus.AsyncCreate : EActorStatus.Create, userVariable);
+            pActor.OnCreated();
             return pActor;
         }
         //-------------------------------------------------
@@ -146,6 +172,18 @@ namespace Framework.ActorSystem.Runtime
             foreach(var db in m_vCallbacks)
             {
                 if (db.OnActorSystemActorCallback(pActor, eStatus, pTakeData))
+                    return true;
+            }
+            return false;
+        }
+        //-----------------------------------------------------
+        internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, int oldValue, int newValue, IContextData pTakeData = null)
+        {
+            if (m_vCallbacks == null || pActor == null)
+                return false;
+            foreach (var db in m_vCallbacks)
+            {
+                if (db.OnActorSystemActorAttrDirty(pActor, attrType, oldValue, newValue, pTakeData))
                     return true;
             }
             return false;
@@ -254,6 +292,14 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public void Update(float fFrame)
         {
+            if(!m_isInitialized)
+            {
+                UnityEngine.Debug.LogWarning("not initialized");
+                return;
+            }
+            m_lRuntime = (int)(Time.time * 1000);
+            m_lRuntimeUnScale = (int)(Time.unscaledTime * 1000);
+
             if (m_pRoot != null)
             {
                 int index = 0;
@@ -302,7 +348,16 @@ namespace Framework.ActorSystem.Runtime
                 }
                 m_vDestroyList.Clear();
             }
-
+        }
+        //------------------------------------------------------
+        public long GetRunTime()
+        {
+            return m_lRuntime;
+        }
+        //------------------------------------------------------
+        public long GetRunUnScaleTime()
+        {
+            return m_lRuntimeUnScale;
         }
         //-----------------------------------------------------
         public void Clear()
@@ -325,6 +380,8 @@ namespace Framework.ActorSystem.Runtime
             m_pRoot = null;
             m_pTail = null;
             m_nAutoGUID = 0;
+            m_lRuntime = 0;
+            m_lRuntimeUnScale = 0;
         }
         //-----------------------------------------------------
         public void Shutdown()

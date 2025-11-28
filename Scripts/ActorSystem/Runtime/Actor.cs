@@ -15,6 +15,8 @@ namespace Framework.ActorSystem.Runtime
     public class Actor : TypeObject, ICutsceneObject
     {
         public static Vector3                   INVAILD_POS = new Vector3(-9000, -9000, -9000);
+
+
         int                                     m_nInstanceID = 0;
         ActorManager                            m_pSytstem;
         List<AActorAgent>                       m_vAgents = null;
@@ -27,7 +29,9 @@ namespace Framework.ActorSystem.Runtime
         private Dictionary<int, Component>      m_vComponents = null;
 
         ActorGraph                              m_pGraph = null;
-        bool                                    m_bCutsceneHold = false;
+        SkillSystem                             m_pSkillSystem = null;
+
+        bool m_bCutsceneHold = false;
         protected ushort                        m_nFlags = (ushort)EActorFlag.Default;
 
         private int                             m_nFreezeCounter = 0;
@@ -65,7 +69,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public void SetContextData(IContextData pData)
         {
-
+            GetActorParameter().SetCfgData(pData);
+        }
+        //--------------------------------------------------------
+        public IContextData GetContextData()
+        {
+            return GetActorParameter().GetCfgData();
         }
         //--------------------------------------------------------
         public void SetObjectAble(IContextData pObject)
@@ -111,6 +120,9 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         internal void OnConstruct()
         {
+            if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>();
+            m_pSkillSystem.SetActor(this);
+            GetAgent<ActorGraphicAgent>(true);
             Reset();
         }
         //--------------------------------------------------------
@@ -612,14 +624,125 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         void OnActionEndState(ActorAction pState)
         {
-         //   if (m_pSkillSystem != null)
-         //       m_pSkillSystem.OnActionEndState(pState);
+            if (m_pSkillSystem != null)
+                m_pSkillSystem.OnActionEndState(pState);
         }
         //--------------------------------------------------------
         void OnActionStartState(ActorAction pState)
         {
-          //  if (m_pSkillSystem != null)
-          //      m_pSkillSystem.OnActionStartState(pState);
+            if (m_pSkillSystem != null)
+                m_pSkillSystem.OnActionStartState(pState);
+        }
+        //--------------------------------------------------------
+        public void SetAttrs(byte[] attiTypes, int[] values)
+        {
+            GetActorParameter().SetAttrs(attiTypes, values);
+        }
+        //--------------------------------------------------------
+        public void SetAttr(byte type, int value)
+        {
+            GetActorParameter().SetAttr(type, value);
+        }
+        //--------------------------------------------------------
+        public int GetAttr(byte type, int defVal = 0)
+        {
+            return GetActorParameter().GetAttr(type, defVal);
+        }
+        //--------------------------------------------------------
+        public void RemoveAttr(byte type)
+        {
+            GetActorParameter().RemoveAttr(type);
+        }
+        //--------------------------------------------------------
+        public void AppendAttrs(byte[] attiTypes, int[] values)
+        {
+            GetActorParameter().AppendAttrs(attiTypes, values);
+        }
+        //--------------------------------------------------------
+        public void AppendAttr(byte type, int value)
+        {
+            GetActorParameter().AppendAttr(type, value);
+        }
+        //--------------------------------------------------------
+        public void SubAttrs(byte[] attiTypes, int[] values)
+        {
+            GetActorParameter().SubAttrs(attiTypes, values);
+        }
+        //--------------------------------------------------------
+        public void SubAttr(byte type, int value, bool bLowerZero = false)
+        {
+            GetActorParameter().SubAttr(type, value, bLowerZero);
+        }
+        //--------------------------------------------------------
+        public void ClearAttrs()
+        {
+            GetActorParameter().ClearAttrs();
+        }
+        //--------------------------------------------------------
+        public ActorAction GetAction(EActionStateType eType, uint nTag)
+        {
+            ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
+            if (null == pAgent)
+                return null;
+            return pAgent.GetActorAction(eType, nTag);
+        }
+        //--------------------------------------------------------
+        public ActorAction GetAction(string actionName)
+        {
+            ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
+            if (null == pAgent)
+                return null;
+            return pAgent.GetActorAction(actionName);
+        }
+        //--------------------------------------------------------
+        public uint GetCurrentPlayActionStatePriority(uint layer)
+        {
+            ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
+            if (null == pAgent)
+                return 0;
+
+            return pAgent.GetCurrentPlayActionStatePriority(layer);
+        }
+        //--------------------------------------------------------
+        public ActorAction GetCurrentPlayActionState(uint layer = 0)
+        {
+            ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
+            if (null == pAgent)
+                return null;
+
+            return pAgent.GetCurrentPlayActionState(layer);
+        }
+        //--------------------------------------------------------
+        public AActorStateInfo GetStateParam()
+        {
+            if (m_pSkillSystem != null) return m_pSkillSystem.GetCurrentSkill();
+            return null;
+        }
+        //--------------------------------------------------------
+        public bool IsInAction(EActionStateType eType)
+        {
+            if (m_pGraph != null)
+            {
+                if (m_pGraph.IsInAction(eType))
+                    return true;
+            }
+            ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
+            if (null == pAgent)
+                return false;
+            return pAgent.IsInAction(eType);
+        }
+        //--------------------------------------------------------
+        public SkillSystem GetSkillSystem()
+        {
+            if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>();
+            m_pSkillSystem.SetActor(this);
+            return m_pSkillSystem;
+        }
+        //--------------------------------------------------------
+        public bool IsAttacking()
+        {
+            if (m_pSkillSystem == null) return false;
+            return m_pSkillSystem.GetCurrentSkill(false) != null;
         }
         //--------------------------------------------------------
         public ActorComponent GetObjectAble()
@@ -640,7 +763,7 @@ namespace Framework.ActorSystem.Runtime
             if (m_vComponents.TryGetValue(hashCode, out retCom))
                 return retCom as T;
 
-            retCom = GetComponent<T>();
+            retCom = monoBehaviour.GetComponent<T>();
             if (retCom == null && bFindChild)
             {
                 retCom = monoBehaviour.GetComponentInChildren<T>();
@@ -716,7 +839,11 @@ namespace Framework.ActorSystem.Runtime
                 m_pGraph.Free();
                 m_pGraph = null;
             }
-
+            if (m_pSkillSystem != null)
+            {
+                m_pSkillSystem.Free();
+                m_pSkillSystem = null;
+            }
             if (m_vAgents != null)
             {
                 for (int i = 0; i < m_vAgents.Count; ++i)
@@ -739,10 +866,9 @@ namespace Framework.ActorSystem.Runtime
             }
             m_pObjectAble = null;
             m_pUnityTransform = null;
-
-            Reset();
             m_pSytstem = null;
-         }
+            Reset();
+        }
         //--------------------------------------------------------
         public UnityEngine.Object GetUniyObject()
         {

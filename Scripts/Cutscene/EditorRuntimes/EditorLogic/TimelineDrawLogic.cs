@@ -214,6 +214,7 @@ namespace Framework.Cutscene.Editor
             var colomn0 = m_pTimelineTree.GetColumn(0);
             colomn0.width = colomn0.minWidth = 200;
             colomn0.maxWidth = 650;
+            m_pTimelineTree.bDragItemGesture = false;
             m_pTimelineTree.buildMutiColumnDepth = true;
             m_pTimelineTree.DepthIndentWidth = 18;
             m_pTimelineTree.scrollWhellIgnore = true;
@@ -318,8 +319,13 @@ namespace Framework.Cutscene.Editor
             m_pDragDraw.ClearSelected();
             if (pAsset is CutsceneData)
                 RefreshTimeGraph((CutsceneData)pAsset);
-
-            if(GetAsset()!=null)
+            else if (pAsset is CutsceneGraph)
+            {
+                CutsceneGraph graphAsset = (CutsceneGraph)pAsset;
+                var editAsset = graphAsset.GetEnterCutscene();
+                if (editAsset != null) RefreshTimeGraph(editAsset);
+            }
+            if (GetAsset()!=null)
             {
                 if (GetAsset() != null)
                 {
@@ -757,6 +763,7 @@ namespace Framework.Cutscene.Editor
         void ForcePlay(CutsceneData assetData = null)
         {
             if (assetData == null) assetData = GetAsset();
+            m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
             m_pCutscene.Stop(true);
             m_pCutscene.Destroy();
             GetOwner<ACutsceneEditor>().SaveAgentTreeData();
@@ -777,9 +784,9 @@ namespace Framework.Cutscene.Editor
         //--------------------------------------------------------
         void RefreshRuntimePlayData(CutsceneData assetData = null)
         {
+            m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
             if (IsRuntimePlayingCutscene())
             {
-                m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
                 if(m_pCutscene!=null)
                     m_fPlayTime = m_pCutscene.GetTime();
                 return;
@@ -1079,6 +1086,15 @@ namespace Framework.Cutscene.Editor
             MenuData menuData = new MenuData() { mousePos = Event.current.mousePosition, userData = input };
             menuData.mousePos -= new Vector2(m_pTimelineTree.GetColumn(0).width, 0);
 
+            System.Type bindInputType = null;
+            m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
+            if (m_pCutscene != null)
+            {
+                var bindData = m_pCutscene.GetBindData();
+                if (bindData != null)
+                    bindInputType = bindData.GetType();
+            }
+
             bool isActive = true;
             if (input != null)
             {
@@ -1112,6 +1128,21 @@ namespace Framework.Cutscene.Editor
                         customClipAttri = db;
                         continue;
                     }
+                    if (db.pAttri.inputType != null && bindInputType == null)
+                        continue;
+                    if (db.pAttri.inputType != bindInputType)
+                    {
+                        if (db.pAttri.inputType != null)
+                        {
+                            if (bindInputType == null)
+                                continue;
+                            if (!db.pAttri.inputType.IsSubclassOf(bindInputType) && !bindInputType.IsSubclassOf(db.pAttri.inputType))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
                     menuData.data = db;
                     genericMenu.AddItem(new GUIContent("剪辑/" + db.pAttri.name), false, (menu) => {
                         CreateClip((MenuData)menu);
@@ -1140,6 +1171,20 @@ namespace Framework.Cutscene.Editor
                     {
                         customEventAttri = db;
                         continue;
+                    }
+                    if (db.pAttri.inputType != null && bindInputType == null)
+                        continue;
+                    if (db.pAttri.inputType != bindInputType)
+                    {
+                        if (db.pAttri.inputType != null)
+                        {
+                            if (bindInputType == null)
+                                continue;
+                            if (!db.pAttri.inputType.IsSubclassOf(bindInputType) && !bindInputType.IsSubclassOf(db.pAttri.inputType))
+                            {
+                                continue;
+                            }
+                        }
                     }
                     menuData.data = db;
                     genericMenu.AddItem(new GUIContent("事件/" + db.pAttri.name), false, (menu) =>

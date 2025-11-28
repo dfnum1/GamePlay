@@ -18,6 +18,7 @@ namespace Framework.Cutscene.Editor
     {
         string m_AddNewName = "";
         CutsceneObject m_pCurrent = null;
+        CutsceneGraph m_pCurrentGraph = null;
         Vector2 m_ScrollPosition = Vector2.zero;
         Vector2 m_DebugScrollPosition = Vector2.zero;
         bool m_bDebugExpand = true;
@@ -49,9 +50,18 @@ namespace Framework.Cutscene.Editor
             if (pData is CutsceneObject)
             {
                 m_pCurrent = pData as CutsceneObject;
-                if(m_pCurrent!=null && m_pCurrent.GetCutsceneGraph().GetEnterCutscene()!=null)
+                if (m_pCurrent != null) m_pCurrentGraph = m_pCurrent.GetCutsceneGraph();
+                if (m_pCurrentGraph != null && m_pCurrentGraph.GetEnterCutscene() != null)
                 {
-                    SetCutsceneData(m_pCurrent.GetCutsceneGraph().GetEnterCutscene(), false);
+                    SetCutsceneData(m_pCurrentGraph.GetEnterCutscene(), false);
+                }
+            }
+            else if (pData is CutsceneGraph)
+            {
+                m_pCurrentGraph = (CutsceneGraph)pData;
+                if (m_pCurrentGraph != null && m_pCurrentGraph.GetEnterCutscene() != null)
+                {
+                    SetCutsceneData(m_pCurrentGraph.GetEnterCutscene(), false);
                 }
             }
         }
@@ -74,22 +84,28 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(IsRuntimePlayingCutscene());
             Rect rect = GetRect();
             float panelHeight = rect.height - 20;
-            float cutsceneHeight = panelHeight/2;
-            GUILayout.BeginArea(new Rect(rect.x, rect.y+20, rect.width, cutsceneHeight));
-            if(m_pCurrent!=null)
+            float cutsceneListHeight = panelHeight / 2;
+            float debugHeight = panelHeight / 2;
+            if (!m_bDebugExpand)
             {
-                if(m_pCurrent.GetCutsceneGraph().vCutscenes!=null)
+                cutsceneListHeight = panelHeight - 30;
+                debugHeight = 30;
+            }
+            GUILayout.BeginArea(new Rect(rect.x, rect.y+20, rect.width, cutsceneListHeight));
+            if(m_pCurrentGraph != null)
+            {
+                if(m_pCurrentGraph.vCutscenes!=null)
                 {
                     m_ScrollPosition = EditorGUILayout.BeginScrollView(m_ScrollPosition);
-                    for (int i = 0; i < m_pCurrent.GetCutsceneGraph().vCutscenes.Count;)
+                    for (int i = 0; i < m_pCurrentGraph.vCutscenes.Count;)
                     {
-                        var cutscene = m_pCurrent.GetCutsceneGraph().vCutscenes[i].cutSceneData;
+                        var cutscene = m_pCurrentGraph.vCutscenes[i].cutSceneData;
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField(cutscene.id.ToString(), GUILayout.Width(50));
                         string name = EditorGUILayout.DelayedTextField(cutscene.name);
                         if(name != cutscene.name)
                         {
-                            if(m_pCurrent.GetCutsceneGraph().FindCutscene(name) == null)
+                            if(m_pCurrentGraph.FindCutscene(name) == null)
                             {
                                 RegisterUndoData();
                                 cutscene.name = name;
@@ -105,7 +121,7 @@ namespace Framework.Cutscene.Editor
                         {
                             if(EditorUtility.DisplayDialog("提示","确认要移除[" + cutscene.name+"]?", "移除","再想想"))
                             {
-                                m_pCurrent.GetCutsceneGraph().vCutscenes.RemoveAt(i);
+                                m_pCurrentGraph.vCutscenes.RemoveAt(i);
                                 bRemove = true;
                             }
                         }
@@ -117,13 +133,13 @@ namespace Framework.Cutscene.Editor
 
                 EditorGUILayout.BeginHorizontal(GUILayout.MaxWidth(GetRect().width-10));
                 m_AddNewName = EditorGUILayout.TextField(m_AddNewName);
-                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_AddNewName) || m_pCurrent.GetCutsceneGraph().FindCutscene(m_AddNewName)!=null);
+                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_AddNewName) || m_pCurrentGraph.FindCutscene(m_AddNewName)!=null);
                 if (GUILayout.Button("添加Cutscene"))
                 {
                     CutsceneData data = new CutsceneData();
                     data.name = m_AddNewName;
                     data.id = GeneratorID();
-                    m_pCurrent.GetCutsceneGraph().AddCutscene(data);
+                    m_pCurrentGraph.AddCutscene(data);
                     m_AddNewName = "";
                     SetCutsceneData(data, false);
                 }
@@ -140,8 +156,8 @@ namespace Framework.Cutscene.Editor
             GUILayout.EndArea();
 
             {
-                UIDrawUtils.DrawColorLine(new Vector2(rect.xMin, rect.y + 20 + cutsceneHeight), new Vector2(rect.xMax, rect.y + 20 + cutsceneHeight), new Color(1, 0, 1, 0.5f));
-                GUILayout.BeginArea(new Rect(rect.x, rect.y + 20 + cutsceneHeight, rect.width, cutsceneHeight));
+                UIDrawUtils.DrawColorLine(new Vector2(rect.xMin, rect.y + 20 + cutsceneListHeight), new Vector2(rect.xMax, rect.y + 20 + cutsceneListHeight), new Color(1, 0, 1, 0.5f));
+                GUILayout.BeginArea(new Rect(rect.x, rect.y + 20 + cutsceneListHeight, rect.width, debugHeight));
                 m_bDebugExpand = EditorGUILayout.Foldout(m_bDebugExpand, "调试设置");
                 if (m_bDebugExpand)
                 {
@@ -275,9 +291,9 @@ namespace Framework.Cutscene.Editor
         {
             ushort id = 1;
             HashSet<ushort> vSets = new HashSet<ushort>();
-            if(m_pCurrent.GetCutsceneGraph().vCutscenes!=null)
+            if(m_pCurrentGraph.vCutscenes!=null)
             {
-                foreach (var db in m_pCurrent.GetCutsceneGraph().vCutscenes)
+                foreach (var db in m_pCurrentGraph.vCutscenes)
                 {
                     vSets.Add(db.cutSceneData.id);
                 }

@@ -45,7 +45,7 @@ namespace Framework.Cutscene.Runtime
 
         private Dictionary<int, ObjCache>           m_vObjIds = null;
         //-----------------------------------------------------
-        public CutsceneInstance()
+        internal CutsceneInstance()
         {
             Debug.Assert(false, "CutsceneInstance must be created by CutsceneManager!");
         }
@@ -519,7 +519,7 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
-        public bool Update(float deltaTime)
+        internal bool Update(float deltaTime)
         {
             if (!m_bEnable)
                 return true;
@@ -750,7 +750,7 @@ namespace Framework.Cutscene.Runtime
 //#endif
         }
         //-----------------------------------------------------
-        public void Destroy()
+        internal void Destroy()
         {
             Clear();
             m_strName = null;

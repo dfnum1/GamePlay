@@ -1044,6 +1044,7 @@ namespace Framework.Cutscene.Editor
         //-----------------------------------------------------
         public static CutsceneManager GetRuntimeCutsceneManger()
         {
+            Init();
             if (ms_pCutsceneRuntimeType == null) return null;
             var fields = ms_pCutsceneRuntimeType.GetFields(BindingFlags.Public| BindingFlags.NonPublic| BindingFlags.Static| BindingFlags.Instance);
             if (fields == null) return null;
