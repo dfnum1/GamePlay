@@ -66,23 +66,33 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
         {
-            return InnerCreateActor(0, pData, false, userVariable);
+            return InnerCreateActor<Actor>(0, pData, false, userVariable);
         }
         //-------------------------------------------------
         public Actor AsyncCreateActor(int nodeID, IContextData pData, IContextData userVariable = null)
         {
-            return InnerCreateActor(0, pData, true, userVariable);
+            return InnerCreateActor<Actor>(0, pData, true, userVariable);
         }
         //-------------------------------------------------
-        Actor InnerCreateActor(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null)
+        public T CreateActor<T>(IContextData pData, IContextData userVariable = null, int nodeID = 0) where T : Actor, new()
+        {
+            return InnerCreateActor<T>(0, pData, false, userVariable);
+        }
+        //-------------------------------------------------
+        public T AsyncCreateActor<T>(int nodeID, IContextData pData, IContextData userVariable = null) where T : Actor, new()
+        {
+            return InnerCreateActor<T>(0, pData, true, userVariable);
+        }
+        //-------------------------------------------------
+        T InnerCreateActor<T>(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null) where T : Actor, new()
         {
             if (!m_isInitialized)
             {
                 UnityEngine.Debug.LogError("no initialized");
                 return null;
             }
-            Actor pActor = null;
-            if (pActor == null) pActor = TypeInstancePool.Malloc<Actor>();
+            T pActor = null;
+            if (pActor == null) pActor = TypeInstancePool.Malloc<T>();
             if (pActor == null) return null;
             pActor.SetActorManager(this);
             pActor.OnConstruct();
