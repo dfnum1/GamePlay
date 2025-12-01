@@ -5,14 +5,20 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Codice.Client.Common;
+using Codice.CM.Common;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Framework.ActorSystem.Runtime
 {
-    public class ActionStatePlayAble
+    public class ActionStatePlayAble : TypeObject
     {
         public void Initialize( AnimationClip clip, WrapMode wrapMode, string stateName)
         {
@@ -113,7 +119,7 @@ namespace Framework.ActorSystem.Runtime
             m_TargetWeight = weight;
         }
 
-        public void Destroy()
+        public override void Destroy()
         {
             m_pOwner = null;
             m_bDestroy = true;
@@ -121,6 +127,25 @@ namespace Framework.ActorSystem.Runtime
             {
                 m_Playable.GetGraph().DestroySubgraph(m_Playable);
             }
+            m_Enabled = false;
+            m_Clip = null;
+            m_WrapMode =  WrapMode.Once;
+            m_ReadyForCleanup = true;
+
+            m_nIndex = 0;
+            m_StateName = null;
+            m_Layer = 0;
+            m_AvatarMask = null;
+
+            m_Time = 0;
+            m_Fading = false;
+
+            m_TargetWeight = 0;
+            m_Weight = 0;
+            m_FadeSpeed = 0;
+
+            ResetDirtyFlags();
+            InvalidateTime();
         }
 
         public bool enabled
@@ -241,7 +266,7 @@ namespace Framework.ActorSystem.Runtime
             m_Playable = playable;
         }
 
-        public bool isDone { get { return m_Playable.IsDone(); } }
+        public bool isDone { get { return m_Playable.IsValid() && m_Playable.IsDone(); } }
 
         public PlayState playState
         {
@@ -445,8 +470,11 @@ namespace Framework.ActorSystem.Runtime
                 return;
             if(m_vBindStates!=null)
             {
-                if (m_vBindStates.ContainsKey(pOwner))
+                if (m_vBindStates.TryGetValue(pOwner, out var state))
+                {
+                    SetupState(pOwner, state, clip, stateName, layer);
                     return;
+                }
             }
             InnerAddMotion(pOwner, clip, stateName, layer);
         }
@@ -463,6 +491,18 @@ namespace Framework.ActorSystem.Runtime
             if (layer >= m_nMixLayerCnt) layer = (uint)(m_nMixLayerCnt - 1);
 
             ActionStatePlayAble newState = InsertState(owner);
+            SetupState(owner, newState, clip, stateName, layer);
+        }
+        //--------------------------------------------------------
+        void SetupState(AT.Runtime.IUserData owner, ActionStatePlayAble newState, AnimationClip clip, string stateName, uint layer = 0)
+        {
+            if (newState.playable.IsValid())
+            {
+                Playable toDestroy = newState.mixerPlayable.GetInput(newState.index);
+                graph.Disconnect(newState.mixerPlayable, newState.index);
+                graph.DestroyPlayable(toDestroy);
+            }
+
             newState.owner = owner;
             WrapMode wrapMode = WrapMode.Once;
             if (clip.isLooping) wrapMode = WrapMode.Loop;
@@ -497,7 +537,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         ActionStatePlayAble InsertState(AT.Runtime.IUserData motionClip)
         {
-            ActionStatePlayAble state = new ActionStatePlayAble();
+            ActionStatePlayAble state = TypeInstancePool.Malloc<ActionStatePlayAble>();
             state.owner = motionClip;
 
             int firstAvailable = m_vStates.FindIndex(s => s.isDestroy);
@@ -528,6 +568,7 @@ namespace Framework.ActorSystem.Runtime
                     state.Destroy();
              //   m_vStates[state.index] = state;
                 m_Count = m_vStates.Count;
+                TypeInstancePool.Free(state);
             }
         }
         //--------------------------------------------------------
@@ -610,11 +651,20 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        public bool IsStateExist(AT.Runtime.IUserData clipOwner)
+        public bool IsStateExist(AT.Runtime.IUserData clipOwner, AnimationClip clip = null)
         {
             if (m_vBindStates == null)
                 return false;
-            return m_vBindStates.ContainsKey(clipOwner);
+            if(!m_vBindStates.TryGetValue(clipOwner, out var state))
+            {
+                return false;
+            }
+            if(!state.isValid || (clip!=null && state.clip != clip))
+            {
+                RemoveMotion(state);
+                return false;
+            }
+            return true;
         }
         //------------------------------------------------------
         internal Dictionary<AT.Runtime.IUserData, ActionStatePlayAble> GetBindStates()
@@ -733,39 +783,23 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public void Stop(string action, float stopFade = 0.1f)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return;
-            for (int i = 0; i < m_vStates.Count; ++i)
+
+            if (m_vBindNameStates.TryGetValue(action, out var state))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
-                {
-                    InnerStop(state.index, stopFade);
-                    break;
-                }
+                InnerStop(state.index, stopFade);
             }
         }
         //--------------------------------------------------------
         public bool CrossFade(string action, float speed, float time, bool bForce = false)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return false;
-            for (int i = 0; i < m_vStates.Count; ++i)
+
+            if(m_vBindNameStates.TryGetValue(action, out var state))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
-                {
-                    if (!bForce && !state.isDone && state.enabled)
-                    {
-                        return true;
-                    }
-                    CrossFade(state.owner, speed, time);
-                    return true;
-                }
+                return CrossFade(state.owner, speed, time, bForce);
             }
             return false;
         }
@@ -780,6 +814,22 @@ namespace Framework.ActorSystem.Runtime
                 {
                     if (!bForce && !state.isDone && state.enabled)
                     {
+                        for (int i = 0; i < m_vStates.Count; i++)
+                        {
+                            ActionStatePlayAble tempState = m_vStates[i];
+                            if (!tempState.isValid)
+                                continue;
+
+                            if (state.layer != state.layer)
+                                continue;
+
+                            if (state.enabled == false)
+                                continue;
+
+                            float targetWeight = tempState == state ? 1.0f : 0.0f;
+                            SetupLerp(ref state, targetWeight, time);
+                        }
+
                         return true;
                     }
                     if (time == 0f)  return InnerPlay(state.index, speed);
@@ -1276,7 +1326,7 @@ namespace Framework.ActorSystem.Runtime
                 }
                 state.ResetDirtyFlags();
 
-                if(!state.isDone && state.enabled && !fadingOut)
+                if(!state.isDone && state.enabled && !fadingOut && state.weight>=1.0f)
                 {
                     hasActionPlaying = true;
                 }
@@ -1284,7 +1334,7 @@ namespace Framework.ActorSystem.Runtime
                // m_vStates[i] = state;
             }
 
-            if (mustUpdateWeights)
+            //if (mustUpdateWeights)
             {
                 bool hasAnyWeight0 = layerTotalWeight0 > 0.0f;
                 bool hasAnyWeight1 = layerTotalWeight1 > 0.0f;
@@ -1345,6 +1395,7 @@ namespace Framework.ActorSystem.Runtime
                         graph.Disconnect(state.mixerPlayable, state.index);
                         graph.DestroyPlayable(toDestroy);
                     }
+                    TypeInstancePool.Free(state);
                 }
                 m_vStates.Clear();
             }

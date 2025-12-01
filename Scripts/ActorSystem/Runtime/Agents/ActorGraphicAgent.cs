@@ -189,7 +189,7 @@ namespace Framework.ActorSystem.Runtime
            //     return;
            // }
             if (m_Player == null) return;
-            if (!m_Player.IsStateExist(pOwner))
+            if (!m_Player.IsStateExist(pOwner, animationClip))
             {
                 m_Player.AddMotion(pOwner, animationClip, (uint)layer, animationClip.name);
             }

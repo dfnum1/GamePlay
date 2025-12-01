@@ -6,6 +6,7 @@
 ร่    ส๖:	
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
+using Framework.Cutscene.Editor;
 using Framework.ED;
 using System.Collections.Generic;
 using UnityEditor;
@@ -61,9 +62,8 @@ namespace Framework.ActorSystem.Editor
         void OnTimlineTreeItemSelect(TreeAssetView.ItemData item)
         {
             m_pSelectData = item as GraphItem;
-#if USE_CUTSCENE
+            GetOwner<ACutsceneEditor>()?.OnSetTime(0);
             GetOwner().OnChangeSelect(m_pSelectData.asset.GetCutsceneGraph(true));
-#endif
         }
         //--------------------------------------------------------
         protected override void OnDestroy()
