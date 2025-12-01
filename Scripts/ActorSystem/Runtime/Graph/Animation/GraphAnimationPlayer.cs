@@ -34,7 +34,7 @@ namespace Framework.ActorSystem.Runtime
             if (m_TimeIsUpToDate)
                 return m_Time;
 
-            m_Time = (float)m_Playable.GetTime();
+            m_Time = m_Playable.IsValid()?(float)m_Playable.GetTime():0;
             m_TimeIsUpToDate = true;
             return m_Time;
         }
@@ -44,7 +44,7 @@ namespace Framework.ActorSystem.Runtime
             m_Time = newTime;
             if (m_WrapMode == WrapMode.Clamp || m_WrapMode == WrapMode.ClampForever)
             {
-                if (m_Time >= m_Playable.GetDuration())
+                if (m_Playable.IsValid() && m_Time >= m_Playable.GetDuration())
                     m_Time = (float)m_Playable.GetDuration();
             }
             if(m_Playable.IsValid())
@@ -54,7 +54,7 @@ namespace Framework.ActorSystem.Runtime
             }
             if (overTimeDone)
             {
-                if (m_WrapMode == WrapMode.Once)
+                if (m_WrapMode == WrapMode.Once && m_Playable.IsValid())
                     m_Playable.SetDone(m_Time >= m_Playable.GetDuration());
             }
         }
@@ -79,7 +79,7 @@ namespace Framework.ActorSystem.Runtime
 
         public void Pause()
         {
-            m_Playable.Pause();
+            if(m_Playable.IsValid()) m_Playable.Pause();
             // m_Playable.SetPlayState(PlayState.Paused);
         }
 
@@ -130,7 +130,7 @@ namespace Framework.ActorSystem.Runtime
             m_Enabled = false;
             m_Clip = null;
             m_WrapMode =  WrapMode.Once;
-            m_ReadyForCleanup = true;
+        //    m_ReadyForCleanup = true;
 
             m_nIndex = 0;
             m_StateName = null;
@@ -245,13 +245,13 @@ namespace Framework.ActorSystem.Runtime
 
         public float speed
         {
-            get { return (float)m_Playable.GetSpeed(); }
-            set { m_Playable.SetSpeed(value); }
+            get { return m_Playable.IsValid()?(float)m_Playable.GetSpeed():1.0f; }
+            set { if(m_Playable.IsValid()) m_Playable.SetSpeed(value); }
         }
 
         public float playableDuration
         {
-            get { return (float)m_Playable.GetDuration(); }
+            get { return m_Playable.IsValid()?(float)m_Playable.GetDuration():0.0f; }
         }
 
         public AnimationClip clip
@@ -272,7 +272,7 @@ namespace Framework.ActorSystem.Runtime
         {
             get
             {
-                return m_Playable.GetPlayState();
+                return m_Playable.IsValid()? m_Playable.GetPlayState(): PlayState.Paused;
             }
         }
 
@@ -698,22 +698,15 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public bool Play(string action, float fSpeed = 1, bool bForce = false)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return false;
-            for (int i = 0; i < m_vStates.Count; ++i)
+            if(m_vBindNameStates.TryGetValue(action, out var state))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
+                if (!bForce && !state.isDone && state.enabled)
                 {
-                    if(!bForce && !state.isDone && state.enabled)
-                    {
-                        return true;
-                    }
-                    Play(state.owner, fSpeed);
                     return true;
                 }
+                Play(state.owner, fSpeed);
             }
             return false;
         }
@@ -827,7 +820,12 @@ namespace Framework.ActorSystem.Runtime
                                 continue;
 
                             float targetWeight = tempState == state ? 1.0f : 0.0f;
-                            SetupLerp(ref state, targetWeight, time);
+                            if (tempState.fading) SetupLerp(ref tempState, targetWeight, time);
+                            else
+                            {
+                                tempState.ForceWeight(targetWeight);
+                                tempState.Enable();
+                            }
                         }
 
                         return true;
@@ -841,18 +839,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public bool Blend(string action, float speed, float targetWeight, float blendTime, bool bForce = false)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return false;
-            for (int i = 0; i < m_vStates.Count; ++i)
+            if(m_vBindNameStates.TryGetValue(action, out var state))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
-                {
-                    Blend(state.owner, speed, targetWeight, blendTime, bForce);
-                    return true;
-                }
+                Blend(state.owner, speed, targetWeight, blendTime, bForce);
+                return true;
             }
             return false;
         }
@@ -890,18 +882,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public bool SetTime(string action, float time, bool overTimeDone = true)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return false;
-            for (int i = 0; i < m_vStates.Count; ++i)
+            if(m_vBindNameStates.TryGetValue(action, out var state))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
-                {
-                    SetTime(state.owner, time, overTimeDone);
-                    return true;
-                }
+                SetTime(state.owner, time, overTimeDone);
+                return true;
             }
             return false;
         }
@@ -960,17 +946,13 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public void SetSpeed(string action, float speed)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return;
-            for (int i = 0; i < m_vStates.Count; ++i)
+            if(m_vBindNameStates.TryGetValue(action, out var playable))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
+                if (playable.isValid && playable.enabled && !playable.isDone)
                 {
-                    SetSpeed(state.owner, speed);
-                    break;
+                    playable.speed = speed;
                 }
             }
         }
@@ -991,17 +973,14 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public void SetBlendWeight(string action, float fWeight)
         {
-            if (m_vStates == null)
+            if (m_vBindNameStates == null)
                 return;
-            for (int i = 0; i < m_vStates.Count; ++i)
+            if (m_vBindNameStates.TryGetValue(action, out var playable))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
+                if (playable.isValid)
                 {
-                    SetBlendWeight(state.owner, fWeight);
-                    break;
+                    playable.SetWeight(fWeight);
+                    //   m_vStates[playable.index] = playable;
                 }
             }
         }
@@ -1049,14 +1028,14 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_vStates == null)
                 return false;
-            for (int i = 0; i < m_vStates.Count; ++i)
+
+            if (m_vBindNameStates == null)
+                return false;
+            if (m_vBindNameStates.TryGetValue(action, out var playable))
             {
-                ActionStatePlayAble state = m_vStates[i];
-                if (!state.isValid)
-                    continue;
-                if (action.CompareTo(state.stateName) == 0)
+                if (playable.isValid)
                 {
-                    return state.enabled && !state.isDone;
+                    return playable.enabled && !playable.isDone;
                 }
             }
             return false;
@@ -1134,6 +1113,7 @@ namespace Framework.ActorSystem.Runtime
         private void SetupLerp(ref ActionStatePlayAble state, float targetWeight, float blendTime)
         {
             float travel = Mathf.Abs(state.weight - targetWeight);
+            if (travel <= 0) travel = 10;
             float newSpeed = blendTime != 0f ? travel / blendTime : Mathf.Infinity;
 
             // If we're fading to the same target as before but slower, assume CrossFade was called multiple times and ignore new speed
@@ -1244,6 +1224,8 @@ namespace Framework.ActorSystem.Runtime
             float layerTotalWeight0 = 0;
             float layerTotalWeight1 = 0;
             bool hasActionPlaying = false;
+            bool fadingOut = false;
+            bool isFading = false;
             for (int i = 0; i < m_vStates.Count; i++)
             {
                 ActionStatePlayAble state = m_vStates[i];
@@ -1254,10 +1236,10 @@ namespace Framework.ActorSystem.Runtime
                     continue;
                 }
 
-                bool fadingOut = false;
                 //Update crossfade weight
                 if (state.fading)
                 {
+                    isFading = true;
                     if (state.targetWeight <= 0.0f)
                         fadingOut = true;
                     state.SetWeight(Mathf.MoveTowards(state.weight, state.targetWeight, state.fadeSpeed * deltaTime));
@@ -1317,6 +1299,10 @@ namespace Framework.ActorSystem.Runtime
                 {
                     if (!state.fading && state.playState != PlayState.Playing)
                         state.SetWeight(0);
+                    else if (!state.fading && state.playState == PlayState.Playing && state.GetTime() >= state.playableDuration)
+                    {
+                        SetupLerp(ref state, 0, 0.1f);
+                    }
                 }
                 if (state.layer == 0) layerTotalWeight0 += state.weight;
                 else layerTotalWeight1 += state.weight;
@@ -1330,11 +1316,10 @@ namespace Framework.ActorSystem.Runtime
                 {
                     hasActionPlaying = true;
                 }
-
                // m_vStates[i] = state;
             }
 
-            //if (mustUpdateWeights)
+            if (mustUpdateWeights)
             {
                 bool hasAnyWeight0 = layerTotalWeight0 > 0.0f;
                 bool hasAnyWeight1 = layerTotalWeight1 > 0.0f;
@@ -1356,13 +1341,18 @@ namespace Framework.ActorSystem.Runtime
                     }
                 }
             }
-            if(!hasActionPlaying)
+            if(!hasActionPlaying && !isFading)
             {
                 AT.Runtime.IUserData defaltOwner = m_DefaultClip;
                 if (m_DefaultOwner != null) defaltOwner = m_DefaultOwner;
-                if (m_vBindStates.TryGetValue(defaltOwner, out var state) && (state.isDone || !state.enabled))
+                if (m_vBindStates.TryGetValue(defaltOwner, out var state))
                 {
-                    InnerBlend(state.index, 1, 1, 0.1f);
+                    if(state.isDone || !state.enabled)
+                        InnerBlend(state.index, 1, 1, 0.1f);
+                    else if(state.weight <=0.0f)
+                    {
+                        SetupLerp(ref state, 1, 0.1f);
+                    }
                 }
             }
         }
@@ -1393,8 +1383,9 @@ namespace Framework.ActorSystem.Runtime
                     {
                         Playable toDestroy = state.mixerPlayable.GetInput(state.index);
                         graph.Disconnect(state.mixerPlayable, state.index);
-                        graph.DestroyPlayable(toDestroy);
+                        if(toDestroy.IsValid()) graph.DestroyPlayable(toDestroy);
                     }
+                    state.SetPlayable(Playable.Null);
                     TypeInstancePool.Free(state);
                 }
                 m_vStates.Clear();

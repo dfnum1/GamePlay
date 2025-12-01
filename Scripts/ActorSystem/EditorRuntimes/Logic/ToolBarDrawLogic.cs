@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.ActorSystem.Runtime;
 using Framework.ED;
 using UnityEditor;
 using UnityEngine;
@@ -33,6 +34,10 @@ namespace Framework.ActorSystem.Editor
                 {
                     ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
                     editor.OpenSkillEditor();
+                }
+                if (GUILayout.Button("动画调试", new GUILayoutOption[] { GUILayout.Width(80) }))
+                {
+                    GraphPlayableUtil.DebugPlayable(GetActor());
                 }
                 GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) });
                 GUILayout.EndHorizontal();
