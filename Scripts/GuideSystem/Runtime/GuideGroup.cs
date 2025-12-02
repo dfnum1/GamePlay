@@ -34,10 +34,10 @@ namespace Framework.Guide
         public List<ArgvPort> vPorts = null;
 
         [System.NonSerialized]
-        Dictionary<int, ArgvPort> m_vPorts = new Dictionary<int, ArgvPort>();
+        Dictionary<int, ArgvPort> m_vPorts = new Dictionary<int, ArgvPort>(32);
 
         [System.NonSerialized]
-        Dictionary<int, BaseNode> m_vNodes = new Dictionary<int, BaseNode>();
+        Dictionary<int, BaseNode> m_vNodes = new Dictionary<int, BaseNode>(16);
 
         [System.NonSerialized]
         private bool m_bInited = false;

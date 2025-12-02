@@ -84,24 +84,25 @@ namespace Framework.ProjectileSystem.Editor
             Instance = this;
 
             //! 加载飞行道具配置数据
-            //string[] guideDatas = AssetDatabase.FindAssets("t:ProjectileDatas");
-            //if (guideDatas != null && guideDatas.Length > 0)
-            //{
-            //    m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
-            //}
-            //if (m_ProjectileDatas != null)
-            //{
-            //    ProjectileDatas.RefreshDatas(m_ProjectileDatas);
-            //}
-            //else
-            //{
-            //    EditorUtility.DisplayDialog("提示","没有创建飞行道具数据集，请先创建!!", "好的");
-            //    return;
-            //}
+            string[] guideDatas = AssetDatabase.FindAssets("t:ProjectileDatas");
+            if (guideDatas != null && guideDatas.Length > 0)
+            {
+                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+            }
+            if (m_ProjectileDatas != null)
+            {
+                ProjectileDatas.RefreshDatas(m_ProjectileDatas);
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("提示", "没有创建飞行道具数据集，请先创建!!", "好的");
+                return;
+            }
             m_CutsceneManager = new CutsceneManager();
             m_CutsceneManager.SetEditorMode(true);
             m_pActorManager = new ActorManager();
             m_pActorManager.Init(m_CutsceneManager);
+            m_pActorManager.SetProjectileDatas(m_ProjectileDatas);
             m_pActorManager.RegisterCallback(this);
 
             base.minSize = new Vector2(850f, 320f);

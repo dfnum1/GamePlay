@@ -962,7 +962,7 @@ namespace Framework.Guide.Editor
             }
             m_pGroupData.Init(true);
             GuideSystem.getInstance().SetTestFlag(true);
-            GuideSystem.getInstance().DoGuide(m_pGroupData.Guid, -1, pStartNode);
+            GuideSystem.getInstance().DoGuide(m_pGroupData.Guid, pStartNode);
         }
         //------------------------------------------------------
         public void OverGuide()

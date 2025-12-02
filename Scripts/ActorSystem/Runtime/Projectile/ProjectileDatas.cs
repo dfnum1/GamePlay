@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Framework.DrawProps;
 using Framework.ActorSystem.Runtime;
+using System.IO;
+
 
 
 #if USE_SERVER
@@ -53,7 +55,7 @@ namespace Framework.ActorSystem.Runtime
             string projectileFileRoot = UnityEditor.AssetDatabase.GetAssetPath(this);
             if (string.IsNullOrEmpty(projectileFileRoot))
                 return;
-            projectileFileRoot = projectileFileRoot.Replace("\\", "/");
+            projectileFileRoot = Path.GetDirectoryName(projectileFileRoot.Replace("\\", "/"));
             var files = System.IO.Directory.GetFiles(projectileFileRoot, "*.json", System.IO.SearchOption.AllDirectories);
             List<ProjectileData> vDatas = new List<ProjectileData>();
             for (int i = 0; i < files.Length; ++i)

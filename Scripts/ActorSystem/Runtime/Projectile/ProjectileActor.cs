@@ -535,29 +535,15 @@ namespace Framework.ActorSystem.Runtime
             bool bTrackDo = false;
             if (ProjectileData.IsTrack(m_ProjecileData.type) || m_ProjecileData.type == EProjectileType.TrackPath || m_IsBoundProjectile)
             {
-                if (m_ProjecileData.type == EProjectileType.TrackPoint)
+                if (m_pTargetNode != null && !m_pTargetNode.IsFlag(EActorFlag.Killed) && !m_pTargetNode.IsDestroy())
                 {
-                    m_TargetPosition = m_TrackPoint;
-                    if (m_pTrackTransform)
-                        m_TargetPosition.z = (FFloat)m_pTrackTransform.position.z;
-                    else if (m_pTargetNode != null)
-                        m_TargetPosition.z = m_pTargetNode.GetPosition().z;
-
-                    m_TargetPosition += m_ProjecileData.track_target_offset + m_TrackOffset;
-                    bTrackDo = true;
-                }
-                else
-                {
-                    if (m_pTargetNode != null && !m_pTargetNode.IsFlag(EActorFlag.Killed) && !m_pTargetNode.IsDestroy())
+                    m_TargetPosition = m_pTargetNode.GetPosition();
+                    if (m_pTrackTransform != null)
                     {
-                        m_TargetPosition = m_pTargetNode.GetPosition();
-                        if (m_pTrackTransform != null)
-                        {
-                            m_TargetPosition = m_pTrackTransform.position + m_ProjecileData.track_target_offset + m_TrackOffset;
-                        }
+                        m_TargetPosition = m_pTrackTransform.position + m_ProjecileData.track_target_offset + m_TrackOffset;
                     }
-                    bTrackDo = true;
                 }
+                bTrackDo = true;
             }
             return bTrackDo;
         }
@@ -911,7 +897,7 @@ namespace Framework.ActorSystem.Runtime
             {
                 return position.y <= hit.point.y;
             }
-            return false;
+            return position.y <= 0;
         }
         //------------------------------------------------------
         internal bool CheckStoped(ProjectileManager mgr, FFloat fFrameTime)
@@ -957,7 +943,7 @@ namespace Framework.ActorSystem.Runtime
                 bCheckActors = (m_nLaunchFlag & (int)ELaunchFlag.TrackIngoreOtherCollision) == 0;
             }
 
-            if (ProjectileData.IsTrack(m_ProjecileData.type) && m_ProjecileData.type != EProjectileType.TrackPoint)
+            if (ProjectileData.IsTrack(m_ProjecileData.type))
             {
                 if (m_bTrackEnd && m_pTargetNode != null && m_pTargetNode.IsCanLogic()
                         && !IsHited(m_pTargetNode.GetInstanceID(), false))

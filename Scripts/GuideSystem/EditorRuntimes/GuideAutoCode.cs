@@ -114,9 +114,9 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic static void DoGuide(int guid, int state, BaseNode pStartNode = null, bool bForce = false)\r\n";
+            code += "\t\tpublic static void DoGuide(int guid, int startNodeGuid = -1, bool bForce = false)\r\n";
             code += "\t\t{\r\n";
-            code += "\t\t\tGuideSystem.getInstance().DoGuide(guid,state,pStartNode,bForce);\r\n";
+            code += "\t\t\tGuideSystem.getInstance().DoGuide(guid,startNodeGuid,bForce, BuildArgvList());\r\n";
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
@@ -142,16 +142,17 @@ namespace Framework.Guide.Editor
                     {
                         types = ex.Types; // 部分可用类型
                                           // 可选：输出警告
-                        Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                        Debug.LogWarning($"[GuideAutoCode] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        Debug.LogWarning($"[GuideAutoCode] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
                         continue;
                     }
                     for (int t = 0; t < types.Length; ++t)
                     {
-                        if (types[t] == null || !types[t].IsEnum) continue;
+                        if (types[t] == null) continue;
+                        if (!types[t].IsEnum) continue;
                         System.Type enumType = types[t];
                         if (!enumType.IsDefined(typeof(GuideExportAttribute)))
                             continue;

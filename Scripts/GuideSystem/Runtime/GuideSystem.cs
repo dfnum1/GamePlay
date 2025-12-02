@@ -301,10 +301,10 @@ namespace Framework.Guide
             //             else if (tag < 256) m_GuideFlag4 |= (bit << (tag - 192));
         }
         //------------------------------------------------------
-        public void ResetRefresh(IList<UInt64> flags, bool bMaskFlag=true)
+        public void ResetRefresh(IList<UInt64> flags, bool bMaskFlag=true, bool bClearReset = false)
         {
             if (m_vDatas == null) return;
-            Clear();
+            if(bClearReset) Clear();
             if(flags!=null)
             {
                 if(bMaskFlag)
@@ -441,8 +441,7 @@ namespace Framework.Guide
         //------------------------------------------------------
         public void OverGuide(bool bCheckRecord = false)
         {
-            OnTriggerNodeEnd(m_pDoingTriggerNode, bCheckRecord);
-
+            TriggerNode pDoingTriggerNode = m_pDoingTriggerNode;
             m_pDoingTriggerNode = null;
             SetDoingNod(null);
             m_fAutoNextDelta = 0;
@@ -451,21 +450,32 @@ namespace Framework.Guide
             m_vTracking.Clear();
             if (bGuideLogEnable)
                 Log("结束当前引导");
+            if (m_GuidePanel != null) m_GuidePanel.Hide();
+            OnTriggerNodeEnd(pDoingTriggerNode, bCheckRecord);
 #if UNITY_EDITOR
             bTestFlag = false;
 #endif
-            if (m_GuidePanel != null) m_GuidePanel.Hide();
         }
         //------------------------------------------------------
-        public bool DoGuide(int guide, int curState, BaseNode pStartNode = null, bool bForce =false)
+        public bool DoGuide(int guide, int startNodeGUID = -1, bool bForce = false, VariableList argvList = null)
+        {
+            if (m_vDatas == null)
+                return false;
+            BaseNode pStartNode = null;
+            if (m_vDatas.TryGetValue(guide, out var guideGroup))
+            {
+                pStartNode = guideGroup.GetNode<BaseNode>(startNodeGUID);
+            }
+            return DoGuide(guide, pStartNode, bForce, argvList);
+        }
+        //------------------------------------------------------
+        public bool DoGuide(int guide, BaseNode pStartNode = null, bool bForce =false, VariableList argvList= null)
         {
             if (m_vDatas == null)
                 return false;
             GuideGroup pGroup;
             if(m_vDatas.TryGetValue(guide, out pGroup) && pGroup.vTriggers.Count>0)
             {
-                var argv = VariableList.Get();
-                argv.AddInt(curState);
                 int startIndex = 0;
                 if(pStartNode!=null)
                 {
@@ -478,7 +488,7 @@ namespace Framework.Guide
                         }
                     }
                 }
-                return OnTrigger(pGroup.vTriggers[startIndex], pStartNode, bForce, argv);
+                return OnTrigger(pGroup.vTriggers[startIndex], pStartNode, bForce, argvList);
             }
             return false;
         }

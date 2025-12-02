@@ -269,13 +269,13 @@ namespace Framework.Guide
         public string DisplayName { get; set; }
         public string argvName { get; set; }
         public string strTips = "";
-        public string dispayTypeName;
+        public string dispayTypeName = null;
         public object defaultValue = null;
 #endif
-        public GuideArgvAttribute(string displayName, string argvName, string strTips, System.Type displayType, EArgvFalg Flag = EArgvFalg.All, EBitGuiType bBit = EBitGuiType.None, object defaultValue = null)
+        public GuideArgvAttribute(string displayName, string argvName, string strTips, System.Type displayType, EArgvFalg Flag = EArgvFalg.All, EBitGuiType bBit = EBitGuiType.None, object defaultValue = null, string displayTypeName = null)
         {
 #if UNITY_EDITOR
-            this.dispayTypeName = null;
+            this.dispayTypeName = displayTypeName;
             this.displayType = displayType;
             this.argvName = argvName;
             this.DisplayName = displayName;

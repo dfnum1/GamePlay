@@ -75,9 +75,8 @@ namespace Framework.ActorSystem.Runtime
         [Display("飞行器")] Projectile = 0,
         [Display("跟踪飞行器")] Track = 1,
         [Display("陷阱")] Trap = 2,
-        [Display("追踪点位-xy")] TrackPoint = 3,
-        [Display("飞行轨迹")] TrackPath = 4,
-        [Display("弹跳弹")] Bounce = 5,
+        [Display("飞行轨迹")] TrackPath = 3,
+        [Display("弹跳弹")] Bounce = 4,
     }
 
     public enum EProjecitleBornType : byte
@@ -98,8 +97,8 @@ namespace Framework.ActorSystem.Runtime
 
     public enum EProjectileCollisionType : byte
     {
-        BOX = 0,
-        CAPSULE,
+        [Display("方体")] BOX = 0,
+        [Display("球体")] CAPSULE,
         NONE
     };
 
@@ -109,7 +108,7 @@ namespace Framework.ActorSystem.Runtime
         public uint id;
         [Display("类型")]
         public EProjectileType type = EProjectileType.Projectile;
-        public EProjecitleBornType bornType = EProjecitleBornType.None;
+        [Display("出生类型")] public EProjecitleBornType bornType = EProjecitleBornType.None;
         public float effectSpeed = -1;
         public string effect;
         //      public string effect_trail_wide;
@@ -123,8 +122,8 @@ namespace Framework.ActorSystem.Runtime
         public Vector3 minRotate;
         public Vector3 maxRotate;
         public EProjectileCollisionType collisionType;
-        public Vector3 aabb_min;
-        public Vector3 aabb_max;
+        public Vector3 aabb_min = new Vector3(-0.5f,-0.5f,-0.5f);
+        public Vector3 aabb_max = new Vector3(0.5f, 0.5f, 0.5f);
         //   public float hit_rate_base;
         public float life_time = 5;
         public byte max_oneframe_hit = 1;
@@ -205,7 +204,7 @@ namespace Framework.ActorSystem.Runtime
         public byte classify = 0;
         public static bool IsTrack(EProjectileType type)
         {
-            return type == EProjectileType.Track || type == EProjectileType.TrackPoint || type == EProjectileType.TrackPath;
+            return type == EProjectileType.Track || type == EProjectileType.TrackPath;
         }
         //------------------------------------------------------
         public bool IsValidTrackPath()

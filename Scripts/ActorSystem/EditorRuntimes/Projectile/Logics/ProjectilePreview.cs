@@ -362,6 +362,8 @@ namespace Framework.ProjectileSystem.Editor
                 m_pWaringObj = GameObject.Instantiate<GameObject>(pObj);
                 ActorSystemUtil.ResetGameObject(m_pWaringObj, EResetType.All);
             }
+
+            GetOwner<ProjectileEditor>().GetActorManager().GetProjectileManager().AddProjectileData(m_pCurrent);
         }
         //-----------------------------------------------------
         protected override void OnUpdate(float fFrameTime)
@@ -445,7 +447,7 @@ namespace Framework.ProjectileSystem.Editor
             }
         }
         //-----------------------------------------------------
-        public void OnSceneGUI()
+        public void OnSceneGUI(Event evt)
         {
 #if !UNITY_5_1
             UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
@@ -479,9 +481,9 @@ namespace Framework.ProjectileSystem.Editor
                     rotation = m_pPreveObject.transform.rotation;
                 }
                 if (m_pCurrent.collisionType == EProjectileCollisionType.BOX)
-                    RenderVolumeByColor(ref m_pCurrent.aabb_min, ref m_pCurrent.aabb_max, position, rotation,Color.red, 1.0f, true);
+                    RenderVolumeByColor(ref m_pCurrent.aabb_min, ref m_pCurrent.aabb_max, position, rotation,Color.red, 1.0f, evt.shift);
                 else if (m_pCurrent.collisionType == EProjectileCollisionType.CAPSULE)
-                    RenderSphereByColor(ref m_pCurrent.aabb_min.x, position, rotation, "#ff0000ff", 1.0f, true);
+                    RenderSphereByColor(ref m_pCurrent.aabb_min.x, position, rotation, "#ff0000ff", 1.0f, evt.shift);
 
                 m_pSimulateActor.SetPosition(Handles.DoPositionHandle(m_pSimulateActor.GetPosition(), Quaternion.identity));
                 m_pTargetActor.SetPosition(Handles.DoPositionHandle(m_pTargetActor.GetPosition(), Quaternion.identity));
@@ -615,7 +617,7 @@ namespace Framework.ProjectileSystem.Editor
         //--------------------------------------------------------
         void OnPreviewSceneDraw(int controllerId, Camera camera, Event evt)
         {
-            OnSceneGUI();
+            OnSceneGUI(evt);
         }
         //------------------------------------------------------
         void RenderSphereByColor(ref float fRadius, Vector3 position, Quaternion rotation, string strColor, float fScale, bool bEditor = false)

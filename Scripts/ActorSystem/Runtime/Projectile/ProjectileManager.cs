@@ -114,6 +114,13 @@ namespace Framework.ActorSystem.Runtime
             projectileDatas.GetDatas(m_vDatas);
         }
         //------------------------------------------------------
+        public void AddProjectileData(ProjectileData pData)
+        {
+            if (pData == null) return;
+            if (m_vDatas == null) m_vDatas = new Dictionary<uint, ProjectileData>();
+            m_vDatas[pData.id] = pData;
+        }
+        //------------------------------------------------------
         public ProjectileData GetProjectileData(uint nId)
         {
             if (m_vDatas == null)

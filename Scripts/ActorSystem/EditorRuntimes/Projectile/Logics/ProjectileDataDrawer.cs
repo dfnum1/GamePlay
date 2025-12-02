@@ -115,6 +115,8 @@ namespace Framework.ProjectileSystem.Editor
                 }
             }
             public bool bExpandSpeedAcc = false;
+            public bool bExpandRotate = false;
+            public bool bExpandFlags = false;
             public List<ProjectTrack> testProjectile = new List<ProjectTrack>();
             public System.DateTime lastTime;
 
@@ -176,6 +178,7 @@ namespace Framework.ProjectileSystem.Editor
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bornType");
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "classify");
+            projectile.life_time = EditorGUILayout.FloatField("生命时长", projectile.life_time);
 
             float labelWidth = EditorGUIUtility.labelWidth;
             if(projectile.type != EProjectileType.Trap)
@@ -189,13 +192,13 @@ namespace Framework.ProjectileSystem.Editor
                     drawData.bExpandSpeedAcc = EditorGUILayout.Foldout(drawData.bExpandSpeedAcc, "路径点");
                     if(drawData.bExpandSpeedAcc)
                     {
-                        float width = size.x - 40;
-                        GUILayoutOption[] layOp = new GUILayoutOption[] { GUILayout.Width(width / 4) };
+                        float width = size.x - 40-70- 40;
+                        GUILayoutOption[] layOp = new GUILayoutOption[] { GUILayout.Width(width) };
                         GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(width) });
-                        GUILayout.Label("index", layOp);
+                        GUILayout.Label("index", GUILayout.Width(30));
                         GUILayout.Label("点", layOp);
-                        GUILayout.Label("速度", layOp);
-                        GUILayout.Label("", layOp);
+                        GUILayout.Label("速度", GUILayout.Width(50));
+                        GUILayout.Label("", GUILayout.Width(40));
                         GUILayout.EndHorizontal();
 
                         for (int i = 0; i < vPoint.Count; ++i)
@@ -206,10 +209,10 @@ namespace Framework.ProjectileSystem.Editor
                             Vector3 accSpeed = vAccSpeed[i];
 
                             GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(width) });
-                            EditorGUILayout.LabelField((i + 1).ToString(), layOp);
+                            EditorGUILayout.LabelField((i + 1).ToString(), GUILayout.Width(30));
                             point = EditorGUILayout.Vector3Field("",point, layOp);
-                            accSpeed.x = Mathf.Max(0.1f, EditorGUILayout.FloatField("", accSpeed.x, layOp));
-                            if (GUILayout.Button("删除", layOp))
+                            accSpeed.x = Mathf.Max(0.1f, EditorGUILayout.FloatField("", accSpeed.x, GUILayout.Width(50)));
+                            if (GUILayout.Button("删除", GUILayout.Width(40)))
                             {
                                 vInTags.RemoveAt(i);
                                 vOutTags.RemoveAt(i);
@@ -285,7 +288,7 @@ namespace Framework.ProjectileSystem.Editor
                             GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(width) });
                             GUILayout.Label("轴向", layOp);
                             GUILayout.Label("随机区间", layOp);
-                            GUILayout.Label("最大速度(0为无限制)", layOp);
+                            GUILayout.Label("上限(0为无限制)", layOp);
                             if (GUILayout.Button("删除", layOp))
                             {
                                 vLowerSpeeds.RemoveAt(i);
@@ -304,6 +307,7 @@ namespace Framework.ProjectileSystem.Editor
 
                                 GUILayout.BeginHorizontal(layOp);
                                 float lowSpeed = EditorGUILayout.FloatField(lower[j]);
+                                if (upper[j] < lowSpeed) upper[j] = lowSpeed;
                                 EditorGUIUtility.labelWidth = 20;
                                 EditorGUILayout.LabelField("--", new GUILayoutOption[] { GUILayout.Width(20) });
                                 EditorGUIUtility.labelWidth = labelWidth;
@@ -341,14 +345,19 @@ namespace Framework.ProjectileSystem.Editor
             }
             if (ProjectileData.IsTrack(projectile.type))
             {
-                projectile.speedLerp.x = EditorGUILayout.FloatField("弹道朝目标过度快慢", projectile.speedLerp.x);
-                projectile.speedLerp.y = EditorGUILayout.FloatField("飞离多远朝向目标", projectile.speedLerp.y);
+                if(projectile.type != EProjectileType.TrackPath)
+                {
+                    projectile.speedLerp.x = EditorGUILayout.FloatField("弹道朝目标过度快慢", projectile.speedLerp.x);
+                    projectile.speedLerp.y = EditorGUILayout.FloatField("飞离多远朝向目标", projectile.speedLerp.y);
+                }
             }
             else if(projectile.type == EProjectileType.Bounce)
             {
                 projectile.speedLerp.x = EditorGUILayout.IntField("弹跳次数(<=0不限制)", (int)projectile.speedLerp.x);
                 projectile.speedLerp.y = EditorGUILayout.FloatField("弹力衰减值", projectile.speedLerp.y);
             }
+            drawData.bExpandRotate = EditorGUILayout.Foldout(drawData.bExpandRotate, "自旋转");
+            if (drawData.bExpandRotate)
             {
                 float width = size.x - 40;
                 GUILayoutOption[] layOp = new GUILayoutOption[] { GUILayout.Width(width / 3) };
@@ -364,11 +373,12 @@ namespace Framework.ProjectileSystem.Editor
                     EditorGUILayout.LabelField(ROTATE_AXIS_NAME[j], layOp);
 
                     GUILayout.BeginHorizontal(layOp);
-                    float lowValue = EditorGUILayout.FloatField(projectile.minRotate[j]);
+                    float lowValue = EditorGUILayout.FloatField(projectile.minRotate[j], layOp);
+                    if (projectile.maxRotate[j] < lowValue) projectile.maxRotate[j] = lowValue;
                     EditorGUIUtility.labelWidth = 20;
                     EditorGUILayout.LabelField("--", new GUILayoutOption[] { GUILayout.Width(20) });
                     EditorGUIUtility.labelWidth = labelWidth;
-                    float upperValue = EditorGUILayout.FloatField(projectile.maxRotate[j]);
+                    float upperValue = EditorGUILayout.FloatField(projectile.maxRotate[j], layOp);
                     GUILayout.EndHorizontal();
 
                     projectile.minRotate[j] = Mathf.Min(lowValue, upperValue);
@@ -380,8 +390,11 @@ namespace Framework.ProjectileSystem.Editor
             }
            
             EditorGUIUtility.labelWidth = labelWidth;
-            projectile.life_time = EditorGUILayout.FloatField("生命时长", projectile.life_time);
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "launch_flag");
+            drawData.bExpandFlags = EditorGUILayout.Foldout(drawData.bExpandFlags, "更新标志");
+            if (drawData.bExpandFlags)
+            {
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "launch_flag");
+            }
 
             if (ProjectileData.IsTrack(projectile.type))
             {
@@ -397,6 +410,7 @@ namespace Framework.ProjectileSystem.Editor
             }
             else if (projectile.collisionType == EProjectileCollisionType.CAPSULE)
             {
+                if (projectile.aabb_min.x < 0) projectile.aabb_min.x = 0;
                 projectile.aabb_min.x = EditorGUILayout.FloatField("半径大小", projectile.aabb_min.x);
             }
             projectile.penetrable = EditorGUILayout.Toggle("是否可穿透", projectile.penetrable);
