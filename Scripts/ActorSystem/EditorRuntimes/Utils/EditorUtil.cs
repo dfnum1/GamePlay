@@ -10,10 +10,12 @@ namespace Framework.ActorSystem.Editor
 {
     public static class EditorUtil
     {
+        //-----------------------------------------------------
         public static int CombineHash(this int h1, int h2)
         {
             return h1 ^ (int)(h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2)); // Similar to c++ boost::hash_combine
         }
+        //-----------------------------------------------------
         public static bool DrawButton(Texture image, string tooltip, GUIStyle style, float width =0)
         {
             if(width<=0)
@@ -21,6 +23,7 @@ namespace Framework.ActorSystem.Editor
             else
                 return GUILayout.Button(new GUIContent(image, tooltip),style, GUILayout.Width(width));
         }
+        //-----------------------------------------------------
         public static bool DrawToggle(bool value, Texture image, string tooltip, GUIStyle style, float width = 0)
         {
             if (width <= 0)
@@ -28,6 +31,7 @@ namespace Framework.ActorSystem.Editor
             else
                 return GUILayout.Toggle(value, new GUIContent(image, tooltip), style, GUILayout.Width(width));
         }
+        //-----------------------------------------------------
         public static void DrawPolygonAA(Color color, Vector3[] vertices)
         {
             var prevColor = Handles.color;
@@ -35,6 +39,7 @@ namespace Framework.ActorSystem.Editor
             Handles.DrawAAConvexPolygon(vertices);
             Handles.color = prevColor;
         }
+        //-----------------------------------------------------
         public static void DrawLine(Vector3 p1, Vector3 p2, Color color)
         {
             var c = Handles.color;
@@ -42,6 +47,7 @@ namespace Framework.ActorSystem.Editor
             Handles.DrawLine(p1, p2);
             Handles.color = c;
         }
+        //-----------------------------------------------------
         public static void DrawDottedLine(Vector3 p1, Vector3 p2, float segmentsLength, Color col)
         {
             UIDrawUtils.ApplyWireMaterial();
@@ -59,6 +65,7 @@ namespace Framework.ActorSystem.Editor
 
             GL.End();
         }
+        //-----------------------------------------------------
         public static void ShadowLabel(Rect rect, GUIContent content, GUIStyle style, Color textColor, Color shadowColor)
         {
             var shadowRect = rect;
@@ -102,6 +109,13 @@ namespace Framework.ActorSystem.Editor
         {
             return ((uint)type << 16) | tag;
         }
+        //-----------------------------------------------------
+        public static void Destroy(GameObject pIns)
+        {
+            if (pIns == null) return;
+            if (Application.isPlaying) GameObject.Destroy(pIns);
+            else GameObject.DestroyImmediate(pIns);
+        }
     }
 #if USE_ACTORSYSTEM
     public static class AssetUtil
@@ -118,10 +132,14 @@ namespace Framework.ActorSystem.Editor
                     {
                         string installPath = System.IO.Path.GetDirectoryName(UnityEditor.AssetDatabase.GUIDToAssetPath(scripts[0])).Replace("\\", "/");
 
-                        installPath = Path.Combine(installPath, "EditorResources").Replace("\\", "/");
-                        if (System.IO.Directory.Exists(installPath))
+                        string installPath1 = Path.Combine(installPath, "EditorResources").Replace("\\", "/");
+                        if (!System.IO.Directory.Exists(installPath1))
                         {
-                            ms_installPath = installPath;
+                            installPath1 = Path.Combine(Path.GetDirectoryName(installPath), "EditorResources").Replace("\\", "/");
+                        }
+                        if (System.IO.Directory.Exists(installPath1))
+                        {
+                            ms_installPath = installPath1;
                         }
                     }
                 }
@@ -133,9 +151,10 @@ namespace Framework.ActorSystem.Editor
         {
             string install = BuildInstallPath();
             if (string.IsNullOrEmpty(install)) return null;
-            var ground = UnityEditor.AssetDatabase.FindAssets("t:Texture2D ground", new string[]{ install });
-            if (ground == null || ground.Length <= 0) return null;
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(UnityEditor.AssetDatabase.GUIDToAssetPath(ground[0]));
+            string groundPath = install + "/ground.png";
+            if (!File.Exists(groundPath))
+                return null;
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(groundPath);
         }
     }
 #endif // USE_ACTORSYSTEM

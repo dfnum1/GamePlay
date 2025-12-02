@@ -4,8 +4,6 @@
 作    者:	HappLI
 描    述:	Actor单位
 *********************************************************************/
-using Framework.ActorSystem.Editor;
-using Framework.AT.Editor;
 using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
@@ -18,12 +16,13 @@ namespace Framework.ActorSystem.Runtime
 
 
         int                                     m_nInstanceID = 0;
-        ActorManager                            m_pSytstem;
+        protected ActorManager                  m_pSytstem;
         List<AActorAgent>                       m_vAgents = null;
         Dictionary<System.Type, AActorAgent>    m_mTypeAgents = null;
         ActorParameter                          m_pActorParameter;
 
-        WorldTransform                          m_Transform = new WorldTransform(Vector3.zero);
+        protected WorldTransform                m_Transform = new WorldTransform(Vector3.zero);
+        protected WorldBoundBox                 m_BoundBox = new WorldBoundBox();
         IContextData                            m_pObjectAble;
         Transform                               m_pUnityTransform;
         private Dictionary<int, Component>      m_vComponents = null;
@@ -126,6 +125,12 @@ namespace Framework.ActorSystem.Runtime
             UpdateTransform();
         }
         //--------------------------------------------------------
+        protected void BreakObjectAble()
+        {
+            m_pObjectAble = null;
+            m_pUnityTransform = null;
+        }
+        //--------------------------------------------------------
         public bool LoadActorGraph(string actorGraph)
         {
             return GetActorGraph().LoadGraph(actorGraph, OnLoadActorGraph);
@@ -156,7 +161,10 @@ namespace Framework.ActorSystem.Runtime
             m_nFreezeCounter = 0;
             m_bCutsceneHold = false;
             m_nFlags = (ushort)EActorFlag.Default;
+            OnReset();
         }
+        //--------------------------------------------------------
+        protected virtual void OnReset() { }
         //--------------------------------------------------------
         internal void OnCreated()
         {
@@ -199,6 +207,26 @@ namespace Framework.ActorSystem.Runtime
             return GetActorParameter().CanAttackGroup(attackGroup);
         }
         //--------------------------------------------------------
+        public void SetSpeed(Vector3 speed)
+        {
+            GetAgent<ActorRunMoveLogic>(true).SetSpeed(speed);
+        }
+        //--------------------------------------------------------
+        public void SetSpeedXZ(Vector3 speed)
+        {
+            GetAgent<ActorRunMoveLogic>(true).SetSpeedXZ(speed);
+        }
+        //--------------------------------------------------------
+        public Vector3 GetSpeed()
+        {         
+            return GetAgent<ActorRunMoveLogic>(true).GetSpeed();
+        }
+        //--------------------------------------------------------
+        public void SetSpeedY(float fSpeedY)
+        {
+            GetAgent<ActorRunMoveLogic>(true).SetSpeedY(fSpeedY);
+        }
+        //--------------------------------------------------------
         public Vector3 GetPosition()
         {
             return m_Transform.GetPosition();
@@ -214,6 +242,11 @@ namespace Framework.ActorSystem.Runtime
             m_Transform.SetPosition(vPosition);
         }
         //--------------------------------------------------------
+        public void OffsetPosition(Vector3 vOffset)
+        {
+            m_Transform.SetPosition(vOffset + m_Transform.GetPosition());
+        }
+        //--------------------------------------------------------
         public Vector3 GetEulerAngle()
         {
             return m_Transform.GetEulerAngle();
@@ -227,6 +260,11 @@ namespace Framework.ActorSystem.Runtime
         public Matrix4x4 GetMatrix()
         {
             return m_Transform.GetMatrix();
+        }
+        //-------------------------------------------------
+        public WorldBoundBox GetBounds()
+        {
+            return m_BoundBox;
         }
         //--------------------------------------------------------
         public void SetDirection(Vector3 vDirection)
@@ -329,6 +367,11 @@ namespace Framework.ActorSystem.Runtime
         public virtual bool IsCanLogic()
         {
             return !IsFlag(EActorFlag.Killed) && IsFlag(EActorFlag.Logic) && !IsFlag(EActorFlag.Destroy) && IsFlag(EActorFlag.Active);
+        }
+        //--------------------------------------------------------
+        public bool IsInvincible()
+        {
+            return false;
         }
         //------------------------------------------------------
         public void SetDelayDestroy(float fTime)
@@ -832,6 +875,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if (IsFlag(EActorFlag.Destroy))
                 return;
+            OnUpdate(fFrame);
             if (m_pGraph != null)
             {
                 m_pGraph.Update(fFrame);
@@ -852,42 +896,9 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void FreeDestroy()
+        protected virtual void OnUpdate(float fFrame)
         {
-            if (m_pGraph != null)
-            {
-                m_pGraph.Free();
-                m_pGraph = null;
-            }
-            if (m_pSkillSystem != null)
-            {
-                m_pSkillSystem.Free();
-                m_pSkillSystem = null;
-            }
-            if (m_vAgents != null)
-            {
-                for (int i = 0; i < m_vAgents.Count; ++i)
-                    m_vAgents[i].Free();
-                m_vAgents.Clear();
-            }
-            if (m_mTypeAgents != null) m_mTypeAgents.Clear();
-            m_nInstanceID = 0;
-            if(m_pActorParameter!=null)
-            {
-                m_pActorParameter.Free();
-                m_pActorParameter = null;
-            }
-            m_Transform.Clear();
-            if (m_vComponents != null) m_vComponents.Clear();
-            if (m_pUnityTransform != null)
-            {
-                m_pSytstem.DespawnInstance(m_pUnityTransform.gameObject);
-                m_pUnityTransform = null;
-            }
-            m_pObjectAble = null;
-            m_pUnityTransform = null;
-            m_pSytstem = null;
-            Reset();
+
         }
         //--------------------------------------------------------
         public UnityEngine.Object GetUniyObject()
@@ -1069,6 +1080,7 @@ namespace Framework.ActorSystem.Runtime
                //     if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.Scale, m_Transform.GetScale()));
                     OnDirtyScale();
                     bDirty = true;
+                    m_BoundBox.SetTransform(m_Transform.GetMatrix());
                 }
             }
             else
@@ -1155,7 +1167,41 @@ namespace Framework.ActorSystem.Runtime
             
         }
         //------------------------------------------------------
-        public virtual Matrix4x4 GetEventBindSlot(string strSlot, int bindSlot)
+        public virtual bool IsIntersecition(Actor pNode)
+        {
+            if (pNode == null)
+                return false;
+            WorldBoundBox bound = pNode.GetBounds();
+            if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), bound.GetCenter(), bound.GetHalf(), pNode.GetMatrix()) ||
+                IntersetionUtil.CU_OBBOBBIntersection(m_pSytstem.GetIntersetionParam(), bound.GetCenter(), bound.GetHalf(), pNode.GetMatrix(), GetBounds().GetCenter(), GetBounds().GetHalf(), GetMatrix()))
+                return true;
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool IsIntersecition(Matrix4x4 mtTrans, Vector3 vCenter, Vector3 vHalf)
+        {
+            if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vCenter, vHalf, mtTrans))
+            {
+                return true;
+            }
+            if (IntersetionUtil.CU_OBBOBBIntersection(m_pSytstem.GetIntersetionParam(), vCenter, vHalf, mtTrans, GetBounds().GetCenter(), GetBounds().GetHalf(), GetMatrix()))
+                return true;
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool IsIntersecition(Matrix4x4 mtTrans, float radius)
+        {
+            Vector3 vTransCenter = ActorSystemUtil.GetPosition(mtTrans);
+            if (IntersetionUtil.CU_LineSphereIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vTransCenter, radius))
+            {
+                return true;
+            }
+            if (IntersetionUtil.CU_SphereAABBInstersection(vTransCenter, radius, GetBounds().GetMin(true), GetBounds().GetMax(true)))
+                return true;
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual Matrix4x4 GetEventBindSlot(string strSlot, int bindSlot = (int)ESlotBindBit.All)
         {
             if (bindSlot == 0 || m_pUnityTransform == null) return GetMatrix();
             if (string.IsNullOrEmpty(strSlot)) return GetMatrix();
@@ -1190,5 +1236,71 @@ namespace Framework.ActorSystem.Runtime
 
             return matrix;
         }
+        //------------------------------------------------------
+        public virtual Transform GetEventBindSlot(string strSlot, out Vector3 slotOffset)
+        {
+            slotOffset = Vector3.zero;
+            if (m_pUnityTransform == null) return null;
+            if (string.IsNullOrEmpty(strSlot)) return null;
+            if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return m_pUnityTransform;
+            Matrix4x4 matrix = GetMatrix();
+
+            ActorComponent actorComp = m_pObjectAble as ActorComponent;
+            if (actorComp == null)
+                return m_pUnityTransform;
+
+            return actorComp.GetSlot(strSlot,out slotOffset);
+        }
+        //--------------------------------------------------------
+        internal void FreeDestroy()
+        {
+            OnDestroy();
+            if (m_pGraph != null)
+            {
+                m_pGraph.Free();
+                m_pGraph = null;
+            }
+            if (m_pSkillSystem != null)
+            {
+                m_pSkillSystem.Free();
+                m_pSkillSystem = null;
+            }
+            if (m_vAgents != null)
+            {
+                for (int i = 0; i < m_vAgents.Count; ++i)
+                    m_vAgents[i].Free();
+                m_vAgents.Clear();
+            }
+            if (m_mTypeAgents != null) m_mTypeAgents.Clear();
+            m_nInstanceID = 0;
+            if(m_pActorParameter!=null)
+            {
+                m_pActorParameter.Free();
+                m_pActorParameter = null;
+            }
+            m_Transform.Clear();
+            if (m_vComponents != null) m_vComponents.Clear();
+            if (m_pUnityTransform != null)
+            {
+                m_pSytstem.DespawnInstance(m_pUnityTransform.gameObject);
+                m_pUnityTransform = null;
+            }
+            m_pObjectAble = null;
+            m_pUnityTransform = null;
+            m_pSytstem = null;
+            Reset();
+        }
+        //--------------------------------------------------------
+        protected virtual void OnDestroy()
+        { 
+        }
+#if UNITY_EDITOR
+        //--------------------------------------------------------
+        public virtual void DrawDebug()
+        {
+            UnityEditor.Handles.Label(GetPosition(), this.GetType().Name + ":" + GetInstanceID().ToString() + " guid:" + GetActorParameter().GetGUID());
+            ActorSystemUtil.DrawBoundingBox(m_BoundBox.GetCenter(), m_BoundBox.GetHalf(), GetMatrix(), Color.green, true);
+        }
+#endif
     }
 }

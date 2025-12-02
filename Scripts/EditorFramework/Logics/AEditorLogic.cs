@@ -124,6 +124,16 @@ namespace Framework.ED
             return Rect.zero;
         }
         //--------------------------------------------------------
+        public void Start()
+        {
+            OnStart();
+        }
+        //--------------------------------------------------------
+        protected virtual void OnStart()
+        {
+
+        }
+        //--------------------------------------------------------
         protected virtual void Awake() { }
         //--------------------------------------------------------
         internal void Enable() 

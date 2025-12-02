@@ -133,10 +133,25 @@ namespace Framework.Guide.Editor
                 string strTypeMappingCode = "";
                 foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    Type[] types = assembly.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int t = 0; t < types.Length; ++t)
                     {
-                        if (!types[t].IsEnum) continue;
+                        if (types[t] == null || !types[t].IsEnum) continue;
                         System.Type enumType = types[t];
                         if (!enumType.IsDefined(typeof(GuideExportAttribute)))
                             continue;

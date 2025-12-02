@@ -76,6 +76,8 @@ namespace Framework.ED
             {
                 m_bStarted = true;
                 OnStart();
+                for (int i = 0; i < m_vLogics.Count; ++i)
+                    m_vLogics[i].Start();
                 return;
             }
             m_pTimer.Update();

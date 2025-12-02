@@ -601,6 +601,11 @@ namespace Framework.ActorSystem.Editor
         {
             return false;
         }
+        //--------------------------------------------------------
+        public bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

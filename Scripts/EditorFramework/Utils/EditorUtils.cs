@@ -215,6 +215,34 @@ namespace Framework.ED
             return null;
         }
         //------------------------------------------------------
+        public static string DrawUIObjectByPath<T>(string label, string strFile, bool bClear = true, Action onDel = null) where T : UnityEngine.Object
+        {
+            Color color = GUI.color;
+            T asset = AssetDatabase.LoadAssetAtPath<T>(strFile);
+            if (asset == null)
+            {
+                GUI.color = Color.red;
+            }
+            EditorGUILayout.BeginHorizontal();
+            asset = EditorGUILayout.ObjectField(label, asset, typeof(T), false) as T;
+            if (asset != null)
+                strFile = AssetDatabase.GetAssetPath(asset);
+            if (bClear && GUILayout.Button("Çå³ý", new GUILayoutOption[] { GUILayout.Width(50) }))
+            {
+                strFile = "";
+            }
+            if (onDel != null)
+            {
+                if (GUILayout.Button("Çå³ý", new GUILayoutOption[] { GUILayout.Width(50) }))
+                {
+                    onDel();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            GUI.color = color;
+            return strFile;
+        }
+        //------------------------------------------------------
         public static void CommitGit(string commitFile, bool bCommitListFile = false, bool bWait = true)
         {
             if(bCommitListFile)

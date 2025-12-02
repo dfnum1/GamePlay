@@ -4,13 +4,8 @@
 作    者:	HappLI
 描    述:	Actor管理器
 *********************************************************************/
-using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using TagLib.Id3v2;
-using UnityEditor;
 using UnityEngine;
 namespace Framework.ActorSystem.Runtime
 {
@@ -25,11 +20,14 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null);
         bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null);
 
+        bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
+
     }
     public class ActorManager
     {
         bool                                    m_isInitialized = false;
         CutsceneManager                         m_CutsceneManager = null;
+        ProjectileManager                       m_ProjectileManager = null;
         bool                                    m_bEditMode = false;
         private List<IActorSystemCallback>      m_vCallbacks = null;
         int                                     m_nAutoGUID = 0;
@@ -38,8 +36,13 @@ namespace Framework.ActorSystem.Runtime
         Actor                                   m_pRoot = null; 
         List<Actor>                             m_vDestroyList = new List<Actor>(16);
 
+        int                                     m_nTerrainLayerMask = -1;
         protected long                          m_lRuntime = 0;
         protected long                          m_lRuntimeUnScale = 0;
+
+        protected IntersetionParam              m_IntersetionParam = null;
+        HashSet<HitFrameActor>                  m_vHitFrameCaches;
+        List<Actor>                             m_CatchNodeList;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -53,7 +56,43 @@ namespace Framework.ActorSystem.Runtime
             m_isInitialized = true;
             m_CutsceneManager = cutsceneMgr;
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
+        public void SetTerrainLayerMask(int layerMask)
+        {
+            m_nTerrainLayerMask = layerMask;
+        }
+        //-----------------------------------------------------
+        public int GetTerrainLayerMask()
+        {
+            return m_nTerrainLayerMask;
+        }
+        //-----------------------------------------------------
+        public float GetRandom(float lower, float upper)
+        {
+            return UnityEngine.Random.Range(lower, upper);
+        }
+        //-----------------------------------------------------
+        public int GetRandom(int lower, int upper)
+        {
+            return UnityEngine.Random.Range(lower, upper);
+        }
+        //-----------------------------------------------------
+        public bool IsPause()
+        {
+            return false;
+        }
+        //-----------------------------------------------------
+        public bool IsLogicLock()
+        {
+            return false;
+        }
+        //-----------------------------------------------------
+        public IntersetionParam GetIntersetionParam()
+        {
+            if (m_IntersetionParam == null) m_IntersetionParam = new IntersetionParam();
+            return m_IntersetionParam;
+        }
+        //-----------------------------------------------------
         internal CutsceneInstance CreateCutsceneInstance()
         {
             if(!m_isInitialized)
@@ -63,27 +102,27 @@ namespace Framework.ActorSystem.Runtime
             }
             return new CutsceneInstance(m_CutsceneManager);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
         {
             return InnerCreateActor<Actor>(0, pData, false, userVariable);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         public Actor AsyncCreateActor(int nodeID, IContextData pData, IContextData userVariable = null)
         {
             return InnerCreateActor<Actor>(0, pData, true, userVariable);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         public T CreateActor<T>(IContextData pData, IContextData userVariable = null, int nodeID = 0) where T : Actor, new()
         {
             return InnerCreateActor<T>(0, pData, false, userVariable);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         public T AsyncCreateActor<T>(int nodeID, IContextData pData, IContextData userVariable = null) where T : Actor, new()
         {
             return InnerCreateActor<T>(0, pData, true, userVariable);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         T InnerCreateActor<T>(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null) where T : Actor, new()
         {
             if (!m_isInitialized)
@@ -120,7 +159,7 @@ namespace Framework.ActorSystem.Runtime
             pActor.OnCreated();
             return pActor;
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         void AddActor(Actor pNode)
         {
             if (pNode == null) return;
@@ -138,7 +177,7 @@ namespace Framework.ActorSystem.Runtime
 
             m_vNodes.Add(pNode.GetInstanceID(), pNode);
         }
-        //-------------------------------------------------
+        //-----------------------------------------------------
         public void RemoveNode(Actor pNode, bool bRemoveMaps = true)
         {
             var prev = pNode.GetPrev();
@@ -158,6 +197,21 @@ namespace Framework.ActorSystem.Runtime
             pNode.FreeDestroy();
         }
         //-----------------------------------------------------
+        public int CalcNeighbors(Actor pActor, float range, ref List<Actor> vNodes)
+        {
+            return 0;
+        }
+        //-----------------------------------------------------
+        internal ProjectileManager GetProjectileManager()
+        {
+            if(m_ProjectileManager == null)
+            {
+                m_ProjectileManager = TypeInstancePool.Malloc<ProjectileManager>();
+                m_ProjectileManager.Awake(this);
+            }
+            return m_ProjectileManager;
+        }
+        //-----------------------------------------------------
         public void RegisterCallback(IActorSystemCallback callback)
         {
             if (callback == null) return;
@@ -174,11 +228,72 @@ namespace Framework.ActorSystem.Runtime
             if (m_vCallbacks.Contains(callback))
                 m_vCallbacks.Remove(callback);
         }
+        //------------------------------------------------------
+        public HashSet<HitFrameActor> GetHitFrameActorCaches()
+        {
+            if (m_vHitFrameCaches == null) m_vHitFrameCaches = new HashSet<HitFrameActor>(2);
+            return m_vHitFrameCaches;
+        }
+        //------------------------------------------------------
+        public void SetProjectileDatas(ProjectileDatas projectileDatas)
+        {
+            if (projectileDatas == null)
+                return;
+            GetProjectileManager().SetProjectileDatas(projectileDatas);
+        }
+        //------------------------------------------------------
+        public void StopProjectileByOwner(Actor pNode, float fLaucherTime)
+        {
+            if (m_ProjectileManager == null) return;
+            m_ProjectileManager.StopProjectileByOwner(pNode, fLaucherTime);
+        }
+        //------------------------------------------------------
+        public int LaunchProjectile(uint dwProjectileTableID, Actor pOwnerActor, AActorStateInfo stateParam,
+        Vector3 vPosition, Vector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
+        float fDelta = 0, Transform pTrackTransform = null, List<AT.Runtime.IUserData> vResults = null)
+        {
+            return GetProjectileManager().LaunchProjectile(dwProjectileTableID, pOwnerActor, stateParam, vPosition, vDirection, targetNode, dwAssignedID, fDelta, pTrackTransform, vResults);
+        }
+        //------------------------------------------------------
+        public int LaunchProjectile(ProjectileData pData, Actor pOwnerActor, AActorStateInfo stateParam,
+               Vector3 vPosition, Vector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
+               float fDelta = 0, Transform pTrackTransform = null, List<AT.Runtime.IUserData> vResults = null)
+        {
+            return GetProjectileManager().LaunchProjectile(pData, pOwnerActor, stateParam, vPosition, vDirection, targetNode, dwAssignedID, fDelta, pTrackTransform, vResults);
+        }
+        //------------------------------------------------------
+        public void TrackCheck(Actor pTargetActor, Vector3 vPosition, ProjectileData pData, Transform pTrackTransform, ref Transform pTrackSlot, ref int damage_power, ref uint track_frame_id, ref uint track_body_id, ref Vector3 trackOffset)
+        {
+            if (m_ProjectileManager == null) return;
+            m_ProjectileManager.TrackCheck(pTargetActor, vPosition, pData, pTrackTransform, ref pTrackSlot, ref damage_power, ref track_frame_id, ref track_body_id, ref trackOffset);
+        }
+        //------------------------------------------------------
+        public void StopAllProjectiles()
+        {
+            if (m_ProjectileManager == null) return;
+            m_ProjectileManager.StopAllProjectiles();
+        }
+        //------------------------------------------------------
+        internal Dictionary<int,ProjectileActor> GetRunningProjectile()
+        {
+            if (m_ProjectileManager == null) return null;
+            return m_ProjectileManager.GetRunningProjectile();
+        }
+        //------------------------------------------------------
+        public List<Actor> GetCatchActorList()
+        {
+            if (m_CatchNodeList == null) m_CatchNodeList = new List<Actor>(2);
+            return m_CatchNodeList;
+        }
         //-----------------------------------------------------
         internal bool OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
         {
             if (m_vCallbacks == null || pActor == null)
                 return false;
+            if(m_ProjectileManager!=null)
+            {
+                m_ProjectileManager.OnActorStatusCallback(pActor, eStatus, pTakeData);
+            }
             foreach(var db in m_vCallbacks)
             {
                 if (db.OnActorSystemActorCallback(pActor, eStatus, pTakeData))
@@ -199,6 +314,18 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //-----------------------------------------------------
+        internal bool OnActorSystemActorHitFrame(HitFrameActor hitFrame)
+        {
+            if (m_vCallbacks == null)
+                return false;
+            foreach (var db in m_vCallbacks)
+            {
+                if (db.OnActorSystemActorHitFrame(hitFrame))
+                    return true;
+            }
+            return false;
+        }
+        //-----------------------------------------------------
         public bool LoadAsset(string file, System.Action<UnityEngine.Object> onCallback, bool bAsync = true)
         {
             if (string.IsNullOrEmpty(file))
@@ -206,7 +333,7 @@ namespace Framework.ActorSystem.Runtime
 #if UNITY_EDITOR
             if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
             {
-                var asset = Editor.ActorSystemUtil.EditLoadUnityObject(file);
+                var asset = ActorSystemUtil.EditLoadUnityObject(file);
                 if (asset != null)
                 {
                     if (onCallback != null) onCallback(asset);
@@ -253,7 +380,7 @@ namespace Framework.ActorSystem.Runtime
 #if UNITY_EDITOR
             if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
             {
-                var obj = Editor.ActorSystemUtil.EditLoadUnityObject(file);
+                var obj = ActorSystemUtil.EditLoadUnityObject(file);
                 if (obj == null || !(obj is UnityEngine.GameObject))
                     return false;
                 if (onCallback != null) onCallback(GameObject.Instantiate(obj as GameObject));
@@ -309,7 +436,8 @@ namespace Framework.ActorSystem.Runtime
             }
             m_lRuntime = (int)(Time.time * 1000);
             m_lRuntimeUnScale = (int)(Time.unscaledTime * 1000);
-
+            if (m_ProjectileManager != null)
+                m_ProjectileManager.Update(fFrame);
             if (m_pRoot != null)
             {
                 int index = 0;
@@ -392,12 +520,15 @@ namespace Framework.ActorSystem.Runtime
             m_nAutoGUID = 0;
             m_lRuntime = 0;
             m_lRuntimeUnScale = 0;
+            if (m_ProjectileManager != null)
+                m_ProjectileManager.Clear();
         }
         //-----------------------------------------------------
         public void Shutdown()
         {
             Clear();
             if(m_vCallbacks!=null) m_vCallbacks.Clear();
+            if (m_ProjectileManager != null) m_ProjectileManager.Destroy();
         }
     }
 }

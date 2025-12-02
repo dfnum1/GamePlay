@@ -104,10 +104,26 @@ namespace Framework.Guide.Editor
             GuideSystemEditor.NodeTypes.Clear();
             foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
             {
-                Type[] types = assembly.GetTypes();
+                Type[] types = null;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types; // 部分可用类型
+                                      // 可选：输出警告
+                    Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                    continue;
+                }
                 for (int i = 0; i < types.Length; ++i)
                 {
                     Type enumType = types[i];
+                    if (enumType == null) continue;
                     if (enumType.IsEnum && enumType.IsDefined(typeof(GuideExportAttribute), false))
                     {
                         foreach (var v in Enum.GetValues(enumType))

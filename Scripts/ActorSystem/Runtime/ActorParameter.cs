@@ -15,7 +15,7 @@ namespace Framework.ActorSystem.Runtime
     {
         IContextData                            m_pConfigData = null;
         Dictionary<byte, int>                   m_vAttributes = null;
-        Actor m_pActor;
+        Actor                                   m_pActor;
         byte                                    m_HpAttrType = 1;
         private List<IActorAttrDirtyCallback>   m_vCallbacks = null;
 
