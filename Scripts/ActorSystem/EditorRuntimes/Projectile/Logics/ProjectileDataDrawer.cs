@@ -307,15 +307,14 @@ namespace Framework.ProjectileSystem.Editor
 
                                 GUILayout.BeginHorizontal(layOp);
                                 float lowSpeed = EditorGUILayout.FloatField(lower[j]);
-                                if (upper[j] < lowSpeed) upper[j] = lowSpeed;
                                 EditorGUIUtility.labelWidth = 20;
                                 EditorGUILayout.LabelField("--", new GUILayoutOption[] { GUILayout.Width(20) });
                                 EditorGUIUtility.labelWidth = labelWidth;
                                 float upperSpeed = EditorGUILayout.FloatField(upper[j]);
                                 GUILayout.EndHorizontal();
 
-                                lower[j] = Mathf.Min(lowSpeed, upperSpeed);
-                                upper[j] = Mathf.Max(lowSpeed, upperSpeed);
+                                lower[j] = lowSpeed;// Mathf.Min(lowSpeed, upperSpeed);
+                                upper[j] = upperSpeed;// Mathf.Max(lowSpeed, upperSpeed);
 
                                 maxer[j] = EditorGUILayout.FloatField(maxer[j], layOp);
                                 GUILayout.EndHorizontal();
@@ -354,7 +353,7 @@ namespace Framework.ProjectileSystem.Editor
             else if(projectile.type == EProjectileType.Bounce)
             {
                 projectile.speedLerp.x = EditorGUILayout.IntField("弹跳次数(<=0不限制)", (int)projectile.speedLerp.x);
-                projectile.speedLerp.y = EditorGUILayout.FloatField("弹力衰减值", projectile.speedLerp.y);
+                projectile.speedLerp.y = EditorGUILayout.Slider("弹力衰减值", projectile.speedLerp.y, 0.1f, 2.0f);
             }
             drawData.bExpandRotate = EditorGUILayout.Foldout(drawData.bExpandRotate, "自旋转");
             if (drawData.bExpandRotate)
@@ -374,15 +373,14 @@ namespace Framework.ProjectileSystem.Editor
 
                     GUILayout.BeginHorizontal(layOp);
                     float lowValue = EditorGUILayout.FloatField(projectile.minRotate[j], layOp);
-                    if (projectile.maxRotate[j] < lowValue) projectile.maxRotate[j] = lowValue;
                     EditorGUIUtility.labelWidth = 20;
                     EditorGUILayout.LabelField("--", new GUILayoutOption[] { GUILayout.Width(20) });
                     EditorGUIUtility.labelWidth = labelWidth;
                     float upperValue = EditorGUILayout.FloatField(projectile.maxRotate[j], layOp);
                     GUILayout.EndHorizontal();
 
-                    projectile.minRotate[j] = Mathf.Min(lowValue, upperValue);
-                    projectile.maxRotate[j] = Mathf.Max(lowValue, upperValue);
+                    projectile.minRotate[j] = lowValue;// Mathf.Min(lowValue, upperValue);
+                    projectile.maxRotate[j] = upperValue;// Mathf.Max(lowValue, upperValue);
                     GUILayout.EndHorizontal();
                 }
 

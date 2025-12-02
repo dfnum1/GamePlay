@@ -105,6 +105,11 @@ namespace Framework.ActorSystem.Runtime
             if (m_vPrepareBounds == null) m_vPrepareBounds = new List<BoundProjectile>(4);
         }
         //------------------------------------------------------
+        internal Dictionary<uint,ProjectileData> GetDatas()
+        {
+            return m_vDatas;
+        }
+        //------------------------------------------------------
         public void SetProjectileDatas(ProjectileDatas projectileDatas)
         {
             if (projectileDatas == null)
@@ -129,6 +134,25 @@ namespace Framework.ActorSystem.Runtime
             if (m_vDatas.TryGetValue(nId, out outData))
                 return outData;
             return null;
+        }
+        //------------------------------------------------------
+        internal uint GeneratorNewID()
+        {
+            if (m_vDatas == null) return 1;
+            int checkCnt = 100000;
+            uint index = 1;
+            while(m_vDatas.ContainsKey(index) && checkCnt>0)
+            {
+                checkCnt--;
+                index++;
+            }
+            return index;
+        }
+        //------------------------------------------------------
+        internal void RemoveProjectileData(uint id)
+        {
+            if (m_vDatas == null) return;
+            m_vDatas.Remove(id);
         }
         //------------------------------------------------------
         public override void Destroy()
@@ -548,6 +572,7 @@ namespace Framework.ActorSystem.Runtime
             var projectileData = pProjectile.GetProjectileData();
             if (projectileData == null)
                 return;
+
             if (!string.IsNullOrEmpty(projectileData.waring_effect))
             {
                 pProjectile.TestFinalDropPos(Time.deltaTime);

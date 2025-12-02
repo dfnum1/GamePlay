@@ -72,7 +72,7 @@ namespace Framework.ProjectileSystem.Editor
             }
             else
             {
-                int trackCnt = 99;
+                int nTrackTestCnt = 500;
                 vTracks.Clear();
                 vTracks.Add(vStart);
                 pProjectile.SetPosition(backupPosition);
@@ -83,27 +83,43 @@ namespace Framework.ProjectileSystem.Editor
                 pProjectile.SetSpeed(backupSpeed);
                 pProjectile.ResetTrackStates();
                 pProjectile.SetBounceTypeCount((int)csvData.speedLerp.x);
-                while (pProjectile.GetRemainLifeTime() >= 0 && trackCnt >= 0)
+                int boundCount = 1000;
+                if (csvData.type == EProjectileType.Bounce)
+                    boundCount = (int)csvData.speedLerp.x;
+
+
+                while (pProjectile.GetRemainLifeTime() >= 0 && vTracks.Count < 300 && nTrackTestCnt>0)
                 {
-                    if (vTracks.Count <= 0 || (vTracks[vTracks.Count - 1] - pProjectile.GetPosition()).sqrMagnitude > 0.05f)
+                    if (vTracks.Count <= 0 || (vTracks[vTracks.Count - 1] - pProjectile.GetPosition()).sqrMagnitude > 0.1f)
+                    {
                         vTracks.Add(pProjectile.GetPosition());
+                        if (csvData.type == EProjectileType.Bounce)
+                        {
+                            if (vTracks.Count > 0 && vTracks[vTracks.Count-1].y <= 0.1f)
+                                boundCount--;
+                            if (boundCount <= 0)
+                                break;
+                        }
+                    }
                     pProjectile.Update(0.0333333f);
-                    trackCnt--;
+                    nTrackTestCnt--;        
                 }
 
 
                 float len = 0;
                 for (int i = 0; i < vTracks.Count - 1; ++i)
                 {
+                    Handles.color = trackColor;
                     Handles.DrawLine(vTracks[i], vTracks[i + 1]);
 
+                    Handles.color = Color.green;
                     Vector3 toDir = vTracks[i + 1] - vTracks[i];
                     if (toDir.sqrMagnitude <= 0) toDir = Vector3.forward;
                     len += toDir.magnitude;
                     if (len >= 2)
                     {
                         Quaternion qt = Quaternion.LookRotation(toDir.normalized);
-                        Handles.ArrowHandleCap(0, vTracks[i], qt, HandleUtility.GetHandleSize(vTracks[i]), EventType.Repaint);
+                        Handles.ArrowHandleCap(0, vTracks[i], qt, Mathf.Min(1.0f, HandleUtility.GetHandleSize(vTracks[i])), EventType.Repaint);
                         len = 0;
                     }
                 }
@@ -210,10 +226,7 @@ namespace Framework.ProjectileSystem.Editor
                         trackTrans = m_pTargetActor.GetUniyTransform();
 
                     RefreshTestProject(m_pSimulateActor, m_pCurrent, m_pTargetActor);
-                    if(m_pSimulateActor.GetObjectAble()!=null )
-                        GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile((uint)m_pCurrent.id, m_pSimulateActor, null,Vector3.up, Vector3.back, m_pTargetActor, 0, 0, trackTrans);
-                    else
-                        GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile((uint)m_pCurrent.id, m_pSimulateActor, null, Vector3.up, Vector3.forward, m_pTargetActor, 0, 0, trackTrans);
+                    GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile((uint)m_pCurrent.id, m_pSimulateActor, null, Vector3.up, Vector3.forward, m_pTargetActor, 0, 0, trackTrans);
                 }
             }
         }
@@ -412,17 +425,6 @@ namespace Framework.ProjectileSystem.Editor
             }
         }
         //-----------------------------------------------------
-        public void OnEvent(Event evt)
-        {
-
-        }
-        //-----------------------------------------------------
-        public void SaveData()
-        {
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-        }
-        //-----------------------------------------------------
         public void Realod()
         {
             RefreshList();
@@ -567,6 +569,7 @@ namespace Framework.ProjectileSystem.Editor
                                         if (GUILayout.Button("移除"))
                                         {
                                             m_pCurrent.RemoveTrackPoint(i);
+                                            RefreshTest();
                                             break;
                                         }
                                         GUILayout.EndHorizontal();
@@ -581,6 +584,7 @@ namespace Framework.ProjectileSystem.Editor
                                             if (GUILayout.Button("插入"))
                                             {
                                                 m_pCurrent.InsertTrackPoint((i + 1) % m_pCurrent.speedMaxs.Length, insert - position, Vector3.zero, Vector3.zero);
+                                                RefreshTest();
                                                 break;
                                             }
                                             GUILayout.EndArea();

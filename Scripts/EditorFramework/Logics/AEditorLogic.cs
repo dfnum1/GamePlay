@@ -72,8 +72,13 @@ namespace Framework.ED
         //--------------------------------------------------------
         public void Active(bool bEable)
         {
+            if (m_bActive == bEable)
+                return;
             m_bActive = bEable;
+            OnActive();
         }
+        //--------------------------------------------------------
+        protected virtual void OnActive() { }
         //--------------------------------------------------------
         public bool IsActive()
         {

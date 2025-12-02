@@ -464,10 +464,10 @@ namespace Framework.ActorSystem.Runtime
             m_pBoundStartActor = null;
             m_IsBoundProjectile = false;
             m_ProjecileData = pData;
+            SetContextData(pData);
             SetScale(FVector3.one * m_ProjecileData.scale);
             m_nRemainBoundCount = pData.bound_count;
             m_fWaringDuration = pData.waring_duration;
-            m_ProjecileData = pData;
             m_pOwnerActor = pOwnerActor;
             if (m_pOwnerActor != null) SetAttackGroup(m_pOwnerActor.GetAttackGroup());
             else SetAttackGroup(0xff);
@@ -822,7 +822,9 @@ namespace Framework.ActorSystem.Runtime
                                 m_TargetPosition = targetPos;
                             }
                             if (curSpeed.sqrMagnitude > 0.01f)
+                            {
                                 SetDirection(curSpeed.normalized);
+                            }
                             else
                                 SetDirection(m_InitDirection);
                         }

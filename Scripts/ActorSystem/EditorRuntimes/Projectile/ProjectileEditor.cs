@@ -32,6 +32,7 @@ namespace Framework.ProjectileSystem.Editor
 
         Rect m_LayerSize = new Rect();
         Rect m_InspecSize = new Rect();
+        Rect m_DataListSize = new Rect();
         CutsceneManager m_CutsceneManager = null;
         ActorManager    m_pActorManager;
         byte m_DragSplitGap = 0;
@@ -43,6 +44,11 @@ namespace Framework.ProjectileSystem.Editor
             if (Instance == null)
                 EditorWindow.GetWindow<ProjectileEditor>();
             Instance.titleContent = new GUIContent("飞行道具编辑器");
+        }
+        //-----------------------------------------------------
+        public ProjectileDatas GetProjectileDatas()
+        {
+            return m_ProjectileDatas;
         }
         //-----------------------------------------------------
         public void AppEdiorSetup(Camera camera)
@@ -89,21 +95,34 @@ namespace Framework.ProjectileSystem.Editor
             {
                 m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
             }
+            else
+            {
+                EditorUtility.DisplayDialog("提示", "没有创建飞行道具数据集，请先创建!!", "好的");
+                string savePath = EditorUtility.SaveFilePanelInProject("创建弹道数据集", "ProjectileDatas", "asset", "用于管理零散的弹道配置数据文件", Application.dataPath);
+                if(string.IsNullOrEmpty(savePath))
+                {
+                    return;
+                }
+                ProjectileDatas projData = ScriptableObject.CreateInstance<ProjectileDatas>();
+                projData.name = "ProjectileDatas";
+                AssetDatabase.CreateAsset(projData, savePath);
+                EditorUtility.SetDirty(projData);
+                AssetDatabase.SaveAssetIfDirty(projData);
+                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(savePath);
+            }
             if (m_ProjectileDatas != null)
             {
                 ProjectileDatas.RefreshDatas(m_ProjectileDatas);
             }
-            else
-            {
-                EditorUtility.DisplayDialog("提示", "没有创建飞行道具数据集，请先创建!!", "好的");
-                return;
-            }
+
             m_CutsceneManager = new CutsceneManager();
             m_CutsceneManager.SetEditorMode(true);
             m_pActorManager = new ActorManager();
             m_pActorManager.Init(m_CutsceneManager);
             m_pActorManager.SetProjectileDatas(m_ProjectileDatas);
             m_pActorManager.RegisterCallback(this);
+
+            GetLogic<ProjectileDataListLogic>()?.Active(false);
 
             base.minSize = new Vector2(850f, 320f);
 
@@ -122,7 +141,9 @@ namespace Framework.ProjectileSystem.Editor
         protected override void OnInnerGUI()
         {
             float width = 450;
-            m_LayerSize = new Rect(0, GapTop, this.position.width- width, position.height - GapTop - GapBottom);
+            ProjectileDataListLogic dataLogic = GetLogic<ProjectileDataListLogic>();
+            m_DataListSize = new Rect(0,GapTop, dataLogic.IsActive()?200:0, position.height - GapTop - GapBottom);
+            m_LayerSize = new Rect(m_DataListSize.width, GapTop, this.position.width- width, position.height - GapTop - GapBottom);
             m_InspecSize = new Rect(m_LayerSize.xMax+5, GapTop, width, position.height - GapTop - GapBottom);
 
 
@@ -178,6 +199,10 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         private void DrawToolPanel()
         {
+            if (GUILayout.Button("打开", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            {
+                GetLogic<ProjectileDataListLogic>()?.Active(true);
+            }
             if (GUILayout.Button("刷新", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 Stop();
@@ -355,6 +380,33 @@ namespace Framework.ProjectileSystem.Editor
                 {
                     ProjectilePreview preview = GetLogic<ProjectilePreview>();
                     preview.AddInstance(uniObj.gameObject);
+                }
+            }
+            else if(eStatus == EActorStatus.Create)
+            {
+                var contextData = pActor.GetContextData();
+                if(contextData!=null)
+                {
+                    if(pActor is ProjectileActor)
+                    {
+                        ProjectileActor projectorActor = pActor as ProjectileActor;
+                        if (contextData is ProjectileData)
+                        {
+                            ProjectileData projData = (ProjectileData)contextData;
+                            if (!string.IsNullOrEmpty(projData.effect))
+                            {
+                                var prefabInst = ActorSystemUtil.EditLoadUnityObject(projData.effect) as GameObject;
+                                if(prefabInst!=null)
+                                {
+                                    var projectileObj = GameObject.Instantiate(prefabInst);
+                                    ActorComponent pComp = projectileObj.GetComponent<ActorComponent>();
+                                    if (pComp == null) pComp = projectileObj.AddComponent<ActorComponent>();
+                                    projectorActor.SetObjectAble(pComp);
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
             return false;

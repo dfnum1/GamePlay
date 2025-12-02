@@ -69,12 +69,14 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public float GetRandom(float lower, float upper)
         {
-            return UnityEngine.Random.Range(lower, upper);
+            if(lower<upper) return UnityEngine.Random.Range(lower, upper);
+            return UnityEngine.Random.Range(upper, lower);
         }
         //-----------------------------------------------------
         public int GetRandom(int lower, int upper)
         {
-            return UnityEngine.Random.Range(lower, upper);
+            if (lower < upper) return UnityEngine.Random.Range(lower, upper);
+            return UnityEngine.Random.Range(upper, lower);
         }
         //-----------------------------------------------------
         public bool IsPause()

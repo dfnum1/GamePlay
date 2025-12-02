@@ -19,13 +19,16 @@ using System.IO;
 
 
 
+
 #if USE_SERVER
 using AudioClip = ExternEngine.AudioClip;
 using Transform = ExternEngine.Transform;
 #endif
 
+using UnityEditor;
 #if UNITY_EDITOR
 using System.Linq;
+using System;
 #endif
 
 namespace Framework.ActorSystem.Runtime
@@ -35,14 +38,18 @@ namespace Framework.ActorSystem.Runtime
     public class ProjectileDatas : ScriptableObject
     {
         public ProjectileData[] projectiles;
+#if UNITY_EDITOR
+        [NonSerialized]
+        private Dictionary<ProjectileData, string> m_vDataOriFiles = new Dictionary<ProjectileData, string>();
+#endif
         //-----------------------------------------------------
         public Dictionary<uint, ProjectileData> GetDatas(Dictionary<uint, ProjectileData> projectileDatas = null)
         {
-            if(projectileDatas == null) projectileDatas = new Dictionary<uint, ProjectileData>();
+            if (projectileDatas == null) projectileDatas = new Dictionary<uint, ProjectileData>();
             if (projectiles == null)
                 return projectileDatas;
 
-            for(int i =0; i < projectiles.Length; ++i)
+            for (int i = 0; i < projectiles.Length; ++i)
             {
                 projectileDatas[projectiles[i].id] = projectiles[i];
             }
@@ -50,6 +57,18 @@ namespace Framework.ActorSystem.Runtime
         }
         //-----------------------------------------------------
 #if UNITY_EDITOR
+        public string GetDataPath(ProjectileData data)
+        {
+            if (m_vDataOriFiles.TryGetValue(data, out var file))
+                return file;
+            return null;
+        }
+        //-----------------------------------------------------
+        public void SetDataPath(ProjectileData data, string file)
+        {
+            m_vDataOriFiles[data] = file;
+        }
+        //-----------------------------------------------------
         void Refresh()
         {
             string projectileFileRoot = UnityEditor.AssetDatabase.GetAssetPath(this);
@@ -58,13 +77,18 @@ namespace Framework.ActorSystem.Runtime
             projectileFileRoot = Path.GetDirectoryName(projectileFileRoot.Replace("\\", "/"));
             var files = System.IO.Directory.GetFiles(projectileFileRoot, "*.json", System.IO.SearchOption.AllDirectories);
             List<ProjectileData> vDatas = new List<ProjectileData>();
+            m_vDataOriFiles.Clear();
             for (int i = 0; i < files.Length; ++i)
             {
                 try
                 {
                     ProjectileData projeileData = JsonUtility.FromJson<ProjectileData>(System.IO.File.ReadAllText(files[i]));
                     if (projeileData != null)
+                    {
+                        string path = files[i].Replace("\\", "/");
+                        m_vDataOriFiles[projeileData] = path;
                         vDatas.Add(projeileData);
+                    }
                 }
                 catch (System.Exception expec)
                 {
