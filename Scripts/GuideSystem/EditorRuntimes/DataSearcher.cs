@@ -85,22 +85,35 @@ namespace Framework.Guide.Editor
         {
             if (GuideSystem.getInstance().datas == null) return;
             GuideSystemEditor pEditor = GuideSystemEditor.Instance;
+            List<GuideGroup> vGuides = new List<GuideGroup>();
             foreach (var db in GuideSystem.getInstance().datas)
             {
-                bool bQuerty = IsQuery(query, db.Value.Guid+db.Value.Name);
+                bool bQuerty = IsQuery(query, db.Value.Guid + db.Value.Name);
                 if (!bQuerty) continue;
+                vGuides.Add(db.Value);
+            }
+            vGuides.Sort((a0, a1) =>
+            {
+                long key0 = ((a0.Tag > 0 && a0.Tag < ushort.MaxValue) ? a0.Tag : 0) * 100000 + a0.Guid;
+                long key1 = ((a1.Tag > 0 && a1.Tag < ushort.MaxValue) ? a1.Tag : 0) * 100000 + a1.Guid;
+                if (key0 < key1) return -1;
+                else if (key0 > key1) return 1;
+                return 0;
+            });
+                foreach (var db in vGuides)
+            {
                 GuideSystemEditor.DataParam param = new GuideSystemEditor.DataParam();
-                param.Data = db.Value;
+                param.Data = db;
 
                 ItemEvent item = new ItemEvent();
                 item.param = param;
                 item.callback = pEditor.LoadData;
 
-                item.id = db.Key;
-                item.name = db.Value.Name + "[Id=" + db.Value.Guid + "]";
-                if(db.Value.Tag>=0 && db.Value.Tag < ushort.MaxValue)
+                item.id = db.Guid;
+                item.name = db.Name + "[Id=" + db.Guid + "]";
+                if(db.Tag>=0 && db.Tag < ushort.MaxValue)
                 {
-                    item.name += "[Tag=" + db.Value.Tag + "]";
+                    item.name += "[Tag=" + db.Tag + "]";
                 }
                 m_assetTree.AddData(item);
             }

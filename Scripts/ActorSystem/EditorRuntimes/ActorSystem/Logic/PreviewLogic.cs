@@ -21,7 +21,6 @@ namespace Framework.ActorSystem.Editor
         GUIStyle m_PreviewStyle;
 
         List<Actor> m_vActors = new List<Actor>();
-        List<ACutsceneLogic> m_vCutsceneLogics = null;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
@@ -36,8 +35,6 @@ namespace Framework.ActorSystem.Editor
             m_Preview.SetFloorTexture(AssetUtil.GetFloorTexture());
             m_Preview.bLeftMouseForbidMove = true;
             m_Preview.OnDrawAfterCB += OnDraw;
-
-            m_vCutsceneLogics = GetLogics<ACutsceneLogic>();
         }
         //--------------------------------------------------------
         public override void OnSelectActor(Actor pActor)
@@ -71,13 +68,7 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         void OnDraw(int controllerId, Camera camera, Event evt)
         {
-            if(m_vCutsceneLogics!=null)
-            {
-                foreach (var logic in m_vCutsceneLogics)
-                {
-                    logic.OnPreviewDraw(controllerId, camera, evt);
-                }
-            }
+            GetOwner<ActionEditorWindow>().OnPreviewDraw(controllerId, camera, evt);
             for(int i =0 ; i < m_vActors.Count;)
             {
                 var actor = m_vActors[i];
@@ -86,13 +77,28 @@ namespace Framework.ActorSystem.Editor
                     m_vActors.RemoveAt(i);
                     continue;
                 }
+                ActorSystemUtil.DrawBoundingBox(actor.GetBounds().GetCenter(), actor.GetBounds().GetHalf(), actor.GetMatrix(), Color.green, false);
 
                 Handles.Label(actor.GetPosition() + Vector3.up * 0.5f, "¹¥»÷×é[" + actor.GetAttackGroup() + "]");
-        //        Handles.ArrowHandleCap(0, actor.GetPosition(), Quaternion.Euler(actor.GetEulerAngle()), 0.5f, EventType.Repaint);
-                if(Tools.current == Tool.Rotate)
-                    actor.SetEulerAngle(Handles.DoRotationHandle(Quaternion.Euler(actor.GetEulerAngle()),actor.GetPosition()).eulerAngles);
-                else
-                    actor.SetPosition(Handles.DoPositionHandle(actor.GetPosition(), Quaternion.identity));
+                //        Handles.ArrowHandleCap(0, actor.GetPosition(), Quaternion.Euler(actor.GetEulerAngle()), 0.5f, EventType.Repaint);
+                if(!evt.shift)
+                {
+                    if (Tools.current == Tool.Rotate)
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        var rotation = Handles.DoRotationHandle(Quaternion.Euler(actor.GetEulerAngle()), actor.GetPosition());
+                        if (EditorGUI.EndChangeCheck())
+                            actor.SetEulerAngle(rotation.eulerAngles);
+                    }
+                    else
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        var pos = Handles.DoPositionHandle(actor.GetPosition(), Quaternion.identity);
+                        if (EditorGUI.EndChangeCheck())
+                            actor.SetPosition(pos);
+                    }
+                }
+
 
                 var objectAble = actor.GetObjectAble();
                 if(objectAble!=null)

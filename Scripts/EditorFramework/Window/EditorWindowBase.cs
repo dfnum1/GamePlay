@@ -27,6 +27,16 @@ namespace Framework.ED
             return m_vLogics;
         }
         //--------------------------------------------------------
+        public System.Collections.Generic.List<T> GetLogics<T>() where T : AEditorLogic
+        {
+            System.Collections.Generic.List<T> vLogics = new System.Collections.Generic.List<T>();
+            foreach (var db in m_vLogics)
+            {
+                if (db is T) vLogics.Add(db as T);
+            }
+            return vLogics;
+        }
+        //--------------------------------------------------------
         public System.Object GetCurrentObj()
         {
             return m_pCurrentObj;

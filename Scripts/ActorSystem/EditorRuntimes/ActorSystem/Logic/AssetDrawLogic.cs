@@ -8,6 +8,7 @@
 using Framework.ActorSystem.Runtime;
 using Framework.Cutscene.Editor;
 using Framework.ED;
+using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -149,7 +150,12 @@ namespace Framework.ActorSystem.Editor
             var graphData = m_pActor.GetGraphData();
             if (graphData == null)
                 return;
+            EditorGUI.BeginChangeCheck();
             InspectorDrawUtil.DrawProperty(graphData, null);
+            if(EditorGUI.EndChangeCheck())
+            {
+                m_pActor.SetBound(graphData.boundBox.min, graphData.boundBox.max);
+            }
         }
         //--------------------------------------------------------
         void DrawSlot(Rect view)

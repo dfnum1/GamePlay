@@ -89,10 +89,13 @@ namespace Framework.ActorSystem.Runtime
         {
         }
     }
+    //-----------------------------------------------------
+    //! ActorGraphData
+    //-----------------------------------------------------
     [System.Serializable]
     public class ActorGraphData : IContextData
     {
-        public BoundsInt boundBox;
+        public Bounds boundBox;
         [Disable] public List<ActorTimelineAction> timelineActions = new List<ActorTimelineAction>(4);
 
         private bool m_bInited = false;

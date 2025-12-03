@@ -8,6 +8,7 @@ using Framework.AT.Runtime;
 using System.Collections.Generic;
 using System.Dynamic;
 using UnityEngine;
+using UnityEngine.Playables;
 namespace Framework.Cutscene.Runtime
 {
     struct ObjCache
@@ -574,9 +575,27 @@ namespace Framework.Cutscene.Runtime
             m_pMgr.OnCutsceneStatus(this, eStatus);
         }
         //-----------------------------------------------------
-        public virtual void OnPlayableCreate(CutscenePlayable playable) { }
+        public virtual void OnPlayableCreate(CutscenePlayable playable)
+        {
+            if(m_vCallbacks !=null)
+            {
+                foreach(var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Create);
+                }
+            }
+        }
         //-----------------------------------------------------
-        public virtual void OnPlayableDestroy(CutscenePlayable playable) { }
+        public virtual void OnPlayableDestroy(CutscenePlayable playable)
+        {
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Destroy);
+                }
+            }
+        }
         //-----------------------------------------------------
         public virtual void OnPlayableStop(CutscenePlayable playable)
         {
@@ -586,6 +605,13 @@ namespace Framework.Cutscene.Runtime
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayableStopedCallback, argvs);
+            }
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Stop);
+                }
             }
         }
         //-----------------------------------------------------
@@ -598,6 +624,13 @@ namespace Framework.Cutscene.Runtime
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayablePlayedCallback, argvs);
             }
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Start);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnPlayablePause(CutscenePlayable playable) 
@@ -609,6 +642,13 @@ namespace Framework.Cutscene.Runtime
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayablePauseCallback, argvs);
             }
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Pause);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnPlayableResume(CutscenePlayable playable) 
@@ -619,6 +659,13 @@ namespace Framework.Cutscene.Runtime
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayableResumeCallback, argvs);
+            }
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneStatus(GetGUID(), EPlayableStatus.Start);
+                }
             }
         }
         //-----------------------------------------------------
@@ -634,6 +681,13 @@ namespace Framework.Cutscene.Runtime
                     return;
             }
             m_pMgr.OnCreatePlayableClip(m_pPlayable, track, clip);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutscenePlayableCreateClip(m_pPlayable, track, clip);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnDestroyClip(CutsceneTrack track, IBaseClip clip)
@@ -647,6 +701,13 @@ namespace Framework.Cutscene.Runtime
                     return;
             }
             m_pMgr.OnDestroyPlayableClip(m_pPlayable, track, clip);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutscenePlayableDestroyClip(m_pPlayable, track, clip);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnFrameClip(FrameData frameData)
@@ -661,6 +722,13 @@ namespace Framework.Cutscene.Runtime
             }
 
             m_pMgr.OnFramePlayableClip(m_pPlayable, frameData);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutscenePlayableFrameClip(m_pPlayable, frameData);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnFrameClipEnter(CutsceneTrack track, FrameData frameData)
@@ -675,6 +743,13 @@ namespace Framework.Cutscene.Runtime
             }
 
             m_pMgr.OnFramePlayableClipEnter(m_pPlayable, track, frameData);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutscenePlayableFrameClipEnter(m_pPlayable, track, frameData);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnUpdateClip(CutsceneTrack track, FrameData frameData)
@@ -693,6 +768,13 @@ namespace Framework.Cutscene.Runtime
                     return;
             }
             m_pMgr.OnFramePlayableClipLeave(m_pPlayable, track, frameData);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutscenePlayableFrameClipLeave(m_pPlayable, track, frameData);
+                }
+            }
         }
         //-----------------------------------------------------
         public virtual void OnEventTrigger(CutsceneTrack track, IBaseEvent pEvt)
@@ -706,6 +788,13 @@ namespace Framework.Cutscene.Runtime
                     return;
             }
             m_pMgr.OnFramePlayableEventTrigger(m_pPlayable, track, pEvt);
+            if (m_vCallbacks != null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    db.OnCutsceneEventTrigger(m_pPlayable,track, pEvt);
+                }
+            }
         }
         //-----------------------------------------------------
         internal ACutsceneDriver CreateDriver(EDataType type, IDataer pDater)
@@ -718,7 +807,7 @@ namespace Framework.Cutscene.Runtime
             m_pMgr.FreeDriver(pDriver);
         }
         //-----------------------------------------------------
-        void Clear()
+        internal void Clear()
         {
             m_bEnable = false;
             m_BindData = null;
@@ -744,21 +833,21 @@ namespace Framework.Cutscene.Runtime
                 }
                 m_vObjIds.Clear();
             }
-          //  m_bEditorMode = false;
-//#if UNITY_EDITOR
-//            m_pOwnerEditor = null;
-//#endif
+            //  m_bEditorMode = false;
+            //#if UNITY_EDITOR
+            //            m_pOwnerEditor = null;
+            //#endif
         }
         //-----------------------------------------------------
         internal void Destroy()
         {
             Clear();
             m_strName = null;
-            m_BindData = null;
+            
             m_nGUID = 0;
-            m_pBindDriver = null;
             if (m_vBindKeyDrivers != null)
                 m_vBindKeyDrivers.Clear();
+            m_pBindDriver = null;
             if (m_vCallbacks != null)
                 m_vCallbacks.Clear();
         }

@@ -1517,6 +1517,20 @@ namespace Framework.ED
                         finfo.SetValue(data, val);
                     }
 #endif
+                    else if (finfo.FieldType == typeof(Bounds))
+                    {
+                        Bounds val = (Bounds)finfo.GetValue(data);
+
+                        val = EditorGUILayout.BoundsField(displayNameContent, val);
+                        finfo.SetValue(data, val);
+                    }
+                    else if (finfo.FieldType == typeof(BoundsInt))
+                    {
+                        BoundsInt val = (BoundsInt)finfo.GetValue(data);
+
+                        val = EditorGUILayout.BoundsIntField(displayNameContent, val);
+                        finfo.SetValue(data, val);
+                    }
                     else if (finfo.FieldType == typeof(Color))
                     {
                         Color val = (Color)finfo.GetValue(data);

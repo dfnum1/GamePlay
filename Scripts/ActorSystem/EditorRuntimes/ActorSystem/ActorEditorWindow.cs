@@ -7,8 +7,10 @@
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
+using Framework.Cutscene.Editor;
 using Framework.Cutscene.Runtime;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -57,6 +59,13 @@ namespace Framework.ActorSystem.Editor
         ActorComponent                  m_pActorComp = null;
         Actor                           m_pActor = null;
         Actor                           m_pTarget = null;
+
+        List<ACutsceneLogic>            m_vCutsceneLogics = null;
+
+        Vector3 m_ActorPosition         = Vector3.zero;
+        Vector3 m_ActorEulerAngle       = Vector3.zero;
+        Vector3 m_TargetPosition        = Vector3.forward*3;
+        Vector3 m_TargetEulerAngle      = Vector3.zero;
         //--------------------------------------------------------
         public Actor Actor
         {
@@ -120,6 +129,7 @@ namespace Framework.ActorSystem.Editor
             RegisterLogic<Framework.Cutscene.Editor.TimelineDrawLogic>().InitRectMethod(this.GetType(), "m_CutsceneTimelineRect");
             RegisterLogic<Framework.Cutscene.Editor.InspectorDrawLogic>().InitRectMethod(this.GetType(), "m_CutsceneInspectorRect");
             RegisterLogic<Framework.Cutscene.Editor.UndoLogic>();
+            m_vCutsceneLogics = GetLogics<ACutsceneLogic>();
 #endif
         }
         //--------------------------------------------------------
@@ -171,6 +181,8 @@ namespace Framework.ActorSystem.Editor
                 pActorInstance.SetAttackGroup(0);
                 SelectActor(pActorInstance);
                 m_pActor = pActorInstance;
+                m_pActor.SetPosition(m_ActorPosition);
+                m_pActor.SetEulerAngle(m_ActorEulerAngle);
 #if USE_CUTSCENE
                 m_pCutsceneInstance = pActorInstance.GetActorGraph().GetCutsceneInstance();
                 m_pCutsceneInstance.RegisterCallback(this);
@@ -182,7 +194,8 @@ namespace Framework.ActorSystem.Editor
             {
                 m_pTarget = m_pActorManager.CreateActor(null, null, -9998);
                 m_pTarget.OnCreated();
-                m_pTarget.SetPosition(new Vector3(2, 0, 0));
+                m_pTarget.SetPosition(m_TargetPosition);
+                m_pTarget.SetEulerAngle(m_TargetEulerAngle);
                 GameObject pInst = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 m_pTarget.SetObjectAble(pInst.AddComponent<ActorComponent>());
             }
@@ -465,6 +478,32 @@ namespace Framework.ActorSystem.Editor
             }
         }
         //--------------------------------------------------------
+        public void OnPreviewDraw(int controllerId, Camera camera, Event evt)
+        {
+            if (m_vCutsceneLogics != null)
+            {
+                foreach (var logic in m_vCutsceneLogics)
+                {
+                    logic.OnPreviewDraw(controllerId, camera, evt);
+                }
+            }
+            if(evt.shift)
+            {
+                Handles.Label(m_ActorPosition, "模拟位置", EditorStyles.boldLabel);
+                Handles.Label(m_TargetPosition, "模拟敌方位置", EditorStyles.boldLabel);
+                if (Tools.current == Tool.Rotate)
+                {
+                    m_ActorEulerAngle = Handles.DoRotationHandle(Quaternion.Euler(m_ActorEulerAngle),m_ActorPosition).eulerAngles;
+                    m_TargetEulerAngle = Handles.DoRotationHandle(Quaternion.Euler(m_TargetEulerAngle), m_TargetPosition).eulerAngles;
+                }
+                else
+                {
+                    m_ActorPosition = Handles.DoPositionHandle(m_ActorPosition, Quaternion.identity);
+                    m_TargetPosition = Handles.DoPositionHandle(m_TargetPosition, Quaternion.identity);
+                }
+            }
+        }
+        //--------------------------------------------------------
         public override bool IsRuntimeOpenPlayingCutscene()
         {
             return false;
@@ -523,7 +562,19 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)
         {
-
+            if(status == EPlayableStatus.Start || status == EPlayableStatus.Create)
+            {
+                if (m_pActor != null)
+                {
+                    m_pActor.SetPosition(m_ActorPosition);
+                    m_pActor.SetEulerAngle(m_ActorEulerAngle);
+                }
+                if (m_pTarget != null)
+                {
+                    m_pTarget.SetPosition(m_TargetPosition);
+                    m_pTarget.SetEulerAngle(m_TargetEulerAngle);
+                }
+            }
         }
         //--------------------------------------------------------
         public bool OnCutscenePlayableCreateClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip)

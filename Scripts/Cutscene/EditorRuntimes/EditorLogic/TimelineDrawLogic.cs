@@ -765,7 +765,7 @@ namespace Framework.Cutscene.Editor
             if (assetData == null) assetData = GetAsset();
             m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
             m_pCutscene.Stop(true);
-            m_pCutscene.Destroy();
+            m_pCutscene.Clear();
             GetOwner<ACutsceneEditor>().SaveAgentTreeData();
             m_pCutscene.SetEditorMode(true, GetOwner());
             m_pCutscene.Create(GetCutsceneGraph(), null, assetData!=null? assetData.id:-1);
@@ -797,7 +797,7 @@ namespace Framework.Cutscene.Editor
             if (m_pCutscene == null)
                 return;
             m_pCutscene.Stop(true);
-            m_pCutscene.Destroy();
+            m_pCutscene.Clear();
             GetOwner<ACutsceneEditor>().SaveAgentTreeData();
             m_pCutscene.SetEditorMode(true, GetOwner());
             m_pCutscene.Create(GetCutsceneGraph(), null, assetData != null ? assetData.id : -1);

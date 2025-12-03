@@ -96,7 +96,9 @@ namespace Framework.ActorSystem.Runtime
                 return;
             }
             m_pObjectAble = pObject;
-
+            m_Transform.bDirtyPos = true;
+            m_Transform.bDirtyEuler = true;
+            m_Transform.bDirtyScale = true;
             GetActorGraph();
             if (m_vAgents != null)
             {
@@ -138,6 +140,10 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         void OnLoadActorGraph(ActorGraphData graphData)
         {
+            if(graphData!=null)
+            {
+                SetBound(graphData.boundBox.min, graphData.boundBox.max);
+            }
             GetAgent<ActorGraphicAgent>(true).OnLoadActorGraphData(graphData);
         }
         //--------------------------------------------------------
@@ -147,10 +153,9 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         internal void OnConstruct()
         {
-            if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>();
-            m_pSkillSystem.SetActor(this);
-            GetAgent<ActorGraphicAgent>(true);
             Reset();
+            SetActived(false);
+            SetVisible(false);
         }
         //--------------------------------------------------------
         internal void Reset()
@@ -170,6 +175,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pActorParameter != null)
                 m_pActorParameter.SetActor(this);
+            UpdateTransform();
         }
         //------------------------------------------------------
         internal Actor GetNext()
@@ -265,6 +271,11 @@ namespace Framework.ActorSystem.Runtime
         public WorldBoundBox GetBounds()
         {
             return m_BoundBox;
+        }
+        //--------------------------------------------------------
+        public void SetBound(Vector3 min, Vector3 max)
+        {
+            m_BoundBox.Set(min, max);
         }
         //--------------------------------------------------------
         public void SetDirection(Vector3 vDirection)
