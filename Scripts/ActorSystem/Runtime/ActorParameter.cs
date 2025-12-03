@@ -5,18 +5,29 @@
 描    述:	Actor单位属性参数
 *********************************************************************/
 using System.Collections.Generic;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     public interface IActorAttrDirtyCallback
     {
-        void OnActorAttrDirty(Actor pActor, byte type, float oldValue, float newValue);
+        void OnActorAttrDirty(Actor pActor, byte type, FFloat oldValue, FFloat newValue);
     }
     public class ActorParameter : TypeObject
     {
         IContextData                            m_pConfigData = null;
-        Dictionary<byte, int>                   m_vAttributes = null;
+        Dictionary<byte, FFloat>                 m_vAttributes = new Dictionary<byte, FFloat>(16);
         Actor                                   m_pActor;
         byte                                    m_HpAttrType = 1;
+        byte                                    m_SpeedAttrType = 2;
         private List<IActorAttrDirtyCallback>   m_vCallbacks = null;
 
         protected byte                          m_nAttackGroup = 0;
@@ -81,7 +92,27 @@ namespace Framework.ActorSystem.Runtime
             m_HpAttrType = type;
         }
         //--------------------------------------------------------
-        internal void SetAttrs(byte[] attiTypes, int[] values)
+        public byte GetHpAttrType()
+        {
+            return m_HpAttrType;
+        }
+        //--------------------------------------------------------
+        public void SetSpeedAttrType(byte type)
+        {
+            m_SpeedAttrType = type;
+        }
+        //--------------------------------------------------------
+        public byte GetSpeedAttrType()
+        {
+            return m_SpeedAttrType;
+        }
+        //--------------------------------------------------------
+        public float GetSpeed()
+        {
+            return GetAttr(m_SpeedAttrType, 1);
+        }
+        //--------------------------------------------------------
+        internal void SetAttrs(byte[] attiTypes, FFloat[] values)
         {
             if (attiTypes == null || values == null)
                 return;
@@ -94,16 +125,16 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void SetAttr(byte type, int value)
+        internal void SetAttr(byte type, FFloat value)
         {
-            int oldValue = 0;
+            FFloat oldValue = 0;
             if (!m_vAttributes.TryGetValue(type, out oldValue))
                 oldValue = -1;
             m_vAttributes[type] = value;
             DoAttrDirtyCall(type, oldValue, m_vAttributes[type]);
         }
         //--------------------------------------------------------
-        internal int GetAttr(byte type, int defVal = 0)
+        internal FFloat GetAttr(byte type, FFloat defVal = 0)
         {
             if (m_vAttributes.TryGetValue(type, out var val))
                 return val;
@@ -115,7 +146,7 @@ namespace Framework.ActorSystem.Runtime
             m_vAttributes.Remove(type);
         }
         //--------------------------------------------------------
-        internal void AppendAttrs(byte[] attiTypes, int[] values)
+        internal void AppendAttrs(byte[] attiTypes, FFloat[] values)
         {
             if (attiTypes == null || values == null)
                 return;
@@ -127,9 +158,9 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void AppendAttr(byte type, int value)
+        internal void AppendAttr(byte type, FFloat value)
         {
-            int oldValue = 0;
+            FFloat oldValue = 0;
             if (m_vAttributes.TryGetValue(type, out oldValue))
             {
                 m_vAttributes[type] = oldValue + value;
@@ -143,7 +174,7 @@ namespace Framework.ActorSystem.Runtime
             m_pActor.GetActorManager().OnActorAttriDirtyCallback(m_pActor, type, value, oldValue);
         }
         //--------------------------------------------------------
-        internal void SubAttrs(byte[] attiTypes, int[] values)
+        internal void SubAttrs(byte[] attiTypes, FFloat[] values)
         {
             if (attiTypes == null || values == null)
                 return;
@@ -155,11 +186,11 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void SubAttr(byte type, int value, bool bLowerZero = false)
+        internal void SubAttr(byte type, FFloat value, bool bLowerZero = false)
         {
             if (m_vAttributes.TryGetValue(type, out var val))
             {
-                int oldValue = val;
+                FFloat oldValue = val;
                 if (bLowerZero)
                 {
                     if (val < value)
@@ -179,7 +210,7 @@ namespace Framework.ActorSystem.Runtime
                 m_vAttributes.Clear();
         }
         //--------------------------------------------------------
-        void DoAttrDirtyCall(byte type, int oldValue, int newValue)
+        void DoAttrDirtyCall(byte type, FFloat oldValue, FFloat newValue)
         {
             if (oldValue == newValue)
                 return;
@@ -209,6 +240,7 @@ namespace Framework.ActorSystem.Runtime
         {
             ClearAttrs();
             m_HpAttrType = 1;
+            m_SpeedAttrType = 2;
             m_pConfigData = null;
             m_nGUID = 0;
             m_nAttackGroup = 0;

@@ -18,7 +18,7 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemDespawnInstance(GameObject pInstance, string name = null);
 
         bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null);
-        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null);
+        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, float oldValue, float newValue, IContextData externVar = null);
 
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
@@ -36,6 +36,7 @@ namespace Framework.ActorSystem.Runtime
         Actor                                   m_pRoot = null; 
         List<Actor>                             m_vDestroyList = new List<Actor>(16);
 
+        float                                   m_fTerrainHeight = 0;
         int                                     m_nTerrainLayerMask = -1;
         protected long                          m_lRuntime = 0;
         protected long                          m_lRuntimeUnScale = 0;
@@ -55,6 +56,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
             ActorSystemUtil.Register(this);
             m_isInitialized = true;
+            m_fTerrainHeight = 0;
             m_CutsceneManager = cutsceneMgr;
         }
         //-----------------------------------------------------
@@ -66,6 +68,16 @@ namespace Framework.ActorSystem.Runtime
         public int GetTerrainLayerMask()
         {
             return m_nTerrainLayerMask;
+        }
+        //-----------------------------------------------------
+        public void SetTerrainHeight(float layerMask)
+        {
+            m_fTerrainHeight = layerMask;
+        }
+        //-----------------------------------------------------
+        public float GetTerrainHeight()
+        {
+            return m_fTerrainHeight;
         }
         //-----------------------------------------------------
         public float GetRandom(float lower, float upper)
@@ -93,6 +105,7 @@ namespace Framework.ActorSystem.Runtime
         public IntersetionParam GetIntersetionParam()
         {
             if (m_IntersetionParam == null) m_IntersetionParam = new IntersetionParam();
+            m_IntersetionParam.Check();
             return m_IntersetionParam;
         }
         //-----------------------------------------------------
@@ -202,7 +215,15 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public int CalcNeighbors(Actor pActor, float range, ref List<Actor> vNodes)
         {
-            return 0;
+            if (vNodes == null)
+                return 0;
+            foreach(var db in m_vNodes)
+            {
+                if (db.Value == pActor)
+                    continue;
+                vNodes.Add(db.Value);
+            }
+            return vNodes.Count;
         }
         //-----------------------------------------------------
         internal ProjectileManager GetProjectileManager()
@@ -286,6 +307,7 @@ namespace Framework.ActorSystem.Runtime
         public List<Actor> GetCatchActorList()
         {
             if (m_CatchNodeList == null) m_CatchNodeList = new List<Actor>(2);
+            m_CatchNodeList.Clear();
             return m_CatchNodeList;
         }
         //-----------------------------------------------------
@@ -305,7 +327,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //-----------------------------------------------------
-        internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, int oldValue, int newValue, IContextData pTakeData = null)
+        internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, float oldValue, float newValue, IContextData pTakeData = null)
         {
             if (m_vCallbacks == null || pActor == null)
                 return false;

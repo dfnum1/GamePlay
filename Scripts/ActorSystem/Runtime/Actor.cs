@@ -8,11 +8,21 @@ using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     public class Actor : TypeObject, ICutsceneObject
     {
-        public static Vector3                   INVAILD_POS = new Vector3(-9000, -9000, -9000);
+        public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);
 
 
         int                                     m_nInstanceID = 0;
@@ -21,7 +31,7 @@ namespace Framework.ActorSystem.Runtime
         Dictionary<System.Type, AActorAgent>    m_mTypeAgents = null;
         ActorParameter                          m_pActorParameter;
 
-        protected WorldTransform                m_Transform = new WorldTransform(Vector3.zero);
+        protected WorldTransform                m_Transform = new WorldTransform(FVector3.zero);
         protected WorldBoundBox                 m_BoundBox = new WorldBoundBox();
         IContextData                            m_pObjectAble;
         Transform                               m_pUnityTransform;
@@ -213,52 +223,77 @@ namespace Framework.ActorSystem.Runtime
             return GetActorParameter().CanAttackGroup(attackGroup);
         }
         //--------------------------------------------------------
-        public void SetSpeed(Vector3 speed)
+        public void SetSpeed(FVector3 speed)
         {
-            GetAgent<ActorRunMoveLogic>(true).SetSpeed(speed);
+            GetAgent<ActorTransformLogic>(true).SetSpeed(speed);
         }
         //--------------------------------------------------------
-        public void SetSpeedXZ(Vector3 speed)
+        public void SetSpeedXZ(FVector3 speed)
         {
-            GetAgent<ActorRunMoveLogic>(true).SetSpeedXZ(speed);
+            GetAgent<ActorTransformLogic>(true).SetSpeedXZ(speed);
         }
         //--------------------------------------------------------
-        public Vector3 GetSpeed()
+        public FVector3 GetSpeed()
         {         
-            return GetAgent<ActorRunMoveLogic>(true).GetSpeed();
+            return GetAgent<ActorTransformLogic>(true).GetSpeed();
         }
         //--------------------------------------------------------
-        public void SetSpeedY(float fSpeedY)
+        public void SetSpeedY(FFloat fSpeedY)
         {
-            GetAgent<ActorRunMoveLogic>(true).SetSpeedY(fSpeedY);
+            GetAgent<ActorTransformLogic>(true).SetSpeedY(fSpeedY);
         }
         //--------------------------------------------------------
-        public Vector3 GetPosition()
+        public void SetFraction(FFloat fValue)
+        {
+            GetAgent<ActorTransformLogic>(true).SetFarction(fValue);
+        }
+        //--------------------------------------------------------
+        public FFloat GetFraction()
+        {
+            return GetAgent<ActorTransformLogic>(true).GetFarction();
+        }
+        //------------------------------------------------------
+        public void EnableGravity(bool bEnable)
+        {
+            GetAgent<ActorTransformLogic>(true).EnableGravity(bEnable);
+        }
+        //--------------------------------------------------------
+        public void SetGravity(FFloat fValue)
+        {
+            GetAgent<ActorTransformLogic>(true).SetGravity(fValue);
+        }
+        //--------------------------------------------------------
+        public FFloat GetGravity()
+        {
+            return GetAgent<ActorTransformLogic>(true).GetGravity();
+        }
+        //--------------------------------------------------------
+        public FVector3 GetPosition()
         {
             return m_Transform.GetPosition();
         }
         //--------------------------------------------------------
-        public Vector3 GetLastPosition()
+        public FVector3 GetLastPosition()
         {
             return m_Transform.GetLastPosition();
         }
         //--------------------------------------------------------
-        public void SetPosition(Vector3 vPosition)
+        public void SetPosition(FVector3 vPosition)
         {
             m_Transform.SetPosition(vPosition);
         }
         //--------------------------------------------------------
-        public void OffsetPosition(Vector3 vOffset)
+        public void OffsetPosition(FVector3 vOffset)
         {
             m_Transform.SetPosition(vOffset + m_Transform.GetPosition());
         }
         //--------------------------------------------------------
-        public Vector3 GetEulerAngle()
+        public FVector3 GetEulerAngle()
         {
             return m_Transform.GetEulerAngle();
         }
         //--------------------------------------------------------
-        public void SetEulerAngle(Vector3 vEulerAngle)
+        public void SetEulerAngle(FVector3 vEulerAngle)
         {
             m_Transform.SetEulerAngle(vEulerAngle);
         }
@@ -273,48 +308,48 @@ namespace Framework.ActorSystem.Runtime
             return m_BoundBox;
         }
         //--------------------------------------------------------
-        public void SetBound(Vector3 min, Vector3 max)
+        public void SetBound(FVector3 min, FVector3 max)
         {
             m_BoundBox.Set(min, max);
         }
         //--------------------------------------------------------
-        public void SetDirection(Vector3 vDirection)
+        public void SetDirection(FVector3 vDirection)
         {
             if ((int)(vDirection.sqrMagnitude * 100) <= 0) return;
             m_Transform.SetDirection(vDirection);
         }
         //-------------------------------------------------
-        public Vector3 GetDirection()
+        public FVector3 GetDirection()
         {
             return m_Transform.GetDirection();
         }
         //-------------------------------------------------
-        public Vector3 GetUp()
+        public FVector3 GetUp()
         {
             return m_Transform.GetUp();
         }
         //-------------------------------------------------
-        public virtual void SetUp(Vector3 up)
+        public virtual void SetUp(FVector3 up)
         {
             m_Transform.SetUp(up);
         }
         //-------------------------------------------------
-        public Vector3 GetRight()
+        public FVector3 GetRight()
         {
             return m_Transform.GetRight();
         }
         //-------------------------------------------------
-        public Vector3 GetScale()
+        public FVector3 GetScale()
         {
             return m_Transform.GetScale();
         }
         //-------------------------------------------------
-        public void SetScale(Vector3 scale)
+        public void SetScale(FVector3 scale)
         {
             m_Transform.SetScale(scale);
         }
         //--------------------------------------------------------
-        public void SetTransfrom(Vector3 vPosition, Vector3 vEulerAngle, Vector3 vScale)
+        public void SetTransfrom(FVector3 vPosition, FVector3 vEulerAngle, FVector3 vScale)
         {
             m_Transform.SetTransform(vPosition, vEulerAngle, vScale);
         }
@@ -708,17 +743,17 @@ namespace Framework.ActorSystem.Runtime
                 m_pSkillSystem.OnActionStartState(pState);
         }
         //--------------------------------------------------------
-        public void SetAttrs(byte[] attiTypes, int[] values)
+        public void SetAttrs(byte[] attiTypes, FFloat[] values)
         {
             GetActorParameter().SetAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        public void SetAttr(byte type, int value)
+        public void SetAttr(byte type, FFloat value)
         {
             GetActorParameter().SetAttr(type, value);
         }
         //--------------------------------------------------------
-        public int GetAttr(byte type, int defVal = 0)
+        public FFloat GetAttr(byte type, FFloat defVal = 0)
         {
             return GetActorParameter().GetAttr(type, defVal);
         }
@@ -728,17 +763,17 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().RemoveAttr(type);
         }
         //--------------------------------------------------------
-        public void AppendAttrs(byte[] attiTypes, int[] values)
+        public void AppendAttrs(byte[] attiTypes, FFloat[] values)
         {
             GetActorParameter().AppendAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        public void AppendAttr(byte type, int value)
+        public void AppendAttr(byte type, FFloat value)
         {
             GetActorParameter().AppendAttr(type, value);
         }
         //--------------------------------------------------------
-        public void SubAttrs(byte[] attiTypes, int[] values)
+        public void SubAttrs(byte[] attiTypes, FFloat[] values)
         {
             GetActorParameter().SubAttrs(attiTypes, values);
         }
@@ -1189,7 +1224,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public virtual bool IsIntersecition(Matrix4x4 mtTrans, Vector3 vCenter, Vector3 vHalf)
+        public virtual bool IsIntersecition(Matrix4x4 mtTrans, FVector3 vCenter, FVector3 vHalf)
         {
             if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vCenter, vHalf, mtTrans))
             {
@@ -1202,7 +1237,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public virtual bool IsIntersecition(Matrix4x4 mtTrans, float radius)
         {
-            Vector3 vTransCenter = ActorSystemUtil.GetPosition(mtTrans);
+            FVector3 vTransCenter = ActorSystemUtil.GetPosition(mtTrans);
             if (IntersetionUtil.CU_LineSphereIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vTransCenter, radius))
             {
                 return true;
@@ -1220,7 +1255,7 @@ namespace Framework.ActorSystem.Runtime
             if (strSlot.Equals("RootTop", StringComparison.OrdinalIgnoreCase))
             {
                 Matrix4x4 temp = GetMatrix();
-                ActorSystemUtil.OffsetPosition(ref temp, new Vector3(0, m_pActorParameter.GetModelHeight(), 0));
+                ActorSystemUtil.OffsetPosition(ref temp, new FVector3(0, m_pActorParameter.GetModelHeight(), 0));
                 return temp;
             }
             Matrix4x4 matrix = GetMatrix();
@@ -1250,9 +1285,9 @@ namespace Framework.ActorSystem.Runtime
             return matrix;
         }
         //------------------------------------------------------
-        public virtual Transform GetEventBindSlot(string strSlot, out Vector3 slotOffset)
+        public virtual Transform GetEventBindSlot(string strSlot, out FVector3 slotOffset)
         {
-            slotOffset = Vector3.zero;
+            slotOffset = FVector3.zero;
             if (m_pUnityTransform == null) return null;
             if (string.IsNullOrEmpty(strSlot)) return null;
             if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return m_pUnityTransform;

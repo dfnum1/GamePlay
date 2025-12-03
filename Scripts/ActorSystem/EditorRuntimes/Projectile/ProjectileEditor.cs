@@ -8,14 +8,23 @@
 using Framework.ActorSystem.Editor;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
-using Framework.Core;
 using Framework.Cutscene.Runtime;
 using Framework.ED;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.AI;
+
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 
 namespace Framework.ProjectileSystem.Editor
 {
@@ -493,7 +502,7 @@ namespace Framework.ProjectileSystem.Editor
             return false;
         }
         //-----------------------------------------------------
-        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null)
+        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
         {
             throw new NotImplementedException();
         }

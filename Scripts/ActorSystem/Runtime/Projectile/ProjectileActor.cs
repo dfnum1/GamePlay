@@ -345,12 +345,12 @@ namespace Framework.ActorSystem.Runtime
             return (m_nLaunchFlag & (int)flag) != 0;
         }
         //------------------------------------------------------
-        public FVector3 GetSpeed()
+        new public FVector3 GetSpeed()
         {
             return m_Speed;
         }
         //------------------------------------------------------
-        public void SetSpeed(FVector3 speed)
+        new public void SetSpeed(FVector3 speed)
         {
             m_Speed = speed;
         }
@@ -899,7 +899,7 @@ namespace Framework.ActorSystem.Runtime
             {
                 return position.y <= hit.point.y;
             }
-            return position.y <= 0;
+            return position.y <= m_pSytstem.GetTerrainHeight();
         }
         //------------------------------------------------------
         internal bool CheckStoped(ProjectileManager mgr, FFloat fFrameTime)
@@ -1310,6 +1310,8 @@ namespace Framework.ActorSystem.Runtime
             if (!pActor.IsCanLogic()) return false;
 
             bool isFriend = GetAttackGroup() == pActor.GetAttackGroup();
+            if (isFriend)
+                return false;
             if (pActor != null)
             {
                 if (pActor.IsInvincible()) return false;

@@ -1,12 +1,13 @@
 ﻿/********************************************************************
 生成日期:	5:11:2020  20:36
-类    名: 	ActorRunMoveLogic
+类    名: 	ActorTransformLogic
 作    者:	HappLI
 描    述:	移动逻辑
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
+using Mono.Cecil.Cil;
 using UnityEngine;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
@@ -16,7 +17,7 @@ using FVector3 = UnityEngine.Vector3;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
-    public class ActorRunMoveLogic : AActorAgent
+    public class ActorTransformLogic : AActorAgent
     {
         protected FVector3  m_PositionOffset = FVector3.zero;
         protected FVector3  m_Speed = FVector3.zero;
@@ -97,7 +98,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public FFloat GetRunSpeed()
         {
-            return 5;
+            return m_pActor.GetActorParameter().GetSpeed();
         }
         //--------------------------------------------------------
         protected override void OnUpdate(float fDelta)
@@ -130,7 +131,12 @@ namespace Framework.ActorSystem.Runtime
             {
                 m_PositionOffset.y = hit.point.y;
             }
-
+            else
+            {
+                Vector3 pos = m_PositionOffset + m_pActor.GetPosition();
+                if (pos.y <= m_pActor.GetActorManager().GetTerrainHeight())
+                    m_PositionOffset.y = 0;
+            }
             m_pActor.OffsetPosition(m_PositionOffset);
             m_PositionOffset = FVector3.zero;
         }

@@ -54,6 +54,11 @@ namespace Framework.AT.Editor
             return window;
         }
         //--------------------------------------------------------
+        public AgentTreeData GetATData()
+        {
+            return m_pATData;
+        }
+        //--------------------------------------------------------
         protected override void OnInnerEnable()
         {
         //    m_CutsceneManager = new CutsceneManager();

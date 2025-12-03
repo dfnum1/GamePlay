@@ -520,7 +520,7 @@ namespace Framework.ProjectileSystem.Editor
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "stuck_time_hit");
 
             projectile.target_action_hit = DrawActionAndTag(projectile.target_action_hit, "受击", true);
-            //       projectile.hit_back_speed = EditorGUILayout.Vector3Field("击退力度", projectile.hit_back_speed);
+            projectile.hit_back_speed = EditorGUILayout.Vector3Field("击退力度", projectile.hit_back_speed);
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_fraction");
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_gravity");
 

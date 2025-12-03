@@ -6,6 +6,7 @@
 Ãè    Êö:	±íÏÖÍ¼±à¼­´°¿Ú
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
+using Framework.AT.Editor;
 using Framework.AT.Runtime;
 using Framework.Cutscene.Editor;
 using Framework.Cutscene.Runtime;
@@ -13,6 +14,17 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 
 namespace Framework.ActorSystem.Editor
 {
@@ -55,7 +67,7 @@ namespace Framework.ActorSystem.Editor
         CutsceneInstance                m_pCutsceneInstance = null;
         private bool                    m_bCutscenInspectorExpand = true;
 
-    //    Framework.Plugin.AT.AgentTreeEditor m_pSkillEditor = null;
+        Framework.AT.Editor.AgentTreeWindow m_pSkillEditor = null;
         ActorComponent                  m_pActorComp = null;
         Actor                           m_pActor = null;
         Actor                           m_pTarget = null;
@@ -146,8 +158,8 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnInnerDisable()
         {
-       //     if (m_pSkillEditor != null) m_pSkillEditor.Close();
-       //     m_pSkillEditor = null;
+            if (m_pSkillEditor != null) m_pSkillEditor.Close();
+            m_pSkillEditor = null;
         }
         //--------------------------------------------------------
         protected override void OnInnerDestroy()
@@ -196,6 +208,7 @@ namespace Framework.ActorSystem.Editor
                 m_pTarget.OnCreated();
                 m_pTarget.SetPosition(m_TargetPosition);
                 m_pTarget.SetEulerAngle(m_TargetEulerAngle);
+                m_pTarget.SetBound(Vector3.one * -0.5f, Vector3.one * 0.5f);
                 GameObject pInst = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 m_pTarget.SetObjectAble(pInst.AddComponent<ActorComponent>());
             }
@@ -255,7 +268,6 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public void OpenSkillEditor()
         {
-            /*
             var actor = GetLogic<AssetDrawLogic>().GetActor();
             if (actor == null)
                 return;
@@ -269,7 +281,7 @@ namespace Framework.ActorSystem.Editor
             }
             else
             {
-                var prefab = PrefabUtility.GetCorrespondingObjectFromSource<GameObject>(actorComp.gameObject);
+                var prefab = PrefabUtility.GetCorrespondingObjectFromSource<GameObject>(component.gameObject);
                 if (prefab != null)
                 {
                     component = prefab.GetComponent<ActorComponent>();
@@ -280,15 +292,14 @@ namespace Framework.ActorSystem.Editor
 
             if (m_pSkillEditor != null)
             {
-                if (m_pSkillEditor.GetATCoreData() == component.ATData)
+                if (m_pSkillEditor.GetATData() == component.ATData)
                 {
                     m_pSkillEditor.Focus();
                     return;
                 }
                 m_pSkillEditor.Close();
             }
-            // m_pSkillEditor = AgentTreeEditor.Editor(component.ATData, component);
-            */
+             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component);
         }
         //--------------------------------------------------------
         protected override void OnInnerEvent(Event evt)
@@ -568,11 +579,13 @@ namespace Framework.ActorSystem.Editor
                 {
                     m_pActor.SetPosition(m_ActorPosition);
                     m_pActor.SetEulerAngle(m_ActorEulerAngle);
+                    m_pActor.SetSpeed(Vector3.zero);
                 }
                 if (m_pTarget != null)
                 {
                     m_pTarget.SetPosition(m_TargetPosition);
                     m_pTarget.SetEulerAngle(m_TargetEulerAngle);
+                    m_pTarget.SetSpeed(Vector3.zero);
                 }
             }
         }
@@ -689,14 +702,14 @@ namespace Framework.ActorSystem.Editor
             return false;
         }
         //--------------------------------------------------------
-        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, int oldValue, int newValue, IContextData externVar = null)
+        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
         {
             return false;
         }
         //--------------------------------------------------------
         public bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor)
         {
-            throw new NotImplementedException();
+            return false;
         }
     }
 }

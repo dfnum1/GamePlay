@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
+using static UnityEngine.GraphicsBuffer;
 #if USE_SERVER
 using Transform = ExternEngine.Transform;
 #endif
@@ -638,11 +639,24 @@ namespace Framework.ActorSystem.Runtime
 
             foreach(var attackArray in attack_data_array )
             {
-             //   if (projectileData.HitEventID>0)
-             //       m_vTickEventTemps.Add(new Event(EEventType.Hit, pProjectile, attackArray.target_ptr, null, projectileData.HitEventID, attackArray.hit_position, pProjectile.GetStateParam()));
+                if(projectileData.hit_back_speed.sqrMagnitude>0)
+                {
+                    FVector3 speed = FVector3.zero;
+                    speed += pProjectile.GetDirection() * projectileData.hit_back_speed.z;
+                    speed += pProjectile.GetUp() * projectileData.hit_back_speed.y;
+                    speed += pProjectile.GetRight() * projectileData.hit_back_speed.x;
+                    attackArray.target_ptr.SetSpeed(speed);
+                    if(projectileData.hit_back_fraction>=0)
+                        attackArray.target_ptr.SetFraction(projectileData.hit_back_fraction);
+                    if (projectileData.hit_back_gravity >= 0)
+                        attackArray.target_ptr.SetGravity(projectileData.hit_back_gravity);
+                }
 
-             //   if (projectileData.AttackEventID > 0)
-             //       m_vTickEventTemps.Add(new Event(EEventType.Attacker, pProjectile, pAttacker, attackArray.target_ptr, projectileData.AttackEventID, pProjectile.GetPosition(), pProjectile.GetStateParam()));
+                //   if (projectileData.HitEventID>0)
+                //       m_vTickEventTemps.Add(new Event(EEventType.Hit, pProjectile, attackArray.target_ptr, null, projectileData.HitEventID, attackArray.hit_position, pProjectile.GetStateParam()));
+
+                //   if (projectileData.AttackEventID > 0)
+                //       m_vTickEventTemps.Add(new Event(EEventType.Attacker, pProjectile, pAttacker, attackArray.target_ptr, projectileData.AttackEventID, pProjectile.GetPosition(), pProjectile.GetStateParam()));
             }
 
             if (pProjectile.IsTrackEnd() || bHitScene)

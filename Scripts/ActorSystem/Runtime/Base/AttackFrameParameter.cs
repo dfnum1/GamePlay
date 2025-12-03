@@ -17,10 +17,15 @@ namespace Framework.ActorSystem.Runtime
         public float stuck_time_hit;
         [Display("受击计算朝向")]
         public bool target_direction_postion;
-
         //! on hit
         [Display("受击者受击动作类型")]
         public uint target_action_hit;
+        [Display("击退力度")]
+        public Vector3 hit_back_speed;
+        [Display("击退时位移摩檫力", "<0时,不起作用")]
+        public float hit_back_fraction = -1;
+        [Display("击退时位移重力", "<0时,不起作用")]
+        public float hit_back_gravity = -1f;
 
         [Display("受击持续时长", "如果为0且有动作，则取动作的时长")] public float target_duration_hit;
         [Display("受击特效缩放")] public float target_effect_hit_scale = 1.0f;
