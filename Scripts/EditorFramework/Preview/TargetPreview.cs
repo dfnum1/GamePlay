@@ -1530,7 +1530,7 @@ namespace Framework.ED
             }
         }
         //-----------------------------------------------------
-        public void AddPreview(GameObject go, HideFlags falgs = HideFlags.HideInInspector| HideFlags.DontSaveInEditor| HideFlags.DontSaveInBuild)
+        public void AddPreview(GameObject go, HideFlags falgs = HideFlags.HideAndDontSave)
         {
             if (go == null) return;
 

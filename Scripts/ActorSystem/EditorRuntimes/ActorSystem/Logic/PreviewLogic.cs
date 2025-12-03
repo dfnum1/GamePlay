@@ -49,7 +49,7 @@ namespace Framework.ActorSystem.Editor
                 return;
             m_vActors.Add(pActor);
             if(pActor != null && pActor.GetUniyTransform()!=null)
-                m_Preview.AddPreview(pActor.GetUniyTransform().gameObject);
+                m_Preview.AddPreview(pActor.GetUniyTransform().gameObject, HideFlags.HideInInspector | HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
         }
         //--------------------------------------------------------
         protected override void OnDisable()
@@ -61,7 +61,7 @@ namespace Framework.ActorSystem.Editor
         public void AddInstance(GameObject pAble)
         {
             if (m_Preview != null && pAble)
-                m_Preview.AddPreview(pAble.gameObject);
+                m_Preview.AddPreview(pAble.gameObject, HideFlags.HideInInspector | HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild);
         }
         //--------------------------------------------------------
        public override  void OnSpwanGameObejct(GameObject pGo)

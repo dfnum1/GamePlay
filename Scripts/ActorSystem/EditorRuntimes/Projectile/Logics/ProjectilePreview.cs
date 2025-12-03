@@ -16,6 +16,8 @@ using Framework.Core;
 using Framework.ED;
 using Framework.Data;
 using Framework.ActorSystem.Runtime;
+using UnityEngine.UIElements;
+
 
 
 
@@ -161,10 +163,8 @@ namespace Framework.ProjectileSystem.Editor
             m_Preview.SetFloorTexture(ActorSystem.Editor.AssetUtil.GetFloorTexture());
 
             m_pSimulateActor = GetOwner<ProjectileEditor>().GetActorManager().CreateActor<Actor>(null);
-            m_pSimulateActor.SetObjectAble(GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<ActorComponent>());
 
             m_pTargetActor = GetOwner<ProjectileEditor>().GetActorManager().CreateActor<Actor>(null, null, 0);
-            m_pSimulateActor.SetObjectAble(GameObject.CreatePrimitive(PrimitiveType.Cube).AddComponent<ActorComponent>());
 
             m_pTargetActor.SetDirection(-Vector3.forward);
             m_pTargetActor.SetPosition(Vector3.forward * 10);
@@ -202,15 +202,28 @@ namespace Framework.ProjectileSystem.Editor
             m_pPreveObject = null;
         }
         //--------------------------------------------------------
-        public void AddInstance(GameObject pAble)
+        public void AddInstance(GameObject pAble,HideFlags hideFlag = HideFlags.HideAndDontSave)
         {
             if (m_Preview != null && pAble)
-                m_Preview.AddPreview(pAble);
+                m_Preview.AddPreview(pAble, hideFlag);
         }
         //-----------------------------------------------------
         public override void Reload()
         {
             RefreshTest();
+        }
+        //-----------------------------------------------------
+        protected override void OnEvent(Event evt)
+        {
+            if(evt.type == EventType.KeyDown)
+            {
+                if(evt.keyCode == KeyCode.F5)
+                {
+                    RefreshTest();
+                    Play(true);
+                    evt.Use();
+                }
+            }
         }
         //-----------------------------------------------------
         public override void Play(bool bPlay)
@@ -226,7 +239,7 @@ namespace Framework.ProjectileSystem.Editor
                         trackTrans = m_pTargetActor.GetUniyTransform();
 
                     RefreshTestProject(m_pSimulateActor, m_pCurrent, m_pTargetActor);
-                    GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile((uint)m_pCurrent.id, m_pSimulateActor, null, Vector3.up, Vector3.forward, m_pTargetActor, 0, 0, trackTrans);
+                    GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile(m_pCurrent, m_pSimulateActor, null, Vector3.up, Vector3.forward, m_pTargetActor, 0, 0, trackTrans);
                 }
             }
         }
@@ -366,17 +379,18 @@ namespace Framework.ProjectileSystem.Editor
             GameObject pObj = AssetDatabase.LoadAssetAtPath<GameObject>(m_pCurrent.effect);
             if(pObj!=null)
             {
+                m_strPreviewEffect = m_pCurrent.effect;
                 m_pPreveObject = GameObject.Instantiate<GameObject>(pObj);
                 ActorSystemUtil.ResetGameObject(m_pPreveObject, EResetType.All);
+                AddInstance(m_pPreveObject, HideFlags.HideAndDontSave);
             }
             pObj = AssetDatabase.LoadAssetAtPath<GameObject>(m_pCurrent.waring_effect);
             if (pObj)
             {
                 m_pWaringObj = GameObject.Instantiate<GameObject>(pObj);
                 ActorSystemUtil.ResetGameObject(m_pWaringObj, EResetType.All);
+                AddInstance(m_pWaringObj, HideFlags.HideAndDontSave);
             }
-
-            GetOwner<ProjectileEditor>().GetActorManager().GetProjectileManager().AddProjectileData(m_pCurrent);
         }
         //-----------------------------------------------------
         protected override void OnUpdate(float fFrameTime)
@@ -389,7 +403,7 @@ namespace Framework.ProjectileSystem.Editor
                 if (m_strPreviewEffect == null || m_strPreviewEffect.CompareTo(m_pCurrent.effect) != 0)
                 {
                     m_strPreviewEffect = m_pCurrent.effect;
-                    if (m_pPreveObject) GameObject.DestroyImmediate(m_pPreveObject);
+                    if (m_pPreveObject) Framework.ED.EditorUtils.Destroy(m_pPreveObject);
                     if (!string.IsNullOrEmpty(m_pCurrent.effect))
                     {
                         GameObject pObj = AssetDatabase.LoadAssetAtPath<GameObject>(m_pCurrent.effect);
@@ -397,6 +411,7 @@ namespace Framework.ProjectileSystem.Editor
                         {
                             m_pPreveObject = GameObject.Instantiate<GameObject>(pObj);
                             ActorSystemUtil.ResetGameObject(m_pPreveObject, EResetType.All);
+                            AddInstance(m_pPreveObject);
                         }
                     }    
                 }
@@ -436,7 +451,12 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         protected override void OnGUI()
         {
+            var logic = GetLogic<ProjectileDataListLogic>();
+            bool isDataListActive = false;
+            if (logic != null) isDataListActive = logic.IsActive();
+            EditorGUI.BeginDisabledGroup(isDataListActive);
             DrawPreview(GetRect());
+            EditorGUI.EndDisabledGroup();
         }
         //-----------------------------------------------------
         public void DrawPreview(Rect rc)
@@ -468,7 +488,10 @@ namespace Framework.ProjectileSystem.Editor
                         vSpeedDirection.Normalize();
                     else
                         vSpeedDirection = db.Value.GetDirection();
-                    RenderVolumeByColor(ref csvData.aabb_min, ref csvData.aabb_max, db.Value.GetPosition(), Quaternion.LookRotation(vSpeedDirection), Color.red, 1.0f, false);
+                    if (m_pCurrent.collisionType == EProjectileCollisionType.BOX)
+                        RenderVolumeByColor(ref csvData.aabb_min, ref csvData.aabb_max, db.Value.GetPosition(), Quaternion.LookRotation(vSpeedDirection), Color.red, 1.0f, false);
+                    else if (m_pCurrent.collisionType == EProjectileCollisionType.CAPSULE)
+                        RenderSphereByColor(ref m_pCurrent.aabb_min.x, db.Value.GetPosition(), Quaternion.LookRotation(vSpeedDirection), "#ff0000ff", 1.0f, false);
                 }
             }
 
@@ -637,7 +660,10 @@ namespace Framework.ProjectileSystem.Editor
             Handles.color = dwColor;
 
 #if !UNITY_5_1
-            Handles.SphereHandleCap(0, position, rotation, fRadius, EventType.Repaint);
+            //Handles.SphereHandleCap(0, position, rotation, fRadius, EventType.Repaint);
+            Handles.DrawWireDisc(position, rotation * Vector3.up, fRadius);
+            Handles.DrawWireDisc(position, rotation * Vector3.right, fRadius);
+            Handles.DrawWireDisc(position, rotation * Vector3.forward, fRadius);
 #else
              //   Handles.CubeCap()
 #endif

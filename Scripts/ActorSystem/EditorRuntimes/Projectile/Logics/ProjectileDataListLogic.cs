@@ -33,9 +33,9 @@ namespace Framework.ProjectileSystem.Editor
         protected override void OnEnable()
         {
             base.OnEnable();
-            m_pTreeView = new TreeAssetView(new string[] { "弹道列表" });
+            m_pTreeView = new TreeAssetView(new string[] { "弹道列表","" });
             m_pTreeView.OnCellDraw += OnDrawItem;
-            m_pTreeView.OnSelectChange = OnItemSelect;
+          //  m_pTreeView.OnSelectChange = OnItemSelect;
             m_pTreeView.OnItemDoubleClick = OnItemSelect;
             Refresh();
         }
@@ -66,8 +66,22 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         protected override void OnGUI()
         {
-            m_pTreeView.GetColumn(0).width = GetRect().width;
-            m_pTreeView.OnGUI(GetRect());
+            var rect = GetRect();
+            m_pTreeView.searchString = GUI.TextField(new Rect(rect.x, rect.y, rect.width, 20), m_pTreeView.searchString);
+            m_pTreeView.GetColumn(0).width = rect.width-50;
+            m_pTreeView.GetColumn(1).width = 50;
+            m_pTreeView.OnGUI(new Rect(rect.x, rect.y+20, rect.width, rect.height-20));
+        }
+        //-----------------------------------------------------
+        protected override void OnEvent(Event evt)
+        {
+            if(evt.type == EventType.KeyUp)
+            {
+                if(evt.keyCode == KeyCode.Escape)
+                {
+                    Active(false);
+                }
+            }    
         }
         //--------------------------------------------------------
         void OnItemSelect(TreeAssetView.ItemData item)
@@ -79,17 +93,50 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         bool OnDrawItem(TreeAssetView.RowArgvData rowData)
         {
-            var data = rowData.itemData.data;
+            var data = rowData.itemData.data as ProjectileItem;
             if (rowData.column == 0)
             {
-                string name = data.name;
+                string name = data.pData.desc;
                 if (string.IsNullOrEmpty(name))
                     name = data.id.ToString();
                 else
                 {
-                    name += "[" + data.id + "]";
+                    name += "[" + data.pData.id + "]";
                 }
+                rowData.itemData.data.name = name;
                 EditorGUI.LabelField(rowData.rowRect, name);
+            }
+            else if (rowData.column == 1)
+            {
+                float offsetX = rowData.rowRect.x;
+                string strFile = GetOwner<ProjectileEditor>().GetProjectileDatas()?.GetDataPath(data.pData);
+                if(!string.IsNullOrEmpty(strFile))
+                {
+                    if (GUI.Button(new Rect(offsetX, rowData.rowRect.y, 20, rowData.rowRect.height), "☝"))
+                    {
+                        EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(strFile));
+                    }
+                    offsetX += 20;
+                }
+
+                if (GUI.Button(new Rect(offsetX, rowData.rowRect.y, 20, rowData.rowRect.height), "X"))
+                {
+                    if (EditorUtility.DisplayDialog("提示", "确认是否要删除本弹道数据?", "删除", "取消"))
+                    {
+                        GetOwner<ProjectileEditor>().GetActorManager().GetProjectileManager().RemoveProjectileData(data.pData.id);
+                        string path = strFile.Replace("\\", "/");
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                        string metaPath = path + ".meta";
+                        if (System.IO.File.Exists(metaPath))
+                        {
+                            System.IO.File.Delete(metaPath);
+                        }
+                        Refresh();
+                    }
+                }
             }
             return true;
         }

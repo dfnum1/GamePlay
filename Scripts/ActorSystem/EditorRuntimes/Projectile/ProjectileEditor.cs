@@ -143,7 +143,7 @@ namespace Framework.ProjectileSystem.Editor
             float width = 450;
             ProjectileDataListLogic dataLogic = GetLogic<ProjectileDataListLogic>();
             m_DataListSize = new Rect(0,GapTop, dataLogic.IsActive()?200:0, position.height - GapTop - GapBottom);
-            m_LayerSize = new Rect(m_DataListSize.width, GapTop, this.position.width- width, position.height - GapTop - GapBottom);
+            m_LayerSize = new Rect(0, GapTop, this.position.width- width, position.height - GapTop - GapBottom);
             m_InspecSize = new Rect(m_LayerSize.xMax+5, GapTop, width, position.height - GapTop - GapBottom);
 
 
@@ -159,9 +159,15 @@ namespace Framework.ProjectileSystem.Editor
                 if(m_DragSplitGap == 0)
                 {
                     if (new Rect(position.x, GapTop, m_LayerSize.x, m_LayerSize.y).Contains(evt.mousePosition))
+                    {
                         m_DragSplitGap = 1;
-                    else if (new Rect(position.x- m_InspecSize.x, GapTop, m_InspecSize.x, m_InspecSize.y).Contains(evt.mousePosition))
+                        evt.Use();
+                    }
+                    else if (new Rect(position.x - m_InspecSize.x, GapTop, m_InspecSize.x, m_InspecSize.y).Contains(evt.mousePosition))
+                    {
                         m_DragSplitGap = 2;
+                        evt.Use();
+                    }
                 }
             }
             else if(evt.type == EventType.MouseDrag)
@@ -170,16 +176,62 @@ namespace Framework.ProjectileSystem.Editor
                 {
                     m_LayerSize.x += evt.delta.x;
                     EditorGUIUtility.AddCursorRect(position, MouseCursor.SlideArrow);
+                    evt.Use();
                 }
                 else if (m_DragSplitGap == 2)
                 {
                     m_InspecSize.x += evt.delta.x;
                     EditorGUIUtility.AddCursorRect(position, MouseCursor.SlideArrow);
+                    evt.Use();
                 }
             }
             else if(evt.type == EventType.MouseUp)
             {
+                if (m_DragSplitGap != 0) evt.Use();
                 m_DragSplitGap = 0;
+            }
+            else if(evt.type == EventType.KeyDown)
+            {
+                if (evt.control && evt.keyCode == KeyCode.O)
+                {
+                    GetLogic<ProjectileDataListLogic>()?.Active(true);
+                    evt.Use();
+                }
+                if (evt.control && evt.keyCode == KeyCode.N)
+                {
+                    var logics = GetLogics();
+                    foreach (var db in logics)
+                    {
+                        if (db is AProjectileEditorLogic)
+                        {
+                            ((AProjectileEditorLogic)db).New();
+                        }
+                    }
+                    evt.Use();
+                }
+                if (evt.control && evt.keyCode == KeyCode.S)
+                {
+                    SaveChanges();
+                    evt.Use();
+                }
+                if (evt.keyCode == KeyCode.F6)
+                {
+                    Stop();
+                    var logics = GetLogics();
+                    foreach (var db in logics)
+                    {
+                        if (db is AProjectileEditorLogic)
+                        {
+                            ((AProjectileEditorLogic)db).Reload();
+                        }
+                    }
+                    evt.Use();
+                }
+                if (evt.keyCode == KeyCode.F5)
+                {
+                    Play();
+                    evt.Use();
+                }
             }
         }
         //-----------------------------------------------------
@@ -199,11 +251,26 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         private void DrawToolPanel()
         {
-            if (GUILayout.Button("打开", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("新建", "快捷键:ctrl+o"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 GetLogic<ProjectileDataListLogic>()?.Active(true);
             }
-            if (GUILayout.Button("刷新", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("新建", "快捷键:ctrl+n"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            {
+                var logics = GetLogics();
+                foreach (var db in logics)
+                {
+                    if (db is AProjectileEditorLogic)
+                    {
+                        ((AProjectileEditorLogic)db).New();
+                    }
+                }
+            }
+            if (GUILayout.Button(new GUIContent("新建", "快捷键:ctrl+s"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            {
+                SaveChanges();
+            }
+            if (GUILayout.Button(new GUIContent("刷新", "快捷键:F6"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 Stop();
                 var logics = GetLogics();
@@ -215,29 +282,14 @@ namespace Framework.ProjectileSystem.Editor
                     }
                 }
             }
-            if (GUILayout.Button("模拟", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("模拟","快捷键:F5"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 Play();
             }
-            if (GUILayout.Button("停止", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
-            {
-                Stop();
-            }
-            if (GUILayout.Button("新建", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
-            {
-                var logics = GetLogics();
-                foreach (var db in logics)
-                {
-                    if (db is AProjectileEditorLogic)
-                    {
-                        ((AProjectileEditorLogic)db).New();
-                    }
-                }
-            }
-            if (GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
-            {
-                SaveChanges();
-            }
+            //if (GUILayout.Button("停止", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            //{
+            //    Stop();
+            //}
             if (GUILayout.Button("退出", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 base.Close();
