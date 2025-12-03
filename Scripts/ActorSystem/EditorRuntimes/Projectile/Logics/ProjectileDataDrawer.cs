@@ -12,6 +12,8 @@ using UnityEngine;
 using Framework.DrawProps;
 using Framework.ED;
 using Framework.ActorSystem.Runtime;
+using static Framework.ProjectileSystem.Editor.ProjectileDataDrawer;
+
 
 
 
@@ -169,30 +171,64 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         static string[] SPEED_AXIS_NAME = {"X轴速度", "Y轴速度", "Z轴速度" };
         static string[] ROTATE_AXIS_NAME = { "X轴旋转", "Y轴旋转", "Z轴旋转" };
-        public static void OnInsepctor(ProjectileData projectile, Vector2 size)
+        enum ETab
         {
-            DrawData drawData = CreateDraw(projectile);
-            projectile.desc = EditorGUILayout.TextField("名称描述",projectile.desc);
-     //       projectile.type = (Core.EProjectileType)EditorGUILayout.EnumPopup("类型", projectile.type);
+            Base,
+            Transform,
+            Bounds,
+            Hit,
+        }
+        static ETab ms_eTab = ETab.Base;
+        static string[] TABS = new string[] { "基础", "位移参数", "弹射参数", "攻击帧参数" };
+        //-----------------------------------------------------
+        static void DrawBase(DrawData drawData, ProjectileData projectile, Vector2 size)
+        {
+            projectile.desc = EditorGUILayout.TextField("名称描述", projectile.desc);
+            //       projectile.type = (Core.EProjectileType)EditorGUILayout.EnumPopup("类型", projectile.type);
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "type");
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bornType");
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "classify");
             projectile.life_time = EditorGUILayout.FloatField("生命时长", projectile.life_time);
 
+            projectile.launch_delay = EditorGUILayout.FloatField("延迟发射", projectile.launch_delay);
+            string preEffectPrefab = projectile.effect;
+            projectile.effectSpeed = EditorGUILayout.FloatField("特效播放速度", projectile.effectSpeed);
+            projectile.effect = EditorUtils.DrawUIObjectByPath<GameObject>("特效资源", projectile.effect);
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "sound_launch");
+
+            string preWaringEffectPrefab = projectile.waring_effect;
+            projectile.waring_duration = EditorGUILayout.FloatField("预警时长", projectile.waring_duration);
+            projectile.waring_effect = EditorUtils.DrawUIObjectByPath<GameObject>("预警特效", projectile.waring_effect);
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "scale");
+            projectile.unSceneTest = EditorGUILayout.Toggle("忽略场景地表检测", projectile.unSceneTest);
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bImmedate");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "fEventStepGap");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "StepEventID");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "OverEventID");
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "launch_flag");
+        }
+        //-----------------------------------------------------
+        static void DrawTransform(DrawData drawData, ProjectileData projectile, Vector2 size)
+        {
             float labelWidth = EditorGUIUtility.labelWidth;
-            if(projectile.type != EProjectileType.Trap)
+            if (projectile.type != EProjectileType.Trap)
             {
-                if(projectile.type == EProjectileType.TrackPath)
+                Color color = GUI.color;
+                if (projectile.type == EProjectileType.TrackPath)
                 {
                     List<Vector3> vInTags = (projectile.speedLows != null) ? new List<Vector3>(projectile.speedLows) : new List<Vector3>();
                     List<Vector3> vOutTags = (projectile.speedUppers != null) ? new List<Vector3>(projectile.speedUppers) : new List<Vector3>();
                     List<Vector3> vPoint = (projectile.speedMaxs != null) ? new List<Vector3>(projectile.speedMaxs) : new List<Vector3>();
                     List<Vector3> vAccSpeed = (projectile.accelerations != null) ? new List<Vector3>(projectile.accelerations) : new List<Vector3>();
                     drawData.bExpandSpeedAcc = EditorGUILayout.Foldout(drawData.bExpandSpeedAcc, "路径点");
-                    if(drawData.bExpandSpeedAcc)
+                    if (drawData.bExpandSpeedAcc)
                     {
-                        float width = size.x - 40-70- 40;
+                        float width = size.x - 40 - 70 - 40;
                         GUILayoutOption[] layOp = new GUILayoutOption[] { GUILayout.Width(width) };
                         GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(width) });
                         GUILayout.Label("index", GUILayout.Width(30));
@@ -210,7 +246,7 @@ namespace Framework.ProjectileSystem.Editor
 
                             GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(width) });
                             EditorGUILayout.LabelField((i + 1).ToString(), GUILayout.Width(30));
-                            point = EditorGUILayout.Vector3Field("",point, layOp);
+                            point = EditorGUILayout.Vector3Field("", point, layOp);
                             accSpeed.x = Mathf.Max(0.1f, EditorGUILayout.FloatField("", accSpeed.x, GUILayout.Width(50)));
                             if (GUILayout.Button("删除", GUILayout.Width(40)))
                             {
@@ -344,17 +380,16 @@ namespace Framework.ProjectileSystem.Editor
             }
             if (ProjectileData.IsTrack(projectile.type))
             {
-                if(projectile.type != EProjectileType.TrackPath)
+                if (projectile.type != EProjectileType.TrackPath)
                 {
                     projectile.speedLerp.x = EditorGUILayout.FloatField("弹道朝目标过度快慢", projectile.speedLerp.x);
                     projectile.speedLerp.y = EditorGUILayout.FloatField("飞离多远朝向目标", projectile.speedLerp.y);
                 }
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "track_target_slot");
+                projectile.track_target_offset = EditorGUILayout.Vector3Field("追踪目标绑点偏移", projectile.track_target_offset);
             }
-            else if(projectile.type == EProjectileType.Bounce)
-            {
-                projectile.speedLerp.x = EditorGUILayout.IntField("弹跳次数(<=0不限制)", (int)projectile.speedLerp.x);
-                projectile.speedLerp.y = EditorGUILayout.Slider("弹力衰减值", projectile.speedLerp.y, 0.1f, 2.0f);
-            }
+
+
             drawData.bExpandRotate = EditorGUILayout.Foldout(drawData.bExpandRotate, "自旋转");
             if (drawData.bExpandRotate)
             {
@@ -386,83 +421,16 @@ namespace Framework.ProjectileSystem.Editor
 
                 GUILayout.EndVertical();
             }
-           
             EditorGUIUtility.labelWidth = labelWidth;
-            drawData.bExpandFlags = EditorGUILayout.Foldout(drawData.bExpandFlags, "更新标志");
-            if (drawData.bExpandFlags)
+        }
+        //-----------------------------------------------------
+        static void DrawBounds(DrawData drawData, ProjectileData projectile, Vector2 size)
+        {
+            if (projectile.type == EProjectileType.Bounce)
             {
-                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "launch_flag");
+                projectile.speedLerp.x = EditorGUILayout.IntField("弹跳次数(<=0不限制)", (int)projectile.speedLerp.x);
+                projectile.speedLerp.y = EditorGUILayout.Slider("弹力衰减值", projectile.speedLerp.y, 0.1f, 2.0f);
             }
-
-            if (ProjectileData.IsTrack(projectile.type))
-            {
-                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "track_target_slot");
-                projectile.track_target_offset = EditorGUILayout.Vector3Field("追踪目标绑点偏移", projectile.track_target_offset);
-            }
-
-            projectile.collisionType = (EProjectileCollisionType)EditorGUILayout.EnumPopup("碰撞体类型", projectile.collisionType);
-            if(projectile.collisionType == EProjectileCollisionType.BOX)
-            {
-                projectile.aabb_min = EditorGUILayout.Vector3Field("包围盒-Min", projectile.aabb_min);
-                projectile.aabb_max = EditorGUILayout.Vector3Field("包围盒-Max", projectile.aabb_max);
-            }
-            else if (projectile.collisionType == EProjectileCollisionType.CAPSULE)
-            {
-                if (projectile.aabb_min.x < 0) projectile.aabb_min.x = 0;
-                projectile.aabb_min.x = EditorGUILayout.FloatField("半径大小", projectile.aabb_min.x);
-            }
-            projectile.penetrable = EditorGUILayout.Toggle("是否可穿透", projectile.penetrable);
-            projectile.counteract = EditorGUILayout.Toggle("是否可抵消", projectile.counteract);
-            projectile.explode_range = EditorGUILayout.FloatField("爆炸范围", projectile.explode_range);
-            if(projectile.explode_range>0)
-            {
-                projectile.explode_effect = EditorUtils.DrawUIObjectByPath<GameObject>("爆炸击中特效", projectile.explode_effect);
-                projectile.explode_effect_offset = EditorGUILayout.Vector3Field("爆炸击中特效偏移", projectile.explode_effect_offset);
-                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "explode_damage_id");
-            }
-
-            projectile.launch_delay = EditorGUILayout.FloatField("延迟发射", projectile.launch_delay);
-            string preEffectPrefab = projectile.effect;
-            projectile.effectSpeed = EditorGUILayout.FloatField("特效播放速度", projectile.effectSpeed);
-            projectile.effect = EditorUtils.DrawUIObjectByPath<GameObject>("特效资源", projectile.effect);
-            projectile.target_effect_hit = EditorUtils.DrawUIObjectByPath<GameObject>("击中特效", projectile.target_effect_hit);
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "effect_hit_slot", null, "击中特效绑点");
-            projectile.target_effect_hit_offset = EditorGUILayout.Vector3Field("击中特效位置偏移", projectile.target_effect_hit_offset);
-            projectile.target_effect_hit_scale = EditorGUILayout.FloatField("击中特效缩放", projectile.target_effect_hit_scale);
-
-            string preWaringEffectPrefab = projectile.waring_effect;
-            projectile.waring_duration = EditorGUILayout.FloatField("预警时长", projectile.waring_duration);
-            projectile.waring_effect = EditorUtils.DrawUIObjectByPath<GameObject>("预警特效", projectile.waring_effect);
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "sound_launch");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "sound_hit",null, "击中音效");
-
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "damage");
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "scale");
-            projectile.unSceneTest = EditorGUILayout.Toggle("忽略场景地表检测", projectile.unSceneTest);
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "stuck_time_hit");
-
-            projectile.target_action_hit = DrawActionAndTag(projectile.target_action_hit, "受击", true);
-     //       projectile.hit_back_speed = EditorGUILayout.Vector3Field("击退力度", projectile.hit_back_speed);
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_fraction");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_gravity");
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "target_direction_postion");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "target_duration_hit");
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "AttackEventID");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "HitEventID");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "OverEventID");
-
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bImmedate");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "fEventStepGap");
-            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "StepEventID");
-
-            projectile.hit_count = (byte)EditorGUILayout.IntField("攻击次数", (int)projectile.hit_count);
-            projectile.max_oneframe_hit = (byte)EditorGUILayout.IntField("同一帧最大可攻击次数", (int)projectile.max_oneframe_hit);
-            projectile.hit_step = EditorGUILayout.FloatField("击中后攻击间隔", projectile.hit_step);
             projectile.bound_count = EditorGUILayout.IntField("弹射次数", projectile.bound_count);
             if (projectile.bound_count > 0)
             {
@@ -507,6 +475,82 @@ namespace Framework.ProjectileSystem.Editor
                     //    }
                     //}
                 }
+            }
+        }
+        //-----------------------------------------------------
+        static void DrawAttackHit(DrawData drawData, ProjectileData projectile, Vector2 size)
+        {
+            projectile.collisionType = (EProjectileCollisionType)EditorGUILayout.EnumPopup("碰撞体类型", projectile.collisionType);
+            if (projectile.collisionType == EProjectileCollisionType.BOX)
+            {
+                projectile.aabb_min = EditorGUILayout.Vector3Field("包围盒-Min", projectile.aabb_min);
+                projectile.aabb_max = EditorGUILayout.Vector3Field("包围盒-Max", projectile.aabb_max);
+            }
+            else if (projectile.collisionType == EProjectileCollisionType.CAPSULE)
+            {
+                if (projectile.aabb_min.x < 0) projectile.aabb_min.x = 0;
+                projectile.aabb_min.x = EditorGUILayout.FloatField("半径大小", projectile.aabb_min.x);
+            }
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "damage");
+
+            projectile.penetrable = EditorGUILayout.Toggle("是否可穿透", projectile.penetrable);
+            projectile.counteract = EditorGUILayout.Toggle("是否可抵消", projectile.counteract);
+
+            projectile.hit_count = (byte)EditorGUILayout.IntField("攻击次数", (int)projectile.hit_count);
+            projectile.max_oneframe_hit = (byte)EditorGUILayout.IntField("同一帧最大可攻击次数", (int)projectile.max_oneframe_hit);
+            projectile.hit_step = EditorGUILayout.FloatField("击中后攻击间隔", projectile.hit_step);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "AttackEventID");
+
+            projectile.explode_range = EditorGUILayout.FloatField("爆炸范围", projectile.explode_range);
+            if (projectile.explode_range > 0)
+            {
+                projectile.explode_effect = EditorUtils.DrawUIObjectByPath<GameObject>("爆炸击中特效", projectile.explode_effect);
+                projectile.explode_effect_offset = EditorGUILayout.Vector3Field("爆炸击中特效偏移", projectile.explode_effect_offset);
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "explode_damage_id");
+            }
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "HitEventID");
+            projectile.target_effect_hit = EditorUtils.DrawUIObjectByPath<GameObject>("击中特效", projectile.target_effect_hit);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "effect_hit_slot", null, "击中特效绑点");
+            projectile.target_effect_hit_offset = EditorGUILayout.Vector3Field("击中特效位置偏移", projectile.target_effect_hit_offset);
+            projectile.target_effect_hit_scale = EditorGUILayout.FloatField("击中特效缩放", projectile.target_effect_hit_scale);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "sound_hit", null, "击中音效");
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "stuck_time_hit");
+
+            projectile.target_action_hit = DrawActionAndTag(projectile.target_action_hit, "受击", true);
+            //       projectile.hit_back_speed = EditorGUILayout.Vector3Field("击退力度", projectile.hit_back_speed);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_fraction");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_back_gravity");
+
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "target_direction_postion");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "target_duration_hit");
+
+        }
+        //-----------------------------------------------------
+        public static void OnInsepctor(ProjectileData projectile, Vector2 size)
+        {
+            DrawData drawData = CreateDraw(projectile);
+
+            GUILayout.BeginHorizontal();
+            Color color = GUI.color;
+            for(int i =0; i < TABS.Length; ++i)
+            {
+                GUI.color = (ms_eTab == (ETab)i)?Color.green:color;
+                if (GUILayout.Button(TABS[i]))
+                {
+                    ms_eTab = (ETab)i;
+                }
+                GUI.color = color;
+            }
+            GUILayout.EndHorizontal();
+            switch(ms_eTab)
+            {
+                case ETab.Base: DrawBase(drawData,projectile, size);break;
+                case ETab.Transform: DrawTransform(drawData, projectile,size); break;
+                case ETab.Bounds: DrawBounds(drawData, projectile, size); break;
+                case ETab.Hit: DrawAttackHit(drawData, projectile, size); break;
             }
         }
         //-----------------------------------------------------

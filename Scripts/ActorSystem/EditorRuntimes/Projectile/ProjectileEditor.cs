@@ -295,7 +295,7 @@ namespace Framework.ProjectileSystem.Editor
                     }
                 }
             }
-            if (GUILayout.Button(new GUIContent("新建", "快捷键:ctrl+s"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("保存", "快捷键:ctrl+s"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 SaveChanges();
             }

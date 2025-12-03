@@ -24,7 +24,37 @@ namespace Framework.ActorSystem.Runtime
     public class ActorSystemUtil
     {
         public const float GTRAVITY_VALUE = 9.8f;
-        static System.Collections.Generic.List<ActorManager> ms_vActorManager = null;
+#if UNITY_EDITOR
+        static System.Collections.Generic.HashSet<ActorManager> ms_vActorManager = null;
+#endif
+        //-----------------------------------------------------
+        internal static void Register(ActorManager actorMgr)
+        {
+#if UNITY_EDITOR
+            if (ms_vActorManager == null)
+                ms_vActorManager = new System.Collections.Generic.HashSet<ActorManager>(2);
+            ms_vActorManager.Add(actorMgr);
+#endif
+        }
+        //-----------------------------------------------------
+        internal static void Unregister(ActorManager actorMgr)
+        {
+#if UNITY_EDITOR
+            if (ms_vActorManager == null) return;
+            ms_vActorManager.Remove(actorMgr);
+#endif
+        }
+        //-----------------------------------------------------
+        internal static void RefreshProjectileDatas(ProjectileDatas projectiles)
+        {
+#if UNITY_EDITOR
+            if (ms_vActorManager == null) return;
+            foreach(var db in ms_vActorManager)
+            {
+                db.SetProjectileDatas(projectiles);
+            }
+#endif
+        }
         //-----------------------------------------------------
         public static void ResetGameObject(GameObject gameObject, EResetType type = EResetType.Local)
         {

@@ -97,6 +97,7 @@ namespace Framework.ActorSystem.Runtime
                 }
             }
             projectiles = vDatas.ToArray();
+            ActorSystemUtil.RefreshProjectileDatas(this);
             UnityEditor.EditorUtility.SetDirty(this);
         }
         //-----------------------------------------------------

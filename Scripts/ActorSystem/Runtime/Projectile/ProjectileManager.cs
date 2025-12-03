@@ -82,7 +82,6 @@ namespace Framework.ActorSystem.Runtime
 
         List<ProjectileActor>                       m_vRangeExplodeProjectiles = null;
         List<ProjectileActor>                       m_vCounteractProjectiles = null;
-
         //------------------------------------------------------
         public ProjectileManager()
         {

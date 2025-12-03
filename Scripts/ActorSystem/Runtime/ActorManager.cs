@@ -53,6 +53,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_isInitialized)
                 return;
+            ActorSystemUtil.Register(this);
             m_isInitialized = true;
             m_CutsceneManager = cutsceneMgr;
         }
@@ -531,6 +532,7 @@ namespace Framework.ActorSystem.Runtime
             Clear();
             if(m_vCallbacks!=null) m_vCallbacks.Clear();
             if (m_ProjectileManager != null) m_ProjectileManager.Destroy();
+            ActorSystemUtil.Unregister(this);
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Framework.DrawProps
         //-----------------------------------------------------
         internal System.Object OnSlotCollect(System.Object ownerData, System.Reflection.FieldInfo fieldInfo, System.Object parentData, System.Reflection.FieldInfo parentFieldInfo)
         {
+            if (string.IsNullOrEmpty(method))
+                return ownerData;
             if (m_method == null)
             {
                 System.Type ownerType = classType;
