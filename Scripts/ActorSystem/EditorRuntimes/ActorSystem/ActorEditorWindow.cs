@@ -99,6 +99,8 @@ namespace Framework.ActorSystem.Editor
             m_pActorManager = new ActorManager();
             m_pActorManager.Init(m_CutsceneManager);
             m_pActorManager.RegisterCallback(this);
+            RefreshProjectileDatas();
+
             this.minSize = new Vector2(400, 300);
             this.wantsMouseMove = true;
             this.wantsMouseEnterLeaveWindow = true;
@@ -119,6 +121,17 @@ namespace Framework.ActorSystem.Editor
             RegisterLogic<Framework.Cutscene.Editor.InspectorDrawLogic>().InitRectMethod(this.GetType(), "m_CutsceneInspectorRect");
             RegisterLogic<Framework.Cutscene.Editor.UndoLogic>();
 #endif
+        }
+        //--------------------------------------------------------
+        internal void RefreshProjectileDatas()
+        {
+            string[] guideDatas = AssetDatabase.FindAssets("t:ProjectileDatas");
+            if (guideDatas != null && guideDatas.Length > 0)
+            {
+                var projectDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+                ProjectileDatas.RefreshDatas(projectDatas, false);
+                m_pActorManager.SetProjectileDatas(projectDatas);
+            }
         }
         //--------------------------------------------------------
         protected override void OnInnerDisable()
@@ -574,6 +587,7 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public bool OnActorSystemDespawnInstance(GameObject pInstance, string name = null)
         {
+            Framework.ED.EditorUtils.Destroy(pInstance);
             return false;
         }
         //--------------------------------------------------------
@@ -592,6 +606,33 @@ namespace Framework.ActorSystem.Editor
                             (logics[i] as ActionEditorLogic).OnSpwanGameObejct(uniObj.gameObject);
                         }
                     }
+                }
+            }
+            else if (eStatus == EActorStatus.Create)
+            {
+                var contextData = pActor.GetContextData();
+                if (contextData != null)
+                {
+                    if (pActor is ProjectileActor)
+                    {
+                        ProjectileActor projectorActor = pActor as ProjectileActor;
+                        if (contextData is ProjectileData)
+                        {
+                            ProjectileData projData = (ProjectileData)contextData;
+                            if (!string.IsNullOrEmpty(projData.effect))
+                            {
+                                var prefabInst = ActorSystemUtil.EditLoadUnityObject(projData.effect) as GameObject;
+                                if (prefabInst != null)
+                                {
+                                    var projectileObj = GameObject.Instantiate(prefabInst);
+                                    ActorComponent pComp = projectileObj.GetComponent<ActorComponent>();
+                                    if (pComp == null) pComp = projectileObj.AddComponent<ActorComponent>();
+                                    projectorActor.SetObjectAble(pComp);
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
             return false;

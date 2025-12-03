@@ -15,6 +15,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static UnityEngine.Application;
+using static UnityEngine.UI.InputField;
 
 namespace Framework.Cutscene.Editor
 {
@@ -23,6 +24,7 @@ namespace Framework.Cutscene.Editor
         public int typeId;
         public Type type;
         public CutsceneClipAttribute pAttri;
+        public CutsceneDisableAttribute[] pDisableByType;
         public IBaseClip CreateClip()
         {
             var dater = Activator.CreateInstance(type) as IBaseClip;
@@ -38,12 +40,27 @@ namespace Framework.Cutscene.Editor
                 return pAttri.color;
             }
         }
+        internal bool isDisabled(System.Type type)
+        {
+            if (type == null && pDisableByType != null)
+                return true;
+            if (pDisableByType == null) return false;
+            for(int i =0; i < pDisableByType.Length; ++i)
+            {
+                if (pDisableByType[i].IsHitted(type))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
     public class EventAttriData
     {
         public int typeId;
         public Type type;
         public CutsceneEventAttribute pAttri;
+        public CutsceneDisableAttribute[] pDisableByType;
         public IBaseEvent CreateEvent()
         {
             var dater = Activator.CreateInstance(type) as IBaseEvent;
@@ -51,6 +68,20 @@ namespace Framework.Cutscene.Editor
             if (string.IsNullOrEmpty(dater.GetName()))
                 dater.SetName(pAttri.name);
             return dater;
+        }
+        internal bool isDisabled(System.Type type)
+        {
+            if (type == null && pDisableByType != null)
+                return true;
+            if (pDisableByType == null) return false;
+            for (int i = 0; i < pDisableByType.Length; ++i)
+            {
+                if (pDisableByType[i].IsHitted(type))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         public Color drawColor
         {
@@ -100,12 +131,28 @@ namespace Framework.Cutscene.Editor
                 ms_vCustomDriverTypes.Clear();
                 ms_vCustomEventTypes.Clear();
                 ms_vDefaultValueFunctions.Clear();
-                foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    Type[] types = ass.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        Debug.LogWarning($"加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int i = 0; i < types.Length; ++i)
                     {
                         Type tp = types[i];
+                        if (tp == null) continue;
                         if (tp.IsDefined(typeof(CutsceneRuntimeAttribute), false) && tp.GetInterface(typeof(ICutsceneCallback).FullName.Replace("+","."))!=null)
                         {
                             ms_pCutsceneRuntimeType = tp;
@@ -138,6 +185,8 @@ namespace Framework.Cutscene.Editor
                                 data.type = tp;
                                 data.typeId = typeId;
                                 data.pAttri = clipAttri;
+                                if(tp.IsDefined(typeof(CutsceneDisableAttribute)))
+                                    data.pDisableByType = (CutsceneDisableAttribute[])tp.GetCustomAttributes<CutsceneDisableAttribute>();
                                 ms_ClipAttrs.Add(typeId, data);
                                 ms_vClipsLists.Add(data);
                                 ms_vClipsPops.Add(clipAttri.name);
@@ -170,6 +219,8 @@ namespace Framework.Cutscene.Editor
                                 data.type = tp;
                                 data.typeId = typeId;
                                 data.pAttri = clipAttri;
+                                if (tp.IsDefined(typeof(CutsceneDisableAttribute)))
+                                    data.pDisableByType = (CutsceneDisableAttribute[])tp.GetCustomAttributes<CutsceneDisableAttribute>();
                                 ms_EventAttrs.Add(typeId, data);
                                 ms_vEventsLists.Add(data);
                                 ms_vEventsPops.Add(clipAttri.name);

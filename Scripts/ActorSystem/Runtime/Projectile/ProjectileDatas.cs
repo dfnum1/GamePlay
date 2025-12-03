@@ -100,13 +100,13 @@ namespace Framework.ActorSystem.Runtime
             UnityEditor.EditorUtility.SetDirty(this);
         }
         //-----------------------------------------------------
-        public static void RefreshDatas(ProjectileDatas projectileData = null)
+        public static void RefreshDatas(ProjectileDatas projectileData = null, bool bDirtySave = true)
         {
             if(projectileData!=null)
             {
                 projectileData.Refresh();
                 UnityEditor.EditorUtility.SetDirty(projectileData);
-                UnityEditor.AssetDatabase.SaveAssetIfDirty(projectileData);
+                if(bDirtySave) UnityEditor.AssetDatabase.SaveAssetIfDirty(projectileData);
                 return;
             }
             string[] projectileDataGuids = UnityEditor.AssetDatabase.FindAssets("t:ProjectileDatas");
@@ -118,7 +118,7 @@ namespace Framework.ActorSystem.Runtime
 
             projectiles.Refresh();
 
-            UnityEditor.AssetDatabase.SaveAssetIfDirty(projectileData);
+            if(bDirtySave)UnityEditor.AssetDatabase.SaveAssetIfDirty(projectileData);
         }
 #endif
     }

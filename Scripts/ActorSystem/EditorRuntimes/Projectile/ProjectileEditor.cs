@@ -30,6 +30,8 @@ namespace Framework.ProjectileSystem.Editor
 
         ProjectileDatas m_ProjectileDatas = null;
 
+        private uint m_nEditProjectileId = 0xffffffff;
+
         Rect m_LayerSize = new Rect();
         Rect m_InspecSize = new Rect();
         Rect m_DataListSize = new Rect();
@@ -44,6 +46,19 @@ namespace Framework.ProjectileSystem.Editor
             if (Instance == null)
                 EditorWindow.GetWindow<ProjectileEditor>();
             Instance.titleContent = new GUIContent("飞行道具编辑器");
+            Instance.Focus();
+        }
+        //-----------------------------------------------------
+        public static void EditorProjectile(ProjectileData projectileData)
+        {
+            StartEditor();
+            Instance.OnChangeSelect(projectileData);
+        }
+        //-----------------------------------------------------
+        public static void EditorProjectile(uint projectileId)
+        {
+            StartEditor();
+            Instance.m_nEditProjectileId = projectileId;
         }
         //-----------------------------------------------------
         public ProjectileDatas GetProjectileDatas()
@@ -127,6 +142,20 @@ namespace Framework.ProjectileSystem.Editor
             base.minSize = new Vector2(850f, 320f);
 
             SceneView.duringSceneGui += OnSceneFunc;
+        }
+        //-----------------------------------------------------
+        protected override void OnStart()
+        {
+            base.OnStart();
+            if(m_nEditProjectileId!=0xffffffff)
+            {
+                var projectileData = m_pActorManager.GetProjectileManager().GetProjectileData(m_nEditProjectileId);
+                if(projectileData!=null)
+                {
+                    OnChangeSelect(projectileData);
+                }
+                m_nEditProjectileId = 0xffffffff;
+            }
         }
         //-----------------------------------------------------
         protected override void OnInnerUpdate()
@@ -251,7 +280,7 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         private void DrawToolPanel()
         {
-            if (GUILayout.Button(new GUIContent("新建", "快捷键:ctrl+o"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("打开", "快捷键:ctrl+o"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 GetLogic<ProjectileDataListLogic>()?.Active(true);
             }

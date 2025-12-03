@@ -1130,6 +1130,10 @@ namespace Framework.Cutscene.Editor
                     }
                     if (db.pAttri.inputType != null && bindInputType == null)
                         continue;
+
+                    if (db.isDisabled(bindInputType))
+                        continue;
+
                     if (db.pAttri.inputType != bindInputType)
                     {
                         if (db.pAttri.inputType != null)
@@ -1154,6 +1158,9 @@ namespace Framework.Cutscene.Editor
                     var customClips = CustomAgentUtil.GetClipList();
                     foreach (var db in customClips)
                     {
+                        if (db.isDisable(bindInputType))
+                            continue;
+
                         menuData.data = customClipAttri;
                         menuData.agentUnit = db;
                         genericMenu.AddItem(new GUIContent("剪辑/" + db.name), false, (menu) =>
@@ -1174,6 +1181,10 @@ namespace Framework.Cutscene.Editor
                     }
                     if (db.pAttri.inputType != null && bindInputType == null)
                         continue;
+
+                    if (db.isDisabled(bindInputType))
+                        continue;
+
                     if (db.pAttri.inputType != bindInputType)
                     {
                         if (db.pAttri.inputType != null)
@@ -1198,6 +1209,8 @@ namespace Framework.Cutscene.Editor
                     var customEvents = CustomAgentUtil.GetEventList();
                     foreach (var db in customEvents)
                     {
+                        if (db.isDisable(bindInputType))
+                            continue;
                         menuData.data = customEventAttri;
                         menuData.agentUnit = db;
                         genericMenu.AddItem(new GUIContent("事件/" + db.name), false, (menu) =>

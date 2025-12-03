@@ -28,10 +28,27 @@ namespace Framework.ED
                 ms_vBindTypes = new Dictionary<string, System.Type>();
                 foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    System.Type[] types = assembly.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        UnityEngine.Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int i = 0; i < types.Length; ++i)
                     {
                         System.Type tp = types[i];
+                        if (tp == null)
+                            continue;
                         if (tp.IsDefined(typeof(DrawProps.BinderTypeAttribute), false))
                         {
                             DrawProps.BinderTypeAttribute attr = (DrawProps.BinderTypeAttribute)tp.GetCustomAttribute(typeof(DrawProps.BinderTypeAttribute));
@@ -45,20 +62,27 @@ namespace Framework.ED
                 return returnType;
             returnType = Type.GetType(typeName);
             if (returnType != null) return returnType;
-            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            try
             {
-                returnType = assembly.GetType(typeName, false, true);
-                if (returnType != null) return returnType;
-            }
-            int index = typeName.LastIndexOf(".");
-            if (index > 0 && index + 1 < typeName.Length)
-            {
-                string strTypeName = typeName.Substring(0, index) + "+" + typeName.Substring(index + 1, typeName.Length - index - 1);
                 foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    returnType = assembly.GetType(strTypeName, false, true);
+                    returnType = assembly.GetType(typeName, false, true);
                     if (returnType != null) return returnType;
                 }
+                int index = typeName.LastIndexOf(".");
+                if (index > 0 && index + 1 < typeName.Length)
+                {
+                    string strTypeName = typeName.Substring(0, index) + "+" + typeName.Substring(index + 1, typeName.Length - index - 1);
+                    foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        returnType = assembly.GetType(strTypeName, false, true);
+                        if (returnType != null) return returnType;
+                    }
+                }
+            }
+            catch
+            {
+
             }
 
             return null;

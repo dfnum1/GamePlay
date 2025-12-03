@@ -372,6 +372,44 @@ namespace Framework.Cutscene.Editor
                     unit.customType = curType;
                 }
             }
+
+            //! TODO: 未来可以添加禁用类型的编辑
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("禁止类型创建:");
+            if (GUILayout.Button("新增"))
+            {
+                SearchTypeProvider.Show((typ) =>
+                {
+                    var list = unit.disiableClassTypes == null ? new System.Collections.Generic.List<string>() : new System.Collections.Generic.List<string>(unit.disiableClassTypes);
+                    list.Add(typ.FullName.Replace("+", "."));
+                    unit.disiableClassTypes = list.ToArray();
+                });
+            }
+            EditorGUILayout.EndHorizontal();
+            if (unit.disiableClassTypes!=null)
+            {
+                for(int i =0; i < unit.disiableClassTypes.Length; ++i)
+                {
+                    EditorGUILayout.BeginHorizontal();         
+                    if (GUILayout.Button(unit.disiableClassTypes[i]))
+                    {
+                        SearchTypeProvider.Show((typ) =>
+                        {
+                            unit.disiableClassTypes[i] = typ.FullName.Replace("+", ".");
+                        });
+                    }
+                    if (GUILayout.Button("删除", GUILayout.Width(50)))
+                    {
+                        var list = new System.Collections.Generic.List<string>(unit.disiableClassTypes);
+                        list.RemoveAt(i);
+                        unit.disiableClassTypes = list.ToArray();
+                        EditorGUILayout.EndHorizontal();
+                        break;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
         }
         //--------------------------------------------------------
         CutsceneCustomAgent.AgentUnit.ParamData[] DrawAgentUnitParams(CutsceneCustomAgent.AgentUnit unit, CutsceneCustomAgent.AgentUnit.ParamData[] vParams)

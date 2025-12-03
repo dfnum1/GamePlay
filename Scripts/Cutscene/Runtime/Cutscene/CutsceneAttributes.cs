@@ -134,6 +134,46 @@ namespace Framework.Cutscene.Runtime
         }
     }
     //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
+    public class CutsceneDisableAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        System.Type m_inputType;
+        private string m_strType;
+#endif
+        public CutsceneDisableAttribute(System.Type inputType = null)
+        {
+#if UNITY_EDITOR
+            this.m_strType = null;
+            this.m_inputType = inputType;
+#endif
+        }
+        public CutsceneDisableAttribute(string cutsceneType, System.Type inputType = null)
+        {
+#if UNITY_EDITOR
+            this.m_strType = cutsceneType;
+            this.m_inputType = inputType;
+#endif
+        }
+        public bool IsHitted(System.Type type)
+        {
+            if(m_inputType == null && !string.IsNullOrEmpty(m_strType))
+            {
+                m_inputType = Framework.ED.EditorUtils.GetTypeByName(m_strType);
+            }
+            if (m_inputType == null)
+                return false;
+
+            if (m_inputType == type) return true;
+
+            if (m_inputType.IsSubclassOf(type) || type.IsSubclassOf(m_inputType))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+    //-----------------------------------------------------
     public class CutsceneEditorAttribute : System.Attribute
     {
     }

@@ -305,7 +305,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public int LaunchProjectile(uint dwProjectileTableID, Actor pOwnerActor, AActorStateInfo stateParam,
         FVector3 vPosition, FVector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
-        float fDelta =0, Transform pTrackTransform = null, List<IUserData> vResults = null)
+        float fDelta =0, Transform pTrackTransform = null, List<Actor> vResults = null)
         {
             if (pOwnerActor == null) return 0;
             ProjectileData pData = GetProjectileData(dwProjectileTableID);
@@ -319,7 +319,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public int LaunchProjectile(ProjectileData pData, Actor pOwnerActor, AActorStateInfo stateParam,
         FVector3 vPosition, FVector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
-        float fDelta = 0, Transform pTrackTransform = null, List<IUserData> vResults = null)
+        float fDelta = 0, Transform pTrackTransform = null, List<Actor> vResults = null)
         {
             if (pOwnerActor == null || pData == null) return 0;
             int dwID = 0;

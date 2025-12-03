@@ -252,14 +252,14 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public int LaunchProjectile(uint dwProjectileTableID, Actor pOwnerActor, AActorStateInfo stateParam,
         Vector3 vPosition, Vector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
-        float fDelta = 0, Transform pTrackTransform = null, List<AT.Runtime.IUserData> vResults = null)
+        float fDelta = 0, Transform pTrackTransform = null, List<Actor> vResults = null)
         {
             return GetProjectileManager().LaunchProjectile(dwProjectileTableID, pOwnerActor, stateParam, vPosition, vDirection, targetNode, dwAssignedID, fDelta, pTrackTransform, vResults);
         }
         //------------------------------------------------------
         public int LaunchProjectile(ProjectileData pData, Actor pOwnerActor, AActorStateInfo stateParam,
                Vector3 vPosition, Vector3 vDirection, Actor targetNode = null, int dwAssignedID = 0,
-               float fDelta = 0, Transform pTrackTransform = null, List<AT.Runtime.IUserData> vResults = null)
+               float fDelta = 0, Transform pTrackTransform = null, List<Actor> vResults = null)
         {
             return GetProjectileManager().LaunchProjectile(pData, pOwnerActor, stateParam, vPosition, vDirection, targetNode, dwAssignedID, fDelta, pTrackTransform, vResults);
         }

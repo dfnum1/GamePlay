@@ -689,7 +689,7 @@ namespace Framework.Cutscene.Runtime
             CutsceneData.Group cutGroup = m_CutsceneData.GetGroup(group);
             if (cutGroup == null)
             {
-                Debug.LogError($"CutscenePlayable.GetBindLastCutsceneObject: Group '{group}' not found in CutsceneData.");
+            //    Debug.LogError($"CutscenePlayable.GetBindLastCutsceneObject: Group '{group}' not found in CutsceneData.");
                 return null;
             }
             return GetBindLastCutsceneObject(cutGroup);
@@ -725,6 +725,10 @@ namespace Framework.Cutscene.Runtime
                                     var cutsceneObj = GetObject(obj);
                                     if (cutsceneObj != null)
                                     {
+                                        if(cutsceneObj is BinderUnityObject && !((BinderUnityObject)cutsceneObj).IsValid())
+                                        {
+                                            continue;
+                                        }
                                         pObj = cutsceneObj;
                                     }
                                 }
@@ -741,6 +745,18 @@ namespace Framework.Cutscene.Runtime
                     foreach (var db in vCaches)
                     {
                         return db.Value.pObj;
+                    }
+                }
+            }
+            if(pObj == null)
+            {
+                if (m_pCutscene != null)
+                {
+                    var bindData = m_pCutscene.GetBindData();
+                    if (bindData != null && bindData is ICutsceneObject)
+                    {
+                        var cutsceneObj = (ICutsceneObject)bindData;
+                        pObj = cutsceneObj;
                     }
                 }
             }

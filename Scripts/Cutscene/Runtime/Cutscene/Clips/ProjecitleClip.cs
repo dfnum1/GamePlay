@@ -18,7 +18,7 @@ using Framework.Cutscene.Editor;
 #endif
 namespace Framework.Cutscene.Runtime
 {
-    [System.Serializable, CutsceneClip("弹道Clip")]
+    [System.Serializable, CutsceneClip("弹道Clip"), CutsceneDisable("Framework.ActorSystem.Runtime.Actor")]
     public class ProjecitleClip : IBaseClip
     {
         [Display("基本属性")] public BaseClipProp baseProp;
