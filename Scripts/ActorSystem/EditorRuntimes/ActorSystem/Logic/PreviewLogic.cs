@@ -93,6 +93,28 @@ namespace Framework.ActorSystem.Editor
                     actor.SetEulerAngle(Handles.DoRotationHandle(Quaternion.Euler(actor.GetEulerAngle()),actor.GetPosition()).eulerAngles);
                 else
                     actor.SetPosition(Handles.DoPositionHandle(actor.GetPosition(), Quaternion.identity));
+
+                var objectAble = actor.GetObjectAble();
+                if(objectAble!=null)
+                {
+                    ActorComponent actorComp = objectAble as ActorComponent;
+                    if(actorComp!=null && actorComp.slots!=null)
+                    {
+                        for(int j =0; j < actorComp.slots.Length; ++j)
+                        {
+                            var slot = actorComp.slots[j];
+                            if (slot.slot == null) continue;
+                            Vector3 pos = slot.slot.position + slot.offset;
+                            Handles.color = Color.cyan;
+                            Handles.SphereHandleCap(0, pos, Quaternion.identity, 0.05f, EventType.Repaint);
+                            Handles.Label(pos + Vector3.up * 0.1f, slot.name, EditorStyles.boldLabel);
+                            if(evt.control)
+                            {
+                                Handles.DoPositionHandle(pos, slot.slot.rotation);
+                            }
+                        }
+                    }
+                }
                 ++i;
             }
         }

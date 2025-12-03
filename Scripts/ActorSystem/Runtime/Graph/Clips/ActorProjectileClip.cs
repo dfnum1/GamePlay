@@ -12,6 +12,8 @@ using Framework.Cutscene.Runtime;
 using Framework.Core;
 using Framework.ProjectileSystem.Editor;
 using Framework.ActorSystem.Editor;
+using System;
+
 
 
 
@@ -31,7 +33,7 @@ namespace Framework.ActorSystem.Runtime
     {
         [Display("基本属性")] public BaseClipProp baseProp;
 
-        [BindSlot, Display("触发绑点")]
+        [BindSlot("OnCollectBindSlot"), Display("触发绑点")]
         public string bindSlot = "";
 
         [Display("偏移")]
@@ -90,6 +92,35 @@ namespace Framework.ActorSystem.Runtime
         {
             if (baseProp.ownerTrackObject == null)
                 return;
+        }
+        //-----------------------------------------------------
+        internal void OnCollectBindSlot()
+        {
+            if (baseProp.ownerTrackObject == null)
+                return;
+            var bindObj = baseProp.ownerTrackObject.GetBindLastCutsceneObject();
+            if (bindObj == null)
+                return;
+            Actor pActor = bindObj as Actor;
+            if (pActor == null)
+                return;
+
+            var actorAble = pActor.GetObjectAble();
+            if (actorAble == null)
+                return;
+
+            ActorComponent actorComp = actorAble as ActorComponent;
+            if (actorComp == null)
+                return;
+
+            InspectorDrawUtil.BindSlots.Clear();
+            if (actorComp.slots!=null)
+            {
+                foreach(var db in actorComp.slots)
+                {
+                    InspectorDrawUtil.BindSlots.Add(db.name);
+                }
+            }
         }
         //-----------------------------------------------------
         [AddInspector]

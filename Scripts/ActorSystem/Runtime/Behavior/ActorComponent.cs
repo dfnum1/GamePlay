@@ -14,6 +14,7 @@ namespace Framework.ActorSystem.Runtime
 {
     public class ActorComponent : MonoBehaviour, IContextData
     {
+        [System.Serializable]
         public struct Slot
         {
             public string name;

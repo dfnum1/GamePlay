@@ -21,11 +21,12 @@ namespace Framework.ActorSystem.Editor
         enum ETab
         {
             Info,
+            BindSlot,
             AvatarMask,
             CommonAction,
             TimelineAction,
         }
-        static string[] TABS = new string[] { "基本信息","AvatarMask", "常规动作", "Timeline动作" };
+        static string[] TABS = new string[] { "基本信息","绑点信息","AvatarMask", "常规动作", "Timeline动作" };
         ETab m_Tab = ETab.Info;
         public class GraphItem : TreeAssetView.ItemData
         {
@@ -41,6 +42,8 @@ namespace Framework.ActorSystem.Editor
 
         uint m_addTimelineAction = 0;
         int m_nAddLayerMask = 0;
+
+        bool m_bExpandSlot = false;
 
         GameObject m_pActorPrefab = null;
         Actor m_pActor = null;
@@ -127,6 +130,7 @@ namespace Framework.ActorSystem.Editor
             try
             {
                 if (m_Tab == ETab.Info) DrawInfo(infoView);
+                else if (m_Tab == ETab.BindSlot) DrawSlot(infoView);
                 else if (m_Tab == ETab.AvatarMask) DrawAvatarMask(infoView);
                 else if (m_Tab == ETab.CommonAction) DrawCommonAction(infoView);
                 else if (m_Tab == ETab.TimelineAction) DrawTimelineAction(infoView);
@@ -146,6 +150,70 @@ namespace Framework.ActorSystem.Editor
             if (graphData == null)
                 return;
             InspectorDrawUtil.DrawProperty(graphData, null);
+        }
+        //--------------------------------------------------------
+        void DrawSlot(Rect view)
+        {
+            if (m_pActorComp == null)
+                return;
+        //    m_bExpandSlot = EditorGUILayout.Foldout(m_bExpandSlot, "绑点信息");
+       //     if (m_bExpandSlot)
+            if(m_pActorComp.slots!=null)
+            {
+                Color color = GUI.color;
+                for(int i =0; i < m_pActorComp.slots.Length; ++i)
+                {
+                    var slot = m_pActorComp.slots[i];
+                    GUILayout.BeginHorizontal();
+                    {
+                        EditorGUILayout.LabelField("绑点[" + i.ToString() + "]:");
+
+                        if (GUILayout.Button("-", GUILayout.Width(20)))
+                        {
+                            if (EditorUtility.DisplayDialog("提示", "确定删除该绑点吗？", "删除", "取消"))
+                            {
+                                List<ActorComponent.Slot> vSlots = new List<ActorComponent.Slot>(m_pActorComp.slots);
+                                vSlots.RemoveAt(i);
+                                m_pActorComp.slots = vSlots.ToArray();
+                                EditorGUILayout.EndHorizontal();
+                                break;
+                            }
+                        }
+                    }
+                    GUILayout.EndHorizontal();
+
+                    EditorGUI.indentLevel++;
+                    slot.name = EditorGUILayout.DelayedTextField("绑点名称",slot.name);
+                    GUI.color = slot.slot == null ? Color.red : color;
+                    GUILayout.BeginHorizontal();
+                      slot.slot = (Transform)EditorGUILayout.ObjectField("绑点",slot.slot, typeof(Transform), false);
+                    if (GUILayout.Button("●", GUILayout.Width(30)))
+                    {
+                        Framework.ED.TransformSlotProvider.Show(m_pActorComp.transform, (slotT, slotIndex) =>
+                        {
+                            slot.slot = slotT;
+                            if (string.IsNullOrEmpty(slot.name))
+                                slot.name = slotT.name;
+
+                            m_pActorComp.slots[slotIndex] = slot;
+                        },i);
+                    }
+                    GUI.color = color;
+                    GUILayout.EndHorizontal();
+                    slot.offset = EditorGUILayout.Vector3Field("偏移",slot.offset);
+                    EditorGUI.indentLevel--;
+                    m_pActorComp.slots[i] = slot;
+                }
+            }
+            if (GUILayout.Button("新增", GUILayout.Width(view.width)))
+            {
+                List<ActorComponent.Slot> vSlots = new List<ActorComponent.Slot>();
+                if (m_pActorComp.slots != null) vSlots.AddRange(m_pActorComp.slots);
+                vSlots.Add(new ActorComponent.Slot()
+                {
+                });
+                m_pActorComp.slots = vSlots.ToArray();
+            }
         }
         //--------------------------------------------------------
         void RefreshTimelineAction()
@@ -426,6 +494,36 @@ namespace Framework.ActorSystem.Editor
                 component = m_pActorPrefab.AddComponent<ActorComponent>();
             component.avatarMasks = actorComp.avatarMasks;
             component.commonActions = actorComp.commonActions;
+            if (actorComp.slots != null)
+            {
+                var prefabSlots = new List<ActorComponent.Slot>();
+                foreach (var s in actorComp.slots)
+                {
+                    var newSlot = new ActorComponent.Slot();
+                    newSlot.name = s.name;
+                    newSlot.offset = s.offset;
+                    newSlot.slot = null;
+
+                    string slotPath = null;
+                    if (s.slot != null && m_pActorComp != null)
+                    {
+                        slotPath = GetTransformPath(s.slot, m_pActorComp.transform);
+                    }
+
+                    if (!string.IsNullOrEmpty(slotPath) && m_pActorPrefab != null)
+                    {
+                        var tf = m_pActorPrefab.transform.Find(slotPath);
+                        if (tf != null)
+                            newSlot.slot = tf;
+                    }
+                    prefabSlots.Add(newSlot);
+                }
+                component.slots = prefabSlots.ToArray();
+            }
+            else
+            {
+                component.slots = null;
+            }
 
             string file = m_pActor.GetGraphData().GetPathFile();
             if(string.IsNullOrEmpty(file) || !System.IO.File.Exists(file))
@@ -443,6 +541,20 @@ namespace Framework.ActorSystem.Editor
             EditorUtility.SetDirty(m_pActorPrefab);
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             AssetDatabase.SaveAssets();
+        }
+        //--------------------------------------------------------
+        private static string GetTransformPath(Transform tf, Transform root)
+        {
+            if (tf == null || root == null) return "";
+            var names = new List<string>();
+            var current = tf;
+            while (current != null && current != root)
+            {
+                names.Add(current.name);
+                current = current.parent;
+            }
+            names.Reverse();
+            return string.Join("/", names);
         }
     }
 }

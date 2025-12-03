@@ -1218,19 +1218,21 @@ namespace Framework.ActorSystem.Runtime
             if (actorComp == null)
                 return matrix;
 
-            var tranform = actorComp.GetTransform();
-            if (tranform)
+            Transform slotTransform = null;
+            slotTransform = actorComp.GetSlot(strSlot,out var slotOffset);
+            if(slotTransform == null) slotTransform = actorComp.GetTransform();
+            if (slotTransform)
             {
                 if ((bindSlot & (int)ESlotBindBit.Rotation) != 0)
                 {
-                    matrix = tranform.localToWorldMatrix;
-                    if ((bindSlot & (int)ESlotBindBit.Position) == 0) ActorSystemUtil.UpdatePosition(ref matrix, GetPosition());
+                    matrix = slotTransform.localToWorldMatrix;
+                    if ((bindSlot & (int)ESlotBindBit.Position) == 0) ActorSystemUtil.UpdatePosition(ref matrix, GetPosition()+ slotOffset);
                     if ((bindSlot & (int)ESlotBindBit.Scale) == 0) ActorSystemUtil.UpdateScale(ref matrix, GetScale());
                 }
                 else
                 {
-                    if ((bindSlot & (int)ESlotBindBit.Position) != 0) ActorSystemUtil.UpdatePosition(ref matrix, tranform.position);
-                    if ((bindSlot & (int)ESlotBindBit.Scale) != 0) ActorSystemUtil.UpdateScale(ref matrix, tranform.localScale);
+                    if ((bindSlot & (int)ESlotBindBit.Position) != 0) ActorSystemUtil.UpdatePosition(ref matrix, slotTransform.position + slotOffset);
+                    if ((bindSlot & (int)ESlotBindBit.Scale) != 0) ActorSystemUtil.UpdateScale(ref matrix, slotTransform.localScale);
                 }
             }
 

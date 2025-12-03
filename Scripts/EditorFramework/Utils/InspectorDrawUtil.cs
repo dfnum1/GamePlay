@@ -940,17 +940,12 @@ namespace Framework.ED
                         if (finfo.IsDefined(typeof(DrawProps.BindSlotAttribute)) || (byType != null && byType == typeof(DrawProps.BindSlotAttribute)))
                         {
                             if (InspectorDrawUtil.BindSlots == null) InspectorDrawUtil.BindSlots = new List<string>();
-                            if (!BindSlots.Contains("Root")) BindSlots.Insert(0, "Root");
-                            if (!BindSlots.Contains("RootTop")) BindSlots.Insert(0, "RootTop");
-                            if (!BindSlots.Contains("CameraRoot")) BindSlots.Insert(0, "CameraRoot");
-                            if (!BindSlots.Contains("SceneRoots")) BindSlots.Insert(0, "SceneRoots");
-                            if (!BindSlots.Contains("Particles")) BindSlots.Insert(0, "Particles");
-                            if (!BindSlots.Contains("ActorSystems")) BindSlots.Insert(0, "ActorSystems");
-                            if (!BindSlots.Contains("Players")) BindSlots.Insert(0, "Players");
-                            if (!BindSlots.Contains("Monsters")) BindSlots.Insert(0, "Monsters");
-                            if (!BindSlots.Contains("Elements")) BindSlots.Insert(0, "Elements");
-                            if (!BindSlots.Contains("Summons")) BindSlots.Insert(0, "Summons");
-                            if (!BindSlots.Contains("CenterRode")) BindSlots.Insert(0, "CenterRode");
+                            BindSlotAttribute bindSlotAttr = finfo.GetCustomAttribute<BindSlotAttribute>();
+                            if(bindSlotAttr!=null)
+                            {
+                                InspectorDrawUtil.BindSlots.Clear();
+                                data = bindSlotAttr.OnSlotCollect(data, finfo, pParentData, parentFieldInfo);
+                            }
                             if (!BindSlots.Contains("None")) BindSlots.Insert(0, "None");
 
                             EditorGUILayout.BeginHorizontal();

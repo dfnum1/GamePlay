@@ -87,6 +87,16 @@ namespace Framework.ED
 
             return null;
         }
+        //-----------------------------------------------------
+        public static void CollectAllChildPaths(Transform parent, string parentPath, List<string> pathList)
+        {
+            foreach (Transform child in parent)
+            {
+                string path = string.IsNullOrEmpty(parentPath) ? child.name : parentPath + "/" + child.name;
+                pathList.Add(path);
+                CollectAllChildPaths(child, path, pathList);
+            }
+        }
         //------------------------------------------------------
         public static string GetEnumDisplayName(System.Enum curVar)
         {
