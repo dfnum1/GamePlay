@@ -11,11 +11,8 @@ using Framework.DrawProps;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using static UnityEngine.Application;
-using static UnityEngine.UI.InputField;
 
 namespace Framework.Cutscene.Editor
 {

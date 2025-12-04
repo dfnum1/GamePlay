@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using static Framework.ED.TreeAssetView;
-using static UnityEditor.UIElements.ToolbarMenu;
-using static UnityEngine.UI.CanvasScaler;
 using Color = UnityEngine.Color;
 
 namespace Framework.Cutscene.Editor
