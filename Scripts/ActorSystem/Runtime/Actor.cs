@@ -120,9 +120,9 @@ namespace Framework.ActorSystem.Runtime
 
             if (pObject !=null)
             {
-                if(pObject is ActorComponent)
+                if(pObject is AActorComponent)
                 {
-                    ActorComponent actorComp = pObject as ActorComponent;
+                    AActorComponent actorComp = pObject as AActorComponent;
                     m_pUnityTransform = actorComp.GetTransform();
                     if(actorComp.ActionGraphData!=null)
                         GetActorGraph().LoadActorGraph(actorComp.ActionGraphData, OnLoadActorGraph);
@@ -1260,7 +1260,7 @@ namespace Framework.ActorSystem.Runtime
             }
             Matrix4x4 matrix = GetMatrix();
 
-            ActorComponent actorComp = m_pObjectAble as ActorComponent;
+            AActorComponent actorComp = m_pObjectAble as AActorComponent;
             if (actorComp == null)
                 return matrix;
 
@@ -1293,7 +1293,7 @@ namespace Framework.ActorSystem.Runtime
             if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return m_pUnityTransform;
             Matrix4x4 matrix = GetMatrix();
 
-            ActorComponent actorComp = m_pObjectAble as ActorComponent;
+            AActorComponent actorComp = m_pObjectAble as AActorComponent;
             if (actorComp == null)
                 return m_pUnityTransform;
 

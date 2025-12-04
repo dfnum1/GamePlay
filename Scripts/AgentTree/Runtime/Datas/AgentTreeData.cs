@@ -235,20 +235,19 @@ namespace Framework.AT.Runtime
 #endif
     }
     //-----------------------------------------------------
-    //! AgentTreeObject 
+    //! AAgentTreeObject 
     //-----------------------------------------------------
-    [CreateAssetMenu(menuName = "GamePlay/蓝图脚本")]
-    public class AgentTreeObject :ScriptableObject
+    public class AAgentTreeObject :ScriptableObject
     {
         public AgentTreeData atData;
     }
 #if UNITY_EDITOR
-    [CustomEditor(typeof(AgentTreeObject))]
-    public class AgentTreeObjectEditor : UnityEditor.Editor
+    [CustomEditor(typeof(AAgentTreeObject))]
+    public class AAgentTreeObjectEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
-            AgentTreeObject cutsceneObject = (AgentTreeObject)target;
+            AAgentTreeObject cutsceneObject = (AAgentTreeObject)target;
             if (GUILayout.Button("编辑"))
             {
                 Editor.AgentTreeWindow.Open(cutsceneObject.atData, cutsceneObject);
@@ -258,9 +257,9 @@ namespace Framework.AT.Runtime
         public static bool OnOpenAsset(int instanceID, int line)
         {
             var obj = EditorUtility.InstanceIDToObject(instanceID);
-            if (obj != null && obj is AgentTreeObject)
+            if (obj != null && obj is AAgentTreeObject)
             {
-                AgentTreeObject atObj = obj as AgentTreeObject;
+                AAgentTreeObject atObj = obj as AAgentTreeObject;
                 Editor.AgentTreeWindow.Open(atObj.atData, atObj);
                 return true;
             }

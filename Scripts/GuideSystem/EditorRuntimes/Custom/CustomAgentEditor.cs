@@ -5,24 +5,20 @@
 描    述:	引导自定义步骤、执行器、触发器 编辑窗口
 *********************************************************************/
 #if UNITY_EDITOR
-using Framework.Guide.Editor;
-using Framework.Guide;
 using System.Collections.Generic;
-using System.Xml.Schema;
 using UnityEditor;
 using UnityEngine;
 using static Framework.Guide.Editor.AssetTree;
-using static UnityEditor.UIElements.ToolbarMenu;
 
-namespace Framework.Cutscene.Editor
+namespace Framework.Guide.Editor
 {
     public class CustomAgentEditor : EditorWindow
     {
         public class AgentItem : AssetTree.ItemData
         {
             public ETab Tab;
-            public GuideCustomAgent.AgentUnit unit;
-            public AgentItem(GuideCustomAgent.AgentUnit unit, ETab tab)
+            public AGuideCustomAgent.AgentUnit unit;
+            public AgentItem(AGuideCustomAgent.AgentUnit unit, ETab tab)
             {
                 this.Tab = tab;
                 this.unit = unit;
@@ -54,14 +50,14 @@ namespace Framework.Cutscene.Editor
         Vector2 m_scoll = Vector2.zero;
         HashSet<uint> m_vTriggerTypes = new HashSet<uint>();
         HashSet<string> m_vTriggerNames = new HashSet<string>();
-        List<GuideCustomAgent.AgentUnit> m_vTriggers = new List<GuideCustomAgent.AgentUnit>();
+        List<AGuideCustomAgent.AgentUnit> m_vTriggers = new List<AGuideCustomAgent.AgentUnit>();
         HashSet<uint> m_vStepTypes = new HashSet<uint>();
         HashSet<string> m_vStepNames = new HashSet<string>();
-        List<GuideCustomAgent.AgentUnit> m_vSteps = new List<GuideCustomAgent.AgentUnit>();
+        List<AGuideCustomAgent.AgentUnit> m_vSteps = new List<AGuideCustomAgent.AgentUnit>();
 
         HashSet<uint> m_vExecuteTypes = new HashSet<uint>();
         HashSet<string> m_vExecuteNames = new HashSet<string>();
-        List<GuideCustomAgent.AgentUnit> m_vExecutes = new List<GuideCustomAgent.AgentUnit>();
+        List<AGuideCustomAgent.AgentUnit> m_vExecutes = new List<AGuideCustomAgent.AgentUnit>();
 
         float m_fRightWidth = 0;
 
@@ -109,9 +105,9 @@ namespace Framework.Cutscene.Editor
             m_pTriggerTreeview.OnCellDraw += OnDrawItem;
             m_pStepTreeview.OnCellDraw += OnDrawItem;
             m_pExecuteTreeview.OnCellDraw += OnDrawItem;
-            m_vTriggers = new List<GuideCustomAgent.AgentUnit>(CustomAgentUtil.GetTriggerList());
-            m_vSteps = new List<GuideCustomAgent.AgentUnit>(CustomAgentUtil.GetStepList());
-            m_vExecutes = new List<GuideCustomAgent.AgentUnit>(CustomAgentUtil.GetExecuteList());
+            m_vTriggers = new List<AGuideCustomAgent.AgentUnit>(CustomAgentUtil.GetTriggerList());
+            m_vSteps = new List<AGuideCustomAgent.AgentUnit>(CustomAgentUtil.GetStepList());
+            m_vExecutes = new List<AGuideCustomAgent.AgentUnit>(CustomAgentUtil.GetExecuteList());
             Refresh();
         }
         //--------------------------------------------------------
@@ -289,8 +285,8 @@ namespace Framework.Cutscene.Editor
                             m_bExpandInput = EditorGUILayout.Foldout(m_bExpandInput, "输入参数");
                             if (GUILayout.Button("添加", GUILayout.Width(50)))
                             {
-                                var list = m_pSelect.unit.inputs == null ? new List<GuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
-                                list.Add(new GuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.PortAll, canEdit = true });
+                                var list = m_pSelect.unit.inputs == null ? new List<AGuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
+                                list.Add(new AGuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.PortAll, canEdit = true });
                                 m_pSelect.unit.inputs = list.ToArray();
                                 m_bExpandInput = true;
                             }
@@ -327,8 +323,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandInput = EditorGUILayout.Foldout(m_bExpandInput, "输入参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.inputs == null ? new List<GuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
-                            list.Add(new GuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.All });
+                            var list = m_pSelect.unit.inputs == null ? new List<AGuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
+                            list.Add(new AGuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.All });
                             m_pSelect.unit.inputs = list.ToArray();
                             m_bExpandInput = true;
                         }
@@ -341,8 +337,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandOutput = EditorGUILayout.Foldout(m_bExpandOutput, "输出参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.outputs == null ? new List<GuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(m_pSelect.unit.outputs);
-                            list.Add(new GuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.GetAndPort, canEdit = false });
+                            var list = m_pSelect.unit.outputs == null ? new List<AGuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(m_pSelect.unit.outputs);
+                            list.Add(new AGuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.GetAndPort, canEdit = false });
                             m_pSelect.unit.outputs = list.ToArray();
                             m_bExpandOutput = true;
                         }
@@ -377,8 +373,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandInput = EditorGUILayout.Foldout(m_bExpandInput, "输入参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.inputs == null ? new List<GuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
-                            list.Add(new GuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.All });
+                            var list = m_pSelect.unit.inputs == null ? new List<AGuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(m_pSelect.unit.inputs);
+                            list.Add(new AGuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.All });
                             m_pSelect.unit.inputs = list.ToArray();
                             m_bExpandInput = true;
                         }
@@ -391,8 +387,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandOutput = EditorGUILayout.Foldout(m_bExpandOutput, "输出参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.outputs == null ? new List<GuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(m_pSelect.unit.outputs);
-                            list.Add(new GuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.GetAndPort, canEdit = false });
+                            var list = m_pSelect.unit.outputs == null ? new List<AGuideCustomAgent.AgentArgv>() : new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(m_pSelect.unit.outputs);
+                            list.Add(new AGuideCustomAgent.AgentArgv() { name = "NewParam", Flag = EArgvFalg.GetAndPort, canEdit = false });
                             m_pSelect.unit.outputs = list.ToArray();
                             m_bExpandOutput = true;
                         }
@@ -423,7 +419,7 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_strNewName) || m_vTriggerNames.Contains(m_strNewName));
             if (GUILayout.Button("新增触发器", new GUILayoutOption[] { GUILayout.Width(100) }))
             {
-                GuideCustomAgent.AgentUnit unit = new GuideCustomAgent.AgentUnit();
+                AGuideCustomAgent.AgentUnit unit = new AGuideCustomAgent.AgentUnit();
                 unit.name = m_strNewName;
                 unit.customType = 0; // 默认类型为0
                 m_vTriggers.Add(unit);
@@ -441,7 +437,7 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_strNewName) || m_vStepNames.Contains(m_strNewName));
             if (GUILayout.Button("新增步骤器", new GUILayoutOption[] { GUILayout.Width(100) }))
             {
-                GuideCustomAgent.AgentUnit unit = new GuideCustomAgent.AgentUnit();
+                AGuideCustomAgent.AgentUnit unit = new AGuideCustomAgent.AgentUnit();
                 unit.name = m_strNewName;
                 unit.customType = 0; // 默认类型为0
                 m_vSteps.Add(unit);
@@ -459,7 +455,7 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_strNewName) || m_vExecuteNames.Contains(m_strNewName));
             if (GUILayout.Button("新增执行器", new GUILayoutOption[] { GUILayout.Width(100) }))
             {
-                GuideCustomAgent.AgentUnit unit = new GuideCustomAgent.AgentUnit();
+                AGuideCustomAgent.AgentUnit unit = new AGuideCustomAgent.AgentUnit();
                 unit.name = m_strNewName;
                 unit.customType = 0; // 默认类型为0
                 m_vExecutes.Add(unit);
@@ -470,7 +466,7 @@ namespace Framework.Cutscene.Editor
             GUILayout.EndHorizontal();
         }
         //--------------------------------------------------------
-        void DrawAgentUnit(GuideCustomAgent.AgentUnit unit, List<GuideCustomAgent.AgentUnit> vList, HashSet<uint> vTypes, HashSet<string> vNames, int beginType, int endType)
+        void DrawAgentUnit(AGuideCustomAgent.AgentUnit unit, List<AGuideCustomAgent.AgentUnit> vList, HashSet<uint> vTypes, HashSet<string> vNames, int beginType, int endType)
         {
             string curName = unit.name;
             curName = EditorGUILayout.DelayedTextField("事件名称",unit.name);
@@ -496,7 +492,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //--------------------------------------------------------
-        GuideCustomAgent.AgentArgv[] DrawAgentUnitParams(GuideCustomAgent.AgentUnit unit, GuideCustomAgent.AgentArgv[] vParams)
+        AGuideCustomAgent.AgentArgv[] DrawAgentUnitParams(AGuideCustomAgent.AgentUnit unit, AGuideCustomAgent.AgentArgv[] vParams)
         {
             if (vParams == null)
                 return vParams;
@@ -574,7 +570,7 @@ namespace Framework.Cutscene.Editor
                 {
                     if(EditorUtility.DisplayDialog("提示", "是否删除改变量参数?","删除", "再想想"))
                     {
-                        var list = new System.Collections.Generic.List<GuideCustomAgent.AgentArgv>(vParams);
+                        var list = new System.Collections.Generic.List<AGuideCustomAgent.AgentArgv>(vParams);
                         list.RemoveAt(i);
                         vParams = list.ToArray();
                         EditorGUILayout.EndHorizontal();

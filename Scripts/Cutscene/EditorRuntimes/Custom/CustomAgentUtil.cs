@@ -15,30 +15,30 @@ namespace Framework.Cutscene.Editor
 {
     public class CustomAgentUtil
     {
-        private static Dictionary<uint, CutsceneCustomAgent.AgentUnit> ms_vEvents = null;
-        private static Dictionary<uint, CutsceneCustomAgent.AgentUnit> ms_vClips = null;
-        private static List<CutsceneCustomAgent.AgentUnit> ms_vEventLists = null;
-        private static List<CutsceneCustomAgent.AgentUnit> ms_vClipLists = null;
+        private static Dictionary<uint, ACutsceneCustomAgent.AgentUnit> ms_vEvents = null;
+        private static Dictionary<uint, ACutsceneCustomAgent.AgentUnit> ms_vClips = null;
+        private static List<ACutsceneCustomAgent.AgentUnit> ms_vEventLists = null;
+        private static List<ACutsceneCustomAgent.AgentUnit> ms_vClipLists = null;
         private static List<string> ms_vEventPops = null;
         private static List<string> ms_vClipPops = null;
-        private static CutsceneCustomAgent ms_Agent;
+        private static ACutsceneCustomAgent ms_Agent;
         public static void Init(bool bForce = false)
         {
             if(!bForce && ms_vEvents != null && ms_vClips != null && ms_Agent!=null)
             {
                 return;
             }
-            ms_vEvents = new Dictionary<uint, CutsceneCustomAgent.AgentUnit>();
-            ms_vClips = new Dictionary<uint, CutsceneCustomAgent.AgentUnit>();
-            ms_vEventLists = new List<CutsceneCustomAgent.AgentUnit>();
-            ms_vClipLists = new List<CutsceneCustomAgent.AgentUnit>();
+            ms_vEvents = new Dictionary<uint, ACutsceneCustomAgent.AgentUnit>();
+            ms_vClips = new Dictionary<uint, ACutsceneCustomAgent.AgentUnit>();
+            ms_vEventLists = new List<ACutsceneCustomAgent.AgentUnit>();
+            ms_vClipLists = new List<ACutsceneCustomAgent.AgentUnit>();
             ms_vEventPops = new List<string>();
             ms_vClipPops = new List<string>();
-            string[] cutscenes = AssetDatabase.FindAssets("t:CutsceneCustomAgent");
+            string[] cutscenes = AssetDatabase.FindAssets("t:ACutsceneCustomAgent");
             for (int i = 0; i < cutscenes.Length; ++i)
             {
                 string path = AssetDatabase.GUIDToAssetPath(cutscenes[i]);
-                CutsceneCustomAgent agents = AssetDatabase.LoadAssetAtPath<CutsceneCustomAgent>(path);
+                ACutsceneCustomAgent agents = AssetDatabase.LoadAssetAtPath<ACutsceneCustomAgent>(path);
                 if (agents == null)
                     continue;
                 if(agents.vEvents!=null)
@@ -80,12 +80,12 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        internal static void RefreshData(List<CutsceneCustomAgent.AgentUnit> vEvents, List<CutsceneCustomAgent.AgentUnit> vClips)
+        internal static void RefreshData(List<ACutsceneCustomAgent.AgentUnit> vEvents, List<ACutsceneCustomAgent.AgentUnit> vClips)
         {
-            ms_vEvents = new Dictionary<uint, CutsceneCustomAgent.AgentUnit>();
-            ms_vClips = new Dictionary<uint, CutsceneCustomAgent.AgentUnit>();
-            ms_vEventLists = new List<CutsceneCustomAgent.AgentUnit>();
-            ms_vClipLists = new List<CutsceneCustomAgent.AgentUnit>();
+            ms_vEvents = new Dictionary<uint, ACutsceneCustomAgent.AgentUnit>();
+            ms_vClips = new Dictionary<uint, ACutsceneCustomAgent.AgentUnit>();
+            ms_vEventLists = new List<ACutsceneCustomAgent.AgentUnit>();
+            ms_vClipLists = new List<ACutsceneCustomAgent.AgentUnit>();
             ms_vEventPops = new List<string>();
             ms_vClipPops = new List<string>();
             if (vEvents != null)
@@ -124,15 +124,20 @@ namespace Framework.Cutscene.Editor
             }
             if(ms_Agent == null)
             {
-                string[] guids = AssetDatabase.FindAssets("t:CutsceneCustomAgent");
+                string[] guids = AssetDatabase.FindAssets("t:ACutsceneCustomAgent");
                 if(guids.Length>0)
                 {
-                    ms_Agent = AssetDatabase.LoadAssetAtPath<CutsceneCustomAgent>(AssetDatabase.GUIDToAssetPath(guids[0]));
+                    ms_Agent = AssetDatabase.LoadAssetAtPath<ACutsceneCustomAgent>(AssetDatabase.GUIDToAssetPath(guids[0]));
                 }
                 if(ms_Agent==null)
                 {
-                    CutsceneCustomAgent customAgents = ScriptableObject.CreateInstance<CutsceneCustomAgent>();
-                    string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "CutsceneCustomAgent", "asset");
+                    ACutsceneCustomAgent customAgents = Framework.ED.EditorUtils.CreateUnityScriptObject<ACutsceneCustomAgent>();
+                    if(customAgents == null)
+                    {
+                        Debug.LogError("Create ACutsceneCustomAgent failed.");
+                        return;
+                    }
+                    string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "ACutsceneCustomAgent", "asset");
                     saveFile = saveFile.Replace("\\", "/");
                     if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))
                     {
@@ -140,7 +145,7 @@ namespace Framework.Cutscene.Editor
                         if (saveFile.StartsWith("/")) saveFile = saveFile.Substring(1);
                         AssetDatabase.CreateAsset(customAgents, saveFile);
                         AssetDatabase.SaveAssets();
-                        ms_Agent = AssetDatabase.LoadAssetAtPath<CutsceneCustomAgent>(saveFile);
+                        ms_Agent = AssetDatabase.LoadAssetAtPath<ACutsceneCustomAgent>(saveFile);
                     }
                 }
             }
@@ -164,7 +169,7 @@ namespace Framework.Cutscene.Editor
             Framework.ED.EditorUtils.CommitGit(file, bWait:false);
         }
         //-----------------------------------------------------
-        public static void AddEvent(CutsceneCustomAgent.AgentUnit unit)
+        public static void AddEvent(ACutsceneCustomAgent.AgentUnit unit)
         {
             Init();
             if (ms_vEvents.ContainsKey(unit.customType) || HasEvent(unit.name))
@@ -225,7 +230,7 @@ namespace Framework.Cutscene.Editor
             return false;
         }
         //-----------------------------------------------------
-        public static void AddClip(CutsceneCustomAgent.AgentUnit unit)
+        public static void AddClip(ACutsceneCustomAgent.AgentUnit unit)
         {
             Init();
             if (ms_vClips.ContainsKey(unit.customType) || HasClip(unit.name))
@@ -286,17 +291,17 @@ namespace Framework.Cutscene.Editor
             return false;
         }
         //-----------------------------------------------------
-        public static CutsceneCustomAgent.AgentUnit GetEvent(uint customType)
+        public static ACutsceneCustomAgent.AgentUnit GetEvent(uint customType)
         {
             Init();
-            if (ms_vEvents.TryGetValue(customType, out CutsceneCustomAgent.AgentUnit unit))
+            if (ms_vEvents.TryGetValue(customType, out ACutsceneCustomAgent.AgentUnit unit))
             {
                 return unit;
             }
             return default;
         }
         //-----------------------------------------------------
-        public static List<CutsceneCustomAgent.AgentUnit> GetEventList()
+        public static List<ACutsceneCustomAgent.AgentUnit> GetEventList()
         {
             Init();
             return ms_vEventLists;
@@ -308,17 +313,17 @@ namespace Framework.Cutscene.Editor
             return ms_vEventPops;
         }
         //-----------------------------------------------------
-        public static CutsceneCustomAgent.AgentUnit GetClip(uint customType)
+        public static ACutsceneCustomAgent.AgentUnit GetClip(uint customType)
         {
             Init();
-            if (ms_vClips.TryGetValue(customType, out CutsceneCustomAgent.AgentUnit unit))
+            if (ms_vClips.TryGetValue(customType, out ACutsceneCustomAgent.AgentUnit unit))
             {
                 return unit;
             }
             return default;
         }
         //-----------------------------------------------------
-        public static List<CutsceneCustomAgent.AgentUnit> GetClipList()
+        public static List<ACutsceneCustomAgent.AgentUnit> GetClipList()
         {
             Init();
             return ms_vClipLists;

@@ -68,7 +68,7 @@ namespace Framework.ActorSystem.Editor
         private bool                    m_bCutscenInspectorExpand = true;
 
         Framework.AT.Editor.AgentTreeWindow m_pSkillEditor = null;
-        ActorComponent                  m_pActorComp = null;
+        AActorComponent                  m_pActorComp = null;
         Actor                           m_pActor = null;
         Actor                           m_pTarget = null;
 
@@ -101,7 +101,7 @@ namespace Framework.ActorSystem.Editor
             window.titleContent = new GUIContent("¶¯×÷±à¼­Æ÷");
         }
         //--------------------------------------------------------
-        public static void OpenTarget(ActorComponent pActor)
+        public static void OpenTarget(AActorComponent pActor)
         {
             if (EditorApplication.isCompiling)
             {
@@ -147,11 +147,11 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         internal void RefreshProjectileDatas()
         {
-            string[] guideDatas = AssetDatabase.FindAssets("t:ProjectileDatas");
+            string[] guideDatas = AssetDatabase.FindAssets("t:AProjectileDatas");
             if (guideDatas != null && guideDatas.Length > 0)
             {
-                var projectDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
-                ProjectileDatas.RefreshDatas(projectDatas, false);
+                var projectDatas = AssetDatabase.LoadAssetAtPath<AProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+                AProjectileDatas.RefreshDatas(projectDatas, false);
                 m_pActorManager.SetProjectileDatas(projectDatas);
             }
         }
@@ -178,7 +178,7 @@ namespace Framework.ActorSystem.Editor
             if (m_pActorComp)
             {
                 var pInstance = GameObject.Instantiate<GameObject>(m_pActorComp.gameObject);
-                var pComp = pInstance.GetComponent<ActorComponent>();
+                var pComp = pInstance.GetComponent<AActorComponent>();
                 pComp.SetBindPrefab(m_pActorComp.gameObject);
 
                 Actor pActorInstance = null;
@@ -210,7 +210,7 @@ namespace Framework.ActorSystem.Editor
                 m_pTarget.SetEulerAngle(m_TargetEulerAngle);
                 m_pTarget.SetBound(Vector3.one * -0.5f, Vector3.one * 0.5f);
                 GameObject pInst = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                m_pTarget.SetObjectAble(pInst.AddComponent<ActorComponent>());
+                m_pTarget.SetObjectAble(pInst.AddComponent<AActorComponent>());
             }
             m_pTarget.SetActived(true);
             m_pTarget.SetVisible(true);
@@ -274,7 +274,7 @@ namespace Framework.ActorSystem.Editor
             var actorComp = actor.GetObjectAble();
             if (actorComp == null)
                 return;
-            ActorComponent component = actorComp as ActorComponent;
+            AActorComponent component = actorComp as AActorComponent;
             if(m_pActorComp!=null)
             {
                 component = m_pActorComp;
@@ -284,7 +284,7 @@ namespace Framework.ActorSystem.Editor
                 var prefab = PrefabUtility.GetCorrespondingObjectFromSource<GameObject>(component.gameObject);
                 if (prefab != null)
                 {
-                    component = prefab.GetComponent<ActorComponent>();
+                    component = prefab.GetComponent<AActorComponent>();
                 }
             }
             if (component == null)
@@ -689,8 +689,8 @@ namespace Framework.ActorSystem.Editor
                                 if (prefabInst != null)
                                 {
                                     var projectileObj = GameObject.Instantiate(prefabInst);
-                                    ActorComponent pComp = projectileObj.GetComponent<ActorComponent>();
-                                    if (pComp == null) pComp = projectileObj.AddComponent<ActorComponent>();
+                                    AActorComponent pComp = projectileObj.GetComponent<AActorComponent>();
+                                    if (pComp == null) pComp = projectileObj.AddComponent<AActorComponent>();
                                     projectorActor.SetObjectAble(pComp);
                                 }
                             }

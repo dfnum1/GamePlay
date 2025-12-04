@@ -37,7 +37,7 @@ namespace Framework.ProjectileSystem.Editor
 
         public List<string> m_vBoneList = new List<string>();
 
-        ProjectileDatas m_ProjectileDatas = null;
+        AProjectileDatas m_ProjectileDatas = null;
 
         private uint m_nEditProjectileId = 0xffffffff;
 
@@ -70,7 +70,7 @@ namespace Framework.ProjectileSystem.Editor
             Instance.m_nEditProjectileId = projectileId;
         }
         //-----------------------------------------------------
-        public ProjectileDatas GetProjectileDatas()
+        public AProjectileDatas GetProjectileDatas()
         {
             return m_ProjectileDatas;
         }
@@ -114,29 +114,29 @@ namespace Framework.ProjectileSystem.Editor
             Instance = this;
 
             //! 加载飞行道具配置数据
-            string[] guideDatas = AssetDatabase.FindAssets("t:ProjectileDatas");
+            string[] guideDatas = AssetDatabase.FindAssets("t:AProjectileDatas");
             if (guideDatas != null && guideDatas.Length > 0)
             {
-                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<AProjectileDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
             }
             else
             {
                 EditorUtility.DisplayDialog("提示", "没有创建飞行道具数据集，请先创建!!", "好的");
-                string savePath = EditorUtility.SaveFilePanelInProject("创建弹道数据集", "ProjectileDatas", "asset", "用于管理零散的弹道配置数据文件", Application.dataPath);
+                string savePath = EditorUtility.SaveFilePanelInProject("创建弹道数据集", "AProjectileDatas", "asset", "用于管理零散的弹道配置数据文件", Application.dataPath);
                 if(string.IsNullOrEmpty(savePath))
                 {
                     return;
                 }
-                ProjectileDatas projData = ScriptableObject.CreateInstance<ProjectileDatas>();
-                projData.name = "ProjectileDatas";
+                AProjectileDatas projData = Framework.ED.EditorUtils.CreateUnityScriptObject<AProjectileDatas>();
+                projData.name = "AProjectileDatas";
                 AssetDatabase.CreateAsset(projData, savePath);
                 EditorUtility.SetDirty(projData);
                 AssetDatabase.SaveAssetIfDirty(projData);
-                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(savePath);
+                m_ProjectileDatas = AssetDatabase.LoadAssetAtPath<AProjectileDatas>(savePath);
             }
             if (m_ProjectileDatas != null)
             {
-                ProjectileDatas.RefreshDatas(m_ProjectileDatas);
+                AProjectileDatas.RefreshDatas(m_ProjectileDatas);
             }
 
             m_CutsceneManager = new CutsceneManager();
@@ -489,8 +489,8 @@ namespace Framework.ProjectileSystem.Editor
                                 if(prefabInst!=null)
                                 {
                                     var projectileObj = GameObject.Instantiate(prefabInst);
-                                    ActorComponent pComp = projectileObj.GetComponent<ActorComponent>();
-                                    if (pComp == null) pComp = projectileObj.AddComponent<ActorComponent>();
+                                    AActorComponent pComp = projectileObj.GetComponent<AActorComponent>();
+                                    if (pComp == null) pComp = projectileObj.AddComponent<AActorComponent>();
                                     projectorActor.SetObjectAble(pComp);
                                 }
                             }

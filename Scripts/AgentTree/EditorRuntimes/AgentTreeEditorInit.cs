@@ -11,7 +11,7 @@ namespace Framework.AT.Editor
         static Texture2D s_CustomIcon;
         static AgentTreeEditorInit()
         {
-            s_CustomIcon = EditorResources.LoadTexture("AgentTree.png");
+            s_CustomIcon = EditorResources.LoadTexture("AT/AgentTree.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
         }
         //-----------------------------------------------------
@@ -20,7 +20,7 @@ namespace Framework.AT.Editor
             if (s_CustomIcon == null) return;
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            if (obj is AgentTreeObject)
+            if (obj is AAgentTreeObject)
             {
                 if (EditorGUIUtility.GetIconForObject(obj) != s_CustomIcon)
                     EditorGUIUtility.SetIconForObject(obj, s_CustomIcon);

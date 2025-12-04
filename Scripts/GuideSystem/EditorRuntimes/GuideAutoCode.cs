@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using TagLib.Asf;
 using UnityEditor;
 using UnityEngine;
 
@@ -36,7 +35,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic static void AddGuideGuid(int guid, GuideGuid widget)\r\n";
+            code += "\t\tpublic static void AddGuideGuid(int guid, AGuideGuid widget)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tif(widget== null) return;\r\n";
             code += "\t\t\twidget.guid = guid;\r\n"; 

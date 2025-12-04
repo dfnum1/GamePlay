@@ -78,7 +78,7 @@ namespace Framework.AT.Editor
                 return;
             if (attri.iconAttr != null)
             {
-                var icon = AgentTreeUtil.LoadIcon(attri.iconAttr.name);
+                var icon = AgentTreeUtil.LoadIcon("AT/" +attri.iconAttr.name);
                 if (icon != null)
                 {
                     var img = new Image

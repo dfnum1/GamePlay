@@ -110,7 +110,7 @@ namespace Framework.Cutscene.Runtime
             //! lamda function gc.....
             m_vCallbacks[0].OnCutsceneLoadAsset(cutsceneName, (cutAsset) =>
                 {
-                    CutsceneObject pAsset = cutAsset as CutsceneObject;
+                    ACutsceneObject pAsset = cutAsset as ACutsceneObject;
                     if (pAsset == null || pAsset.GetCutsceneGraph() == null || !cutscene.Create(pAsset.GetCutsceneGraph(), subName))
                     {
                         CutscenePool.FreeCutscene(cutscene);
@@ -145,7 +145,7 @@ namespace Framework.Cutscene.Runtime
             //! lamda function gc.....
             m_vCallbacks[0].OnCutsceneLoadAsset(cutsceneName, (cutAsset) =>
             {
-                CutsceneObject pAsset = cutAsset as CutsceneObject;
+                ACutsceneObject pAsset = cutAsset as ACutsceneObject;
                 if (pAsset == null || pAsset.GetCutsceneGraph() == null || !cutscene.Create(pAsset.GetCutsceneGraph(), null, subId))
                 {
                     CutscenePool.FreeCutscene(cutscene);

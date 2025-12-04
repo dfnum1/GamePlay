@@ -5,7 +5,6 @@
 描    述:	引导编辑器
 *********************************************************************/
 #if UNITY_EDITOR
-using Framework.Cutscene.Editor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -127,7 +126,7 @@ namespace Framework.Guide.Editor
 
             public List<ArgvAttr> argvs = new List<ArgvAttr>();
         }
-        protected GuideDatas m_pGuideCsv = null;
+        protected AGuideDatas m_pGuideCsv = null;
 
 
         public static System.Type GamePlugin = null;
@@ -218,10 +217,10 @@ namespace Framework.Guide.Editor
             {
                 GuideSystem.getInstance().Register(this);
             }
-            string[] guideDatas = AssetDatabase.FindAssets("t:GuideDatas");
+            string[] guideDatas = AssetDatabase.FindAssets("t:AGuideDatas");
             if (guideDatas != null && guideDatas.Length > 0)
             {
-                m_pGuideCsv = AssetDatabase.LoadAssetAtPath<GuideDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+                m_pGuideCsv = AssetDatabase.LoadAssetAtPath<AGuideDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
             }
             if (m_pGuideCsv!=null)
             {
@@ -424,7 +423,7 @@ namespace Framework.Guide.Editor
             m_PreviousTime = EditorApplication.timeSinceStartup;
         }
         //------------------------------------------------------
-        internal void AddRecodeClickStep(GuideGuid guide, string widgetTag, int listIndex)
+        internal void AddRecodeClickStep(AGuideGuid guide, string widgetTag, int listIndex)
         {
             StepParam stepParam = new StepParam();
             if (StepTypes.TryGetValue((int)GuideStepType.ClickUI, out stepParam.Data))
@@ -445,7 +444,7 @@ namespace Framework.Guide.Editor
                             {
                                 for (int j = 0; j < stepParam.Data.argvs.Count; ++j)
                                 {
-                                    if (stepParam.Data.argvs[j].attr.displayType == typeof(GuideGuid))
+                                    if (stepParam.Data.argvs[j].attr.displayType == typeof(AGuideGuid))
                                     {
                                         var field = ports[j].GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
                                         if (field != null)

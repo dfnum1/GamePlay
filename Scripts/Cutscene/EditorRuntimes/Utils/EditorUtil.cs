@@ -15,7 +15,7 @@ namespace Framework.Cutscene.Editor
         {
             return (caps & flags) != 0;
         }
-        public static int CombineHash(this int h1, int h2)
+        public static int CombineHash(int h1, int h2)
         {
             return h1 ^ (int)(h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2)); // Similar to c++ boost::hash_combine
         }

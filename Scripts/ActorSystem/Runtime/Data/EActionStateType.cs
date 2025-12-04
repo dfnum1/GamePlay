@@ -52,7 +52,7 @@ namespace Framework.ActorSystem.Runtime
         SIDES = (1 << 2),
     };
     //------------------------------------------------------
-    [AT.Runtime.ATEvent("AT事件", ownerType:typeof(ActorComponent))]
+    [AT.Runtime.ATEvent("AT事件", ownerType:typeof(AActorComponent))]
     public enum EActorATType : int
     {
         [AT.Runtime.ATEvent("onGround")] onGround = 60000,

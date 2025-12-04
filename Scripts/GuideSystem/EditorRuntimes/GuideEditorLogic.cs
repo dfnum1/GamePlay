@@ -218,7 +218,7 @@ namespace Framework.Guide.Editor
                         {
                             for (int j = 0; j < nodeAttr.argvs.Count; ++j)
                             {
-                                if (nodeAttr.argvs[j].attr.displayType == typeof(GuideGuid))
+                                if (nodeAttr.argvs[j].attr.displayType == typeof(AGuideGuid))
                                 {
                                     var field = ports[j].GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
                                     if (field != null)
@@ -805,7 +805,7 @@ namespace Framework.Guide.Editor
                             if(m_pSrcPrefab != null) EditorUtility.SetDirty(m_pSrcPrefab);
                             if (GuidePreferences.GetSettings().autoSave)
                             {
-                                GuideDatas.Refresh();
+                                AGuideDatas.Refresh();
                             }
                         }
                         else if (!IsHoveringNode)
@@ -818,7 +818,7 @@ namespace Framework.Guide.Editor
                             }
                             if (GuidePreferences.GetSettings().autoSave)
                             {
-                                GuideDatas.Refresh();
+                                AGuideDatas.Refresh();
                             }
                         }
 

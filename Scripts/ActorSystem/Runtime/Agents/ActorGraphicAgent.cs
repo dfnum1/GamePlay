@@ -4,8 +4,6 @@
 作    者:	HappLI
 描    述:	动作表现类
 *********************************************************************/
-using Framework.ActorSystem.Editor;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -30,13 +28,13 @@ namespace Framework.ActorSystem.Runtime
             m_vCommonActions = null;
             if (component == null)
                 return;
-            if (component is ActorComponent)
-                LoadActorCompent(component as ActorComponent);
+            if (component is AActorComponent)
+                LoadActorCompent(component as AActorComponent);
         //    else if (component is Plugin.CGpuSkinMeshAgent)
          //       LoadBakeSkinCompent(component as Plugin.CGpuSkinMeshAgent);
         }
         //--------------------------------------------------------
-        void LoadActorCompent(ActorComponent component)
+        void LoadActorCompent(AActorComponent component)
         {
             var animator = GetComponent<Animator>(true);
             if (animator != null)
@@ -51,10 +49,12 @@ namespace Framework.ActorSystem.Runtime
                 UnityEngine.Playables.AnimationPlayableUtilities.Play(animator, m_Player.playable, m_pPlayableGraph);
                 m_Player.SetMixLayer(1);
                 m_Player.SetClipNum(4);
+#if UNITY_EDITOR
                 GraphPlayableUtil.CollectPlayable(component.gameObject, m_Player);
-            //    m_pPlayableGraph.Play();
+#endif
+                //    m_pPlayableGraph.Play();
 
-                var actorComponent = component as ActorComponent;
+                var actorComponent = component as AActorComponent;
                 if (actorComponent != null)
                 {
                     m_vCommonActions = actorComponent.commonActions;
@@ -469,8 +469,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         protected override void OnDestroy()
         {
-            if(m_nPlayableId!=0)
+            if (m_nPlayableId != 0)
+            {
+#if UNITY_EDITOR
                 GraphPlayableUtil.UnCollectPlayable(m_nPlayableId);
+#endif
+            }
             m_nPlayableId = 0;
             if (m_Player != null)
             {

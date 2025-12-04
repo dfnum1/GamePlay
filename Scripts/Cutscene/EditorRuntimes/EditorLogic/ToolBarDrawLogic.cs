@@ -22,7 +22,7 @@ namespace Framework.Cutscene.Editor
             GUILayout.BeginHorizontal();
             if(GUILayout.Button("创建", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
-                CutsceneObject cutscene = ScriptableObject.CreateInstance<CutsceneObject>();
+                ACutsceneObject cutscene = ScriptableObject.CreateInstance<ACutsceneObject>();
                 string saveFile = EditorUtility.SaveFilePanel("保存cutscene", Application.dataPath, "New", "asset");
                 saveFile = saveFile.Replace("\\", "/");
                 if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))
@@ -70,14 +70,14 @@ namespace Framework.Cutscene.Editor
                     if (pData.GetOwnerObject() == null)
                         continue;
 
-                    if(!(pData.GetOwnerObject() is CutsceneObject))
+                    if(!(pData.GetOwnerObject() is ACutsceneObject))
                     {
                         continue;
                     }
                     if (cs.Value.GetPlayable() == null) continue;
                     string subName = cs.Value.GetPlayable().GetName();
                     if (subName == null) subName = "";
-                    CutsceneObject cutsceneObj = pData.GetOwnerObject() as CutsceneObject;
+                    ACutsceneObject cutsceneObj = pData.GetOwnerObject() as ACutsceneObject;
                     menu.AddItem(new GUIContent(cutsceneObj.name + "-" + subName), false, (obj) => {
                         var cso = obj as CutsceneInstance;
                         if(cso!=null)

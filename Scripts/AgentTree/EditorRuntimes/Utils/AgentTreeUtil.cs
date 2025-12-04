@@ -46,6 +46,7 @@ namespace Framework.AT.Editor
         static string ms_installPath = null;
         public static string BuildInstallPath()
         {
+            ms_installPath = Framework.ED.EditorUtils.GetInstallEditorResourcePath();
             if (string.IsNullOrEmpty(ms_installPath))
             {
                 var scripts = UnityEditor.AssetDatabase.FindAssets("t:Script CutsceneEditor");

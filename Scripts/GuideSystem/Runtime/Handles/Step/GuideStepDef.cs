@@ -11,7 +11,7 @@ namespace Framework.Guide
     public enum GuideStepType
     {
         [GuideStep("控件点击", true)]
-        [GuideArgv("控件", "widgetGUID", "", typeof(GuideGuid), EArgvFalg.PortAll)]
+        [GuideArgv("控件", "widgetGUID", "", typeof(AGuideGuid), EArgvFalg.PortAll)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
         [GuideArgv("控件索引", "index", "", null, EArgvFalg.PortAll)]
         [GuideStrArgv("控件名称", "listenerName", "动态加载查找的控件名称")]
@@ -81,13 +81,13 @@ namespace Framework.Guide
         ClickAnywhere = 105,
 
         [GuideStep("等待Gameobject激活状态")]
-        [GuideArgv("控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(GuideGuid), EArgvFalg.GetAndPort)]
+        [GuideArgv("控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.GetAndPort)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
         [GuideArgv("是否显示", "isShow", "", null, EArgvFalg.GetAndPort)]
         WaitGameobjectActive = 106,
 
         [GuideStep("等待目标可以点击")]
-        [GuideArgv("guid", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(GuideGuid), EArgvFalg.GetAndPort)]
+        [GuideArgv("guid", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.GetAndPort)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
         WaitGameobjectCanClick = 107,
 

@@ -15,7 +15,7 @@ namespace Framework.Guide.Editor
         static Texture2D s_CustomIcon;
         static GuideSystemEngineInit()
         {
-            s_CustomIcon = GuideEditorResources.LoadTexture("GuideSystem.png");
+            s_CustomIcon = GuideEditorResources.LoadTexture("GuideSystem/GuideSystem.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
 
             //! auto code
@@ -33,7 +33,7 @@ namespace Framework.Guide.Editor
             if (s_CustomIcon == null) return;
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            if (obj is GuideDatas)
+            if (obj is AGuideDatas)
             {
                 //      Rect iconRect = new Rect(selectionRect.x + 2, selectionRect.y + 2, 16, 16);
                 //       GUI.DrawTexture(iconRect, s_CustomIcon, ScaleMode.ScaleToFit);

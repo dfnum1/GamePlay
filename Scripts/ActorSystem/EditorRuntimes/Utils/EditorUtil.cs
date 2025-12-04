@@ -117,47 +117,7 @@ namespace Framework.ActorSystem.Editor
             else GameObject.DestroyImmediate(pIns);
         }
     }
-#if USE_ACTORSYSTEM
-    public static class AssetUtil
-    {
-        static string ms_installPath = null;
-        public static string BuildInstallPath()
-        {
-            if (string.IsNullOrEmpty(ms_installPath))
-            {
-                var scripts = UnityEditor.AssetDatabase.FindAssets("t:Script ActorEditorWindow");
-                if (scripts.Length > 0)
-                {
-                    if (scripts.Length > 0)
-                    {
-                        string installPath = System.IO.Path.GetDirectoryName(UnityEditor.AssetDatabase.GUIDToAssetPath(scripts[0])).Replace("\\", "/");
 
-                        string installPath1 = Path.Combine(installPath, "EditorResources").Replace("\\", "/");
-                        if (!System.IO.Directory.Exists(installPath1))
-                        {
-                            installPath1 = Path.Combine(Path.GetDirectoryName(installPath), "EditorResources").Replace("\\", "/");
-                        }
-                        if (System.IO.Directory.Exists(installPath1))
-                        {
-                            ms_installPath = installPath1;
-                        }
-                    }
-                }
-            }
-            return ms_installPath;
-        }
-        //-----------------------------------------------------
-        public static Texture2D GetFloorTexture()
-        {
-            string install = BuildInstallPath();
-            if (string.IsNullOrEmpty(install)) return null;
-            string groundPath = install + "/ground.png";
-            if (!File.Exists(groundPath))
-                return null;
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(groundPath);
-        }
-    }
-#endif // USE_ACTORSYSTEM
     struct GUIViewportScope : IDisposable
     {
         bool m_open;

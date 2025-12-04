@@ -13,14 +13,14 @@ namespace Framework.Cutscene.Editor
 {
     public class BindIdInputPopup : EditorWindow
     {
-        private CutsceneObjectBinder binder;
+        private ACutsceneObjectBinder binder;
         private int newBindId;
         static BindIdInputPopup ms_Instance = null;
 
         private CutsceneData.Group m_EditGroup;
-        public System.Action<CutsceneObjectBinder, CutsceneData.Group> editCallback;
+        public System.Action<ACutsceneObjectBinder, CutsceneData.Group> editCallback;
         //--------------------------------------------------------
-        public static void Show(CutsceneObjectBinder binder, CutsceneData.Group group, System.Action<CutsceneObjectBinder,CutsceneData.Group> callback = null)
+        public static void Show(ACutsceneObjectBinder binder, CutsceneData.Group group, System.Action<ACutsceneObjectBinder,CutsceneData.Group> callback = null)
         {
             if (ms_Instance != null)
             {
@@ -89,10 +89,10 @@ namespace Framework.Cutscene.Editor
                     var prefab = PrefabUtility.GetCorrespondingObjectFromSource(binder.gameObject);
                     if (prefab != null)
                     {
-                        var binderPrefab = prefab.GetComponent<CutsceneObjectBinder>();
+                        var binderPrefab = prefab.GetComponent<ACutsceneObjectBinder>();
                         if(binderPrefab == null) 
                         {
-                            binderPrefab = prefab.AddComponent<CutsceneObjectBinder>();
+                            binderPrefab = prefab.AddComponent<ACutsceneObjectBinder>();
                         }
                         binderPrefab.SetBindID(newBindId);
                         EditorUtility.SetDirty(prefab);

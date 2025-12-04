@@ -103,7 +103,7 @@ namespace Framework.ActorSystem.Editor
                 var objectAble = actor.GetObjectAble();
                 if(objectAble!=null)
                 {
-                    ActorComponent actorComp = objectAble as ActorComponent;
+                    AActorComponent actorComp = objectAble as AActorComponent;
                     if(actorComp!=null && actorComp.slots!=null)
                     {
                         for(int j =0; j < actorComp.slots.Length; ++j)

@@ -259,7 +259,7 @@ namespace Framework.ActorSystem.Runtime
             return m_vHitFrameCaches;
         }
         //------------------------------------------------------
-        public void SetProjectileDatas(ProjectileDatas projectileDatas)
+        public void SetProjectileDatas(AProjectileDatas projectileDatas)
         {
             if (projectileDatas == null)
                 return;

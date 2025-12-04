@@ -38,7 +38,7 @@ namespace Framework.Cutscene.Runtime
                         {
                             LoadAsset(cutsceneName, (obj) => {
 
-                                CutsceneObject cutsceneObj = obj as CutsceneObject;
+                                ACutsceneObject cutsceneObj = obj as ACutsceneObject;
                                 if (cutsceneObj)
                                 {
                                     var instance = pTrack.GetCutscene().GetCutsceneManager().CreateCutscene(cutsceneObj.GetCutsceneGraph(), cutsceneName, true);

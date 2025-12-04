@@ -120,8 +120,8 @@ namespace Framework.Cutscene.Runtime
             if (m_Object != null && IsEditorMode())
             {
                 var unityObj = m_Object.GetUniyObject() as GameObject;
-                if (unityObj) unityObj.transform.RestoreTransform();
-                m_Object.Restore();
+                if (unityObj) LockUtil.RestoreTransform(unityObj.transform);
+                LockUtil.Restore(m_Object);
             }
 #endif
             m_Object = null;
@@ -171,16 +171,16 @@ namespace Framework.Cutscene.Runtime
 #if UNITY_EDITOR
                     if (IsEditorMode())
                     {
-                        if(unityObj) unityObj.transform.RestoreTransform();
-                        m_Object.Restore();
+                        if(unityObj) LockUtil.RestoreTransform(unityObj.transform);
+                        LockUtil.Restore(m_Object);
                     }
 #endif
                     var start = unityObj.transform.position;
 #if UNITY_EDITOR
                     if (IsEditorMode())
                     {
-                        if(unityObj) unityObj.transform.BackupTransform();
-                        m_Object.Backup();
+                        if(unityObj) LockUtil.BackupTransform(unityObj.transform);
+                        LockUtil.Backup(m_Object);
                     }
 #endif
                     if (ms_NavPath == null) ms_NavPath = new NavMeshPath();
@@ -233,8 +233,8 @@ namespace Framework.Cutscene.Runtime
             if (m_Object != null && IsEditorMode() && clip.CanRestore())
             {
                 var unityObj = m_Object.GetUniyObject() as GameObject;
-                if (unityObj) unityObj.transform.RestoreTransform();
-                m_Object.Restore();
+                if (unityObj) LockUtil.RestoreTransform(unityObj.transform);
+                LockUtil.Restore(m_Object);
             }
 #endif
             m_Object = null;

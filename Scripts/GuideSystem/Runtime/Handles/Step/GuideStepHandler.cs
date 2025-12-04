@@ -181,7 +181,7 @@ namespace Framework.Guide
             }
             int guid = pNode._Ports[0].fillValue;
             string tagName = pNode._Ports[1].fillStrValue;
-            GuideGuid guideGuid = GuideGuidUtl.FindGuide(guid, tagName);
+            AGuideGuid guideGuid = GuideGuidUtl.FindGuide(guid, tagName);
             int clickIndex = pNode._Ports[2].fillValue-1;
             string listenerName = pNode._Ports[3].fillStrValue;
             int touchType = pNode._Ports[4].fillValue;
@@ -198,7 +198,7 @@ namespace Framework.Guide
             Vector2 maskScale = pNode._Ports[13].ToVec2();
             float maskSpeed = pNode._Ports[14].fillValue * 0.001f;
 
-            //如果是3d,那么设置点击组件位置到手指位置,点击组件挂载 EventTriggerListener ,并且调用 SetGuideGuid 设置guid对象进行模拟点击guid的功能
+            //如果是3d,那么设置点击组件位置到手指位置,点击组件挂载 AEventTriggerListener ,并且调用 SetGuideGuid 设置guid对象进行模拟点击guid的功能
             guidePanel.WidgetListen(pNode, (EFingerType)touchType, new Vector3(0, 0, angle), new Vector2(offsetX, offsetY), guid, clickIndex, tagName, bMostTop, listenerName, bMask,bRayTest);
             if(bMask)
             {
@@ -255,7 +255,7 @@ namespace Framework.Guide
                     {
                         if (pNode._Ports[0].fillValue == param.widgetGuid)//点击到指定guidUI
                         {
-                            GuideGuid widget = GuideGuidUtl.FindGuide(param.widgetGuid);
+                            AGuideGuid widget = GuideGuidUtl.FindGuide(param.widgetGuid);
 
                             guidePanel.ClearData();
                             return true;
@@ -265,7 +265,7 @@ namespace Framework.Guide
                     {
                         if (pNode._Ports[0].fillValue == param.widgetGuid && param.widgetTag.CompareTo(pNode._Ports[1].fillStrValue) == 0)//点击到指定guidUI
                         {
-                            GuideGuid widget = GuideGuidUtl.FindGuide(param.widgetGuid, param.widgetTag);
+                            AGuideGuid widget = GuideGuidUtl.FindGuide(param.widgetGuid, param.widgetTag);
 
                             guidePanel.ClearData();
                             return true;
@@ -635,7 +635,7 @@ namespace Framework.Guide
         //------------------------------------------------------
         private static bool WaitGameobjectActive(StepNode pNode)
         {
-            GuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
+            AGuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
             if (guide == null)//找不到情况,结束当前等待
             {
                 return true;
@@ -648,7 +648,7 @@ namespace Framework.Guide
         static PointerEventData ms_PointerEventData = null;
         private static bool WaitGameobjectCanClick(StepNode pNode)
         {
-            GuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
+            AGuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
             if (guide == null)//找不到情况,结束当前等待
             {
                 return true;

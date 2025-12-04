@@ -32,7 +32,7 @@ namespace Framework.Guide.Editor
         [System.Serializable]
         public class Settings : ISerializationCallbackReceiver
         {
-            public string dataSavePath = "Assets/Res/GuideDatas";
+            public string dataSavePath = "Assets/Res/AGuideDatas";
             public string generatorCodePath = "Assets/OpenScripts/GameApp/GuideSystem/Generated";
             public string commitRoots = "Res/UI;Res/UIPrefabTmp";
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);

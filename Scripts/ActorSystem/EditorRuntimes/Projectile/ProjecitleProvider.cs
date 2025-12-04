@@ -15,13 +15,13 @@ namespace Framework.ActorSystem.Editor
         static void InitData()
         {
             ms_vCodes.Clear();
-            string[] guides = AssetDatabase.FindAssets("t:ProjectileDatas");
+            string[] guides = AssetDatabase.FindAssets("t:AProjectileDatas");
             if (guides != null && guides.Length > 0)
             {
-                var data = AssetDatabase.LoadAssetAtPath<ProjectileDatas>(AssetDatabase.GUIDToAssetPath(guides[0]));
+                var data = AssetDatabase.LoadAssetAtPath<AProjectileDatas>(AssetDatabase.GUIDToAssetPath(guides[0]));
                 if(data != null)
                 {
-                    ProjectileDatas.RefreshDatas(data);
+                    AProjectileDatas.RefreshDatas(data);
                     if(data.projectiles!=null)
                     {
                         foreach(var db in data.projectiles)

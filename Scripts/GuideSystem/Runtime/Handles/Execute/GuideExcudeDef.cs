@@ -17,7 +17,7 @@ namespace Framework.Guide
         [GuideArgv("启动拖拽穿透", "penetrateEnable", "拖拽穿透,默认关闭", typeof(bool), EArgvFalg.All)]
         [GuideArgv("型状", "maskType", "", typeof(EMaskType), EArgvFalg.All)]
         [GuideArgv("蒙版形状缩放", "maskScale", "", typeof(UnityEngine.Vector2))]
-        [GuideArgv("穿透的控件ID", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(GuideGuid), EArgvFalg.All)]
+        [GuideArgv("穿透的控件ID", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.All)]
         [GuideStrArgv("穿透的控件Tag", "widgetTag", "控件Tag,需要在控件上绑定GuideGuid组件", EArgvFalg.All)]
         [GuideArgv("过渡", "tweenSpeed", "从无到有的过渡速度,值越大过渡的越快", typeof(float), EArgvFalg.All)]
         MaskAble = 1,
@@ -43,7 +43,7 @@ namespace Framework.Guide
         [GuideStrArgv("NPC名称", "title", "", null, EArgvFalg.All)]
         [GuideStrArgv("文本内容", "context", "", null, EArgvFalg.All)]
         [GuideArgv("文本颜色", "color", "", typeof(Color), EArgvFalg.All)]
-        [GuideArgv("跟随控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(GuideGuid), EArgvFalg.PortAll)]
+        [GuideArgv("跟随控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.PortAll)]
         [GuideStrArgv("跟随控件Tag", "widgetTag", "控件Tag,需要在控件上绑定GuideTag组件", EArgvFalg.PortAll)]
         [GuideArgv("控件索引", "widgetIndex", "控件索引", null, EArgvFalg.PortAll)]
         [GuideStrArgv("控件名称", "searchName", "", null, EArgvFalg.All)]

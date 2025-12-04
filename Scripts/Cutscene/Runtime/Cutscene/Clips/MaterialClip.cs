@@ -198,7 +198,7 @@ namespace Framework.Cutscene.Runtime
         public override void OnDestroy()
         {
 #if UNITY_EDITOR
-            if (IsEditorMode() && m_pMaterial) m_pMaterial.Restore();
+            if (IsEditorMode() && m_pMaterial) LockUtil.Restore(m_pMaterial);
 #endif
             m_pMaterial = null;
         }
@@ -231,8 +231,8 @@ namespace Framework.Cutscene.Runtime
             {
                 if (IsEditorMode())
                 {
-                    m_pMaterial.Restore();
-                    m_pMaterial.Backup();
+                    LockUtil.Restore(m_pMaterial);
+                    LockUtil.Backup(m_pMaterial);
                 }
             }
 #endif
@@ -249,7 +249,7 @@ namespace Framework.Cutscene.Runtime
             if (clip.CanRestore() || clip.IsOvered())
             {
 #if UNITY_EDITOR
-                if (IsEditorMode() && m_pMaterial) m_pMaterial.Restore();
+                if (IsEditorMode() && m_pMaterial) LockUtil.Restore(m_pMaterial);
 #endif
                 m_pMaterial = null;
             }

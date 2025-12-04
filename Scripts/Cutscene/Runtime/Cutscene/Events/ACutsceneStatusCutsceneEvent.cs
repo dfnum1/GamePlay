@@ -48,11 +48,11 @@ namespace Framework.Cutscene.Runtime
                 if(m_vCutscenePops.Count<=0)
                 {
                     m_vCutscenePops.Add("None");
-                    var assets = UnityEditor.AssetDatabase.FindAssets("t:CutsceneObject");
+                    var assets = UnityEditor.AssetDatabase.FindAssets("t:ACutsceneObject");
                     for (int i = 0; i < assets.Length; ++i)
                     {
                         var path = UnityEditor.AssetDatabase.GUIDToAssetPath(assets[i]);
-                        var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<CutsceneObject>(path);
+                        var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<ACutsceneObject>(path);
                         if (asset != null)
                         {
                             var name = asset.name;

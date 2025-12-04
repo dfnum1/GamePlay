@@ -20,7 +20,7 @@ namespace Framework.Cutscene.Editor
             public Dictionary<string, object> vDatas = new Dictionary<string, object>();
         }
         static Dictionary<object, Lock> ms_vLocks = new Dictionary<object, Lock>();
-        public static void BackupCamera(this Camera camera, bool bReBackup = false)
+        public static void BackupCamera(Camera camera, bool bReBackup = false)
         {
             if (camera == null)
                 return;
@@ -44,7 +44,7 @@ namespace Framework.Cutscene.Editor
             locks.vDatas["fov"] = camera.fieldOfView;
         }
         //-----------------------------------------------------
-        public static void RestoreCamera(this Camera camera)
+        public static void RestoreCamera(Camera camera)
         {
             if (camera == null)
                 return;
@@ -74,7 +74,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void RestoreGameObject(this GameObject pGo)
+        public static void RestoreGameObject(GameObject pGo)
         {
             if (pGo == null)
                 return;
@@ -108,7 +108,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void BackupGameObject(this GameObject pGo, bool bReBackup = false)
+        public static void BackupGameObject(GameObject pGo, bool bReBackup = false)
         {
             if (pGo == null)
                 return;
@@ -132,7 +132,7 @@ namespace Framework.Cutscene.Editor
             locks.vDatas["active"] = pGo.activeSelf;
         }
         //-----------------------------------------------------
-        public static void Restore(this Material pGo, bool bReBackup = false)
+        public static void Restore(Material pGo, bool bReBackup = false)
         {
             if (pGo == null)
                 return;
@@ -172,7 +172,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void Backup(this Material pGo, bool bReBackup = false)
+        public static void Backup(Material pGo, bool bReBackup = false)
         {
             if (pGo == null)
                 return;
@@ -217,7 +217,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void BackupTransform(this Transform transform, bool bReBackup = false)
+        public static void BackupTransform(Transform transform, bool bReBackup = false)
         {
             if (transform == null)
                 return;
@@ -241,7 +241,7 @@ namespace Framework.Cutscene.Editor
             locks.vDatas["scale"] = transform.localScale;
         }
         //-----------------------------------------------------
-        public static void RestoreTransform(this Transform transform)
+        public static void RestoreTransform(Transform transform)
         {
             if (transform == null)
                 return;
@@ -271,7 +271,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void Backup(this ICutsceneObject transform, bool bReBackup = false)
+        public static void Backup(ICutsceneObject transform, bool bReBackup = false)
         {
             if (transform == null)
                 return;
@@ -297,7 +297,7 @@ namespace Framework.Cutscene.Editor
             if (transform.GetParamScale(ref temp)) locks.vDatas["scale"] = temp;
         }
         //-----------------------------------------------------
-        public static void Restore(this ICutsceneObject transform)
+        public static void Restore(ICutsceneObject transform)
         {
             if (transform == null)
                 return;
@@ -357,7 +357,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //-----------------------------------------------------
-        public static void RestoreObject(this System.Object pObj)
+        public static void RestoreObject(System.Object pObj)
         {
             if (pObj == null)
                 return;

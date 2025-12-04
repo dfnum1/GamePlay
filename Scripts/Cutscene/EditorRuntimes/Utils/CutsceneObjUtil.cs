@@ -27,9 +27,9 @@ namespace Framework.Cutscene.Editor
         public static bool OnOpenAsset(int instanceID, int line)
         {
             var obj = EditorUtility.InstanceIDToObject(instanceID);
-            if (obj != null && obj is Framework.Cutscene.Runtime.CutsceneObject)
+            if (obj != null && obj is Framework.Cutscene.Runtime.ACutsceneObject)
             {
-                Framework.Cutscene.Editor.CutsceneEditor.Open(obj as Framework.Cutscene.Runtime.CutsceneObject);
+                Framework.Cutscene.Editor.CutsceneEditor.Open(obj as Framework.Cutscene.Runtime.ACutsceneObject);
                 return true;
             }
             return false;
@@ -147,6 +147,7 @@ namespace Framework.Cutscene.Editor
         static string ms_installPath = "";
         public static string BuildInstallPath()
         {
+            ms_installPath = Framework.ED.EditorUtils.GetInstallEditorResourcePath();
             if (string.IsNullOrEmpty(ms_installPath))
             {
                 var scripts = UnityEditor.AssetDatabase.FindAssets("t:Script CutsceneEditor");
@@ -172,7 +173,7 @@ namespace Framework.Cutscene.Editor
 
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
 
-            s_CustomIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(BuildInstallPath(), "Cutscene.png"));
+            s_CustomIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(BuildInstallPath(), "Cutscene/Cutscene.png"));
         }
         //-----------------------------------------------------
         static void OnProjectWindowItemGUI(string guid, Rect selectionRect)
@@ -180,7 +181,7 @@ namespace Framework.Cutscene.Editor
             if (s_CustomIcon == null) return;
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-            if (obj is CutsceneObject)
+            if (obj is ACutsceneObject)
             {
                 //      Rect iconRect = new Rect(selectionRect.x + 2, selectionRect.y + 2, 16, 16);
                 //       GUI.DrawTexture(iconRect, s_CustomIcon, ScaleMode.ScaleToFit);

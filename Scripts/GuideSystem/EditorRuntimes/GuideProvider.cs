@@ -14,10 +14,10 @@ namespace Framework.Guide.Editor
         static string ms_LastMd5 = null;
         public static void InitData()
         {
-            string[] guideDatas = AssetDatabase.FindAssets("t:GuideDatas");
+            string[] guideDatas = AssetDatabase.FindAssets("t:AGuideDatas");
             if (guideDatas != null && guideDatas.Length > 0)
             {
-                var guideCsv = AssetDatabase.LoadAssetAtPath<GuideDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
+                var guideCsv = AssetDatabase.LoadAssetAtPath<AGuideDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
                 if(guideCsv!=null)
                 {
                     guideCsv.Init();

@@ -61,7 +61,7 @@ namespace Framework.AT.Editor
                 // 创建最终的节点
                 string displayName = pathParts[^1];
                 var entry = item.iconAttr != null
-                    ? new SearchTreeEntry(new GUIContent(displayName, AgentTreeUtil.LoadIcon(item.iconAttr.name), item.tips))
+                    ? new SearchTreeEntry(new GUIContent(displayName, AgentTreeUtil.LoadIcon("AT/"+item.iconAttr.name), item.tips))
                     : new SearchTreeEntry(new GUIContent(displayName, item.tips));
                 entry.level = level;
                 entry.userData = item;

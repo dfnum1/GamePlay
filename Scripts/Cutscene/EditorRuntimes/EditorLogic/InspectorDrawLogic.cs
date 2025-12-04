@@ -98,7 +98,7 @@ namespace Framework.Cutscene.Editor
                 int cutBinder = m_pSelectGroup.binderId;
                 var obj = ObjectBinderUtils.GetBinder(m_pSelectGroup.binderId).GetBinder();
                 EditorGUI.BeginChangeCheck();
-                obj = (CutsceneObjectBinder)EditorGUILayout.ObjectField("组绑定对象", obj, typeof(CutsceneObjectBinder), true);
+                obj = (ACutsceneObjectBinder)EditorGUILayout.ObjectField("组绑定对象", obj, typeof(ACutsceneObjectBinder), true);
                 bool changed = EditorGUI.EndChangeCheck();
                 if (obj != null)
                 {

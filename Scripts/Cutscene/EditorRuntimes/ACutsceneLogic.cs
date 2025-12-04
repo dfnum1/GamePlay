@@ -97,9 +97,9 @@ namespace Framework.Cutscene.Editor
         {
             var pObj = GetOwner().GetCurrentObj();
             if (pObj == null) return null;
-            if(pObj is CutsceneObject)
+            if(pObj is ACutsceneObject)
             {
-                return ((CutsceneObject)pObj).GetCutsceneGraph();
+                return ((ACutsceneObject)pObj).GetCutsceneGraph();
             }
             else if (pObj is CutsceneGraph)
             {

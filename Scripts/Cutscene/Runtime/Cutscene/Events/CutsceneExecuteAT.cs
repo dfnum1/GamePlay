@@ -57,9 +57,9 @@
 //                {
 //                    var provider = ScriptableObject.CreateInstance<Editor.AgentTreeInputPortSearchProvider>();
 //                 //   provider.SetFilterType(typeof(EnterTask), typeof(CutsceneEvent));
-//                    if (baseProp.ownerObject != null && baseProp.ownerObject is CutsceneObject)
+//                    if (baseProp.ownerObject != null && baseProp.ownerObject is ACutsceneObject)
 //                    {
-//                        CutsceneObject cutsceneObject = baseProp.ownerObject as CutsceneObject;
+//                        ACutsceneObject cutsceneObject = baseProp.ownerObject as ACutsceneObject;
 //                //        provider.SetAgentTreeData(cutsceneObject.GetCutsceneGraph().agentTree);
 //                    }
 //                    provider.onSelect = (node, attri, index) =>
@@ -77,9 +77,9 @@
 //        {
 //            if (fieldInfo.Name == "paramPorts")
 //            {
-//                if (baseProp.ownerObject != null && baseProp.ownerObject is CutsceneObject)
+//                if (baseProp.ownerObject != null && baseProp.ownerObject is ACutsceneObject)
 //                {
-//                    CutsceneObject cutsceneObject = baseProp.ownerObject as CutsceneObject;
+//                    ACutsceneObject cutsceneObject = baseProp.ownerObject as ACutsceneObject;
 //                    var node = cutsceneObject.GetCutsceneGraph().agentTree.GetNode(nodeGuid);
 //                    if (node != null)
 //                    {
@@ -144,7 +144,7 @@
 //                                        int.TryParse(port.value, out var binderId);
 //                                        var binders = ObjectBinderUtils.GetBinder(binderId);
 //                                        var obj = binders.GetBinder();
-//                                        obj = (CutsceneObjectBinder)UnityEditor.EditorGUILayout.ObjectField("", obj, typeof(CutsceneObjectBinder), true, GUILayout.Width(100));
+//                                        obj = (ACutsceneObjectBinder)UnityEditor.EditorGUILayout.ObjectField("", obj, typeof(ACutsceneObjectBinder), true, GUILayout.Width(100));
 //                                        if (obj != null)
 //                                        {
 //                                            binderId = obj.GetBindID();

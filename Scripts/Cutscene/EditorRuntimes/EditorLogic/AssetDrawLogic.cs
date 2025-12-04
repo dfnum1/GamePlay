@@ -17,7 +17,7 @@ namespace Framework.Cutscene.Editor
     public class AssetDrawLogic : ACutsceneLogic
     {
         string m_AddNewName = "";
-        CutsceneObject m_pCurrent = null;
+        ACutsceneObject m_pCurrent = null;
         CutsceneGraph m_pCurrentGraph = null;
         Vector2 m_ScrollPosition = Vector2.zero;
         Vector2 m_DebugScrollPosition = Vector2.zero;
@@ -25,7 +25,7 @@ namespace Framework.Cutscene.Editor
         string m_strSearchDebug = "";
         // TreeAssetView m_pAssetTree;
         //--------------------------------------------------------
-        public CutsceneObject GetCurrent()
+        public ACutsceneObject GetCurrent()
         {
             return m_pCurrent;
         }
@@ -34,7 +34,7 @@ namespace Framework.Cutscene.Editor
         {
 //             m_pAssetTree = new TreeAssetView(new string[] { "ID", "Cutscene" });
 //             m_pAssetTree.BeginTreeData();
-//             string[] cutscenes = AssetDatabase.FindAssets("t:CutsceneObject");
+//             string[] cutscenes = AssetDatabase.FindAssets("t:ACutsceneObject");
 //             for(int i =0; i < cutscenes.Length; ++i)
 //             {
 //                 string path = AssetDatabase.GUIDToAssetPath(cutscenes[i]);
@@ -47,9 +47,9 @@ namespace Framework.Cutscene.Editor
         public override void OnChangeSelect(object pData)
         {
             base.OnChangeSelect(pData);
-            if (pData is CutsceneObject)
+            if (pData is ACutsceneObject)
             {
-                m_pCurrent = pData as CutsceneObject;
+                m_pCurrent = pData as ACutsceneObject;
                 if (m_pCurrent != null) m_pCurrentGraph = m_pCurrent.GetCutsceneGraph();
                 if (m_pCurrentGraph != null && m_pCurrentGraph.GetEnterCutscene() != null)
                 {

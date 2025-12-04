@@ -14,7 +14,7 @@ namespace Framework.Guide
     public struct CallbackParam
     {
         /// <summary>
-        /// 点击的UI控件上面挂载的 GuideGuid 组件上的 guid
+        /// 点击的UI控件上面挂载的 AGuideGuid 组件上的 guid
         /// </summary>
         public int widgetGuid;
         public string widgetTag;

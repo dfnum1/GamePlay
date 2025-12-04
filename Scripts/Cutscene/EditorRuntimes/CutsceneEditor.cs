@@ -63,7 +63,7 @@ namespace Framework.Cutscene.Editor
             window.titleContent = new GUIContent("过场编辑器");
         }
         //--------------------------------------------------------
-        public static void Open(CutsceneObject pObject)
+        public static void Open(ACutsceneObject pObject)
         {
             pObject.GetCutsceneGraph(true);
             CutsceneEditor[] editors = EditorWindow.FindObjectsOfType<CutsceneEditor>();
@@ -131,10 +131,10 @@ namespace Framework.Cutscene.Editor
                 return;
             }
 
-            if (!m_bRuntimeOpenPlayingCutscene && m_pCurrentObj != null && m_pCurrentObj is CutsceneObject)
+            if (!m_bRuntimeOpenPlayingCutscene && m_pCurrentObj != null && m_pCurrentObj is ACutsceneObject)
             {
                 string jsonData = null;
-                CutsceneObject obj = (CutsceneObject)m_pCurrentObj;
+                ACutsceneObject obj = (ACutsceneObject)m_pCurrentObj;
                 var graph = obj.GetCutsceneGraph();
                 if (graph != null)
                 {
@@ -222,10 +222,10 @@ namespace Framework.Cutscene.Editor
         //--------------------------------------------------------
         public override void OpenAgentTreeEdit()
         {
-            if (m_pAgentTreeEdit == null || m_pCurrentObj !=null && m_pCurrentObj is CutsceneObject)
+            if (m_pAgentTreeEdit == null || m_pCurrentObj !=null && m_pCurrentObj is ACutsceneObject)
             {
                 //??????
-         //       m_pAgentTreeEdit = AgentTreeWindow.Open(m_pCutscene, (CutsceneObject)m_pCurrentObj);
+         //       m_pAgentTreeEdit = AgentTreeWindow.Open(m_pCutscene, (ACutsceneObject)m_pCurrentObj);
             }
             if (m_pAgentTreeEdit) m_pAgentTreeEdit.Focus();
         }
@@ -260,10 +260,10 @@ namespace Framework.Cutscene.Editor
         {
             if(m_pCurrentObj != pObject)
             {
-                if(m_pCurrentObj!=null && m_pCurrentObj is CutsceneObject)
+                if(m_pCurrentObj!=null && m_pCurrentObj is ACutsceneObject)
                 {
                     string jsonData = null;
-                    CutsceneObject obj = (CutsceneObject)m_pCurrentObj;
+                    ACutsceneObject obj = (ACutsceneObject)m_pCurrentObj;
                     var graph = obj.GetCutsceneGraph();
                     if (graph != null)
                     {
@@ -283,9 +283,9 @@ namespace Framework.Cutscene.Editor
                 m_pAgentTreeEdit.OnChangeSelect(pObject);
 
             m_lastContentMd5 = null;
-            if (m_pCurrentObj != null && m_pCurrentObj is CutsceneObject)
+            if (m_pCurrentObj != null && m_pCurrentObj is ACutsceneObject)
             {
-                CutsceneObject obj = (CutsceneObject)m_pCurrentObj;
+                ACutsceneObject obj = (ACutsceneObject)m_pCurrentObj;
                 var graph = obj.GetCutsceneGraph();
                 if (graph != null)
                 {
@@ -301,9 +301,9 @@ namespace Framework.Cutscene.Editor
             base.SaveChanges();
             if (m_pAgentTreeEdit != null) m_pAgentTreeEdit.SaveChanges();
             m_lastContentMd5 = null;
-            if (m_pCurrentObj != null && m_pCurrentObj is CutsceneObject)
+            if (m_pCurrentObj != null && m_pCurrentObj is ACutsceneObject)
             {
-                CutsceneObject obj = (CutsceneObject)m_pCurrentObj;
+                ACutsceneObject obj = (ACutsceneObject)m_pCurrentObj;
                 var graph = obj.GetCutsceneGraph();
                 if (graph != null)
                 {

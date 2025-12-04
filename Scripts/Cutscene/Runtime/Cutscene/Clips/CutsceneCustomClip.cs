@@ -143,7 +143,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
 #if UNITY_EDITOR
         //-----------------------------------------------------
-        internal void InitCustomAgent(CutsceneCustomAgent.AgentUnit pAgent)
+        internal void InitCustomAgent(ACutsceneCustomAgent.AgentUnit pAgent)
         {
             baseProp.name = pAgent.name;
             customType = pAgent.customType;

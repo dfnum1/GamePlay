@@ -690,7 +690,7 @@ namespace Framework.Cutscene.Editor
         //--------------------------------------------------------
         bool GetLayerViewStateChanged(Rect rect, TimelineDrawLogic state)
         {
-            var layerStateHash = rect.GetHashCode().CombineHash(state.viewStateHash);
+            var layerStateHash = EditorUtil.CombineHash(rect.GetHashCode(),state.viewStateHash);
             var layerViewStateHasChanged = layerStateHash != m_PreviousLayerStateHash;
 
             if (Event.current.type == EventType.Layout && layerViewStateHasChanged)

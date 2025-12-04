@@ -45,11 +45,13 @@ namespace Framework.AT.Editor
         }
         private static Texture2D LoadIcon(string icon)
         {
+            if (!icon.EndsWith(".png", System.StringComparison.OrdinalIgnoreCase))
+                icon += ".png";
             Texture2D tex = null;
             string path = AgentTreeUtil.BuildInstallPath();
             if (!string.IsNullOrEmpty(path))
             {
-                tex = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(path, icon + ".png"));
+                tex = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(path, icon));
             }
             if (tex == null)
             {
@@ -57,19 +59,19 @@ namespace Framework.AT.Editor
             }
             return tex;
         }
-        public static Texture2D dot { get { return _dot != null ? _dot : _dot = LoadIcon("xnode_dot"); } }
+        public static Texture2D dot { get { return _dot != null ? _dot : _dot = LoadIcon("Node/xnode_dot"); } }
         private static Texture2D _dot;
         public static Texture2D dotOuter 
         {
             get 
-            { return _dotOuter != null ? _dotOuter : _dotOuter = LoadIcon("xnode_dot_outer"); } 
+            { return _dotOuter != null ? _dotOuter : _dotOuter = LoadIcon("Node/xnode_dot_outer"); } 
         }
         private static Texture2D _dotOuter;
-        public static Texture2D linkOuter { get { return _linkOuter != null ? _linkOuter : _linkOuter = LoadIcon("xnode_link"); } }
+        public static Texture2D linkOuter { get { return _linkOuter != null ? _linkOuter : _linkOuter = LoadIcon("Node/xnode_link"); } }
         private static Texture2D _linkOuter;
-        public static Texture2D nodeBody { get { return _nodeBody != null ? _nodeBody : _nodeBody = LoadIcon("xnode_node"); } }
+        public static Texture2D nodeBody { get { return _nodeBody != null ? _nodeBody : _nodeBody = LoadIcon("Node/xnode_node"); } }
         private static Texture2D _nodeBody;
-        public static Texture2D nodeHighlight { get { return _nodeHighlight != null ? _nodeHighlight : _nodeHighlight = LoadIcon("xnode_node_highlight"); } }
+        public static Texture2D nodeHighlight { get { return _nodeHighlight != null ? _nodeHighlight : _nodeHighlight = LoadIcon("Node/xnode_node_highlight"); } }
         private static Texture2D _nodeHighlight;
     }
 }

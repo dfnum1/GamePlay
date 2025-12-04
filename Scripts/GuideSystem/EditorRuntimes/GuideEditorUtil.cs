@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using TagLib.Asf;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -23,7 +21,7 @@ namespace Framework.Guide.Editor
             var uiGraphic = widget.GetComponent<Graphic>();
             if (uiGraphic == null)
                 return;
-            GuideGuid guide = null;
+            AGuideGuid guide = null;
             int listIndex = -1;
             string tagPath = "";
             bool bDynamicCreate = false;
@@ -46,14 +44,14 @@ namespace Framework.Guide.Editor
 
                     var listViewField = objData.GetType().GetField("guideGuid", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
                     if (listViewField != null)
-                        guide = (GuideGuid)listViewField.GetValue(objData);
+                        guide = (AGuideGuid)listViewField.GetValue(objData);
                 }
             }
 
             if(guide == null)
             {
-                guide = widget.GetComponent<GuideGuid>();
-                if (guide == null) guide = widget.AddComponent<GuideGuid>();
+                guide = widget.GetComponent<AGuideGuid>();
+                if (guide == null) guide = widget.AddComponent<AGuideGuid>();
                 if (guide.guid == 0)
                 {
                     guide.guid = GuideGuidUtl.GeneratorGUID(guide);
@@ -64,11 +62,11 @@ namespace Framework.Guide.Editor
 
 
 
-            //   EventTriggerListener eventTrigger = widget.GetComponent<EventTriggerListener>();
-            //   if (eventTrigger == null) eventTrigger = widget.AddComponent<EventTriggerListener>();
+            //   AEventTriggerListener eventTrigger = widget.GetComponent<AEventTriggerListener>();
+            //   if (eventTrigger == null) eventTrigger = widget.AddComponent<AEventTriggerListener>();
             //   eventTrigger.SetGuideGuid(guide);
 
-            // var guidTag = GuideTag.GetTag(guide);
+            // var guidTag = AGuideTag.GetTag(guide);
             string guidTag = "";
             if(bDynamicCreate)
             {

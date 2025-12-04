@@ -23,8 +23,8 @@ namespace Framework.Cutscene.Editor
         public class AgentItem : TreeAssetView.ItemData
         {
             public ETab Tab;
-            public CutsceneCustomAgent.AgentUnit unit;
-            public AgentItem(CutsceneCustomAgent.AgentUnit unit, ETab tab)
+            public ACutsceneCustomAgent.AgentUnit unit;
+            public AgentItem(ACutsceneCustomAgent.AgentUnit unit, ETab tab)
             {
                 this.Tab = tab;
                 this.unit = unit;
@@ -54,10 +54,10 @@ namespace Framework.Cutscene.Editor
         Vector2 m_scoll = Vector2.zero;
         HashSet<uint> m_vEventTypes = new HashSet<uint>();
         HashSet<string> m_vEventNames = new HashSet<string>();
-        List<CutsceneCustomAgent.AgentUnit> m_vEvents = new List<CutsceneCustomAgent.AgentUnit>();
+        List<ACutsceneCustomAgent.AgentUnit> m_vEvents = new List<ACutsceneCustomAgent.AgentUnit>();
         HashSet<uint> m_vClipTypes = new HashSet<uint>();
         HashSet<string> m_vClipNames = new HashSet<string>();
-        List<CutsceneCustomAgent.AgentUnit> m_vClips = new List<CutsceneCustomAgent.AgentUnit>();
+        List<ACutsceneCustomAgent.AgentUnit> m_vClips = new List<ACutsceneCustomAgent.AgentUnit>();
         //--------------------------------------------------------
         static CutsceneCustomAgentEditor ms_pInstnace = null;
         public static void Open()
@@ -96,8 +96,8 @@ namespace Framework.Cutscene.Editor
             m_pClipTreeview.OnSelectChange += OnSelectChange;
             m_pEventTreeview.OnCellDraw += OnDrawItem;
             m_pClipTreeview.OnCellDraw += OnDrawItem;
-            m_vEvents = new List<CutsceneCustomAgent.AgentUnit>(CustomAgentUtil.GetEventList());
-            m_vClips = new List<CutsceneCustomAgent.AgentUnit>(CustomAgentUtil.GetClipList());
+            m_vEvents = new List<ACutsceneCustomAgent.AgentUnit>(CustomAgentUtil.GetEventList());
+            m_vClips = new List<ACutsceneCustomAgent.AgentUnit>(CustomAgentUtil.GetClipList());
             Refresh();
         }
         //--------------------------------------------------------
@@ -241,8 +241,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandInput = EditorGUILayout.Foldout(m_bExpandInput, "输入参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.inputVariables==null? new List<CutsceneCustomAgent.AgentUnit.ParamData>():new System.Collections.Generic.List<CutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.inputVariables);
-                            list.Add(new CutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt, defaultValue = "0", canEdit = true });
+                            var list = m_pSelect.unit.inputVariables==null? new List<ACutsceneCustomAgent.AgentUnit.ParamData>():new System.Collections.Generic.List<ACutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.inputVariables);
+                            list.Add(new ACutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt, defaultValue = "0", canEdit = true });
                             m_pSelect.unit.inputVariables = list.ToArray();
                             m_bExpandInput = true;
                         }
@@ -256,8 +256,8 @@ namespace Framework.Cutscene.Editor
                         m_bExpandOutput = EditorGUILayout.Foldout(m_bExpandOutput, "输出参数");
                         if (GUILayout.Button("添加", GUILayout.Width(50)))
                         {
-                            var list = m_pSelect.unit.outputVariables == null ? new List<CutsceneCustomAgent.AgentUnit.ParamData>() : new System.Collections.Generic.List<CutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.outputVariables);
-                            list.Add(new CutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt, defaultValue="0", canEdit = false });
+                            var list = m_pSelect.unit.outputVariables == null ? new List<ACutsceneCustomAgent.AgentUnit.ParamData>() : new System.Collections.Generic.List<ACutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.outputVariables);
+                            list.Add(new ACutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt, defaultValue="0", canEdit = false });
                             m_pSelect.unit.outputVariables = list.ToArray();
                             m_bExpandOutput = true;
                         }
@@ -288,8 +288,8 @@ namespace Framework.Cutscene.Editor
                     m_bExpandInput = EditorGUILayout.Foldout(m_bExpandInput, "输入参数");
                     if (GUILayout.Button("添加", GUILayout.Width(50)))
                     {
-                        var list = m_pSelect.unit.inputVariables == null ? new List<CutsceneCustomAgent.AgentUnit.ParamData>() : new System.Collections.Generic.List<CutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.inputVariables);
-                        list.Add(new CutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt });
+                        var list = m_pSelect.unit.inputVariables == null ? new List<ACutsceneCustomAgent.AgentUnit.ParamData>() : new System.Collections.Generic.List<ACutsceneCustomAgent.AgentUnit.ParamData>(m_pSelect.unit.inputVariables);
+                        list.Add(new ACutsceneCustomAgent.AgentUnit.ParamData() { name = "NewParam", type = EVariableType.eInt });
                         m_pSelect.unit.inputVariables = list.ToArray();
                         m_bExpandInput = true;
                     }
@@ -319,7 +319,7 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_strNewName) || m_vClipNames.Contains(m_strNewName));
             if (GUILayout.Button("新增Clip", new GUILayoutOption[] { GUILayout.Width(100) }))
             {
-                CutsceneCustomAgent.AgentUnit unit = new CutsceneCustomAgent.AgentUnit();
+                ACutsceneCustomAgent.AgentUnit unit = new ACutsceneCustomAgent.AgentUnit();
                 unit.name = m_strNewName;
                 unit.customType = 0; // 默认类型为0
                 m_vClips.Add(unit);
@@ -337,7 +337,7 @@ namespace Framework.Cutscene.Editor
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(m_strNewName) || m_vEventNames.Contains(m_strNewName));
             if (GUILayout.Button("新增Event", new GUILayoutOption[] { GUILayout.Width(100) }))
             {
-                CutsceneCustomAgent.AgentUnit unit = new CutsceneCustomAgent.AgentUnit();
+                ACutsceneCustomAgent.AgentUnit unit = new ACutsceneCustomAgent.AgentUnit();
                 unit.name = m_strNewName;
                 unit.customType = 0; // 默认类型为0
                 m_vEvents.Add(unit);
@@ -348,7 +348,7 @@ namespace Framework.Cutscene.Editor
             GUILayout.EndHorizontal();
         }
         //--------------------------------------------------------
-        void DrawAgentUnit(CutsceneCustomAgent.AgentUnit unit, List<CutsceneCustomAgent.AgentUnit> vList, HashSet<uint> vTypes, HashSet<string> vNames)
+        void DrawAgentUnit(ACutsceneCustomAgent.AgentUnit unit, List<ACutsceneCustomAgent.AgentUnit> vList, HashSet<uint> vTypes, HashSet<string> vNames)
         {
             string curName = unit.name;
             curName = EditorGUILayout.DelayedTextField("事件名称",unit.name);
@@ -412,7 +412,7 @@ namespace Framework.Cutscene.Editor
             }
         }
         //--------------------------------------------------------
-        CutsceneCustomAgent.AgentUnit.ParamData[] DrawAgentUnitParams(CutsceneCustomAgent.AgentUnit unit, CutsceneCustomAgent.AgentUnit.ParamData[] vParams)
+        ACutsceneCustomAgent.AgentUnit.ParamData[] DrawAgentUnitParams(ACutsceneCustomAgent.AgentUnit unit, ACutsceneCustomAgent.AgentUnit.ParamData[] vParams)
         {
             if (vParams == null)
                 return vParams;
@@ -558,7 +558,7 @@ namespace Framework.Cutscene.Editor
                 {
                     if(EditorUtility.DisplayDialog("提示", "是否删除改变量参数?","删除", "再想想"))
                     {
-                        var list = new System.Collections.Generic.List<CutsceneCustomAgent.AgentUnit.ParamData>(vParams);
+                        var list = new System.Collections.Generic.List<ACutsceneCustomAgent.AgentUnit.ParamData>(vParams);
                         list.RemoveAt(i);
                         vParams = list.ToArray();
                         EditorGUILayout.EndHorizontal();

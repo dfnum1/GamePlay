@@ -81,7 +81,7 @@ namespace Framework.Cutscene.Runtime
         public override void OnDestroy()
         {
 #if UNITY_EDITOR
-            if (IsEditorMode() && m_pMainCamera) m_pMainCamera.RestoreCamera();
+            if (IsEditorMode() && m_pMainCamera) LockUtil.RestoreCamera(m_pMainCamera);
 #endif
             m_pMainCamera = null;
             m_pTransform = null;
@@ -95,12 +95,12 @@ namespace Framework.Cutscene.Runtime
             if (m_pMainCamera)
             {
 #if UNITY_EDITOR
-                if (IsEditorMode() && !ControllerRefUtil.IsControlling(m_pMainCamera)) m_pMainCamera.RestoreCamera();
+                if (IsEditorMode() && !ControllerRefUtil.IsControlling(m_pMainCamera)) LockUtil.RestoreCamera(m_pMainCamera);
 #endif
                 m_pTransform = m_pMainCamera.transform;
                 m_CurPos = m_pTransform.position;
 #if UNITY_EDITOR
-                if (IsEditorMode()) m_pMainCamera.BackupCamera();
+                if (IsEditorMode()) LockUtil.BackupCamera(m_pMainCamera);
 #endif
             }
             return true;
@@ -116,7 +116,7 @@ namespace Framework.Cutscene.Runtime
                 }
 
 #if UNITY_EDITOR
-                if (IsEditorMode() && m_pMainCamera) m_pMainCamera.RestoreCamera();
+                if (IsEditorMode() && m_pMainCamera) LockUtil.RestoreCamera(m_pMainCamera);
 #endif
             }
             return true;

@@ -157,7 +157,8 @@ namespace Framework.Cutscene.Runtime
         }
         public bool IsHitted(System.Type type)
         {
-            if(m_inputType == null && !string.IsNullOrEmpty(m_strType))
+#if UNITY_EDITOR
+            if (m_inputType == null && !string.IsNullOrEmpty(m_strType))
             {
                 m_inputType = Framework.ED.EditorUtils.GetTypeByName(m_strType);
             }
@@ -170,6 +171,7 @@ namespace Framework.Cutscene.Runtime
             {
                 return true;
             }
+#endif
             return false;
         }
     }

@@ -16,6 +16,7 @@ namespace Framework.AT.Editor
         static string m_strInstallPath = null;
         public static Texture2D LoadTexture(string path)
         {
+            m_strInstallPath = Framework.ED.EditorUtils.GetInstallEditorResourcePath();
             if (m_strInstallPath == null)
             {
                 string[] scripts = AssetDatabase.FindAssets("t:Script AgentTreeWindow");
@@ -32,15 +33,15 @@ namespace Framework.AT.Editor
             }
             return AssetDatabase.LoadAssetAtPath<Texture2D>(System.IO.Path.Combine(m_strInstallPath ,path));
         }
-        public static Texture2D dot { get { return _dot != null ? _dot : _dot = LoadTexture("xnode_dot.png"); } }
+        public static Texture2D dot { get { return _dot != null ? _dot : _dot = LoadTexture("Node/xnode_dot.png"); } }
         private static Texture2D _dot;
-        public static Texture2D dotOuter { get { return _dotOuter != null ? _dotOuter : _dotOuter = LoadTexture("xnode_dot_outer.png"); } }
+        public static Texture2D dotOuter { get { return _dotOuter != null ? _dotOuter : _dotOuter = LoadTexture("Node/xnode_dot_outer.png"); } }
         private static Texture2D _dotOuter;
-        public static Texture2D linkOuter { get { return _linkOuter != null ? _linkOuter : _linkOuter = LoadTexture("xnode_link.png"); } }
+        public static Texture2D linkOuter { get { return _linkOuter != null ? _linkOuter : _linkOuter = LoadTexture("Node/xnode_link.png"); } }
         private static Texture2D _linkOuter;
-        public static Texture2D nodeBody { get { return _nodeBody != null ? _nodeBody : _nodeBody = LoadTexture("xnode_node.png"); } }
+        public static Texture2D nodeBody { get { return _nodeBody != null ? _nodeBody : _nodeBody = LoadTexture("Node/xnode_node.png"); } }
         private static Texture2D _nodeBody;
-        public static Texture2D nodeHighlight { get { return _nodeHighlight != null ? _nodeHighlight : _nodeHighlight = LoadTexture("xnode_node_highlight.png"); } }
+        public static Texture2D nodeHighlight { get { return _nodeHighlight != null ? _nodeHighlight : _nodeHighlight = LoadTexture("Node/xnode_node_highlight.png"); } }
         private static Texture2D _nodeHighlight;
         
         // Styles

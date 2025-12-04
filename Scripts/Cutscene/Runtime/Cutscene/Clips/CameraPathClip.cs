@@ -99,7 +99,7 @@ namespace Framework.Cutscene.Runtime
         {
 #if UNITY_EDITOR
             if (IsEditorMode() && m_pMainCamera != null)
-                m_pMainCamera.RestoreCamera();
+                LockUtil.RestoreCamera(m_pMainCamera);
 #endif
             if (m_bControlled)
             {
@@ -118,14 +118,14 @@ namespace Framework.Cutscene.Runtime
             if (m_pMainCamera)
             {
 #if UNITY_EDITOR
-                if(IsEditorMode() && !ControllerRefUtil.IsControlling(m_pMainCamera)) m_pMainCamera.RestoreCamera();
+                if(IsEditorMode() && !ControllerRefUtil.IsControlling(m_pMainCamera)) LockUtil.RestoreCamera(m_pMainCamera);
 #endif
                 m_pTransform = m_pMainCamera.transform;
                 m_OrigPos = m_pTransform.position;
                 m_OrigRot = m_pTransform.rotation;
                 m_OrigFov = m_pMainCamera.fieldOfView;
 #if UNITY_EDITOR
-                if (IsEditorMode()) m_pMainCamera.BackupCamera();
+                if (IsEditorMode()) LockUtil.BackupCamera(m_pMainCamera);
 #endif
             }
             if(!m_bControlled)
@@ -147,7 +147,7 @@ namespace Framework.Cutscene.Runtime
                     m_pMainCamera.fieldOfView = m_OrigFov;
 
 #if UNITY_EDITOR
-                    if (IsEditorMode()) m_pMainCamera.RestoreCamera();
+                    if (IsEditorMode()) LockUtil.RestoreCamera(m_pMainCamera);
 #endif
                 }
             }

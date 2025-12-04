@@ -38,7 +38,7 @@ namespace Framework.Cutscene.Editor
             public Vector2 mousePos;
             public object data;
             public object userData;
-            public CutsceneCustomAgent.AgentUnit agentUnit;
+            public ACutsceneCustomAgent.AgentUnit agentUnit;
         }
         CopyDataCache m_pStandByCopy = new CopyDataCache();
         public static float TimeRulerAreaHeight = 30;
@@ -521,8 +521,7 @@ namespace Framework.Cutscene.Editor
         //--------------------------------------------------------
         public void UpdateViewStateHash()
         {
-            viewStateHash = timeAreaTranslation.GetHashCode()
-                .CombineHash(timeAreaScale.GetHashCode());
+            viewStateHash = EditorUtil.CombineHash(timeAreaTranslation.GetHashCode(),timeAreaScale.GetHashCode());
         }
         //--------------------------------------------------------
         protected override void OnGUI()
@@ -1945,10 +1944,10 @@ namespace Framework.Cutscene.Editor
             {
                 if(changed)
                 {
-                    CutsceneObjectBinder binder = gameObj.GetComponent<CutsceneObjectBinder>();
+                    ACutsceneObjectBinder binder = gameObj.GetComponent<ACutsceneObjectBinder>();
                     if (binder == null)
                     {
-                        binder = gameObj.AddComponent<CutsceneObjectBinder>();
+                        binder = gameObj.AddComponent<ACutsceneObjectBinder>();
                     }
                     if (binder.GetBindID() == 0)
                     {

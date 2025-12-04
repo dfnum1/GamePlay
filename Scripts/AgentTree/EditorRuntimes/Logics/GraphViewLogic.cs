@@ -59,9 +59,9 @@ namespace Framework.AT.Editor
         {
             if (pAsset == null)
                 return;
-            if (pAsset is AgentTreeObject)
+            if (pAsset is AAgentTreeObject)
             {
-                AgentTreeObject graph = pAsset as AgentTreeObject;
+                AAgentTreeObject graph = pAsset as AAgentTreeObject;
                 if (graph.atData == null) graph.atData = new AgentTreeData();
                 OnRefreshData(graph.atData);
             }

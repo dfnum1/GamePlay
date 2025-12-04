@@ -18,7 +18,7 @@ namespace Framework.Guide
         static Vector3[] ms_contersArray = new Vector3[4];
         Vector3[] ms_contersArray1 = new Vector3[4];
         int m_nDefaultOrder = 0;
-        UIGuideSerialize m_Serialize = null;
+        AUIGuideSerialize m_Serialize = null;
 
 
 
@@ -50,7 +50,7 @@ namespace Framework.Guide
 
         private bool m_bTopCloneWidget = false;
         private Transform m_pGuideWidget;
-        private EventTriggerListener m_pGuideTriggerListen;
+        private AEventTriggerListener m_pGuideTriggerListen;
         private Transform m_pOriGuideWidget;
         private bool m_bListenGuideWidget = false;
         private int m_ListenGuideGuid;
@@ -93,14 +93,14 @@ namespace Framework.Guide
             get { return m_isShowingDialog; }
         }
 
-        private EventTriggerListener m_SimulationClickListener = null;
-        public EventTriggerListener SimulationClickListener
+        private AEventTriggerListener m_SimulationClickListener = null;
+        public AEventTriggerListener SimulationClickListener
         {
             get
             {
                 if (m_SimulationClickListener == null && m_Serialize && m_Serialize.SimulationClickImage)
                 {
-                    m_SimulationClickListener = m_Serialize.SimulationClickImage.GetComponent<EventTriggerListener>();
+                    m_SimulationClickListener = m_Serialize.SimulationClickImage.GetComponent<AEventTriggerListener>();
                 }
                 return m_SimulationClickListener;
             }
@@ -142,7 +142,7 @@ namespace Framework.Guide
         }
 #endif
         //-------------------------------------------
-        public void Awake(Canvas pUIRoot, Camera uiCamera, UIGuideSerialize serialzie)
+        public void Awake(Canvas pUIRoot, Camera uiCamera, AUIGuideSerialize serialzie)
         {
             m_Serialize = serialzie;
             m_pRootUICanvas = pUIRoot;
@@ -216,7 +216,7 @@ namespace Framework.Guide
                 m_Serialize.BgMask.SetShapeScale(Vector2.one);
                 m_Serialize.BgMask.EnablePenetrate(false, 0);
                 m_Serialize.BgMask.SetTarget(null);
-                m_Serialize.BgMask.SetShape(GuideHighlightMask.EShape.None);
+                m_Serialize.BgMask.SetShape(AGuideHighlightMask.EShape.None);
                 m_Serialize.BgMask.SetClick(true);
                 m_Serialize.BgMask.SetMaskZoomPenetrate(Vector3.zero, 0, false);
                 m_Serialize.BgMask.gameObject.SetActive(false);
@@ -350,7 +350,7 @@ namespace Framework.Guide
             }
         }
         //------------------------------------------------------
-        public GuideHighlightMask BgHighlightMask
+        public AGuideHighlightMask BgHighlightMask
         {
             get
             {
@@ -526,14 +526,14 @@ namespace Framework.Guide
             bool isFollowGuid = false;
             if (m_nTipsDockWidgetGUID>0)
             {
-                GuideGuid guide = GuideGuidUtl.FindGuide(m_nTipsDockWidgetGUID, m_nTipsDockWidgetTag);
+                AGuideGuid guide = GuideGuidUtl.FindGuide(m_nTipsDockWidgetGUID, m_nTipsDockWidgetTag);
                 if (guide == null) return;
                 if (m_nTipsDockListIndex > 0)
                 {
                     m_pTipDockWidget = GetListIndexTransform(guide, m_nTipsDockListIndex - 1);
                     if (!string.IsNullOrWhiteSpace(m_TipsSearchListenName))//如果有输入控件名字,就查找控件名字
                     {
-                        var listeners = m_pTipDockWidget.GetComponentsInChildren<EventTriggerListener>();
+                        var listeners = m_pTipDockWidget.GetComponentsInChildren<AEventTriggerListener>();
                         foreach (var item in listeners)
                         {
                             if (item.name.Equals(m_TipsSearchListenName))
@@ -838,7 +838,7 @@ namespace Framework.Guide
         {
             if (m_Serialize && m_Serialize.BgMask)
             {
-                m_Serialize.BgMask.SetShape((GuideHighlightMask.EShape)type);
+                m_Serialize.BgMask.SetShape((AGuideHighlightMask.EShape)type);
             }
         }
         //-------------------------------------------
@@ -1172,7 +1172,7 @@ namespace Framework.Guide
                 return;
             m_nListenLastFrame = Time.frameCount;
 
-            GuideGuid widget = GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag);
+            AGuideGuid widget = GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag);
             if (widget && IsCheckInViewAdnCanHit(widget.transform, m_bRayTest))
             {
                 if (m_bMaskSelfWidget) SetMaskActive(true);
@@ -1200,7 +1200,7 @@ namespace Framework.Guide
                         else
                         {
                             //兼容旧得查找子物体
-                            var listeners = m_pOriGuideWidget.GetComponentsInChildren<EventTriggerListener>();
+                            var listeners = m_pOriGuideWidget.GetComponentsInChildren<AEventTriggerListener>();
                             foreach (var item in listeners)
                             {
                                 if (item.name.Equals(m_SearchListenName))
@@ -1228,9 +1228,9 @@ namespace Framework.Guide
                     {
                         GameObject pClone = GameObject.Instantiate(m_pOriGuideWidget.gameObject, m_Serialize.TargetContainer, true);
                         m_pGuideWidget = pClone.transform;
-                        m_pGuideTriggerListen = pClone.GetComponentInChildren<EventTriggerListener>();
-                        pClone.AddComponent<UITouchIngore>();
-                         GuideGuid guide = pClone.GetComponent<GuideGuid>();
+                        m_pGuideTriggerListen = pClone.GetComponentInChildren<AEventTriggerListener>();
+                        pClone.AddComponent<AUITouchIngore>();
+                         AGuideGuid guide = pClone.GetComponent<AGuideGuid>();
                         if(guide) GameObject.DestroyImmediate(guide);
                      //   m_pOriGuideWidget.gameObject.SetActive(false);
                         GuideGuidUtl.OnAdd(widget);
@@ -1272,13 +1272,13 @@ namespace Framework.Guide
             ListenWidget();
             if (m_Serialize && m_Serialize.BgMask)
             {
-                m_Serialize.BgMask.SetShape(GuideHighlightMask.EShape.Box);
+                m_Serialize.BgMask.SetShape(AGuideHighlightMask.EShape.Box);
                 m_Serialize.BgMask.SetTarget(m_pGuideWidget as RectTransform);
                 m_Serialize.BgMask.SetClick(click);
             }
         }
         //-------------------------------------------
-        public Transform GetListIndexTransform(GuideGuid guide,int index)
+        public Transform GetListIndexTransform(AGuideGuid guide,int index)
         {
             if (guide == null || index < 0)
             {
@@ -1315,7 +1315,7 @@ namespace Framework.Guide
             {
                 return;
             }
-            GuideGuid guide = null;
+            AGuideGuid guide = null;
             if (widgetID > 0)
             {
                 guide = GuideGuidUtl.FindGuide(widgetID, widgetTag);
@@ -1556,7 +1556,7 @@ namespace Framework.Guide
             if (m_Serialize.SkipBtn)
             {
                 m_Serialize.SkipBtn.gameObject.SetActive(true);
-                EventTriggerListener.Get(m_Serialize.SkipBtn.gameObject).onClick = (go,param) => {
+                AEventTriggerListener.Get(m_Serialize.SkipBtn.gameObject).onClick = (go,param) => {
                     OnStuckSkipGuide(pNode);
                 };
             }
@@ -1568,7 +1568,7 @@ namespace Framework.Guide
                 m_Serialize.BgMask.EnablePenetrate(enable, targetGuid,-1, targetTag,true);
         }
         //-------------------------------------------
-        public void SetGridBoxMgrScrollToIndex(GuideGuid guide, int index)
+        public void SetGridBoxMgrScrollToIndex(AGuideGuid guide, int index)
         {
             if (guide == null || index < 0)
             {
@@ -1597,7 +1597,7 @@ namespace Framework.Guide
             }
         }
         //------------------------------------------------------
-        void SetSimulationClickImageEventTriggerListenerGuid(GuideGuid guid)
+        void SetSimulationClickImageEventTriggerListenerGuid(AGuideGuid guid)
         {
             if (SimulationClickListener)
             {

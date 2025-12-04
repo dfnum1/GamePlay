@@ -15,26 +15,26 @@ namespace Framework.Guide.Editor
 {
     public class CustomAgentUtil
     {
-        private static Dictionary<uint, GuideCustomAgent.AgentUnit> ms_vAgents = null;
-        private static List<GuideCustomAgent.AgentUnit> ms_vTriggerLists = null;
-        private static List<GuideCustomAgent.AgentUnit> ms_vStepLists = null;
-        private static List<GuideCustomAgent.AgentUnit> ms_vExecuteLists = null;
-        private static GuideCustomAgent ms_Agent;
+        private static Dictionary<uint, AGuideCustomAgent.AgentUnit> ms_vAgents = null;
+        private static List<AGuideCustomAgent.AgentUnit> ms_vTriggerLists = null;
+        private static List<AGuideCustomAgent.AgentUnit> ms_vStepLists = null;
+        private static List<AGuideCustomAgent.AgentUnit> ms_vExecuteLists = null;
+        private static AGuideCustomAgent ms_Agent;
         public static void Init(bool bForce = false)
         {
             if(!bForce && ms_Agent!=null)
             {
                 return;
             }
-            ms_vAgents = new Dictionary<uint, GuideCustomAgent.AgentUnit>();
-            ms_vTriggerLists = new List<GuideCustomAgent.AgentUnit>();
-            ms_vStepLists = new List<GuideCustomAgent.AgentUnit>();
-            ms_vExecuteLists = new List<GuideCustomAgent.AgentUnit>();
-            string[] cutscenes = AssetDatabase.FindAssets("t:GuideCustomAgent");
+            ms_vAgents = new Dictionary<uint, AGuideCustomAgent.AgentUnit>();
+            ms_vTriggerLists = new List<AGuideCustomAgent.AgentUnit>();
+            ms_vStepLists = new List<AGuideCustomAgent.AgentUnit>();
+            ms_vExecuteLists = new List<AGuideCustomAgent.AgentUnit>();
+            string[] cutscenes = AssetDatabase.FindAssets("t:AGuideCustomAgent");
             for (int i = 0; i < cutscenes.Length; ++i)
             {
                 string path = AssetDatabase.GUIDToAssetPath(cutscenes[i]);
-                GuideCustomAgent agents = AssetDatabase.LoadAssetAtPath<GuideCustomAgent>(path);
+                AGuideCustomAgent agents = AssetDatabase.LoadAssetAtPath<AGuideCustomAgent>(path);
                 if (agents == null)
                     continue;
                 if(agents.vTriggerAgents != null)
@@ -248,7 +248,7 @@ namespace Framework.Guide.Editor
             }
         }
         //-----------------------------------------------------
-        static GuideSystemEditor.NodeAttr BuildNodeAttr(GuideCustomAgent.AgentUnit unit, string exprotName, bool bPreviewEditor = false)
+        static GuideSystemEditor.NodeAttr BuildNodeAttr(AGuideCustomAgent.AgentUnit unit, string exprotName, bool bPreviewEditor = false)
         {
             GuideSystemEditor.NodeAttr node = new GuideSystemEditor.NodeAttr();
             node.type = (int)unit.customType;
@@ -298,12 +298,12 @@ namespace Framework.Guide.Editor
             return node;
         }
         //-----------------------------------------------------
-        internal static void RefreshData(List<GuideCustomAgent.AgentUnit> vTrigger, List<GuideCustomAgent.AgentUnit> vSteps, List<GuideCustomAgent.AgentUnit> vExecutes)
+        internal static void RefreshData(List<AGuideCustomAgent.AgentUnit> vTrigger, List<AGuideCustomAgent.AgentUnit> vSteps, List<AGuideCustomAgent.AgentUnit> vExecutes)
         {
-            ms_vAgents = new Dictionary<uint, GuideCustomAgent.AgentUnit>();
-            ms_vTriggerLists = new List<GuideCustomAgent.AgentUnit>();
-            ms_vStepLists = new List<GuideCustomAgent.AgentUnit>();
-            ms_vExecuteLists = new List<GuideCustomAgent.AgentUnit>();
+            ms_vAgents = new Dictionary<uint, AGuideCustomAgent.AgentUnit>();
+            ms_vTriggerLists = new List<AGuideCustomAgent.AgentUnit>();
+            ms_vStepLists = new List<AGuideCustomAgent.AgentUnit>();
+            ms_vExecuteLists = new List<AGuideCustomAgent.AgentUnit>();
             if (vTrigger != null)
             {
                 foreach (var item in vTrigger)
@@ -354,14 +354,14 @@ namespace Framework.Guide.Editor
             }
             if (ms_Agent == null)
             {
-                string[] guids = AssetDatabase.FindAssets("t:GuideCustomAgent");
+                string[] guids = AssetDatabase.FindAssets("t:AGuideCustomAgent");
                 if(guids.Length>0)
                 {
-                    ms_Agent = AssetDatabase.LoadAssetAtPath<GuideCustomAgent>(AssetDatabase.GUIDToAssetPath(guids[0]));
+                    ms_Agent = AssetDatabase.LoadAssetAtPath<AGuideCustomAgent>(AssetDatabase.GUIDToAssetPath(guids[0]));
                 }
                 if(ms_Agent==null)
                 {
-                    GuideCustomAgent customAgents = ScriptableObject.CreateInstance<GuideCustomAgent>();
+                    AGuideCustomAgent customAgents = Framework.ED.EditorUtils.CreateUnityScriptObject<AGuideCustomAgent>();
                     string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "GuideCustomAgent", "asset");
                     saveFile = saveFile.Replace("\\", "/");
                     if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))
@@ -370,7 +370,7 @@ namespace Framework.Guide.Editor
                         if (saveFile.StartsWith("/")) saveFile = saveFile.Substring(1);
                         AssetDatabase.CreateAsset(customAgents, saveFile);
                         AssetDatabase.SaveAssets();
-                        ms_Agent = AssetDatabase.LoadAssetAtPath<GuideCustomAgent>(saveFile);
+                        ms_Agent = AssetDatabase.LoadAssetAtPath<AGuideCustomAgent>(saveFile);
                     }
                 }
             }
@@ -385,7 +385,7 @@ namespace Framework.Guide.Editor
             RefreshEditorData();
         }
         //-----------------------------------------------------
-        public static void AddTrigger(GuideCustomAgent.AgentUnit unit)
+        public static void AddTrigger(AGuideCustomAgent.AgentUnit unit)
         {
             Init();
             if (ms_vAgents.ContainsKey(unit.customType) || HasTrigger(unit.name))
@@ -427,7 +427,7 @@ namespace Framework.Guide.Editor
             }
         }
         //-----------------------------------------------------
-        public static void AddStep(GuideCustomAgent.AgentUnit unit)
+        public static void AddStep(AGuideCustomAgent.AgentUnit unit)
         {
             Init();
             if (ms_vAgents.ContainsKey(unit.customType) || HasStep(unit.name))
@@ -469,7 +469,7 @@ namespace Framework.Guide.Editor
             }
         }
         //-----------------------------------------------------
-        public static void AddExecute(GuideCustomAgent.AgentUnit unit)
+        public static void AddExecute(AGuideCustomAgent.AgentUnit unit)
         {
             Init();
             if (ms_vAgents.ContainsKey(unit.customType) || HasExecute(unit.name))
@@ -550,29 +550,29 @@ namespace Framework.Guide.Editor
             return false;
         }
         //-----------------------------------------------------
-        public static GuideCustomAgent.AgentUnit GetAgent(uint customType)
+        public static AGuideCustomAgent.AgentUnit GetAgent(uint customType)
         {
             Init();
-            if (ms_vAgents.TryGetValue(customType, out GuideCustomAgent.AgentUnit unit))
+            if (ms_vAgents.TryGetValue(customType, out AGuideCustomAgent.AgentUnit unit))
             {
                 return unit;
             }
             return default;
         }
         //-----------------------------------------------------
-        public static List<GuideCustomAgent.AgentUnit> GetTriggerList()
+        public static List<AGuideCustomAgent.AgentUnit> GetTriggerList()
         {
             Init();
             return ms_vTriggerLists;
         }
         //-----------------------------------------------------
-        public static List<GuideCustomAgent.AgentUnit> GetStepList()
+        public static List<AGuideCustomAgent.AgentUnit> GetStepList()
         {
             Init();
             return ms_vStepLists;
         }
         //-----------------------------------------------------
-        public static List<GuideCustomAgent.AgentUnit> GetExecuteList()
+        public static List<AGuideCustomAgent.AgentUnit> GetExecuteList()
         {
             Init();
             return ms_vExecuteLists;

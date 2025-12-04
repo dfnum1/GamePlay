@@ -109,7 +109,7 @@ namespace Framework.ActorSystem.Runtime
             if (actorAble == null)
                 return;
 
-            ActorComponent actorComp = actorAble as ActorComponent;
+            AActorComponent actorComp = actorAble as AActorComponent;
             if (actorComp == null)
                 return;
 

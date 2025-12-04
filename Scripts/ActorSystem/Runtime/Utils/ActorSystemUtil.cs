@@ -45,7 +45,7 @@ namespace Framework.ActorSystem.Runtime
 #endif
         }
         //-----------------------------------------------------
-        internal static void RefreshProjectileDatas(ProjectileDatas projectiles)
+        internal static void RefreshProjectileDatas(AProjectileDatas projectiles)
         {
 #if UNITY_EDITOR
             if (ms_vActorManager == null) return;

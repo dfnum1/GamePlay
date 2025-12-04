@@ -8,7 +8,6 @@
 using Framework.ActorSystem.Runtime;
 using Framework.Cutscene.Editor;
 using Framework.ED;
-using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -48,7 +47,7 @@ namespace Framework.ActorSystem.Editor
 
         GameObject m_pActorPrefab = null;
         Actor m_pActor = null;
-        ActorComponent m_pActorComp = null;
+        AActorComponent m_pActorComp = null;
         Vector2 m_CommonActionList = Vector2.zero;
         Vector2 m_TimelineActionList = Vector2.zero;
         Dictionary<int, bool> m_vCommonActionExpand = new Dictionary<int, bool>();
@@ -92,7 +91,7 @@ namespace Framework.ActorSystem.Editor
 
             m_pActor = pActor;
             m_pActor.GetAgent<ActorGraphicAgent>(true);
-            m_pActorComp = m_pActor.GetComponent<ActorComponent>();
+            m_pActorComp = m_pActor.GetComponent<AActorComponent>();
             if(m_pActorComp.GetBindPrefab()) m_pActorPrefab = m_pActorComp.GetBindPrefab();
 
             RefreshTimelineAction();
@@ -178,7 +177,7 @@ namespace Framework.ActorSystem.Editor
                         {
                             if (EditorUtility.DisplayDialog("提示", "确定删除该绑点吗？", "删除", "取消"))
                             {
-                                List<ActorComponent.Slot> vSlots = new List<ActorComponent.Slot>(m_pActorComp.slots);
+                                List<AActorComponent.Slot> vSlots = new List<AActorComponent.Slot>(m_pActorComp.slots);
                                 vSlots.RemoveAt(i);
                                 m_pActorComp.slots = vSlots.ToArray();
                                 EditorGUILayout.EndHorizontal();
@@ -213,9 +212,9 @@ namespace Framework.ActorSystem.Editor
             }
             if (GUILayout.Button("新增", GUILayout.Width(view.width)))
             {
-                List<ActorComponent.Slot> vSlots = new List<ActorComponent.Slot>();
+                List<AActorComponent.Slot> vSlots = new List<AActorComponent.Slot>();
                 if (m_pActorComp.slots != null) vSlots.AddRange(m_pActorComp.slots);
-                vSlots.Add(new ActorComponent.Slot()
+                vSlots.Add(new AActorComponent.Slot()
                 {
                 });
                 m_pActorComp.slots = vSlots.ToArray();
@@ -491,21 +490,21 @@ namespace Framework.ActorSystem.Editor
             if (m_pActorPrefab == null)
                 return;
 
-            var actorComp = able as ActorComponent;
+            var actorComp = able as AActorComponent;
             if (actorComp == null)
                 return;
 
-            var component = m_pActorPrefab.GetComponent<ActorComponent>();
+            var component = m_pActorPrefab.GetComponent<AActorComponent>();
             if (component == null)
-                component = m_pActorPrefab.AddComponent<ActorComponent>();
+                component = m_pActorPrefab.AddComponent<AActorComponent>();
             component.avatarMasks = actorComp.avatarMasks;
             component.commonActions = actorComp.commonActions;
             if (actorComp.slots != null)
             {
-                var prefabSlots = new List<ActorComponent.Slot>();
+                var prefabSlots = new List<AActorComponent.Slot>();
                 foreach (var s in actorComp.slots)
                 {
-                    var newSlot = new ActorComponent.Slot();
+                    var newSlot = new AActorComponent.Slot();
                     newSlot.name = s.name;
                     newSlot.offset = s.offset;
                     newSlot.slot = null;

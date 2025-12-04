@@ -53,7 +53,7 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
-        internal static void FillCustomAgentParam(ref Variables variable, CutsceneCustomAgent.AgentUnit.ParamData[] paramValues)
+        internal static void FillCustomAgentParam(ref Variables variable, ACutsceneCustomAgent.AgentUnit.ParamData[] paramValues)
         {
             if (paramValues.Length > 0)
             {
