@@ -1253,6 +1253,7 @@ namespace Framework.Guide.Editor
 
             ExcudeNode pNode = new ExcudeNode();
             pNode.Guid = guid;
+            pNode.bFireCheck = true;
             pNode.type = param.Data.type;
             pNode.posX = (int)param.gridPos.x;
             pNode.posY = (int)param.gridPos.y;

@@ -633,7 +633,7 @@ namespace Framework.Guide
             {
                 if (pNext is ExcudeNode)
                 {
-                    AddTracking(pNext);
+               //     AddTracking(pNext);
                     ExcudeNode excude = pNext as ExcudeNode;
                     if (excude.bFireCheck)
                     {
