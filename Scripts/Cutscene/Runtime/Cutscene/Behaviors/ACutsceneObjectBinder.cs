@@ -269,7 +269,7 @@ namespace Framework.Cutscene.Runtime
                     ACutsceneObjectBinder binder = gameObj.GetComponent<ACutsceneObjectBinder>();
                     if (binder == null)
                     {
-                        binder = gameObj.AddComponent<ACutsceneObjectBinder>();
+                        binder = Framework.ED.EditorUtils.AddUnityScriptComponent<ACutsceneObjectBinder>(gameObj);
                     }
                     if (binder.GetBindID() == 0)
                     {

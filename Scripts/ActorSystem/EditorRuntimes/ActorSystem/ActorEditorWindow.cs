@@ -210,7 +210,7 @@ namespace Framework.ActorSystem.Editor
                 m_pTarget.SetEulerAngle(m_TargetEulerAngle);
                 m_pTarget.SetBound(Vector3.one * -0.5f, Vector3.one * 0.5f);
                 GameObject pInst = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                m_pTarget.SetObjectAble(pInst.AddComponent<AActorComponent>());
+                m_pTarget.SetObjectAble(Framework.ED.EditorUtils.AddUnityScriptComponent<AActorComponent>(pInst));
             }
             m_pTarget.SetActived(true);
             m_pTarget.SetVisible(true);
@@ -690,7 +690,7 @@ namespace Framework.ActorSystem.Editor
                                 {
                                     var projectileObj = GameObject.Instantiate(prefabInst);
                                     AActorComponent pComp = projectileObj.GetComponent<AActorComponent>();
-                                    if (pComp == null) pComp = projectileObj.AddComponent<AActorComponent>();
+                                    if (pComp == null) pComp = Framework.ED.EditorUtils.AddUnityScriptComponent<AActorComponent>(projectileObj);
                                     projectorActor.SetObjectAble(pComp);
                                 }
                             }

@@ -496,7 +496,7 @@ namespace Framework.ActorSystem.Editor
 
             var component = m_pActorPrefab.GetComponent<AActorComponent>();
             if (component == null)
-                component = m_pActorPrefab.AddComponent<AActorComponent>();
+                component = Framework.ED.EditorUtils.AddUnityScriptComponent<AActorComponent>(m_pActorPrefab);
             component.avatarMasks = actorComp.avatarMasks;
             component.commonActions = actorComp.commonActions;
             if (actorComp.slots != null)

@@ -490,7 +490,7 @@ namespace Framework.ProjectileSystem.Editor
                                 {
                                     var projectileObj = GameObject.Instantiate(prefabInst);
                                     AActorComponent pComp = projectileObj.GetComponent<AActorComponent>();
-                                    if (pComp == null) pComp = projectileObj.AddComponent<AActorComponent>();
+                                    if (pComp == null) pComp = Framework.ED.EditorUtils.AddUnityScriptComponent<AActorComponent>(projectileObj);
                                     projectorActor.SetObjectAble(pComp);
                                 }
                             }

@@ -21,7 +21,8 @@ namespace Framework.Guide
         public MonoBehaviour listBehavour;
         public GameObject agentTrigger;
     }
-    public abstract class AEventTriggerListener : EventTrigger
+    [AddComponentMenu("")]
+    public class AEventTriggerListener : EventTrigger
     {
         public UIParamArgv paramArgvs;
         AUIPenetrate m_Parentrate = null;

@@ -8,12 +8,10 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEditor.PackageManager;
 namespace Framework.ED
 {
     public class EditorUtils
@@ -330,6 +328,18 @@ namespace Framework.ED
             return ScriptableObject.CreateInstance(uniType) as T;
         }
         //------------------------------------------------------
+        public static T AddUnityScriptComponent<T>(GameObject pIns) where T : UnityEngine.Component
+        {
+            if (pIns == null) return null;
+            var uniType = GetUnityComponentType<T>();
+            if (uniType == null)
+            {
+                UnityEngine.Debug.LogError($"无法找到类型 {typeof(T).FullName} 的子类。");
+                return null;
+            }
+            return pIns.AddComponent(uniType) as T;
+        }
+        //------------------------------------------------------
         public static System.Type GetUnityComponentType<T>() where T : UnityEngine.Object
         {
             foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
@@ -406,7 +416,7 @@ namespace Framework.ED
                 string commandStr = $"/command:commit /pathfile:\"{commitFile}\"";
                 try
                 {
-                    Process p = new Process();
+                    System.Diagnostics.Process p = new System.Diagnostics.Process();
                     p.StartInfo.FileName = tortoiseGitExe;
                     p.StartInfo.Arguments = commandStr;
                     p.StartInfo.CreateNoWindow = true;
@@ -448,7 +458,7 @@ namespace Framework.ED
                 }
                 int commitCode = 0;
                 string commandStr = $"/command:commit /path:\"{commitFile}\"";
-                Process p = new Process();
+                System.Diagnostics.Process p = new System.Diagnostics.Process();
                 p.StartInfo.FileName = tortoiseGitExe;
                 p.StartInfo.Arguments = commandStr;
                 p.StartInfo.CreateNoWindow = true;
@@ -482,6 +492,263 @@ namespace Framework.ED
             catch
             {
                 EditorUtility.DisplayDialog("提交引导修改", "提交失败。", "确定");
+            }
+        }
+        //------------------------------------------------------
+        private static List<FileInfo> FindDirFiles(string strDir)
+        {
+            List<FileInfo> vRets = new List<FileInfo>();
+            if (!Directory.Exists(strDir))
+                return vRets;
+
+            FindDirFiles(strDir, vRets);
+
+            return vRets;
+
+        }
+        //------------------------------------------------------
+        public static void FindDirFiles(string strDir, List<FileInfo> vRes)
+        {
+            if (!Directory.Exists(strDir)) return;
+
+            string[] dir = Directory.GetDirectories(strDir);
+            DirectoryInfo fdir = new DirectoryInfo(strDir);
+            FileInfo[] file = fdir.GetFiles();
+            if (file.Length != 0 || dir.Length != 0)
+            {
+                foreach (FileInfo f in file)
+                {
+                    vRes.Add(f);
+                }
+                foreach (string d in dir)
+                {
+                    FindDirFiles(d, vRes);
+                }
+            }
+        }
+        //------------------------------------------------------
+        public static void CopyDir(string srcDir, string destDir, HashSet<string> vFilerExtension = null, HashSet<string> vIgoreExtension = null)
+        {
+            if (srcDir.Length <= 0 || destDir.Length < 0) return;
+
+            srcDir = srcDir.Replace("\\", "/");
+            if (srcDir[srcDir.Length - 1] == '/') srcDir = srcDir.Substring(0, srcDir.Length - 1);
+            string[] split = srcDir.Split('/');
+            List<string> vPop = new List<string>();
+            int preLen = 0;
+            for (int i = 0; i < split.Length; ++i)
+            {
+                if (split[i].CompareTo("..") == 0)
+                {
+                    vPop.RemoveAt(vPop.Count - 1);
+                    continue;
+                }
+                preLen = srcDir.Length;
+                vPop.Add(split[i]);
+            }
+            srcDir = "";
+            foreach (var db in vPop)
+            {
+                srcDir += db + "/";
+            }
+
+            if (!Directory.Exists(srcDir)) return;
+            if (!Directory.Exists(destDir))
+                Directory.CreateDirectory(destDir);
+
+            destDir = destDir.Replace("\\", "/");
+            if (destDir[destDir.Length - 1] != '/') destDir += "/";
+
+            List<FileInfo> vFiles = FindDirFiles(srcDir);
+
+            string tile = "Copy:" + srcDir + "->" + destDir;
+
+            int total = vFiles.Count;
+            int cur = 0;
+            EditorUtility.DisplayProgressBar(tile, "...", 0);
+            foreach (FileInfo db in vFiles)
+            {
+                string file = db.FullName.Replace("\\", "/").Replace(srcDir, "");
+                cur++;
+                string extension = Path.GetExtension(file);
+                EditorUtility.DisplayProgressBar(tile, file, (float)((float)cur / (float)total));
+
+                if (vIgoreExtension != null && vIgoreExtension.Contains(extension)) continue;
+                if (vFilerExtension != null && !vFilerExtension.Contains(extension)) continue;
+                string destFile = destDir + file;
+
+                string tmpFolder = Path.GetDirectoryName(destFile);
+                if (!Directory.Exists(tmpFolder))
+                    Directory.CreateDirectory(tmpFolder);
+                File.Copy(db.FullName, destFile,true);
+            }
+            EditorUtility.ClearProgressBar();
+        }
+        //------------------------------------------------------
+        public static void CopyFile(string srcFile, string destFile)
+        {
+            if (srcFile.Length <= 0 || destFile.Length < 0) return;
+
+            srcFile = srcFile.Replace("\\", "/");
+            if (!File.Exists(srcFile)) return;
+
+            destFile = destFile.Replace("\\", "/");
+            if (!Directory.Exists(Path.GetDirectoryName(destFile)))
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+            File.Copy(srcFile, destFile, true);
+        }
+        //------------------------------------------------------
+        public static void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.SetAttributes(path, FileAttributes.Normal);
+                File.Delete(path);
+            }
+        }
+        //------------------------------------------------------
+        public static void DeleteDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+            string[] files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            string[] dirs = Directory.GetDirectories(path);
+            foreach (string file in files)
+            {
+                DeleteFile(file);
+            }
+            foreach (string dir in dirs)
+            {
+                DeleteDirectory(dir);
+            }
+            Directory.Delete(path);
+        }
+        //------------------------------------------------------
+        public static void ClearDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+            string[] files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            string[] dirs = Directory.GetDirectories(path);
+            foreach (string file in files)
+            {
+                DeleteFile(file);
+            }
+        }
+        //------------------------------------------------------
+        public static void OpenPathInExplorer(string path)
+        {
+            if (path.Length <= 0f) return;
+            System.Diagnostics.Process[] prpgress = System.Diagnostics.Process.GetProcesses();
+
+            string args = "";
+            if (!path.Contains(":/") && !path.Contains(":\\"))
+            {
+                if ((path[0] == '/') || (path[0] == '\\'))
+                    path = Application.dataPath.Substring(0, Application.dataPath.Length - "/Assets".Length) + path;
+                else
+                    path = Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length) + path;
+            }
+
+            args = path.Replace(":/", ":\\");
+            args = args.Replace("/", "\\");
+            if (path.Contains("."))
+            {
+                args = string.Format("/Select, \"{0}\"", args);
+            }
+            else
+            {
+                if (args[args.Length - 1] != '\\')
+                {
+                    args += "\\";
+                }
+            }
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            System.Diagnostics.Process.Start("Explorer.exe", args);
+#elif UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+            Debug.Log("IOS 打包路径: " + path);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("open", path));
+#endif
+        }
+        //------------------------------------------------------
+        public static void RepaintPlayModeView()
+        {
+            var unityEditorAssembly = typeof(AudioImporter).Assembly;
+            var audioUtilClass = unityEditorAssembly.GetType("UnityEditor.PlayModeView");
+            var method = audioUtilClass.GetMethod("RepaintAll", BindingFlags.Static | BindingFlags.Public);
+            if (method == null) method = audioUtilClass.GetMethod("RepaintAll", BindingFlags.Static | BindingFlags.NonPublic);
+            if (method == null) return;
+            method.Invoke(null, null);
+        }
+        //------------------------------------------------------
+        public static void SetGameViewTargetSize(int width, int height)
+        {
+            try
+            {
+                var unityEditorAssembly = typeof(UnityEditor.GameViewSizeGroupType).Assembly;
+                var gameView = unityEditorAssembly.GetType("UnityEditor.GameView");
+
+                var gameViewSizesType = unityEditorAssembly.GetType("UnityEditor.GameViewSizes");
+                var selectedSizeIndex = gameView.GetProperty("selectedSizeIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var GameViewSizeGroupType = gameView.GetProperty("currentSizeGroupType", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var SizeSelectionCallback = gameView.GetMethod("SizeSelectionCallback", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                var gameViewIns = UnityEditor.EditorWindow.GetWindow(gameView);
+                if (gameViewIns == null) return;
+                UnityEditor.GameViewSizeGroupType groupType = (UnityEditor.GameViewSizeGroupType)GameViewSizeGroupType.GetValue(null);
+                int selectIndex = (int)selectedSizeIndex.GetValue(gameViewIns);
+
+                string file = UnityEditorInternal.InternalEditorUtility.unityPreferencesFolder + "/GameViewSizes.asset";
+                UnityEngine.Object[] objects = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget(file);
+                for (int i = 0; i < objects.Length; ++i)
+                {
+                    if (objects[i].GetType() == gameViewSizesType)
+                    {
+                        var method = gameViewSizesType.GetMethod("GetGroup", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                        if (method != null)
+                        {
+                            var gameViewSizeGroupInst = method.Invoke(objects[i], new System.Object[] { groupType });
+                            if (gameViewSizeGroupInst != null)
+                            {
+                                var GetTotalCountMethod = gameViewSizeGroupInst.GetType().GetMethod("GetTotalCount", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                                if (GetTotalCountMethod != null)
+                                {
+                                    var GetGameViewSizeMethod = gameViewSizeGroupInst.GetType().GetMethod("GetGameViewSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                                    int TotalCount = (int)GetTotalCountMethod.Invoke(gameViewSizeGroupInst, null);
+                                    for (int j = 0; j < TotalCount; ++j)
+                                    {
+                                        var gameviewSize = GetGameViewSizeMethod.Invoke(gameViewSizeGroupInst, new System.Object[] { j });
+                                        if (gameviewSize != null)
+                                        {
+                                            var widthProp = gameviewSize.GetType().GetProperty("width", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                                            var heightProp = gameviewSize.GetType().GetProperty("height", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                                            int widthGV = (int)widthProp.GetValue(gameviewSize);
+                                            int heightGV = (int)heightProp.GetValue(gameviewSize);
+
+                                            if (widthGV == width && heightGV == height)
+                                            {
+                                                SizeSelectionCallback.Invoke(gameViewIns, new System.Object[] { j, gameviewSize });
+
+                                                UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            catch (System.Exception expection)
+            {
+                UnityEngine.Debug.Log("更改分辨率失败");
+                Debug.LogWarning(expection.ToString());
             }
         }
     }
