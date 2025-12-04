@@ -18,7 +18,7 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         protected override bool OnDragItem(AssetTree.ItemData item)
         {
-            return true;
+            return false;
         }
         //------------------------------------------------------
         protected override bool OnDrawItem(Rect cellRect, AssetTree.TreeItemData item, int column, bool bSelected, bool focused)
