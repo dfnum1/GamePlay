@@ -275,6 +275,8 @@ namespace Framework.ProjectileSystem.Editor
                 m_TestProjectile[i].Destroy();
             }
 
+            if (pOwnerActor == null)
+                return;
             Transform pTrackTransform = null;
             if (targetNode != null)
                 pTrackTransform = m_pTargetActor.GetUniyTransform();
