@@ -63,7 +63,7 @@ SubShader {
             col.rgb *= col.a;
 
             // Shadow mask, with 30% alpha
-            fixed shadow = 0;//tex2D(_ShadowTexture, i.shadowUV).r * _Alphas.y;
+            fixed shadow = tex2D(_ShadowTexture, i.shadowUV).r * _Alphas.y;
             col.rgb = lerp (col.rgb, fixed3(0,0,0), shadow);
             col.a = max(col.a, shadow);
 
