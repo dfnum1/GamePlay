@@ -88,7 +88,7 @@ namespace Framework.Guide.Editor
             List<GuideGroup> vGuides = new List<GuideGroup>();
             foreach (var db in GuideSystem.getInstance().datas)
             {
-                bool bQuerty = IsQuery(query, db.Value.Guid + db.Value.Name);
+                bool bQuerty = IsQuery(query, db.Value.Guid + db.Value.Name + Framework.ED.EditorUtils.PinYin(db.Value.Name));
                 if (!bQuerty) continue;
                 vGuides.Add(db.Value);
             }
@@ -110,7 +110,7 @@ namespace Framework.Guide.Editor
                 item.callback = pEditor.LoadData;
 
                 item.id = db.Guid;
-                item.name = db.Name + "[Id=" + db.Guid + "]";
+                item.name = db.Name + "[Id=" + db.Guid + "]" + Framework.ED.EditorUtils.PinYin(db.Name);
                 if(db.Tag>=0 && db.Tag < ushort.MaxValue)
                 {
                     item.name += "[Tag=" + db.Tag + "]";

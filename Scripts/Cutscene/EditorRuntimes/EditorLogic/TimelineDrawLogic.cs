@@ -157,7 +157,12 @@ namespace Framework.Cutscene.Editor
         {
             if (string.IsNullOrEmpty(drawName) || string.IsNullOrEmpty(m_strSearchDraw))
                 return false;
-            return m_strSearchDraw.Contains(drawName) || drawName.Contains(m_strSearchDraw);
+            if (m_strSearchDraw.Contains(drawName) || drawName.Contains(m_strSearchDraw))
+                return true;
+            drawName = Framework.ED.EditorUtils.PinYin(drawName);
+            if(m_strSearchDraw.Contains(drawName) || drawName.Contains(m_strSearchDraw))
+                return true;
+            return false;
         }
         //--------------------------------------------------------
         public Rect leftRect

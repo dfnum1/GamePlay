@@ -200,7 +200,10 @@ namespace Framework.Cutscene.Editor
                         customClipAttri = db;
                         continue;
                     }
-                    if(!string.IsNullOrEmpty(m_strSearchDebug) && !(db.pAttri.name.Contains(m_strSearchDebug) || m_strSearchDebug.Contains(db.pAttri.name)))
+                    if(!string.IsNullOrEmpty(m_strSearchDebug) &&
+                        !(db.pAttri.name.Contains(m_strSearchDebug) || 
+                        m_strSearchDebug.Contains(db.pAttri.name) ||
+                        m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.pAttri.name))))
                     {
                         continue;
                     }
@@ -220,7 +223,10 @@ namespace Framework.Cutscene.Editor
                     var customEvents = CustomAgentUtil.GetClipList();
                     foreach (var db in customEvents)
                     {
-                        if (!string.IsNullOrEmpty(m_strSearchDebug) && !(db.name.Contains(m_strSearchDebug) || m_strSearchDebug.Contains(db.name)))
+                        if (!string.IsNullOrEmpty(m_strSearchDebug) && 
+                            !(db.name.Contains(m_strSearchDebug) ||
+                            m_strSearchDebug.Contains(db.name) ||
+                            m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.name))))
                         {
                             continue;
                         }
@@ -248,7 +254,10 @@ namespace Framework.Cutscene.Editor
                         customEventAttri = db;
                         continue;
                     }
-                    if (!string.IsNullOrEmpty(m_strSearchDebug) && !(db.pAttri.name.Contains(m_strSearchDebug) || m_strSearchDebug.Contains(db.pAttri.name)))
+                    if (!string.IsNullOrEmpty(m_strSearchDebug) && 
+                        !(db.pAttri.name.Contains(m_strSearchDebug) ||
+                        m_strSearchDebug.Contains(db.pAttri.name) ||
+                        m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.pAttri.name))))
                     {
                         continue;
                     }
@@ -268,7 +277,10 @@ namespace Framework.Cutscene.Editor
                     var customEvents = CustomAgentUtil.GetEventList();
                     foreach (var db in customEvents)
                     {
-                        if (!string.IsNullOrEmpty(m_strSearchDebug) && !(db.name.Contains(m_strSearchDebug) || m_strSearchDebug.Contains(db.name)))
+                        if (!string.IsNullOrEmpty(m_strSearchDebug) &&
+                            !(db.name.Contains(m_strSearchDebug) || 
+                            m_strSearchDebug.Contains(db.name) ||
+                            m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.name))))
                         {
                             continue;
                         }

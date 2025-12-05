@@ -83,7 +83,7 @@ namespace Framework.Guide.Editor
                 colums[0].width = 100;
                 colums[0].maxWidth = 100;
                 colums[0].headerTextAlignment = TextAlignment.Left;
-                colums[0].canSort = true;
+                colums[0].canSort = false;
                 colums[0].autoResize = true;
                 m_assetTree = new AssetTree(new UnityEditor.IMGUI.Controls.TreeViewState(), new MultiColumnHeaderState(colums));
                 m_assetTree.Reload();

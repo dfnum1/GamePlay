@@ -6,6 +6,7 @@
 *********************************************************************/
 
 #if UNITY_EDITOR
+using Microsoft.International.Converters.PinYinConverter;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -85,6 +86,34 @@ namespace Framework.ED
             }
 
             return null;
+        }
+        //-----------------------------------------------------
+        public static string PinYin(string chinese)
+        {
+            string retValue = string.Empty;
+
+            foreach (char chr in chinese)
+            {
+                try
+                {
+                    if (ChineseChar.IsValidChar(chr))
+                    {
+                        ChineseChar chineseChar = new ChineseChar(chr);
+                        string t = chineseChar.Pinyins[0].ToString().ToLower();
+                        retValue += t.Substring(0, t.Length - 1);
+                    }
+                    else
+                    {
+                        retValue += chr.ToString();
+                    }
+                }
+                catch (Exception e)
+                {
+                    return chinese;
+                }
+            }
+
+            return retValue;
         }
         //-----------------------------------------------------
         public static string GetInstallPath()
