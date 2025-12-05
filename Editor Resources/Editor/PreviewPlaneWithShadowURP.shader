@@ -58,12 +58,12 @@ SubShader {
         {
             // Texture, apply lighting and premultiply with alpha
             fixed4 col = tex2D(_MainTex, i.uv);
-            col.rgb *= i.color.rgb;
+           // col.rgb *= i.color.rgb;
             col.a *= _Alphas.x;
             col.rgb *= col.a;
 
             // Shadow mask, with 30% alpha
-            fixed shadow = tex2D(_ShadowTexture, i.shadowUV).r * _Alphas.y;
+            fixed shadow = 0;//tex2D(_ShadowTexture, i.shadowUV).r * _Alphas.y;
             col.rgb = lerp (col.rgb, fixed3(0,0,0), shadow);
             col.a = max(col.a, shadow);
 
