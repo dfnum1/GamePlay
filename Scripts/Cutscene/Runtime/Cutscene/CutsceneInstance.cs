@@ -5,10 +5,9 @@
 描    述:	过场动画管理器
 *********************************************************************/
 using Framework.AT.Runtime;
+using Framework.Core;
 using System.Collections.Generic;
-using System.Dynamic;
 using UnityEngine;
-using UnityEngine.Playables;
 namespace Framework.Cutscene.Runtime
 {
     struct ObjCache
@@ -18,7 +17,7 @@ namespace Framework.Cutscene.Runtime
         public ICutsceneObject pObj; //绑定的对象
     }
     //-----------------------------------------------------
-    public interface ICutsceneData : AT.Runtime.IUserData
+    public interface ICutsceneData : IUserData
     {
 
     }

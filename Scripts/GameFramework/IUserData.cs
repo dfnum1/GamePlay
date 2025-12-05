@@ -4,7 +4,7 @@
 作    者:	HappLI
 描    述:	基础接口数据
 *********************************************************************/
-namespace Framework.AT.Runtime
+namespace Framework.Core
 {
     public interface IUserData
     {

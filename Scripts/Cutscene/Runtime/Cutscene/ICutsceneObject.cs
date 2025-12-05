@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	过场基础对象接口
 *********************************************************************/
+using Framework.Core;
 using System.Runtime.InteropServices;
 using UnityEngine;
 namespace Framework.Cutscene.Runtime
@@ -129,7 +130,7 @@ namespace Framework.Cutscene.Runtime
         ParamData           paramData;
         public string       strData;
         public Matrix4x4    matrixData;
-        public AT.Runtime.IUserData userData;
+        public IUserData userData;
         public UnityEngine.Object unityObject;
         public static CutsceneParam DEF = new CutsceneParam() { };
         //------------------------------------------------------
@@ -150,7 +151,7 @@ namespace Framework.Cutscene.Runtime
             strData = action;          //动作名称
         }
         //------------------------------------------------------
-        public void SetAction(AT.Runtime.IUserData userData, AnimationClip action, int layer, float time)
+        public void SetAction(IUserData userData, AnimationClip action, int layer, float time)
         {
             SetInt(layer, 0); //动作层
             SetFloat(time, 1); //动作时间
@@ -335,7 +336,7 @@ namespace Framework.Cutscene.Runtime
             return pObj.SetParameter(EParamType.ePlayAction, ms_pParams);
         }
         //------------------------------------------------------
-        public static bool PlayAction(this ICutsceneObject pObj, AT.Runtime.IUserData pOwner, AnimationClip action, int layer, float time)
+        public static bool PlayAction(this ICutsceneObject pObj, IUserData pOwner, AnimationClip action, int layer, float time)
         {
             if (pObj == null) return false;
             ms_pParams.Clear();

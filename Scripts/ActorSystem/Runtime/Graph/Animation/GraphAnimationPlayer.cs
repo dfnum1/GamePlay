@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -167,9 +168,9 @@ namespace Framework.ActorSystem.Runtime
             get { return m_bDestroy; }
         }
 
-        private AT.Runtime.IUserData m_pOwner;
+        private IUserData m_pOwner;
 
-        public AT.Runtime.IUserData owner
+        public IUserData owner
         {
             get { return m_pOwner; }
             set { m_pOwner = value; }
@@ -322,7 +323,7 @@ namespace Framework.ActorSystem.Runtime
     }
     public class GraphAnimationPlayer : PlayableBehaviour
     {
-        class DefaultClip : AT.Runtime.IUserData
+        class DefaultClip : IUserData
         {
             public void Destroy()
             {
@@ -338,11 +339,11 @@ namespace Framework.ActorSystem.Runtime
         public PlayableGraph graph { get { return self.GetGraph(); } }
 
         DefaultClip m_DefaultClip = new DefaultClip();
-        private AT.Runtime.IUserData m_DefaultOwner = null;
+        private IUserData m_DefaultOwner = null;
         private int m_StatesVersion = 0;
         private int m_Count =0;
         List<ActionStatePlayAble> m_vStates;
-        Dictionary<AT.Runtime.IUserData, ActionStatePlayAble> m_vBindStates;
+        Dictionary<IUserData, ActionStatePlayAble> m_vBindStates;
         Dictionary<string, ActionStatePlayAble> m_vBindNameStates;
         bool m_KeepStoppedPlayablesConnected = true;
         public bool keepStoppedPlayablesConnected
@@ -413,7 +414,7 @@ namespace Framework.ActorSystem.Runtime
         {
         }
         //--------------------------------------------------------
-        public void SetDefaultClip(AnimationClip clip, uint layer = 0, AT.Runtime.IUserData pOwner = null, string stateName = null)
+        public void SetDefaultClip(AnimationClip clip, uint layer = 0, IUserData pOwner = null, string stateName = null)
         {
             if (pOwner == null)
                 pOwner = m_DefaultClip;
@@ -458,7 +459,7 @@ namespace Framework.ActorSystem.Runtime
         //}
 #endif
         //--------------------------------------------------------
-        public void AddMotion(AT.Runtime.IUserData pOwner, AnimationClip clip, uint layer = 0, string stateName = null)
+        public void AddMotion(IUserData pOwner, AnimationClip clip, uint layer = 0, string stateName = null)
         {
             if (pOwner == null || clip == null)
                 return;
@@ -473,13 +474,13 @@ namespace Framework.ActorSystem.Runtime
             InnerAddMotion(pOwner, clip, stateName, layer);
         }
         //--------------------------------------------------------
-        void InnerAddMotion(AT.Runtime.IUserData owner, AnimationClip clip, string stateName, uint layer = 0)
+        void InnerAddMotion(IUserData owner, AnimationClip clip, string stateName, uint layer = 0)
         {
             if (clip == null)
                 return;
  
             if (m_vStates == null) m_vStates = new List<ActionStatePlayAble>(2);
-            if (m_vBindStates == null) m_vBindStates = new Dictionary<AT.Runtime.IUserData, ActionStatePlayAble>(2);
+            if (m_vBindStates == null) m_vBindStates = new Dictionary<IUserData, ActionStatePlayAble>(2);
             if (m_vBindNameStates == null) m_vBindNameStates = new Dictionary<string, ActionStatePlayAble>(2);
 
             if (layer >= m_nMixLayerCnt) layer = (uint)(m_nMixLayerCnt - 1);
@@ -488,7 +489,7 @@ namespace Framework.ActorSystem.Runtime
             SetupState(owner, newState, clip, stateName, layer);
         }
         //--------------------------------------------------------
-        void SetupState(AT.Runtime.IUserData owner, ActionStatePlayAble newState, AnimationClip clip, string stateName, uint layer = 0)
+        void SetupState(IUserData owner, ActionStatePlayAble newState, AnimationClip clip, string stateName, uint layer = 0)
         {
             if (newState.playable.IsValid())
             {
@@ -529,7 +530,7 @@ namespace Framework.ActorSystem.Runtime
             InvalidateStates();
         }
         //--------------------------------------------------------
-        ActionStatePlayAble InsertState(AT.Runtime.IUserData motionClip)
+        ActionStatePlayAble InsertState(IUserData motionClip)
         {
             ActionStatePlayAble state = TypeInstancePool.Malloc<ActionStatePlayAble>();
             state.owner = motionClip;
@@ -550,7 +551,7 @@ namespace Framework.ActorSystem.Runtime
             return state;
         }
         //--------------------------------------------------------
-        public void RemoveMotion(AT.Runtime.IUserData owner, uint layer = 0)
+        public void RemoveMotion(IUserData owner, uint layer = 0)
         {
             if (m_vBindStates == null)
                 return;
@@ -645,7 +646,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        public bool IsStateExist(AT.Runtime.IUserData clipOwner, AnimationClip clip = null)
+        public bool IsStateExist(IUserData clipOwner, AnimationClip clip = null)
         {
             if (m_vBindStates == null)
                 return false;
@@ -661,7 +662,7 @@ namespace Framework.ActorSystem.Runtime
             return true;
         }
         //------------------------------------------------------
-        internal Dictionary<AT.Runtime.IUserData, ActionStatePlayAble> GetBindStates()
+        internal Dictionary<IUserData, ActionStatePlayAble> GetBindStates()
         {
             return m_vBindStates;
         }
@@ -727,7 +728,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //--------------------------------------------------------
-        public void Play(AT.Runtime.IUserData motionClip, float fSpeed = 1, bool bForce= false)
+        public void Play(IUserData motionClip, float fSpeed = 1, bool bForce= false)
         {
             if (m_vBindStates == null)
                 return;
@@ -741,7 +742,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        public void Stop(AT.Runtime.IUserData motionClip, float stopFade = 0.1f)
+        public void Stop(IUserData motionClip, float stopFade = 0.1f)
         {
             if (m_vBindStates == null)
                 return;
@@ -791,7 +792,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public bool CrossFade(AT.Runtime.IUserData motionClip, float speed, float time, bool bForce = false)
+        public bool CrossFade(IUserData motionClip, float speed, float time, bool bForce = false)
         {
             if (m_vBindStates == null)
                 return false;
@@ -843,7 +844,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public bool Blend(AT.Runtime.IUserData motionClip, float speed, float targetWeight, float blendTime, bool bForce = false)
+        public bool Blend(IUserData motionClip, float speed, float targetWeight, float blendTime, bool bForce = false)
         {
             if (m_vBindStates == null)
                 return false;
@@ -886,7 +887,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public void SetTime(AT.Runtime.IUserData motionClip, float time, bool overTimeDone = true)
+        public void SetTime(IUserData motionClip, float time, bool overTimeDone = true)
         {
             if (m_vBindStates == null)
                 return;
@@ -924,7 +925,7 @@ namespace Framework.ActorSystem.Runtime
             return 0;
         }
         //------------------------------------------------------
-        public float GetTime(AT.Runtime.IUserData motionClip)
+        public float GetTime(IUserData motionClip)
         {
             if (m_vBindStates == null)
                 return 0;
@@ -951,7 +952,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        public void SetSpeed(AT.Runtime.IUserData motionClip, float speed)
+        public void SetSpeed(IUserData motionClip, float speed)
         {
             if (m_vBindStates == null)
                 return;
@@ -979,7 +980,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        public void SetBlendWeight(AT.Runtime.IUserData motionClip, float fWeight)
+        public void SetBlendWeight(IUserData motionClip, float fWeight)
         {
             if (m_vBindStates == null)
                 return;
@@ -1052,7 +1053,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public AT.Runtime.IUserData GetPlayingAction(uint layer)
+        public IUserData GetPlayingAction(uint layer)
         {
             if (m_vBindStates == null)
                 return null;
@@ -1066,7 +1067,7 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //------------------------------------------------------
-        public bool IsPlaying(AT.Runtime.IUserData motionClip)
+        public bool IsPlaying(IUserData motionClip)
         {
             if (m_vBindStates == null) return false;
             if(m_vBindStates.TryGetValue(motionClip, out var state))
@@ -1337,7 +1338,7 @@ namespace Framework.ActorSystem.Runtime
             }
             if(!hasActionPlaying && !isFading)
             {
-                AT.Runtime.IUserData defaltOwner = m_DefaultClip;
+                IUserData defaltOwner = m_DefaultClip;
                 if (m_DefaultOwner != null) defaltOwner = m_DefaultOwner;
                 if (m_vBindStates.TryGetValue(defaltOwner, out var state))
                 {

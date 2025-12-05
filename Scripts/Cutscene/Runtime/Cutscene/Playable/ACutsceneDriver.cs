@@ -5,12 +5,12 @@
 描    述:	基础驱动层,用于处理剪辑的创建、销毁、帧更新、进入和离开事件等。
 *********************************************************************/
 using Framework.AT.Runtime;
-using System.Security.Cryptography;
+using Framework.Core;
 using UnityEngine;
 
 namespace Framework.Cutscene.Runtime
 {
-    public abstract class ACutsceneDriver : AT.Runtime.IUserData
+    public abstract class ACutsceneDriver : IUserData
     {
         long m_nKey = 0;
         CutsceneInstance m_pCutscene = null;

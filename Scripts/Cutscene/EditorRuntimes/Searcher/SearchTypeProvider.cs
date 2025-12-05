@@ -5,10 +5,10 @@
 描    述:	
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -25,7 +25,7 @@ namespace Framework.Cutscene.Editor
         // 构造类型列表
         private void BuildTypeList()
         {
-            var baseType = typeof(AT.Runtime.IUserData);
+            var baseType = typeof(IUserData);
             // 这里只列出所有非抽象、非泛型的 public 类型
             m_AllTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
