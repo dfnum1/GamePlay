@@ -38,16 +38,6 @@ namespace Framework.ActorSystem.Editor
             return ms_installPath;
         }
         //-----------------------------------------------------
-        public static Texture2D GetFloorTexture()
-        {
-            string install = BuildInstallPath();
-            if (string.IsNullOrEmpty(install)) return null;
-            string groundPath = install + "/ground.png";
-            if (!File.Exists(groundPath))
-                return null;
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(groundPath);
-        }
-        //-----------------------------------------------------
         public static Texture2D LoadTexture(string name)
         {
             if(!name.EndsWith(".png", StringComparison.OrdinalIgnoreCase))

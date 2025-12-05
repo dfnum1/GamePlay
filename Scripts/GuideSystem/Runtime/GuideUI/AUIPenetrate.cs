@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 namespace Framework.Guide
 {
+    [AddComponentMenu("")]
     public abstract class AUIPenetrate : AEventTriggerListener
     {
         GameObject m_TriggerGo;

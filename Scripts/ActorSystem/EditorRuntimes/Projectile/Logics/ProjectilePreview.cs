@@ -160,7 +160,7 @@ namespace Framework.ProjectileSystem.Editor
             m_Preview.SetPreviewInstance(roots[0] as GameObject);
             m_Preview.OnDrawAfterCB = this.OnPreviewSceneDraw;
             m_Preview.bLeftMouseForbidMove = true;
-            m_Preview.SetFloorTexture(ActorSystem.Editor.AssetUtil.GetFloorTexture());
+            m_Preview.SetFloorTexture(Framework.ED.EditorUtils.GetFloorTexture());
 
             m_pSimulateActor = GetOwner<ProjectileEditor>().GetActorManager().CreateActor<Actor>(null);
 

@@ -640,6 +640,7 @@ namespace Framework.ED
                     shader = Shader.Find("Hidden/Editor/PreviewPlaneWithShadowURP");
                     if (shader == null)
                         shader = EditorGUIUtility.LoadRequired("PreviewPlaneWithShadowURP.shader") as Shader;
+                    if (shader == null) shader = Framework.ED.EditorUtils.LoadEditorResource<Shader>("Editor/PreviewPlaneWithShadowURP.shader");
                 }
                 else
                 {

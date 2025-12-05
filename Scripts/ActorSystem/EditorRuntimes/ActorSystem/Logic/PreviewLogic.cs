@@ -32,7 +32,7 @@ namespace Framework.ActorSystem.Editor
             m_Preview.SetCamera(0.01f, 10000f, 60f);
             m_Preview.Initialize(roots);
             m_Preview.SetPreviewInstance(roots[0] as GameObject);
-            m_Preview.SetFloorTexture(AssetUtil.GetFloorTexture());
+            m_Preview.SetFloorTexture(Framework.ED.EditorUtils.GetFloorTexture());
             m_Preview.bLeftMouseForbidMove = true;
             m_Preview.OnDrawAfterCB += OnDraw;
         }

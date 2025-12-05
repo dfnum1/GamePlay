@@ -23,9 +23,10 @@ namespace Framework.War.Editor
         {
             string install = BuildInstallPath();
             if (string.IsNullOrEmpty(install)) return null;
-            var ground = UnityEditor.AssetDatabase.FindAssets("t:Texture2D ground", new string[] { install });
-            if (ground == null || ground.Length <= 0) return null;
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(UnityEditor.AssetDatabase.GUIDToAssetPath(ground[0]));
+            string groundPath = install + "/Editor/ground.png";
+            if (!System.IO.File.Exists(groundPath))
+                return null;
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(groundPath);
         }
         //-----------------------------------------------------
         private static GUIStyle ms_PanelTileStyle = null;

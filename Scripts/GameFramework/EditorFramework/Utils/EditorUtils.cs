@@ -158,6 +158,21 @@ namespace Framework.ED
             if (Application.isPlaying) UnityEngine.Object.Destroy(go);
             else UnityEngine.Object.DestroyImmediate(go);
         }
+        //-----------------------------------------------------
+        public static Texture2D GetFloorTexture()
+        {
+            return LoadEditorResource<Texture2D>("Editor/ground.png");
+        }
+        //-----------------------------------------------------
+        public static T LoadEditorResource<T>(string path) where T : UnityEngine.Object
+        {
+            string install = GetInstallEditorResourcePath();
+            if (string.IsNullOrEmpty(install)) return null;
+            string fullPath = install + "/" + path;
+            if (!File.Exists(fullPath))
+                return null;
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(fullPath);
+        }
         //------------------------------------------------------
         public static Texture2D GenerateGridTexture(Color line, Color bg)
         {
