@@ -7,7 +7,7 @@
 
 namespace Framework.Core
 {
-    public interface IBaseTimerEvent
+    public interface IBaseTimerEvent : IUserData
     {
         bool Update(long dwNow);
         bool Call(int nHashID);

@@ -21,7 +21,7 @@ namespace Framework.ActorSystem.Runtime
     {
         void OnActorAttrDirty(Actor pActor, byte type, FFloat oldValue, FFloat newValue);
     }
-    public class ActorParameter : TypeObject
+    public class ActorParameter : TypeActor
     {
         IContextData                            m_pConfigData = null;
         Dictionary<byte, FFloat>                 m_vAttributes = new Dictionary<byte, FFloat>(16);

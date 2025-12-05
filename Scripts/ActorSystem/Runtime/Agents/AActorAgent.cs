@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Framework.ActorSystem.Runtime
 {
-    public abstract class AActorAgent : TypeObject
+    public abstract class AActorAgent : TypeActor
     {
         protected Actor m_pActor;
         //--------------------------------------------------------

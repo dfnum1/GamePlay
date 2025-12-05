@@ -17,7 +17,7 @@ namespace Framework.ActorSystem.Runtime
         Play,
         Destroy,
     }
-    public class ActorGraph : TypeObject
+    public class ActorGraph : TypeActor
     {
         bool m_bInited = false;
         Actor m_pOwner;

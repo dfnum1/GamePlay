@@ -6,16 +6,16 @@
 *********************************************************************/
 using System.Collections.Generic;
 
-namespace Framework.ActorSystem.Runtime
+namespace Framework.Core
 {
-    public abstract class TypeObject : IContextData
+    public abstract class TypeObject : IUserData
     {
         public virtual void Destroy() { }
     }
     //--------------------------------------------------------
     public static class TypeInstancePool
     {
-        const int POOL_COUNT = 32;
+        const int POOL_COUNT = 128;
         static Dictionary<System.IntPtr, Stack<TypeObject>> ms_vPools = new Dictionary<System.IntPtr, Stack<TypeObject>>(16);
         //--------------------------------------------------------
         public static T Malloc<T>() where T : TypeObject, new()

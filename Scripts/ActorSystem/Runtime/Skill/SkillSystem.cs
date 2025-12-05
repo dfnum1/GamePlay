@@ -20,7 +20,7 @@ namespace Framework.ActorSystem.Runtime
         eInitiative=0, //主动技
         ePassivity =1 //被动技
     }
-    public class SkillSystem : TypeObject
+    public class SkillSystem : TypeActor
     {
         private Actor m_pOwner = null;
 

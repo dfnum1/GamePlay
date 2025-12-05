@@ -14,7 +14,7 @@ namespace Framework.ActorSystem.Runtime
         eTicking,
         eEnd,
     }
-    public abstract class AActorStateInfo : TypeObject
+    public abstract class AActorStateInfo : TypeActor
     {
         public virtual uint GetDamageID() { return 0; }
         public abstract void AddLockTarget(Actor pNode, bool bClear = false);

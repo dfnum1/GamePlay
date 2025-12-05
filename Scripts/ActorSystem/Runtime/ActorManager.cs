@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	Actor管理器
 *********************************************************************/
+using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System.Collections.Generic;
 using UnityEngine;

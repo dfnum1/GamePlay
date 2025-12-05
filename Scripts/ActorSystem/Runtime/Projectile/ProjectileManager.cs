@@ -24,7 +24,7 @@ using Transform = ExternEngine.Transform;
 namespace Framework.ActorSystem.Runtime
 {
     //------------------------------------------------------
-    internal class ProjectileManager : TypeObject
+    internal class ProjectileManager : TypeActor
     {
         struct BoundProjectile
         {
