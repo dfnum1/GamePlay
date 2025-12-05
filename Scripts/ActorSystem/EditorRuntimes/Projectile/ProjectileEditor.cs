@@ -12,6 +12,7 @@ using Framework.Cutscene.Runtime;
 using Framework.ED;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -328,6 +329,12 @@ namespace Framework.ProjectileSystem.Editor
             //{
             //    Stop();
             //}
+            if (m_ProjectileDatas!=null && GUILayout.Button("提交", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            {
+                AProjectileDatas.RefreshDatas(m_ProjectileDatas, true);
+                string  dir = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(m_ProjectileDatas));
+                Framework.ED.EditorUtils.CommitGit(dir);
+            }
             if (GUILayout.Button("退出", new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 base.Close();

@@ -31,6 +31,7 @@ namespace Framework.Cutscene.Editor
         public TimelineDrawLogic.TimelineTrack GetOwnerTrack() { return m_pTrack; }
         public bool expandProp { get; set; }
         float m_fSeachingShowTime = 0;
+
         public IBaseEvent clip { get; set; }
         private ACutsceneCustomEditor m_pEditor = null;
         //--------------------------------------------------------
@@ -285,7 +286,7 @@ namespace Framework.Cutscene.Editor
                 // 绘制事件图片
                 Texture2D eventIcon = null;
                 if (eventIcon == null)
-                    eventIcon = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(System.IO.Path.Combine(CutsceneObjectIconEditor.BuildInstallPath(), "EventIcon.png"));
+                    eventIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("Cutscene/EventIcon.png");
                 if (eventIcon != null)
                 {
                     float iconW = eventIcon.width;
