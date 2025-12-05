@@ -175,6 +175,8 @@ namespace Framework.ProjectileSystem.Editor
 
             if (m_CutsceneManager != null)
                 m_CutsceneManager.Update(m_pTimer.deltaTime);
+
+            this.ForceRepaint();
         }
         //-----------------------------------------------------
         protected override void OnInnerGUI()

@@ -74,9 +74,9 @@ namespace Framework.ActorSystem.Runtime
     {
         [Display("飞行器")] Projectile = 0,
         [Display("跟踪飞行器")] Track = 1,
-        [Display("陷阱")] Trap = 2,
-        [Display("飞行轨迹")] TrackPath = 3,
-        [Display("弹跳弹")] Bounce = 4,
+        [Display("飞行轨迹")] TrackPath = 2,
+        [Display("弹跳弹")] Bounce = 3,
+        [Display("陷阱")] Trap = 10,
     }
 
     public enum EProjecitleBornType : byte
@@ -106,6 +106,8 @@ namespace Framework.ActorSystem.Runtime
     public class ProjectileData : AttackFrameParameter
     {
         public uint id;
+        public string desc;
+
         [Display("类型")]
         public EProjectileType type = EProjectileType.Projectile;
         [Display("出生类型")] public EProjecitleBornType bornType = EProjecitleBornType.None;
@@ -195,13 +197,18 @@ namespace Framework.ActorSystem.Runtime
 
         [Display("缩放")]
         public float scale = 1;
-        public string desc;
 
         [Display("忽略场景地表检测")]
         public bool unSceneTest = false;
 
         [Display("分类ID")]
         public byte classify = 0;
+
+
+        public Vector4 specParams = Vector4.zero;
+
+        [Display("扩展参数")]
+        public Vector4 externParams = Vector4.zero;
         public static bool IsTrack(EProjectileType type)
         {
             return type == EProjectileType.Track || type == EProjectileType.TrackPath;

@@ -234,6 +234,8 @@ namespace Framework.ActorSystem.Editor
 
             if (m_CutsceneManager!=null)
                 m_CutsceneManager.Update(m_pTimer.deltaTime);
+
+            this.ForceRepaint();
         }
         //--------------------------------------------------------
         public Rect InspectorRect

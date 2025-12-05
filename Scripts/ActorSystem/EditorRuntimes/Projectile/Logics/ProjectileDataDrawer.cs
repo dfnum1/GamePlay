@@ -211,6 +211,7 @@ namespace Framework.ProjectileSystem.Editor
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "OverEventID");
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "launch_flag");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "externParams");
         }
         //-----------------------------------------------------
         static void DrawTransform(DrawData drawData, ProjectileData projectile, Vector2 size)

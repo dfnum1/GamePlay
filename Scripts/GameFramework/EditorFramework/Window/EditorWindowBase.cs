@@ -95,6 +95,11 @@ namespace Framework.ED
             OnInnerUpdate();
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Update(m_pTimer.deltaTime);
+         //   this.Repaint();
+        }
+        //--------------------------------------------------------
+        public void ForceRepaint()
+        {
             this.Repaint();
         }
         //--------------------------------------------------------
