@@ -202,8 +202,7 @@ namespace Framework.Cutscene.Editor
                     }
                     if(!string.IsNullOrEmpty(m_strSearchDebug) &&
                         !(db.pAttri.name.Contains(m_strSearchDebug) || 
-                        m_strSearchDebug.Contains(db.pAttri.name) ||
-                        m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.pAttri.name))))
+                        m_strSearchDebug.Contains(db.pAttri.name)))
                     {
                         continue;
                     }
@@ -225,8 +224,7 @@ namespace Framework.Cutscene.Editor
                     {
                         if (!string.IsNullOrEmpty(m_strSearchDebug) && 
                             !(db.name.Contains(m_strSearchDebug) ||
-                            m_strSearchDebug.Contains(db.name) ||
-                            m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.name))))
+                            m_strSearchDebug.Contains(db.name)))
                         {
                             continue;
                         }
@@ -256,8 +254,7 @@ namespace Framework.Cutscene.Editor
                     }
                     if (!string.IsNullOrEmpty(m_strSearchDebug) && 
                         !(db.pAttri.name.Contains(m_strSearchDebug) ||
-                        m_strSearchDebug.Contains(db.pAttri.name) ||
-                        m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.pAttri.name))))
+                        m_strSearchDebug.Contains(db.pAttri.name) ))
                     {
                         continue;
                     }
@@ -279,8 +276,7 @@ namespace Framework.Cutscene.Editor
                     {
                         if (!string.IsNullOrEmpty(m_strSearchDebug) &&
                             !(db.name.Contains(m_strSearchDebug) || 
-                            m_strSearchDebug.Contains(db.name) ||
-                            m_strSearchDebug.Contains(Framework.ED.EditorUtils.PinYin(db.name))))
+                            m_strSearchDebug.Contains(db.name)))
                         {
                             continue;
                         }

@@ -159,9 +159,6 @@ namespace Framework.Cutscene.Editor
                 return false;
             if (m_strSearchDraw.Contains(drawName) || drawName.Contains(m_strSearchDraw))
                 return true;
-            drawName = Framework.ED.EditorUtils.PinYin(drawName);
-            if(m_strSearchDraw.Contains(drawName) || drawName.Contains(m_strSearchDraw))
-                return true;
             return false;
         }
         //--------------------------------------------------------
