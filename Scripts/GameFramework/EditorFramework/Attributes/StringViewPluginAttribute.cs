@@ -8,6 +8,7 @@ using System;
 
 namespace Framework.DrawProps
 {
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class StringViewPluginAttribute : Attribute
     {
 #if UNITY_EDITOR

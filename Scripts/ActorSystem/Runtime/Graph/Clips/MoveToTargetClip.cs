@@ -21,6 +21,7 @@ namespace Framework.ActorSystem.Runtime
         [Display("基本属性")] public BaseClipProp       baseProp;
         [Display("面朝目标")] public bool faceTo = true;
         [Display("目标朝向偏移")] public bool           bDirOffset = true;
+        [Display("地表高度")]     public bool       bTerrainHeight = false;
         [Display("位置偏移")] public Vector3        posOffset; //跟随偏移量
         [Display("角度偏移")] public Vector3        rotOffset; //跟随角度偏移量
         [Display("速度曲线")] public AnimationCurve speedCurve;
@@ -89,15 +90,11 @@ namespace Framework.ActorSystem.Runtime
                 UnityEditor.EditorGUILayout.HelpBox("当前没有绑定对象", UnityEditor.MessageType.Warning);
                 return;
             }
-            if (m_pSelfTarget.GetObjectAble() != null && m_pSelfTarget.GetObjectAble() is UnityEngine.Object)
-            {
-                UnityEditor.EditorGUILayout.ObjectField("当前绑定对象", m_pSelfTarget.GetObjectAble() as UnityEngine.Object, typeof(UnityEngine.Object), true);
-            }
+               
+            UnityEditor.EditorGUILayout.ObjectField("当前绑定对象", m_pSelfTarget.GetObjectAble().pUnityObject, typeof(UnityEngine.Object), true);
 
-            if (m_pLockTarget.GetObjectAble() != null && m_pLockTarget.GetObjectAble() is UnityEngine.Object)
-            {
-                UnityEditor.EditorGUILayout.ObjectField("锁定目标", m_pLockTarget.GetObjectAble() as UnityEngine.Object, typeof(UnityEngine.Object), true);
-            }
+            if(m_pLockTarget!=null) 
+                UnityEditor.EditorGUILayout.ObjectField("锁定目标", m_pLockTarget.GetObjectAble().pUnityObject, typeof(UnityEngine.Object), true);
             if(m_pLockTarget == null)
             {
                 UnityEditor.EditorGUILayout.HelpBox("请设置锁定的编辑目标", UnityEditor.MessageType.Warning);
@@ -173,6 +170,14 @@ namespace Framework.ActorSystem.Runtime
             System.Collections.Generic.List<Actor> lockTargets = m_pSelf.GetSkillSystem().GetLockTargets();
             if (lockTargets == null || lockTargets.Count<=0) return true;
             Vector3 targetPos = lockTargets[0].GetPosition();
+            if(moveTo.bTerrainHeight)
+            {
+                targetPos.y = m_pSelf.GetActorManager().GetTerrainHeight();
+                if(Physics.Raycast(targetPos, Vector3.down, out var hit, 5, m_pSelf.GetActorManager().GetTerrainLayerMask()))
+                {
+                    targetPos.y = hit.point.y;
+                }
+            }
             if (moveTo.bDirOffset)
             {
                 targetPos += lockTargets[0].GetDirection()* moveTo.posOffset.z;

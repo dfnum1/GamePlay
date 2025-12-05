@@ -25,10 +25,11 @@ using AudioClip = ExternEngine.AudioClip;
 using Transform = ExternEngine.Transform;
 #endif
 
-using UnityEditor;
 #if UNITY_EDITOR
+using UnityEditor;
 using System.Linq;
 using System;
+using Framework.ProjectileSystem.Editor;
 #endif
 
 namespace Framework.ActorSystem.Runtime
@@ -57,6 +58,18 @@ namespace Framework.ActorSystem.Runtime
         }
         //-----------------------------------------------------
 #if UNITY_EDITOR
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        public static bool OnOpenAsset(int instanceID, int line)
+        {
+            var obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj != null && obj is AProjectileDatas)
+            {
+                ProjectileEditor.StartEditor();
+                return true;
+            }
+            return false;
+        }
+        //-----------------------------------------------------
         public string GetDataPath(ProjectileData data)
         {
             if (m_vDataOriFiles.TryGetValue(data, out var file))

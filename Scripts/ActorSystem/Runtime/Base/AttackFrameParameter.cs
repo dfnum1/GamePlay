@@ -29,7 +29,7 @@ namespace Framework.ActorSystem.Runtime
 
         [Display("受击持续时长", "如果为0且有动作，则取动作的时长")] public float target_duration_hit;
         [Display("受击特效缩放")] public float target_effect_hit_scale = 1.0f;
-        [Display("受击特效"), StringView(typeof(GameObject))] public string target_effect_hit;
+        [Display("受击特效"), StringView(typeof(GameObject)), StringViewPlugin("OnDrawSelectPrefabInspector")] public string target_effect_hit;
         [Display("受击特效偏移")] public Vector3 target_effect_hit_offset;
         [Display("受击特效挂点"), BindSlot] public string effect_hit_slot;
 

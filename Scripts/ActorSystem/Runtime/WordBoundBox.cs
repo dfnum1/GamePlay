@@ -25,6 +25,8 @@ namespace Framework.ActorSystem.Runtime
     {
         private FVector3 m_Min;
         private FVector3 m_Max;
+        private FVector3 m_WorldMin;
+        private FVector3 m_WorldMax;
         private FMatrix4x4 m_Transform;
 
         public WorldBoundBox(FVector3 min, FVector3 max)
@@ -32,6 +34,8 @@ namespace Framework.ActorSystem.Runtime
             m_Transform = FMatrix4x4.identity;
             m_Min = FVector3.Min(min, max);
             m_Max = FVector3.Max(min, max);
+            m_WorldMin = m_Min;
+            m_WorldMax = m_Max;
         }
         //-------------------------------------------------
         public WorldBoundBox(WorldBoundBox box)
@@ -39,11 +43,15 @@ namespace Framework.ActorSystem.Runtime
             m_Transform = FMatrix4x4.identity;
             m_Min = box.m_Min;
             m_Max = box.m_Max;
+            m_WorldMin = m_Min;
+            m_WorldMax = m_Max;
         }
         //-------------------------------------------------
         public void SetTransform(FMatrix4x4 mtWorld)
         {
             m_Transform = mtWorld;
+            m_WorldMin = m_Transform.MultiplyPoint(m_Min);
+            m_WorldMax = m_Transform.MultiplyPoint(m_Max);
         }
         //-------------------------------------------------
         public FMatrix4x4 GetTransform()
@@ -56,6 +64,8 @@ namespace Framework.ActorSystem.Runtime
             m_Transform = FMatrix4x4.identity;
             m_Min = FVector3.zero;
             m_Max = FVector3.zero;
+            m_WorldMin = m_Min;
+            m_WorldMax = m_Max;
         }
         //-------------------------------------------------
         public FVector3 GetCenter(bool bWorld = false)
@@ -76,13 +86,13 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         public FVector3 GetMin(bool bWorld = false)
         {
-            if (bWorld) return m_Transform.MultiplyPoint(m_Min);
+            if (bWorld) return m_WorldMin;
             return m_Min;
         }
         //-------------------------------------------------
         public FVector3 GetMax(bool bWorld = false)
         {
-            if (bWorld) return m_Transform.MultiplyPoint(m_Max);
+            if (bWorld) return m_WorldMax;
             return m_Max;
         }
         //-------------------------------------------------

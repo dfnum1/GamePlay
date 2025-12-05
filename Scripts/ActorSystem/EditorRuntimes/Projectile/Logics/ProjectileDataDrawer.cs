@@ -194,13 +194,14 @@ namespace Framework.ProjectileSystem.Editor
             projectile.launch_delay = EditorGUILayout.FloatField("延迟发射", projectile.launch_delay);
             string preEffectPrefab = projectile.effect;
             projectile.effectSpeed = EditorGUILayout.FloatField("特效播放速度", projectile.effectSpeed);
-            projectile.effect = EditorUtils.DrawUIObjectByPath<GameObject>("特效资源", projectile.effect);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "effect");
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "hit_effect");
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "sound_launch");
 
             string preWaringEffectPrefab = projectile.waring_effect;
             projectile.waring_duration = EditorGUILayout.FloatField("预警时长", projectile.waring_duration);
-            projectile.waring_effect = EditorUtils.DrawUIObjectByPath<GameObject>("预警特效", projectile.waring_effect);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "waring_effect");
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "scale");
             projectile.unSceneTest = EditorGUILayout.Toggle("忽略场景地表检测", projectile.unSceneTest);
@@ -443,8 +444,8 @@ namespace Framework.ProjectileSystem.Editor
                 InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bound_hit_sound", null, "弹射击中音效");
 
                 projectile.bound_effectSpeed = EditorGUILayout.FloatField("弹射特效播放速度", projectile.bound_effectSpeed);
-                projectile.bound_effect = EditorUtils.DrawUIObjectByPath<GameObject>("弹射特效资源", projectile.bound_effect);
-                projectile.bound_hit_effect = EditorUtils.DrawUIObjectByPath<GameObject>("弹射击中特效", projectile.bound_hit_effect);
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bound_effect");
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "bound_hit_effect");
 
                 if (projectile.bound_range > 0)
                 {
@@ -506,13 +507,13 @@ namespace Framework.ProjectileSystem.Editor
             projectile.explode_range = EditorGUILayout.FloatField("爆炸范围", projectile.explode_range);
             if (projectile.explode_range > 0)
             {
-                projectile.explode_effect = EditorUtils.DrawUIObjectByPath<GameObject>("爆炸击中特效", projectile.explode_effect);
+                InspectorDrawUtil.DrawPropertyByFieldName(projectile, "explode_effect");
                 projectile.explode_effect_offset = EditorGUILayout.Vector3Field("爆炸击中特效偏移", projectile.explode_effect_offset);
                 InspectorDrawUtil.DrawPropertyByFieldName(projectile, "explode_damage_id");
             }
 
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "HitEventID");
-            projectile.target_effect_hit = EditorUtils.DrawUIObjectByPath<GameObject>("击中特效", projectile.target_effect_hit);
+            InspectorDrawUtil.DrawPropertyByFieldName(projectile, "target_effect_hit");
             InspectorDrawUtil.DrawPropertyByFieldName(projectile, "effect_hit_slot", null, "击中特效绑点");
             projectile.target_effect_hit_offset = EditorGUILayout.Vector3Field("击中特效位置偏移", projectile.target_effect_hit_offset);
             projectile.target_effect_hit_scale = EditorGUILayout.FloatField("击中特效缩放", projectile.target_effect_hit_scale);

@@ -6,6 +6,7 @@
 *********************************************************************/
 
 #if UNITY_EDITOR
+using Framework.DrawProps;
 using Microsoft.International.Converters.PinYinConverter;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,61 @@ namespace Framework.ED
     public class EditorUtils
     {
         const string PACKAGE_NAME = "com.iggrd1.gameplay";
+        private static bool ms_LoadUnityPluginCheck = false;
+        private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
+        //-----------------------------------------------------
+        static void EditorPluginInit()
+        {
+            if (ms_LoadUnityPluginCheck)
+                return;
+            ms_LoadUnityPluginCheck =true;
+            if (ms_pLoadUnityPlugin == null)
+            {
+                foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    Type[] types = ass.GetTypes();
+                    for (int i = 0; i < types.Length; ++i)
+                    {
+                        Type tp = types[i];
+                        if (tp.IsDefined(typeof(EditorLoaderAttribute), false))
+                        {
+                            var clipAttri = tp.GetCustomAttribute<EditorLoaderAttribute>();
+                            ms_pLoadUnityPlugin = tp.GetMethod(clipAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------
+        public static UnityEngine.Object EditLoadUnityObject(string file)
+        {
+            return EditLoadUnityObject<UnityEngine.Object>(file);
+        }
+        //-----------------------------------------------------
+        public static T EditLoadUnityObject<T>(string file) where T : UnityEngine.Object
+        {
+            EditorPluginInit();
+            if (ms_pLoadUnityPlugin != null)
+            {
+                var returnObj = ms_pLoadUnityPlugin.Invoke(null, new object[] { file });
+                if (returnObj != null && returnObj is T)
+                    return returnObj as T;
+            }
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(file);
+        }
+        //-----------------------------------------------------
+        public static UnityEngine.Object EditLoadUnityObject(string file, System.Type type) 
+        {
+            EditorPluginInit();
+            if (ms_pLoadUnityPlugin != null)
+            {
+                var returnObj = ms_pLoadUnityPlugin.Invoke(null, new object[] { file });
+                if (returnObj != null && returnObj.GetType().IsSubclassOf(type))
+                    return returnObj as UnityEngine.Object;
+            }
+            return UnityEditor.AssetDatabase.LoadAssetAtPath(file,type);
+        }
         //-------------------------------------------------
         static Dictionary<string, System.Type> ms_vBindTypes = null;
         public static System.Type GetTypeByName(string typeName)
@@ -335,6 +391,11 @@ namespace Framework.ED
         //------------------------------------------------------
         public static string DrawUIObjectByPath<T>(string label, string strFile, bool bClear = true, Action onDel = null) where T : UnityEngine.Object
         {
+            return DrawUIObjectByPath<T>(label,strFile,bClear, onDel);
+        }
+        //------------------------------------------------------
+        public static string DrawUIObjectByPath<T>(GUIContent label, string strFile, bool bClear = true, Action onDel = null) where T : UnityEngine.Object
+        {
             Color color = GUI.color;
             T asset = AssetDatabase.LoadAssetAtPath<T>(strFile);
             if (asset == null)
@@ -343,6 +404,39 @@ namespace Framework.ED
             }
             EditorGUILayout.BeginHorizontal();
             asset = EditorGUILayout.ObjectField(label, asset, typeof(T), false) as T;
+            if (asset != null)
+                strFile = AssetDatabase.GetAssetPath(asset);
+            if (bClear && GUILayout.Button("Çå³ý", new GUILayoutOption[] { GUILayout.Width(50) }))
+            {
+                strFile = "";
+            }
+            if (onDel != null)
+            {
+                if (GUILayout.Button("Çå³ý", new GUILayoutOption[] { GUILayout.Width(50) }))
+                {
+                    onDel();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            GUI.color = color;
+            return strFile;
+        }
+        //------------------------------------------------------
+        public static string DrawUIObjectByPath(string label, string strFile, System.Type type, bool bClear = true, Action onDel = null)
+        {
+            return DrawUIObjectByPath(new GUIContent(label), strFile, type, bClear, onDel);
+        }
+        //------------------------------------------------------
+        public static string DrawUIObjectByPath(GUIContent label, string strFile, System.Type type, bool bClear = true, Action onDel = null)
+        {
+            Color color = GUI.color;
+            var asset = EditLoadUnityObject(strFile, type);
+            if (asset == null)
+            {
+                GUI.color = Color.red;
+            }
+            EditorGUILayout.BeginHorizontal();
+            asset = EditorGUILayout.ObjectField(label, asset, type, false);
             if (asset != null)
                 strFile = AssetDatabase.GetAssetPath(asset);
             if (bClear && GUILayout.Button("Çå³ý", new GUILayoutOption[] { GUILayout.Width(50) }))

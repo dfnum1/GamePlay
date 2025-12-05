@@ -33,9 +33,9 @@ namespace Framework.ActorSystem.Runtime
             m_pActor = pActor;
         }
         //--------------------------------------------------------
-        public IContextData GetAble()
+        public ActorContext GetAble()
         {
-            if (m_pActor == null) return null;
+            if (m_pActor == null) return ActorContext.NULL;
             return m_pActor.GetObjectAble();
         }
         //--------------------------------------------------------
@@ -58,12 +58,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         protected virtual void OnInit() { }
         //--------------------------------------------------------
-        public void LoadedAble(IContextData component)
+        public void LoadedAble(ActorContext component)
         {
             OnLoadedAble(component);
         }
         //--------------------------------------------------------
-        protected virtual void OnLoadedAble(IContextData component) { }
+        protected virtual void OnLoadedAble(ActorContext component) { }
         //--------------------------------------------------------
         public void Update(float fDelta)
         {

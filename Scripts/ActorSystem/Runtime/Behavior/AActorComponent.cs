@@ -6,6 +6,8 @@
 *********************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.ProjectileSystem.Editor;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using Framework.ActorSystem.Editor;
@@ -79,6 +81,20 @@ namespace Framework.ActorSystem.Runtime
                 if (GUILayout.Button("动画调试"))
                     GraphPlayableUtil.DebugPlayable((target as AActorComponent).gameObject);
             }
+        }
+        //-----------------------------------------------------
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        internal static bool OnOpenAsset(int instanceID, int line)
+        {
+            var obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj != null && obj is GameObject)
+            {
+                GameObject pGo = obj as GameObject;
+                AActorComponent pComp = pGo.GetComponent<AActorComponent>();
+                if (pComp) ActionEditorWindow.OpenTarget(pComp);
+//                return true;
+            }
+            return false;
         }
         //-----------------------------------------------------
         [MenuItem("Assets/打开动作编辑器", true)]

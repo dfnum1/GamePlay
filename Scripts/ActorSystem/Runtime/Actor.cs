@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	Actor单位
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ using UnityEngine;
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
-using UnityEngine;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
@@ -20,6 +20,9 @@ using FVector3 = UnityEngine.Vector3;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
+    //--------------------------------------------------------
+    //! Actor
+    //--------------------------------------------------------
     public class Actor : TypeObject, ICutsceneObject
     {
         public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);
@@ -33,8 +36,7 @@ namespace Framework.ActorSystem.Runtime
 
         protected WorldTransform                m_Transform = new WorldTransform(FVector3.zero);
         protected WorldBoundBox                 m_BoundBox = new WorldBoundBox();
-        IContextData                            m_pObjectAble;
-        Transform                               m_pUnityTransform;
+        ActorContext                            m_pObjectAble = new ActorContext();
         private Dictionary<int, Component>      m_vComponents = null;
 
         ActorGraph                              m_pGraph = null;
@@ -86,9 +88,15 @@ namespace Framework.ActorSystem.Runtime
             return GetActorParameter().GetCfgData();
         }
         //--------------------------------------------------------
-        public void SetObjectAble(IContextData pObject)
+        void DestroyObjectAble()
         {
-            if (m_pObjectAble == pObject)
+            m_pObjectAble.Clear(this);
+            if (m_vComponents != null) m_vComponents.Clear();
+        }
+        //--------------------------------------------------------
+        public void SetObjectContext(IContextData pObject)
+        {
+            if (m_pObjectAble.pContextData == pObject)
             {
                 m_Transform.bDirtyPos = true;
                 m_Transform.bDirtyEuler = true;
@@ -96,16 +104,68 @@ namespace Framework.ActorSystem.Runtime
                 return;
             }
 
-            if (m_pUnityTransform != null)
-                m_pSytstem.DespawnInstance(m_pUnityTransform.gameObject);
-            m_pUnityTransform = null;
+            DestroyObjectAble();
+            m_pObjectAble.SetContextData(this, pObject);
+            DoObjectAble();
+        }
+        //--------------------------------------------------------
+        public void SetObjectAble(UnityEngine.Object pObject)
+        {
+            if (m_pObjectAble.pUnityObject == pObject)
+            {
+                m_Transform.bDirtyPos = true;
+                m_Transform.bDirtyEuler = true;
+                m_Transform.bDirtyScale = true;
+                return;
+            }
 
-            m_pObjectAble = null;
+            if(pObject is AActorComponent)
+            {
+                SetObjectContext((AActorComponent)pObject);
+                return;
+            }
+
+            DestroyObjectAble();
+            m_pObjectAble.SetContextData(this, pObject);
+            DoObjectAble();
+        }
+        //--------------------------------------------------------
+        public void SetObjectAble(UnityEngine.Transform pTransform)
+        {
+            if (m_pObjectAble.pUnityTransform == pTransform)
+            {
+                m_Transform.bDirtyPos = true;
+                m_Transform.bDirtyEuler = true;
+                m_Transform.bDirtyScale = true;
+                return;
+            }
+
+            DestroyObjectAble();
+            m_pObjectAble.SetContextData(this, pTransform);
+            DoObjectAble();
+        }
+        //--------------------------------------------------------
+        public void SetObjectAble(UnityEngine.GameObject pGo)
+        {
+            if (m_pObjectAble.pUnityGameObject == pGo)
+            {
+                m_Transform.bDirtyPos = true;
+                m_Transform.bDirtyEuler = true;
+                m_Transform.bDirtyScale = true;
+                return;
+            }
+
+            DestroyObjectAble();
+            m_pObjectAble.SetContextData(this, pGo);
+            DoObjectAble();
+        }
+        //--------------------------------------------------------
+        void DoObjectAble()
+        {
             if (IsDestroy())
             {
                 return;
             }
-            m_pObjectAble = pObject;
             m_Transform.bDirtyPos = true;
             m_Transform.bDirtyEuler = true;
             m_Transform.bDirtyScale = true;
@@ -114,33 +174,24 @@ namespace Framework.ActorSystem.Runtime
             {
                 for (int i = 0; i < m_vAgents.Count; ++i)
                 {
-                    m_vAgents[i].LoadedAble(pObject);
+                    m_vAgents[i].LoadedAble(m_pObjectAble);
                 }
             }
 
-            if (pObject !=null)
+            if (m_pObjectAble.pUnityObject != null && m_pObjectAble.pUnityObject is AActorComponent)
             {
-                if(pObject is AActorComponent)
-                {
-                    AActorComponent actorComp = pObject as AActorComponent;
-                    m_pUnityTransform = actorComp.GetTransform();
-                    if(actorComp.ActionGraphData!=null)
-                        GetActorGraph().LoadActorGraph(actorComp.ActionGraphData, OnLoadActorGraph);
-                }
-                else if(pObject is Transform)
-                {
-                    m_pUnityTransform = pObject as Transform;
-                }
-                m_pSytstem.OnActorStatusCallback(this, EActorStatus.Loaded);
+                var actorComp = m_pObjectAble.pUnityObject as AActorComponent;
+                if (actorComp.ActionGraphData != null)
+                    GetActorGraph().LoadActorGraph(actorComp.ActionGraphData, OnLoadActorGraph);
             }
             OnObjectAble(m_pObjectAble);
             UpdateTransform();
+            m_pSytstem.OnActorStatusCallback(this, EActorStatus.Loaded);
         }
         //--------------------------------------------------------
         protected void BreakObjectAble()
         {
-            m_pObjectAble = null;
-            m_pUnityTransform = null;
+            m_pObjectAble.ClearNoDespawn();
         }
         //--------------------------------------------------------
         public bool LoadActorGraph(string actorGraph)
@@ -157,7 +208,7 @@ namespace Framework.ActorSystem.Runtime
             GetAgent<ActorGraphicAgent>(true).OnLoadActorGraphData(graphData);
         }
         //--------------------------------------------------------
-        protected virtual void OnObjectAble(IContextData userData)
+        protected virtual void OnObjectAble(ActorContext userData)
         {
         }
         //--------------------------------------------------------
@@ -381,6 +432,8 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         protected virtual void OnFlagDirty(EActorFlag flag, bool IsUsed)
         {
+            if (m_pSytstem == null)
+                return;
          //   if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.NodeFlag, (int)flag, IsUsed ? 1 : 0));
             switch (flag)
             {
@@ -461,7 +514,7 @@ namespace Framework.ActorSystem.Runtime
 #if !USE_SERVER
             if (IsColliderAble() != bAble)
             {
-                if (m_pUnityTransform)
+                if (m_pObjectAble.pUnityGameObject)
                 {
                     if (bAble)
                     {
@@ -580,7 +633,7 @@ namespace Framework.ActorSystem.Runtime
             {
                 pAgent = AddAgent<T>();
                 pAgent.Init();
-                if (m_pObjectAble != null)
+                if (m_pObjectAble.IsValid())
                 {
                     pAgent.LoadedAble(m_pObjectAble);
                 }
@@ -854,15 +907,14 @@ namespace Framework.ActorSystem.Runtime
             return m_pSkillSystem.GetCurrentSkill(false) != null;
         }
         //--------------------------------------------------------
-        public IContextData GetObjectAble()
+        public ActorContext GetObjectAble()
         {
             return m_pObjectAble;
         }
         //--------------------------------------------------------
         public T GetComponent<T>(bool bFindChild = false) where T : Component
         {
-            if (m_pObjectAble == null || !(m_pObjectAble is MonoBehaviour)) return null;
-            MonoBehaviour monoBehaviour = m_pObjectAble as MonoBehaviour;
+            if (m_pObjectAble.pUnityGameObject == null ) return null;
             int hashCode = typeof(T).GetHashCode();
             if (m_vComponents == null)
             {
@@ -872,10 +924,10 @@ namespace Framework.ActorSystem.Runtime
             if (m_vComponents.TryGetValue(hashCode, out retCom))
                 return retCom as T;
 
-            retCom = monoBehaviour.GetComponent<T>();
+            retCom = m_pObjectAble.pUnityGameObject.GetComponent<T>();
             if (retCom == null && bFindChild)
             {
-                retCom = monoBehaviour.GetComponentInChildren<T>();
+                retCom = m_pObjectAble.pUnityGameObject.GetComponentInChildren<T>();
             }
             m_vComponents[hashCode] = retCom;
             return retCom as T;
@@ -883,8 +935,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public T AddComponent<T>(bool bNullNew = true, System.Type type = null) where T : Component
         {
-            if (m_pObjectAble == null || !(m_pObjectAble is MonoBehaviour)) return null;
-            MonoBehaviour monoBehaviour = m_pObjectAble as MonoBehaviour;
+            if (m_pObjectAble.pUnityGameObject == null) return null;
             if (type == null) type = typeof(T);
             int hashCode = type.GetHashCode();
             if (m_vComponents != null)
@@ -898,7 +949,7 @@ namespace Framework.ActorSystem.Runtime
                     }
                 }
             }
-            T newComp = monoBehaviour.gameObject.AddComponent(type) as T;
+            T newComp = m_pObjectAble.pUnityGameObject.AddComponent(type) as T;
             if (newComp == null) return null;
             if (m_vComponents == null) m_vComponents = new Dictionary<int, Component>(2);
             m_vComponents[hashCode] = newComp;
@@ -949,13 +1000,12 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public UnityEngine.Object GetUniyObject()
         {
-            if (m_pUnityTransform == null) return null;
-            return m_pUnityTransform.gameObject;
+            return m_pObjectAble.pUnityObject;
         }
         //--------------------------------------------------------
         public Transform GetUniyTransform()
         {
-            return m_pUnityTransform;
+            return m_pObjectAble.pUnityTransform;
         }
         //--------------------------------------------------------
         public Animator GetAnimator()
@@ -1096,20 +1146,25 @@ namespace Framework.ActorSystem.Runtime
                 bool bDirty = false;
                 if (m_Transform.bDirtyPos)
                 {
-                    if (m_pUnityTransform != null)
+                    if (m_pObjectAble.pUnityTransform)
                     {
-                        m_pUnityTransform.position=m_Transform.GetPosition();
+                        m_pObjectAble.pUnityTransform.position=m_Transform.GetPosition();
                     }
                     m_Transform.bDirtyPos = false;
-                //    if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.Position, m_Transform.GetPosition()));
+                    //    if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.Position, m_Transform.GetPosition()));
+                    ActorManager actorManager = GetActorManager();
+                    if (actorManager != null)
+                    {
+                        actorManager.UpdateActorSpatialIndex(this);
+                    }
                     OnDirtyPosition();
                     bDirty = true;
                 }
                 if (m_Transform.bDirtyEuler)
                 {
-                    if (m_pUnityTransform != null)
+                    if (m_pObjectAble.pUnityTransform)
                     {
-                        m_pUnityTransform.eulerAngles =m_Transform.GetEulerAngle();
+                        m_pObjectAble.pUnityTransform.eulerAngles =m_Transform.GetEulerAngle();
                     }
                     m_Transform.bDirtyEuler = false;
                //     if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.EulerAngle, m_Transform.GetEulerAngle()));
@@ -1118,24 +1173,27 @@ namespace Framework.ActorSystem.Runtime
                 }
                 if (m_Transform.bDirtyScale)
                 {
-                    if (m_pUnityTransform != null)
+                    if (m_pObjectAble.pUnityTransform)
                     {
-                        m_pUnityTransform.localScale =m_Transform.GetScale();
+                        m_pObjectAble.pUnityTransform.localScale =m_Transform.GetScale();
                     }
                     m_Transform.bDirtyScale = false;
                //     if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.Scale, m_Transform.GetScale()));
                     OnDirtyScale();
                     bDirty = true;
-                    m_BoundBox.SetTransform(m_Transform.GetMatrix());
                 }
+                if(bDirty)
+                    m_BoundBox.SetTransform(m_Transform.GetMatrix());
             }
             else
             {
-                if (m_pUnityTransform != null) m_pUnityTransform.position =INVAILD_POS;
+                if (m_pObjectAble.pUnityTransform) m_pObjectAble.pUnityTransform.position =INVAILD_POS;
             }
         }
         //------------------------------------------------------
-        protected virtual void OnDirtyPosition() { }
+        protected virtual void OnDirtyPosition() 
+        {
+        }
         //------------------------------------------------------
         protected virtual void OnDirtyEulerAngle() { }
         //------------------------------------------------------
@@ -1249,7 +1307,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public virtual Matrix4x4 GetEventBindSlot(string strSlot, int bindSlot = (int)ESlotBindBit.All)
         {
-            if (bindSlot == 0 || m_pUnityTransform == null) return GetMatrix();
+            if (bindSlot == 0 || m_pObjectAble.pUnityTransform == null) return GetMatrix();
             if (string.IsNullOrEmpty(strSlot)) return GetMatrix();
             if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return GetMatrix();
             if (strSlot.Equals("RootTop", StringComparison.OrdinalIgnoreCase))
@@ -1260,7 +1318,8 @@ namespace Framework.ActorSystem.Runtime
             }
             Matrix4x4 matrix = GetMatrix();
 
-            AActorComponent actorComp = m_pObjectAble as AActorComponent;
+            if (m_pObjectAble.pUnityObject == null) return matrix;
+            AActorComponent actorComp = m_pObjectAble.pUnityObject as AActorComponent;
             if (actorComp == null)
                 return matrix;
 
@@ -1288,14 +1347,13 @@ namespace Framework.ActorSystem.Runtime
         public virtual Transform GetEventBindSlot(string strSlot, out FVector3 slotOffset)
         {
             slotOffset = FVector3.zero;
-            if (m_pUnityTransform == null) return null;
+            if (m_pObjectAble.pUnityObject == null) return null;
             if (string.IsNullOrEmpty(strSlot)) return null;
-            if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return m_pUnityTransform;
+            if (strSlot.Equals("Root", StringComparison.OrdinalIgnoreCase)) return m_pObjectAble.pUnityTransform;
             Matrix4x4 matrix = GetMatrix();
-
-            AActorComponent actorComp = m_pObjectAble as AActorComponent;
+            AActorComponent actorComp = m_pObjectAble.pUnityObject as AActorComponent;
             if (actorComp == null)
-                return m_pUnityTransform;
+                return m_pObjectAble.pUnityTransform;
 
             return actorComp.GetSlot(strSlot,out slotOffset);
         }
@@ -1328,19 +1386,18 @@ namespace Framework.ActorSystem.Runtime
             }
             m_Transform.Clear();
             if (m_vComponents != null) m_vComponents.Clear();
-            if (m_pUnityTransform != null)
-            {
-                m_pSytstem.DespawnInstance(m_pUnityTransform.gameObject);
-                m_pUnityTransform = null;
-            }
-            m_pObjectAble = null;
-            m_pUnityTransform = null;
+            m_pObjectAble.Clear(this);
             m_pSytstem = null;
             Reset();
         }
         //--------------------------------------------------------
         protected virtual void OnDestroy()
         { 
+        }
+        //--------------------------------------------------------
+        public override int GetHashCode()
+        {
+            return m_nInstanceID;
         }
 #if UNITY_EDITOR
         //--------------------------------------------------------

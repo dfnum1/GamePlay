@@ -106,10 +106,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
 
             var actorAble = pActor.GetObjectAble();
-            if (actorAble == null)
-                return;
-
-            AActorComponent actorComp = actorAble as AActorComponent;
+            AActorComponent actorComp = actorAble.CastContextData<AActorComponent>();
             if (actorComp == null)
                 return;
 

@@ -1072,6 +1072,7 @@ namespace Framework.Cutscene.Editor
                         m_pCutscene.Evaluate(m_fPlayTime);
                     }
                     //    m_fPlayTime += GetInvFrame() * Time.timeScale;
+                    this.GetOwner<EditorWindowBase>().ForceRepaint();
                 }
                 else
                     m_pCutscene.Evaluate(m_fPlayTime);

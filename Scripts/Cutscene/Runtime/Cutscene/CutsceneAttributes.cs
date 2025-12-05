@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	过场动画属性
 *********************************************************************/
+using Framework.DrawProps;
 using System;
 using UnityEngine;
 namespace Framework.Cutscene.Runtime
@@ -31,17 +32,11 @@ namespace Framework.Cutscene.Runtime
         }
     }
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-    public class CutsceneEditorLoaderAttribute : System.Attribute
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    public class CutsceneEditorLoaderAttribute : EditorLoaderAttribute
     {
-#if UNITY_EDITOR
-        public string method;
-#endif
-        public CutsceneEditorLoaderAttribute(string method)
+        public CutsceneEditorLoaderAttribute(string method) : base(method)
         {
-#if UNITY_EDITOR
-            this.method = method;
-#endif
         }
     }
     //-----------------------------------------------------

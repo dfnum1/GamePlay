@@ -4,7 +4,12 @@
 作    者:	HappLI
 描    述:	引导数据
 *********************************************************************/
+
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+using Framework.Guide.Editor;
+#endif
 using UnityEngine;
 namespace Framework.Guide
 {
@@ -98,6 +103,17 @@ namespace Framework.Guide
             }
         }
 #if UNITY_EDITOR
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        public static bool OnOpenAsset(int instanceID, int line)
+        {
+            var obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj != null && obj is AGuideDatas)
+            {
+                GuideSystemEditor.OpenTool();
+                return true;
+            }
+            return false;
+        }
         //------------------------------------------------------
         public GuideGroup New()
         {

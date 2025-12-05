@@ -576,6 +576,18 @@ namespace Framework.ActorSystem.Runtime
             if (!string.IsNullOrEmpty(projectileData.waring_effect))
             {
                 pProjectile.TestFinalDropPos(Time.deltaTime);
+             //   m_pActorManager.SpawnInstance(projectileData.waring_effect, (ins) =>
+             //   {
+//
+              //  });
+            }
+            if (!string.IsNullOrEmpty(projectileData.effect))
+            {
+                m_pActorManager.SpawnInstance(projectileData.effect, (ins) =>
+                {
+                    pProjectile.SetObjectAble(ins.transform);
+                });
+                //    pProjectile.pCallback = pOp;
             }
 #endif
         }

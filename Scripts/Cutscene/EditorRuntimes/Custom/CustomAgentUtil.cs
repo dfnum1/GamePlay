@@ -24,7 +24,7 @@ namespace Framework.Cutscene.Editor
         private static ACutsceneCustomAgent ms_Agent;
         public static void Init(bool bForce = false)
         {
-            if(!bForce && ms_vEvents != null && ms_vClips != null && ms_Agent!=null)
+            if(!bForce && ms_vEvents != null && ms_vClips != null)
             {
                 return;
             }
@@ -77,6 +77,29 @@ namespace Framework.Cutscene.Editor
                 }
                 ms_Agent = agents;
                 break;//only load the first one
+            }
+            if(ms_Agent == null)
+            {
+                if(EditorUtility.DisplayDialog("提示", "过场中自定义行为剪辑/事件 没有创建或丢失！", "重新创建", "确认"))
+                {
+                    ACutsceneCustomAgent customAgents = Framework.ED.EditorUtils.CreateUnityScriptObject<ACutsceneCustomAgent>();
+                    if (customAgents == null)
+                    {
+                        Debug.LogError("Create CutsceneCustomAgent failed.");
+                        return;
+                    }
+                    string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "CutsceneCustomAgent", "asset");
+                    saveFile = saveFile.Replace("\\", "/");
+                    if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))
+                    {
+                        saveFile = saveFile.Replace("\\", "/").Replace(Application.dataPath.Replace("\\", "/"), "Assets");
+                        if (saveFile.StartsWith("/")) saveFile = saveFile.Substring(1);
+                        AssetDatabase.CreateAsset(customAgents, saveFile);
+                        AssetDatabase.SaveAssets();
+                        ms_Agent = AssetDatabase.LoadAssetAtPath<ACutsceneCustomAgent>(saveFile);
+                    }
+                }
+                Debug.LogWarning("No CutsceneCustomAgent asset found in project.");
             }
         }
         //-----------------------------------------------------
@@ -137,7 +160,7 @@ namespace Framework.Cutscene.Editor
                         Debug.LogError("Create ACutsceneCustomAgent failed.");
                         return;
                     }
-                    string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "ACutsceneCustomAgent", "asset");
+                    string saveFile = EditorUtility.SaveFilePanel("保存自定义行为参数配置", Application.dataPath, "CutsceneCustomAgent", "asset");
                     saveFile = saveFile.Replace("\\", "/");
                     if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))
                     {

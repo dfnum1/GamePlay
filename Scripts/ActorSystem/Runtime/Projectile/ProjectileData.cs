@@ -112,9 +112,10 @@ namespace Framework.ActorSystem.Runtime
         public EProjectileType type = EProjectileType.Projectile;
         [Display("出生类型")] public EProjecitleBornType bornType = EProjecitleBornType.None;
         public float effectSpeed = -1;
+        [StringViewPlugin("OnDrawSelectPrefabInspector"),StringView(typeof(GameObject)), Display("特效资源")]
         public string effect;
         //      public string effect_trail_wide;
-        [Display("发射音效")]
+        [Display("发射音效"), StringViewPlugin("OnWwiseEventNamePop")]
         public string sound_launch;
         public Vector3[] speedLows;
         public Vector3[] speedUppers;
@@ -177,14 +178,17 @@ namespace Framework.ActorSystem.Runtime
         [Display("弹射锁定最大高度")]
         public float bound_maxLockHeight = 0;
 
+        [Display("弹射特效"), StringViewPlugin("OnDrawSelectPrefabInspector"), StringView(typeof(GameObject))]
         public string bound_effect = null;
         public float bound_effectSpeed = -1;
-    //    [StringView("FMODUnity.EventReference", -1)]
+        [Display("弹射音效"), StringViewPlugin("OnWwiseEventNamePop")]
         public string bound_sound_launch = null;
+        [Display("弹射击中特效"), StringViewPlugin("OnDrawSelectPrefabInspector"), StringView(typeof(GameObject))]
         public string bound_hit_effect = null;
-    //    [StringViewGUI("FMODUnity.EventReference", -1))]
+        [Display("弹射击中音效"), StringViewPlugin("OnWwiseEventNamePop")]
         public string bound_hit_sound = null;
 
+        [Display("预警特效"), StringViewPlugin("OnDrawSelectPrefabInspector"), StringView(typeof(GameObject))]
         public string waring_effect = "";
         public float waring_duration = 0;
 
@@ -192,6 +196,7 @@ namespace Framework.ActorSystem.Runtime
         public string[] track_target_slot;
         public Vector3 track_target_offset;
 
+        [Display("爆炸特效"), StringViewPlugin("OnDrawSelectPrefabInspector"), StringView(typeof(GameObject))]
         public string explode_effect;
         public Vector3 explode_effect_offset;
 

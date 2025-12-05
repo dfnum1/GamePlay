@@ -117,39 +117,10 @@ namespace Framework.ActorSystem.Runtime
         }
         //------------------------------------------------------
 #if UNITY_EDITOR
-        private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
-        //-----------------------------------------------------
-        static void Init()
-        {
-            if(ms_pLoadUnityPlugin == null)
-            {
-                foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    Type[] types = ass.GetTypes();
-                    for (int i = 0; i < types.Length; ++i)
-                    {
-                        Type tp = types[i];
-                        if (tp.IsDefined(typeof(CutsceneEditorLoaderAttribute), false))
-                        {
-                            var clipAttri = tp.GetCustomAttribute<CutsceneEditorLoaderAttribute>();
-                            ms_pLoadUnityPlugin = tp.GetMethod(clipAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
         //-----------------------------------------------------
         public static UnityEngine.Object EditLoadUnityObject(string file)
         {
-            Init();
-            if (ms_pLoadUnityPlugin != null)
-            {
-                var returnObj = ms_pLoadUnityPlugin.Invoke(null, new object[] { file });
-                if (returnObj != null && returnObj is UnityEngine.Object)
-                    return returnObj as UnityEngine.Object;
-            }
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(file);
+            return Framework.ED.EditorUtils.EditLoadUnityObject(file);
         }
         //------------------------------------------------------
         public static void DrawBoundingBox(Vector3 vCenter, Vector3 vHalf, Matrix4x4 mWorld, Color dwColor, bool bGizmos)

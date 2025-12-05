@@ -21,11 +21,6 @@ namespace Framework.ActorSystem.Editor
             try
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("导入", new GUILayoutOption[] { GUILayout.Width(80) }))
-                {
-                    string file = EditorUtility.OpenFilePanel("表现Timeline", Application.dataPath, ".skill");
-                }
-                GUILayout.Button("批量导出", new GUILayoutOption[] { GUILayout.Width(80) });
                 if (GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
                 {
                     GetOwner().SaveChanges();
@@ -38,6 +33,11 @@ namespace Framework.ActorSystem.Editor
                 if (GUILayout.Button("动画调试", new GUILayoutOption[] { GUILayout.Width(80) }))
                 {
                     GraphPlayableUtil.DebugPlayable(GetActor());
+                }
+                if (GUILayout.Button("显示树空间", new GUILayoutOption[] { GUILayout.Width(80) }))
+                {
+                    ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
+                    editor.ShowSpatialActorDebug();
                 }
                 GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) });
                 GUILayout.EndHorizontal();

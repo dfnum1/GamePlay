@@ -101,9 +101,9 @@ namespace Framework.ActorSystem.Editor
 
 
                 var objectAble = actor.GetObjectAble();
-                if(objectAble!=null)
+                if(objectAble.pContextData!=null)
                 {
-                    AActorComponent actorComp = objectAble as AActorComponent;
+                    AActorComponent actorComp = objectAble.CastContextData<AActorComponent>();
                     if(actorComp!=null && actorComp.slots!=null)
                     {
                         for(int j =0; j < actorComp.slots.Length; ++j)

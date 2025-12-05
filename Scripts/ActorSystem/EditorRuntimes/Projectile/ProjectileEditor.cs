@@ -51,7 +51,7 @@ namespace Framework.ProjectileSystem.Editor
         TimelinePanel m_Timeline = new TimelinePanel();
         //-----------------------------------------------------
         [MenuItem("Tools/GamePlay/飞行道具编辑器 _F7")]
-        private static void StartEditor()
+        internal static void StartEditor()
         {
             if (Instance == null)
                 EditorWindow.GetWindow<ProjectileEditor>();
@@ -104,9 +104,10 @@ namespace Framework.ProjectileSystem.Editor
         {
             Instance = null;
 
-//             if (EditorApplication.isPlaying)
-//                 EditorApplication.isPlaying = false;
+            //             if (EditorApplication.isPlaying)
+            //                 EditorApplication.isPlaying = false;
 
+            m_pActorManager.Shutdown();
             SceneView.duringSceneGui -= OnSceneFunc;
         }
         //-----------------------------------------------------
@@ -268,7 +269,7 @@ namespace Framework.ProjectileSystem.Editor
                     }
                     evt.Use();
                 }
-                if (evt.keyCode == KeyCode.F5)
+                if (evt.control && evt.keyCode == KeyCode.F5)
                 {
                     Play();
                     evt.Use();
@@ -323,7 +324,7 @@ namespace Framework.ProjectileSystem.Editor
                     }
                 }
             }
-            if (GUILayout.Button(new GUIContent("模拟","快捷键:F5"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
+            if (GUILayout.Button(new GUIContent("模拟", "快捷键:ctrl+F5"), new GUILayoutOption[] { GUILayout.Width(80f), GUILayout.Height(45f) }))
             {
                 Play();
             }
@@ -388,77 +389,81 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         public void OnCutsceneLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
         {
-            throw new NotImplementedException();
         }
         //-----------------------------------------------------
         public void OnCutsceneUnloadAsset(UnityEngine.Object pAsset)
         {
-            throw new NotImplementedException();
         }
         //-----------------------------------------------------
         public void OnCutsceneSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
         {
-            throw new NotImplementedException();
         }
         //-----------------------------------------------------
         public void OnCutsceneDespawnInstance(GameObject pInstance, string name = null)
         {
-            throw new NotImplementedException();
         }
         //-----------------------------------------------------
         public void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)
         {
-            throw new NotImplementedException();
         }
         //-----------------------------------------------------
         public bool OnCutscenePlayableCreateClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnCutscenePlayableDestroyClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnCutscenePlayableFrameClip(CutscenePlayable playable, FrameData frameData)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnCutscenePlayableFrameClipEnter(CutscenePlayable playable, CutsceneTrack track, FrameData frameData)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnCutscenePlayableFrameClipLeave(CutscenePlayable playable, CutsceneTrack track, FrameData frameData)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnCutsceneEventTrigger(CutscenePlayable pPlayablle, CutsceneTrack pTrack, IBaseEvent pEvent)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnAgentTreeExecute(AgentTree pAgentTree, BaseNode pNode)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnActorSystemLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
         {
-            throw new NotImplementedException();
+            var obj = ActorSystemUtil.EditLoadUnityObject(name);
+            if (obj == null)
+                return false;
+            if (onLoaded != null) onLoaded(obj);
+            return true;
         }
         //-----------------------------------------------------
         public bool OnActorSystemUnloadAsset(UnityEngine.Object pAsset)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnActorSystemSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
         {
-            throw new NotImplementedException();
+            var obj = ActorSystemUtil.EditLoadUnityObject(name);
+            if (obj == null || !(obj is UnityEngine.GameObject))
+                return false;
+            var prefabInst = obj as GameObject;
+            if (onLoaded != null) onLoaded(GameObject.Instantiate(prefabInst));
+            return true;
         }
         //-----------------------------------------------------
         public bool OnActorSystemDespawnInstance(GameObject pInstance, string name = null)
@@ -513,12 +518,12 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
         {
-            throw new NotImplementedException();
+            return false;
         }
         //-----------------------------------------------------
         public bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor)
         {
-            throw new NotImplementedException();
+            return false;
         }
     }
 }

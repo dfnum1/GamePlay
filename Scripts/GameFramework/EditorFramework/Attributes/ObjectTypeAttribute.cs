@@ -33,4 +33,18 @@ namespace Framework.DrawProps
 #endif
         }
     }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    public class EditorLoaderAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string method;
+#endif
+        public EditorLoaderAttribute(string method)
+        {
+#if UNITY_EDITOR
+            this.method = method;
+#endif
+        }
+    }
 }

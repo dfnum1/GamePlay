@@ -970,7 +970,18 @@ namespace Framework.ED
                             DrawProps.StringViewPluginAttribute attri = (DrawProps.StringViewPluginAttribute)finfo.GetCustomAttribute<DrawProps.StringViewPluginAttribute>();
                             if (!DrawStringUserPlugin(data, finfo, displayNameContent, ref strValue, attri.userPlugin))
                             {
-                                strValue = EditorGUILayout.TextField(displayNameContent, strValue);
+                                bool bDraw = false;
+                                if (finfo.IsDefined(typeof(DrawProps.StringViewAttribute)))
+                                {
+                                    DrawProps.StringViewAttribute bindAttr = finfo.GetCustomAttribute< StringViewAttribute > ();
+                                    if (bindAttr.GetBindType() != null)
+                                    {
+                                        strValue = Framework.ED.EditorUtils.DrawUIObjectByPath(displayNameContent, strValue, bindAttr.GetBindType());
+                                    }
+                                }
+                
+                                if(!bDraw)
+                                    strValue = EditorGUILayout.TextField(displayNameContent, strValue);
                             }
                             finfo.SetValue(data, strValue);
                         }
@@ -1006,8 +1017,8 @@ namespace Framework.ED
                                         strPath = AssetDatabase.GetAssetPath(pAsset);
                                     else
                                         strPath = "";
-                                    if (!string.IsNullOrEmpty(strPath) && !strPath.Contains("Assets/Datas/"))
-                                        EditorGUILayout.HelpBox("必须是Assets/Datas/下的资源", MessageType.Error);
+                                //    if (!string.IsNullOrEmpty(strPath) && !strPath.Contains("Assets/Datas/"))
+                                //        EditorGUILayout.HelpBox("必须是Assets/Datas/下的资源", MessageType.Error);
                                     GUILayout.EndHorizontal();
                                 }
                             }
@@ -1034,13 +1045,14 @@ namespace Framework.ED
                                     {
                                         string strPath = strValue;
                                         GUILayout.BeginHorizontal();
-                                        UnityEngine.Object pAsset = EditorGUILayout.ObjectField(displayNameContent, AssetDatabase.LoadAssetAtPath(strPath, attri.GetBindType()), attri.GetBindType(), false);
-                                        if (pAsset != null)
-                                            strPath = AssetDatabase.GetAssetPath(pAsset);
-                                        else
-                                            strPath = "";
-                                        if (!string.IsNullOrEmpty(strPath) && !strPath.Contains("Assets/Datas/"))
-                                            EditorGUILayout.HelpBox("必须是Assets/Datas/下的资源", MessageType.Error);
+                                        strPath = Framework.ED.EditorUtils.DrawUIObjectByPath(displayNameContent, strPath, attri.GetBindType());
+                                 //       UnityEngine.Object pAsset = EditorGUILayout.ObjectField(displayNameContent, AssetDatabase.LoadAssetAtPath(strPath, attri.GetBindType()), attri.GetBindType(), false);
+                                //        if (pAsset != null)
+                                 //           strPath = AssetDatabase.GetAssetPath(pAsset);
+                                //        else
+                               //             strPath = "";
+                                //        if (!string.IsNullOrEmpty(strPath) && !strPath.Contains("Assets/Datas/"))
+                                //            EditorGUILayout.HelpBox("必须是Assets/Datas/下的资源", MessageType.Error);
                                         GUILayout.EndHorizontal();
                                         finfo.SetValue(data, strPath);
                                     }

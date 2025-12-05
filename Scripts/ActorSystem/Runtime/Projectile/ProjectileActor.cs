@@ -17,6 +17,7 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Framework.ActorSystem.Runtime
 {
@@ -636,11 +637,11 @@ namespace Framework.ActorSystem.Runtime
             this.m_fRunningTime = time;
         }
         //------------------------------------------------------
-        protected override void OnObjectAble(IContextData userData)
+        protected override void OnObjectAble(ActorContext userData)
         {
-            if (userData != null && userData is IProjectileParticle)
+            if (userData.pContextData!=null && userData.pContextData is IProjectileParticle)
             {
-                IProjectileParticle parCtl = ((IProjectileParticle)userData);
+                IProjectileParticle parCtl = ((IProjectileParticle)userData.pContextData);
                 parCtl.EnableLaunch(m_fDelayTime <= 0);
                 parCtl.SetOwner(this);
                 if (m_fDelayTime > 0) parCtl.PauseLaunch();
@@ -660,9 +661,9 @@ namespace Framework.ActorSystem.Runtime
                 if (m_fDelayTime <= 0)
                 {
                     var objAble = GetObjectAble();
-                    if (objAble != null && objAble is IProjectileParticle)
+                    if (objAble.pContextData != null && objAble.pContextData is IProjectileParticle)
                     {
-                        IProjectileParticle parCtl = ((IProjectileParticle)objAble);
+                        IProjectileParticle parCtl = ((IProjectileParticle)objAble.pContextData);
                         parCtl.EnableLaunch(true);
                     }
                     SetVisible(true);
@@ -997,16 +998,30 @@ namespace Framework.ActorSystem.Runtime
             int neighborActors = 0;
             if (bCheckActors)
             {
-                neighborActors = m_pSytstem.CalcNeighbors(this, Mathf.Max(5, projBound.GetBoundSize() * 1.5f), ref cacheWorldNodes);
+                if (m_ProjecileData.collisionType == EProjectileCollisionType.BOX)
+                {
+                    cacheWorldNodes = m_pSytstem.QueryActorsInBounds(GetBounds(), this, cacheWorldNodes);
+                }
+                else if (m_ProjecileData.collisionType == EProjectileCollisionType.CAPSULE)
+                {
+                    cacheWorldNodes = m_pSytstem.QueryNearestActors(GetPosition(), m_ProjecileData.aabb_min.x*1.5f, this, cacheWorldNodes);
+                }
+                neighborActors = cacheWorldNodes.Count;
             }
             if (neighborActors > 0)
             {
+                var vSets = m_pSytstem.GetCatchActorSet();
                 Actor pTarget;
                 for (int c = 0; c < neighborActors; ++c)
                 {
                     if (m_nRemainHitCount <= 0 || m_nRemainHitCount <= cacheHits.Count) break;
                     pTarget = cacheWorldNodes[c];
                     if (pTarget == this || pTarget is ProjectileActor) continue;
+
+                    if (vSets.Contains(pTarget))
+                        continue;
+                    vSets.Add(pTarget);
+
                     bCheck = CanHit(pTarget);
                     if (!bCheck)
                         continue;
@@ -1062,6 +1077,7 @@ namespace Framework.ActorSystem.Runtime
                     }
                     if (cacheHits.Count >= m_nMaxOneFrameHit) break;
                 }
+                vSets.Clear();
             }
 
 

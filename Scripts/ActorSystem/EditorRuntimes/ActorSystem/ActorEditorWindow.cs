@@ -39,6 +39,7 @@ namespace Framework.ActorSystem.Editor
             Timeline,
         }
 
+        bool                            m_bShowActorSpatialDebug = false;
         ActorManager                    m_pActorManager;
         CutsceneManager                 m_CutsceneManager = null;
 
@@ -118,7 +119,7 @@ namespace Framework.ActorSystem.Editor
             m_CutsceneManager = new CutsceneManager();
             m_CutsceneManager.SetEditorMode(true);
             m_pActorManager = new ActorManager();
-            m_pActorManager.Init(m_CutsceneManager);
+            m_pActorManager.Init(m_CutsceneManager, new Bounds(new Vector3(0,0,0), new Vector3(10, 10, 10)));
             m_pActorManager.RegisterCallback(this);
             RefreshProjectileDatas();
 
@@ -274,9 +275,7 @@ namespace Framework.ActorSystem.Editor
             if (actor == null)
                 return;
             var actorComp = actor.GetObjectAble();
-            if (actorComp == null)
-                return;
-            AActorComponent component = actorComp as AActorComponent;
+            AActorComponent component = actorComp.CastContextData<AActorComponent>();
             if(m_pActorComp!=null)
             {
                 component = m_pActorComp;
@@ -491,6 +490,21 @@ namespace Framework.ActorSystem.Editor
             }
         }
         //--------------------------------------------------------
+        public ActorManager GetActorManager()
+        {
+            return m_pActorManager;
+        }
+        //--------------------------------------------------------
+        public bool IsShowSpatialActorDebug()
+        {
+            return m_bShowActorSpatialDebug;
+        }
+        //--------------------------------------------------------
+        public void ShowSpatialActorDebug()
+        {
+            m_bShowActorSpatialDebug = !m_bShowActorSpatialDebug;
+        }
+        //--------------------------------------------------------
         public void OnPreviewDraw(int controllerId, Camera camera, Event evt)
         {
             if (m_vCutsceneLogics != null)
@@ -514,6 +528,17 @@ namespace Framework.ActorSystem.Editor
                     m_ActorPosition = Handles.DoPositionHandle(m_ActorPosition, Quaternion.identity);
                     m_TargetPosition = Handles.DoPositionHandle(m_TargetPosition, Quaternion.identity);
                 }
+            }
+            if(m_bShowActorSpatialDebug)
+            {
+#if !UNITY_5_1
+                UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
+                Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+#endif
+                m_pActorManager.DrawDebug(false);
+#if !UNITY_5_1
+                Handles.zTest = zTest;
+#endif
             }
         }
         //--------------------------------------------------------

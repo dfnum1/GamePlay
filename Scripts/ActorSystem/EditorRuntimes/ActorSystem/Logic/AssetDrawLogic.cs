@@ -486,11 +486,10 @@ namespace Framework.ActorSystem.Editor
             if (m_pActor == null)
                 return;
             var able = m_pActor.GetObjectAble();
-            if (able == null) return;
             if (m_pActorPrefab == null)
                 return;
 
-            var actorComp = able as AActorComponent;
+            var actorComp = able.CastContextData<AActorComponent>();
             if (actorComp == null)
                 return;
 

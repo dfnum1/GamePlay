@@ -21,17 +21,20 @@ namespace Framework.ActorSystem.Runtime
         Dictionary<string, ActorAction>                     m_vActionByNames = null;
         System.Collections.Generic.List<ActorCommonAction>  m_vCommonActions = null;
         //--------------------------------------------------------
-        protected override void OnLoadedAble(IContextData component)
+        protected override void OnLoadedAble(ActorContext component)
         {
        //     m_pBakerSkin = null;
             m_GraphData = null;
             m_vCommonActions = null;
-            if (component == null)
+            if (!component.IsValid())
                 return;
-            if (component is AActorComponent)
-                LoadActorCompent(component as AActorComponent);
-        //    else if (component is Plugin.CGpuSkinMeshAgent)
-         //       LoadBakeSkinCompent(component as Plugin.CGpuSkinMeshAgent);
+            if(component.pContextData!=null)
+            {
+                if (component.pContextData is AActorComponent)
+                    LoadActorCompent(component.pContextData as AActorComponent);
+            }
+            //    else if (component is Plugin.CGpuSkinMeshAgent)
+            //       LoadBakeSkinCompent(component as Plugin.CGpuSkinMeshAgent);
         }
         //--------------------------------------------------------
         void LoadActorCompent(AActorComponent component)

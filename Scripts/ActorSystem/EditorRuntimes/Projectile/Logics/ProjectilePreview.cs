@@ -139,7 +139,7 @@ namespace Framework.ProjectileSystem.Editor
         Actor m_pTargetActor = null;
         GameObject m_pWaringObj = null;
 
-        float m_PlayRuntime = 0;
+        float m_ParticleRuntime = 0;
 
         ProjectileData m_pCurrent = null;
         List<ProjectTrack> m_TestProjectile = new List<ProjectTrack>();
@@ -215,28 +215,18 @@ namespace Framework.ProjectileSystem.Editor
         //-----------------------------------------------------
         protected override void OnEvent(Event evt)
         {
-            if(evt.type == EventType.KeyDown)
-            {
-                if(evt.keyCode == KeyCode.F5)
-                {
-                    RefreshTest();
-                    Play(true);
-                    evt.Use();
-                }
-            }
         }
         //-----------------------------------------------------
         public override void Play(bool bPlay)
         {
-            m_PlayRuntime = 0;
+          //  m_ParticleRuntime = 0;
             if (bPlay)
             {
                 if(m_pCurrent != null)
                 {
                     if (m_pSimulateActor != null) m_pSimulateActor.SetPosition(Vector3.zero);
                      Transform trackTrans = null;
-                    if (m_pTargetActor != null && m_pTargetActor.GetObjectAble()!=null)
-                        trackTrans = m_pTargetActor.GetUniyTransform();
+                    if (m_pTargetActor != null) trackTrans = m_pTargetActor.GetObjectAble().pUnityTransform;
 
                     RefreshTestProject(m_pSimulateActor, m_pCurrent, m_pTargetActor);
                     GetOwner<ProjectileEditor>().GetActorManager().LaunchProjectile(m_pCurrent, m_pSimulateActor, null, Vector3.up, Vector3.forward, m_pTargetActor, 0, 0, trackTrans);
@@ -398,8 +388,7 @@ namespace Framework.ProjectileSystem.Editor
         protected override void OnUpdate(float fFrameTime)
         {
             if (fFrameTime >= 0.03333) fFrameTime = 0.03333f;
-            m_PlayRuntime += fFrameTime;
-           // UpdateParticle();
+            UpdateParticle(fFrameTime);
             if (m_pCurrent != null)
             {
                 if (m_strPreviewEffect == null || m_strPreviewEffect.CompareTo(m_pCurrent.effect) != 0)
@@ -408,10 +397,10 @@ namespace Framework.ProjectileSystem.Editor
                     if (m_pPreveObject) Framework.ED.EditorUtils.Destroy(m_pPreveObject);
                     if (!string.IsNullOrEmpty(m_pCurrent.effect))
                     {
-                        GameObject pObj = AssetDatabase.LoadAssetAtPath<GameObject>(m_pCurrent.effect);
-                        if (pObj != null)
+                        var pObj = ActorSystemUtil.EditLoadUnityObject(m_pCurrent.effect);
+                        if (pObj != null && pObj is GameObject)
                         {
-                            m_pPreveObject = GameObject.Instantiate<GameObject>(pObj);
+                            m_pPreveObject = GameObject.Instantiate<GameObject>((GameObject)pObj);
                             ActorSystemUtil.ResetGameObject(m_pPreveObject, EResetType.All);
                             AddInstance(m_pPreveObject);
                         }
@@ -430,15 +419,30 @@ namespace Framework.ProjectileSystem.Editor
             }
         }
         //-----------------------------------------------------
-        void UpdateParticle()
+        void UpdateParticle(float fFrameTime)
         {
             if (Application.isPlaying) return;
-            ParticleSystem[] systems = GameObject.FindObjectsOfType<ParticleSystem>();
-            if (systems == null) return;
-            for (int i = 0; i < systems.Length; ++i)
+            m_ParticleRuntime += fFrameTime;
+            if (m_ParticleRuntime >= 100000.0f) m_ParticleRuntime = 0;
+            var projectiles = GetOwner<ProjectileEditor>().GetActorManager().GetRunningProjectile();
+            if (projectiles != null)
             {
-                systems[i].Play();
-                systems[i].Simulate(m_PlayRuntime);
+                foreach (var db in projectiles)
+                {
+                    var pGO = db.Value.GetObjectAble().pUnityGameObject;
+                    var systems = pGO.GetComponents<ParticleSystem>();
+                    for (int i = 0; i < systems.Length; ++i)
+                    {
+                        systems[i].Play();
+                        systems[i].Simulate(m_ParticleRuntime);
+                    }
+                    systems = pGO.GetComponentsInChildren<ParticleSystem>();
+                    for (int i = 0; i < systems.Length; ++i)
+                    {
+                        systems[i].Play();
+                        systems[i].Simulate(m_ParticleRuntime);
+                    }
+                }
             }
         }
         //-----------------------------------------------------

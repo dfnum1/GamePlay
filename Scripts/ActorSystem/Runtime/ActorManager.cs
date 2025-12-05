@@ -7,6 +7,15 @@
 using Framework.Cutscene.Runtime;
 using System.Collections.Generic;
 using UnityEngine;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     public interface IActorSystemCallback
@@ -44,13 +53,18 @@ namespace Framework.ActorSystem.Runtime
         protected IntersetionParam              m_IntersetionParam = null;
         HashSet<HitFrameActor>                  m_vHitFrameCaches;
         List<Actor>                             m_CatchNodeList;
+        HashSet<Actor>                          m_CatchNodeSet;
+
+        private ISpatialWorld                   m_pSpatialIndex;
+        private ESpatialIndexType               m_eSpatialIndexType = ESpatialIndexType.Octree;
+        private bool                            m_isSpatialIndexEnabled = true;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
             return m_bEditMode;
         }
         //-----------------------------------------------------
-        public void Init(CutsceneManager cutsceneMgr)
+        public void Init(CutsceneManager cutsceneMgr, Bounds? worldBounds = null)
         {
             if (m_isInitialized)
                 return;
@@ -58,6 +72,52 @@ namespace Framework.ActorSystem.Runtime
             m_isInitialized = true;
             m_fTerrainHeight = 0;
             m_CutsceneManager = cutsceneMgr;
+            
+            InitializeSpatialIndex(worldBounds);
+        }
+        //-----------------------------------------------------        
+        private void InitializeSpatialIndex(Bounds? worldBounds = null)
+        {
+            if (m_pSpatialIndex != null)
+            {
+                m_pSpatialIndex.Dispose();
+            }
+
+            m_pSpatialIndex = SpatialIndexFactory.CreateIndex(m_eSpatialIndexType, worldBounds);
+        }
+        //-----------------------------------------------------        
+        public void SetSpatialIndexType(ESpatialIndexType indexType)
+        {
+            if (m_eSpatialIndexType == indexType)
+            {
+                return;
+            }
+
+            m_eSpatialIndexType = indexType;
+            InitializeSpatialIndex();
+
+            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
+            {
+                foreach (var actor in m_vNodes.Values)
+                {
+                    m_pSpatialIndex.AddActor(actor);
+                }
+            }
+        }
+        //-----------------------------------------------------        
+        public void SetSpatialIndexEnabled(bool enabled)
+        {
+            m_isSpatialIndexEnabled = enabled;
+        }
+        //-----------------------------------------------------        
+        public ESpatialIndexType CurrentSpatialIndexType
+        {
+            get { return m_eSpatialIndexType; }
+        }
+        //-----------------------------------------------------        
+        public bool IsSpatialIndexEnabled
+        {
+            get { return m_isSpatialIndexEnabled; }
         }
         //-----------------------------------------------------
         public void SetTerrainLayerMask(int layerMask)
@@ -121,22 +181,22 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
         {
-            return InnerCreateActor<Actor>(0, pData, false, userVariable);
+            return InnerCreateActor<Actor>(nodeID, pData, false, userVariable);
         }
         //-----------------------------------------------------
         public Actor AsyncCreateActor(int nodeID, IContextData pData, IContextData userVariable = null)
         {
-            return InnerCreateActor<Actor>(0, pData, true, userVariable);
+            return InnerCreateActor<Actor>(nodeID, pData, true, userVariable);
         }
         //-----------------------------------------------------
         public T CreateActor<T>(IContextData pData, IContextData userVariable = null, int nodeID = 0) where T : Actor, new()
         {
-            return InnerCreateActor<T>(0, pData, false, userVariable);
+            return InnerCreateActor<T>(nodeID, pData, false, userVariable);
         }
         //-----------------------------------------------------
         public T AsyncCreateActor<T>(int nodeID, IContextData pData, IContextData userVariable = null) where T : Actor, new()
         {
-            return InnerCreateActor<T>(0, pData, true, userVariable);
+            return InnerCreateActor<T>(nodeID, pData, true, userVariable);
         }
         //-----------------------------------------------------
         T InnerCreateActor<T>(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null) where T : Actor, new()
@@ -192,6 +252,11 @@ namespace Framework.ActorSystem.Runtime
             m_pTail = pNode;
 
             m_vNodes.Add(pNode.GetInstanceID(), pNode);
+            
+            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
+            {
+                m_pSpatialIndex.AddActor(pNode);
+            }
         }
         //-----------------------------------------------------
         public void RemoveNode(Actor pNode, bool bRemoveMaps = true)
@@ -210,20 +275,13 @@ namespace Framework.ActorSystem.Runtime
 
             if (bRemoveMaps)
                 m_vNodes.Remove(pNode.GetInstanceID());
-            pNode.FreeDestroy();
-        }
-        //-----------------------------------------------------
-        public int CalcNeighbors(Actor pActor, float range, ref List<Actor> vNodes)
-        {
-            if (vNodes == null)
-                return 0;
-            foreach(var db in m_vNodes)
+            
+            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
             {
-                if (db.Value == pActor)
-                    continue;
-                vNodes.Add(db.Value);
+                m_pSpatialIndex.RemoveActor(pNode);
             }
-            return vNodes.Count;
+            
+            pNode.FreeDestroy();
         }
         //-----------------------------------------------------
         internal ProjectileManager GetProjectileManager()
@@ -309,6 +367,13 @@ namespace Framework.ActorSystem.Runtime
             if (m_CatchNodeList == null) m_CatchNodeList = new List<Actor>(2);
             m_CatchNodeList.Clear();
             return m_CatchNodeList;
+        }
+        //------------------------------------------------------
+        public HashSet<Actor> GetCatchActorSet()
+        {
+            if (m_CatchNodeSet == null) m_CatchNodeSet = new HashSet<Actor>(2);
+            m_CatchNodeSet.Clear();
+            return m_CatchNodeSet;
         }
         //-----------------------------------------------------
         internal bool OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
@@ -523,10 +588,21 @@ namespace Framework.ActorSystem.Runtime
             return m_lRuntimeUnScale;
         }
         //-----------------------------------------------------
-        public void Clear()
+        public void DrawDebug(bool bGizmos)
         {
-           // if (m_pWorldKDTree != null) m_pWorldKDTree.Clear();
+            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
+            {
+                m_pSpatialIndex.DebugDraw(bGizmos);
+            }
+        }
+        //-----------------------------------------------------
+        public void Clear()
+        {           // if (m_pWorldKDTree != null) m_pWorldKDTree.Clear();
            // if (m_WorldTriggers != null) m_WorldTriggers.Clear();
+            if (m_pSpatialIndex != null)
+            {
+                m_pSpatialIndex.Clear();
+            }
             if (m_pRoot != null)
             {
                 Actor pNext = null;
@@ -554,7 +630,85 @@ namespace Framework.ActorSystem.Runtime
             Clear();
             if(m_vCallbacks!=null) m_vCallbacks.Clear();
             if (m_ProjectileManager != null) m_ProjectileManager.Destroy();
+            
+            if (m_pSpatialIndex != null)
+            {
+                m_pSpatialIndex.Dispose();
+                m_pSpatialIndex = null;
+            }
+            
             ActorSystemUtil.Unregister(this);
+        }
+        //-----------------------------------------------------        
+        public void UpdateActorSpatialIndex(Actor actor)
+        {
+            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null && actor != null)
+            {
+                m_pSpatialIndex.UpdateActor(actor);
+            }
+        }
+        //-----------------------------------------------------
+        public List<Actor> QueryActorsInBounds(WorldBoundBox boundingBox, Actor pIngore = null, List<Actor> vResults = null)
+        {
+            if (vResults == null)
+            {
+                vResults = GetCatchActorList();
+                vResults.Clear();
+            }
+            if (!m_isSpatialIndexEnabled || m_pSpatialIndex == null)
+            {
+                foreach (var db in m_vNodes)
+                {
+                    if (db.Value == pIngore)
+                        continue;
+                    vResults.Add(db.Value);
+                }
+                return vResults;
+            }            
+            m_pSpatialIndex.QueryActorsInBounds(boundingBox, vResults, pIngore);
+            return vResults;
+        }
+        //-----------------------------------------------------
+        public List<Actor> QueryActorsByRay(Ray ray, float maxDistance, Actor pIngore = null, List<Actor> vResults = null)
+        {
+            if (vResults == null)
+            {
+                vResults = GetCatchActorList();
+                vResults.Clear();
+            }
+            if (!m_isSpatialIndexEnabled || m_pSpatialIndex == null)
+            {
+                foreach (var db in m_vNodes)
+                {
+                    if (db.Value == pIngore)
+                        continue;
+                    vResults.Add(db.Value);
+                }
+                return vResults;
+            }
+            m_pSpatialIndex.QueryActorsByRay(ray, maxDistance, vResults, pIngore);
+            return vResults;
+        }
+        //-----------------------------------------------------
+        public List<Actor> QueryNearestActors(FVector3 position, float maxDistance = 1000, Actor pIngore = null, List<Actor> vResults = null)
+        {
+            if (vResults == null)
+            {
+                vResults = GetCatchActorList();
+                vResults.Clear();
+            }
+            if (!m_isSpatialIndexEnabled || m_pSpatialIndex == null)
+            {
+                foreach (var db in m_vNodes)
+                {
+                    if (db.Value == pIngore)
+                        continue;
+                    vResults.Add(db.Value);
+                }
+                return vResults;
+            }
+            m_pSpatialIndex.QueryActorsAtPosition(position, maxDistance, vResults, pIngore);
+            return vResults;
         }
     }
 }
