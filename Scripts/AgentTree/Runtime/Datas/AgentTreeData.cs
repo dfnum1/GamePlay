@@ -237,7 +237,7 @@ namespace Framework.AT.Runtime
     //-----------------------------------------------------
     //! AAgentTreeObject 
     //-----------------------------------------------------
-    public class AAgentTreeObject :ScriptableObject
+    public abstract class AAgentTreeObject :ScriptableObject
     {
         public AgentTreeData atData;
     }

@@ -7,6 +7,7 @@
 using UnityEngine;
 namespace Framework.Guide
 {
+    [AddComponentMenu("")]
     public abstract class AUITouchIngore : MonoBehaviour, UnityEngine.ICanvasRaycastFilter
     {
 		bool ICanvasRaycastFilter.IsRaycastLocationValid(Vector2 screenPos, Camera eventCamera)

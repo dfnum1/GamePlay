@@ -136,7 +136,7 @@ namespace Framework.ProjectileSystem.Editor
             }
             if (m_ProjectileDatas != null)
             {
-                AProjectileDatas.RefreshDatas(m_ProjectileDatas);
+                AProjectileDatas.RefreshDatas(m_ProjectileDatas,false);
             }
 
             m_CutsceneManager = new CutsceneManager();

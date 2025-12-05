@@ -13,8 +13,8 @@ using UnityEngine;
 namespace Framework.Cutscene.Runtime
 {
     //-----------------------------------------------------
-    [ExecuteAlways,ExecuteInEditMode]
-    public class ACutsceneObjectBinder : MonoBehaviour
+    [ExecuteAlways,ExecuteInEditMode,AddComponentMenu("")]
+    public abstract class ACutsceneObjectBinder : MonoBehaviour
     {
         [SerializeField] private int bindId;
         [SerializeField]private Animator pAnimator;

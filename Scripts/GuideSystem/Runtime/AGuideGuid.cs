@@ -256,7 +256,7 @@ namespace Framework.Guide
             }
         }
     }
-    [DisallowMultipleComponent]
+    [DisallowMultipleComponent,AddComponentMenu("")]
     public abstract class AGuideGuid : MonoBehaviour 
 	{
         public int guid = 0;

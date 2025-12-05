@@ -16,6 +16,11 @@ namespace Framework.ED
         static List<EditorWindowBase> m_vList = new List<EditorWindowBase>();
         static List<EditorWindowBase> m_vRuntimeOpenList = new List<EditorWindowBase>();
         //-------------------------------------------
+        public static bool HasEditorOpen()
+        {
+            return m_vList.Count > 0 || m_vRuntimeOpenList.Count > 0;
+        }
+        //-------------------------------------------
         static public void RegisterWindow(EditorWindowBase window)
         {
             if (!window.IsManaged()) return;

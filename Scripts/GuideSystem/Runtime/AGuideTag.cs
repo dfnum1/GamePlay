@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Framework.Guide
 {
-
+    [AddComponentMenu("")]
     public abstract class AGuideTag : MonoBehaviour
     {
         static HashSet<AGuideTag> ms_Tags = null;

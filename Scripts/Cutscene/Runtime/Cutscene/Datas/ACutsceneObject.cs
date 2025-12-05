@@ -14,7 +14,7 @@ using Framework.Cutscene.Editor;
 
 namespace Framework.Cutscene.Runtime
 {
-    public class ACutsceneObject : ScriptableObject/*, ISerializationCallbackReceiver*/
+    public abstract class ACutsceneObject : ScriptableObject/*, ISerializationCallbackReceiver*/
     {
         [System.NonSerialized] bool m_bInited = false;
         [NonSerialized]

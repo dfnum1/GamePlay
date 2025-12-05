@@ -21,7 +21,7 @@ namespace Framework.ActorSystem.Editor
                 var data = AssetDatabase.LoadAssetAtPath<AProjectileDatas>(AssetDatabase.GUIDToAssetPath(guides[0]));
                 if(data != null)
                 {
-                    AProjectileDatas.RefreshDatas(data);
+                    AProjectileDatas.RefreshDatas(data,false);
                     if(data.projectiles!=null)
                     {
                         foreach(var db in data.projectiles)

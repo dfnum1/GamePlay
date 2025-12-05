@@ -71,6 +71,7 @@ namespace Framework.ED
         //--------------------------------------------------------
         private void OnDestroy()
         {
+            EditorWindowMgr.UnRegisterWindow(this);
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Destroy();
             OnInnerDestroy();

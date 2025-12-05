@@ -275,11 +275,11 @@ namespace Framework.ProjectileSystem.Editor
                 m_TestProjectile[i].Destroy();
             }
 
-            if (pOwnerActor == null)
+            if (pOwnerActor == null || targetNode == null)
                 return;
             Transform pTrackTransform = null;
             if (targetNode != null)
-                pTrackTransform = m_pTargetActor.GetUniyTransform();
+                pTrackTransform = targetNode.GetUniyTransform();
 
             m_TestProjectile.Clear();
             Vector3 up = Vector3.up;

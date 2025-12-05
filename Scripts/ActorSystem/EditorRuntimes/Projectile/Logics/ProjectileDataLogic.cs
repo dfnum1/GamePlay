@@ -86,7 +86,7 @@ namespace Framework.ProjectileSystem.Editor
 
             string assetFile = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(projectileDatas)).Replace("\\", "/");
 
-            string saveFile = GetOwner<ProjectileEditor>().GetProjectileDatas().GetDataPath(m_pCurItem);
+            string saveFile = projectileDatas.GetDataPath(m_pCurItem);
             if (string.IsNullOrEmpty(saveFile))
             {
                 saveFile = EditorUtility.SaveFilePanelInProject("保存弹道数据", m_pCurItem.id.ToString(), "json", "", assetFile);
@@ -114,6 +114,7 @@ namespace Framework.ProjectileSystem.Editor
                 writer.Close();
                 GetOwner<ProjectileEditor>().GetActorManager().GetProjectileManager().AddProjectileData(m_pCurItem);
             }
+            AProjectileDatas.RefreshDatas(projectileDatas, true);
         }
         //-----------------------------------------------------
         public void Realod()

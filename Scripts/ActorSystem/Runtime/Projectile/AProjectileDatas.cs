@@ -35,7 +35,7 @@ namespace Framework.ActorSystem.Runtime
 {
     //------------------------------------------------------
  //   [CreateAssetMenu(menuName = "GamePlay/AProjectileDatas")]
-    public class AProjectileDatas : ScriptableObject
+    public abstract class AProjectileDatas : ScriptableObject
     {
         public ProjectileData[] projectiles;
 #if UNITY_EDITOR

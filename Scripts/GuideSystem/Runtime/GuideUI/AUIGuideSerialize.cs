@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Framework.Guide
 {
+    [AddComponentMenu("")]
     public abstract class AUIGuideSerialize : MonoBehaviour
     {
         public Transform[] Fingers = new Transform[4]; //EFingerType.None
