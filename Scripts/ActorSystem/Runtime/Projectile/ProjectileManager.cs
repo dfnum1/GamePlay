@@ -585,9 +585,8 @@ namespace Framework.ActorSystem.Runtime
             {
                 m_pActorManager.SpawnInstance(projectileData.effect, (ins) =>
                 {
-                    pProjectile.SetObjectAble(ins.transform);
+                    pProjectile.SetObjectAble(ins);
                 });
-                //    pProjectile.pCallback = pOp;
             }
 #endif
         }
