@@ -26,6 +26,11 @@ namespace Framework.Guide.Editor
                 string outputPath = Path.Combine(path, "GuideWrapper.cs");
                 GuideAutoCode.AutoCode(outputPath);
             }
+            else
+            {
+                Debug.LogError("请先在编辑器[Edit -> Preferences... -> GuideSystemEditor]设置中配置代码生成路径");
+                return;
+            }
         }
         //-----------------------------------------------------
         static void OnProjectWindowItemGUI(string guid, Rect selectionRect)

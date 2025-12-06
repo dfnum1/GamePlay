@@ -252,7 +252,26 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         public GuideGroup NewGuide()
         {
-            if (m_pGuideCsv == null) return null;
+            if (m_pGuideCsv == null)
+            {
+                if(EditorUtility.DisplayDialog("提示", "没有创建引导数据集，请先创建!!","创建", "先看看"))
+                {
+                    string savePath = EditorUtility.SaveFilePanelInProject("创建引导数据集", "GuideDatas", "asset", "用于管理零散的引导配置数据文件", Application.dataPath);
+                    if (string.IsNullOrEmpty(savePath))
+                    {
+                        return null;
+                    }
+                    AGuideDatas projData = Framework.ED.EditorUtils.CreateUnityScriptObject<AGuideDatas>();
+                    projData.name = "GuideDatas";
+                    AssetDatabase.CreateAsset(projData, savePath);
+                    EditorUtility.SetDirty(projData);
+                    AssetDatabase.SaveAssetIfDirty(projData);
+                    m_pGuideCsv = AssetDatabase.LoadAssetAtPath<AGuideDatas>(savePath);
+                    GuidePreferences.GetSettings().dataSavePath = System.IO.Path.GetDirectoryName(savePath).Replace("\\", "/");
+                    GuidePreferences.Save();
+                }
+
+            }
             return m_pGuideCsv.New();
         }
         //------------------------------------------------------

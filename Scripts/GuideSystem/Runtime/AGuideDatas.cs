@@ -124,8 +124,10 @@ namespace Framework.Guide
                 guid = Mathf.Max(db.Key, guid);
             }
             ++guid;
-            string saveToPath = Framework.Guide.Editor.GuidePreferences.GetSettings().dataSavePath;
+            string saveToPath = Framework.Guide.Editor.GuidePreferences.GetSettings().dataSavePath.Replace("\\","/");
             string strFile = UnityEditor.EditorUtility.SaveFilePanel("Guide", saveToPath, guid.ToString(), "json");
+            if (string.IsNullOrEmpty(strFile))
+                return null;
             strFile = strFile.Replace("\\", "/").Replace(Application.dataPath + "/", "Assets/");
             if (!strFile.Contains(saveToPath))
             {

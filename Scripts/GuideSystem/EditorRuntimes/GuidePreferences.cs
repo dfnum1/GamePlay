@@ -32,8 +32,8 @@ namespace Framework.Guide.Editor
         [System.Serializable]
         public class Settings : ISerializationCallbackReceiver
         {
-            public string dataSavePath = "Assets/Res/AGuideDatas";
-            public string generatorCodePath = "Assets/OpenScripts/GameApp/GuideSystem/Generated";
+            public string dataSavePath = "Assets/Res/GuideDatas";
+            public string generatorCodePath = "";//"Assets/OpenScripts/GameApp/GuideSystem/Generated";
             public string commitRoots = "Res/UI;Res/UIPrefabTmp";
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
             public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value; _gridTexture = null; _crossTexture = null; } }
@@ -118,6 +118,14 @@ namespace Framework.Guide.Editor
         {
             if (!settings.ContainsKey(lastKey)) VerifyLoaded();
             return settings[lastKey];
+        }
+
+        public static void Save()
+        {
+            if (settings.ContainsKey(lastKey))
+            {
+                SavePrefs(lastKey, settings[lastKey]);
+            }
         }
 
 #if UNITY_2019_1_OR_NEWER

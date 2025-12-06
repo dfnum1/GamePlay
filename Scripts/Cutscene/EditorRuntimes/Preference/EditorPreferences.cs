@@ -33,7 +33,7 @@ namespace Framework.Cutscene.Editor
         {
             public int FrameRate = 30;
             public float playbackSpeedScale = 1;
-            public string generatorCodePath = "Assets/OpenScripts/GameApp/Cutscene";
+            public string generatorCodePath = "";//"Assets/OpenScripts/GameApp/Cutscene";
             public float animationRunStandardDistance = 7;
             public float animationRunStandardTime = 0.8f;
             public float animationRunStandardSpeed = 1;

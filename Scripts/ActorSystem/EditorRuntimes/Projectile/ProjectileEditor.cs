@@ -150,7 +150,7 @@ namespace Framework.ProjectileSystem.Editor
 
             GetLogic<ProjectileDataListLogic>()?.Active(false);
 
-            base.minSize = new Vector2(850f, 320f);
+            base.minSize = new Vector2(1024f, 768f);
 
             SceneView.duringSceneGui += OnSceneFunc;
         }

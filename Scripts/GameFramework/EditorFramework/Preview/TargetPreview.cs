@@ -654,6 +654,7 @@ namespace Framework.ED
                 m_FloorMaterial.SetVector("_Alphas", new Vector4(0.5f, 0.3f, 0f, 0f));
                 m_FloorMaterial.hideFlags = HideFlags.HideAndDontSave;
                 m_FloorMaterial.renderQueue = 1000;
+           //     m_FloorMaterial.SetInt("_ZWrite", 1);
             }
             
 
