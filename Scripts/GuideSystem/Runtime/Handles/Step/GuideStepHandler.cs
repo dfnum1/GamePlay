@@ -638,11 +638,9 @@ namespace Framework.Guide
             AGuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
             if (guide == null)//找不到情况,结束当前等待
             {
-                return true;
+                return false;
             }
-            bool bActive = guide.gameObject.activeInHierarchy;
-            bool waitState = pNode._Ports[1].fillValue == 1;
-            return bActive == waitState;
+            return guide.gameObject.activeInHierarchy;
         }
         //------------------------------------------------------
         static PointerEventData ms_PointerEventData = null;
@@ -651,7 +649,7 @@ namespace Framework.Guide
             AGuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
             if (guide == null)//找不到情况,结束当前等待
             {
-                return true;
+                return false;
             }
 
             Vector3 screenPos = Vector2.zero;

@@ -83,7 +83,6 @@ namespace Framework.Guide
         [GuideStep("等待Gameobject激活状态")]
         [GuideArgv("控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.GetAndPort)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
-        [GuideArgv("是否显示", "isShow", "", null, EArgvFalg.GetAndPort)]
         WaitGameobjectActive = 106,
 
         [GuideStep("等待目标可以点击")]
