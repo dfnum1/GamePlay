@@ -130,6 +130,7 @@ namespace Framework.Cutscene.Editor
         public Rect unclippedRect;            // the clip's unclipped rect
         public Rect clippedRect;              // the clip's clipped rect to the visible time area
         public Rect clipCenterSection;        // clip center section
+        public Rect dragDurationSnapRect;
         public string title;                  // clip title
         public string tips;
         public bool selected;                 // is the clip selected
@@ -224,7 +225,9 @@ namespace Framework.Cutscene.Editor
             }
 
             DrawClipSwatch(drawData.targetRect, drawData.swatchColor);
+          //  EditorGUI.DrawRect(drawData.dragDurationSnapRect, drawData.swatchColor);
             DrawClipBorder(drawData);
+
         }
         //--------------------------------------------------------
         static void DrawClipSwatch(Rect targetRect, Color swatchColor)

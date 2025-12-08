@@ -111,10 +111,26 @@ namespace Framework.AT.Editor
                 Dictionary<long, System.Type> vGraphNodeTypes = new Dictionary<long, Type>();
                 foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    Type[] types = ass.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = ass.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int i = 0; i < types.Length; ++i)
                     {
                         Type tp = types[i];
+                        if (tp == null) continue;
                         if (tp.IsDefined(typeof(NodeBindAttribute), false))
                         {
                             NodeBindAttribute[] atTypeAttrs = (NodeBindAttribute[])tp.GetCustomAttributes<NodeBindAttribute>();
@@ -128,10 +144,26 @@ namespace Framework.AT.Editor
                 }
                 foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    Type[] types = ass.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = ass.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int i = 0; i < types.Length; ++i)
                     {
                         Type tp = types[i];
+                        if (tp == null) continue;
                         if (!tp.IsEnum)
                             continue;
 

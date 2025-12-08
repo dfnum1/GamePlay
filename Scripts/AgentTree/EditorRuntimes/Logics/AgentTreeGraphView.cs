@@ -22,7 +22,7 @@ namespace Framework.AT.Editor
     public class AgentTreeGraphView : GraphView
     {
         bool m_bLastPlaying = false;
-   //     CutsceneObject m_pObject;
+        System.Object m_pObject;
         AgentTreeData m_pAgentTreeData = null;
         AEditorLogic m_pOwnerEditorLogic;
         Dictionary<BaseNode, GraphNode> m_vNodes = new Dictionary<BaseNode, GraphNode>();
@@ -233,6 +233,11 @@ namespace Framework.AT.Editor
             m_pOwnerEditorLogic = logic;
         }
         //-----------------------------------------------------
+        public AgentTreeData GetATData()
+        {
+            return m_pAgentTreeData;
+        }
+        //-----------------------------------------------------
         public AgentTree GetCurrentRuntimeAgentTree()
         {
            // var cutsceneInstance = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetCutsceneInstance();
@@ -266,22 +271,20 @@ namespace Framework.AT.Editor
             }
             return returnVal;
         }
-        /*
         //-----------------------------------------------------
-        public CutsceneGraph GetCutsceneGraph()
+        public System.Object GetEditOwnerObject()
         {
-            if (m_pObject != null) return m_pObject.GetCutsceneGraph();
-            return null;
+            return m_pObject;
         }
         //-----------------------------------------------------
-        public void SetAgentTree(CutsceneObject pObj, AgentTreeData pAgentTree)
+        public void SetAgentTree(AgentTreeData pAgentTree, System.Object pOwner)
         {
-            var cutscene = GetCurrentCutscene();
-            cutscene.CreateAgentTree(pObj.GetCutsceneGraph());
-            var agentTree = cutscene.GetAgentTree();
-            if (agentTree != null)
-                agentTree.RegisterCallback(this);
-            m_pObject = pObj;
+            //var cutscene = GetCurrentCutscene();
+            //cutscene.CreateAgentTree(pObj.GetCutsceneGraph());
+            //var agentTree = cutscene.GetAgentTree();
+            //if (agentTree != null)
+            //    agentTree.RegisterCallback(this);
+            m_pObject = pOwner;
             m_pAgentTreeData = pAgentTree;
             m_vVariables = pAgentTree.GetVariableGUIDs();
             if (pAgentTree.tasks!=null)
@@ -307,7 +310,6 @@ namespace Framework.AT.Editor
             }
             CreateLinkLine();
         }
-        */
         //--------------------------------------------------------
         public GraphNode AddNode(BaseNode pNode)
         {

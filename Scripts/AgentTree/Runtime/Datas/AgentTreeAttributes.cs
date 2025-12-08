@@ -24,6 +24,23 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class ATMethodAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string method;
+#endif
+        public ATMethodAttribute()
+        {
+        }
+        public ATMethodAttribute(string name)
+        {
+#if UNITY_EDITOR
+            this.method = name;
+#endif
+        }
+    }
+    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field, AllowMultiple = true, Inherited = false)]
     public class ATActionAttribute : System.Attribute
     {

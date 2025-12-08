@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.AT.Runtime;
 using Framework.Core;
+using Framework.Cutscne.Runtime;
 using System.Collections.Generic;
 using UnityEngine;
 namespace Framework.Cutscene.Runtime
@@ -646,7 +647,7 @@ namespace Framework.Cutscene.Runtime
                 var argvs = VariableList.Malloc();
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
-                m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayableStopedCallback, argvs);
+                m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayableStopedCallback, argvs);
             }
             if (m_vCallbacks != null)
             {
@@ -664,7 +665,7 @@ namespace Framework.Cutscene.Runtime
                 var argvs = VariableList.Malloc();
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
-                m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayablePlayedCallback, argvs);
+                m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayablePlayedCallback, argvs);
             }
             if (m_vCallbacks != null)
             {
@@ -682,7 +683,7 @@ namespace Framework.Cutscene.Runtime
                 var argvs = VariableList.Malloc();
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
-                m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayablePauseCallback, argvs);
+                m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayablePauseCallback, argvs);
             }
             if (m_vCallbacks != null)
             {
@@ -700,7 +701,7 @@ namespace Framework.Cutscene.Runtime
                 var argvs = VariableList.Malloc();
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
-                m_pAgentTree.ExecuteTask((int)ETaskType.eCutscenePlayableResumeCallback, argvs);
+                m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayableResumeCallback, argvs);
             }
             if (m_vCallbacks != null)
             {

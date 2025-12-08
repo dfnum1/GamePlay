@@ -55,26 +55,16 @@ namespace Framework.AT.Editor
             m_pGraphView.OnUpdate(delta);
         }
         //--------------------------------------------------------
-        public override void OnChangeSelect(object pAsset)
+        public override void OnChangeSelect(object pOwner)
         {
-            if (pAsset == null)
+            if (pOwner == null)
                 return;
-            if (pAsset is AAgentTreeObject)
-            {
-                AAgentTreeObject graph = pAsset as AAgentTreeObject;
-                if (graph.atData == null) graph.atData = new AgentTreeData();
-                OnRefreshData(graph.atData);
-            }
-            if (pAsset is AgentTreeData)
-            {
-                AgentTreeData graph = pAsset as AgentTreeData;
-                OnRefreshData(pAsset);
-            }
+            OnRefreshData(pOwner);
         }
         //-----------------------------------------------------
-        public override void OnRefreshData(System.Object data)
+        public override void OnRefreshData(System.Object pOwner)
         {
-            m_pGraphView.OnRefreshData(data);
+            m_pGraphView.OnRefreshData(GetOwner<AgentTreeWindow>().GetATData(), pOwner);
         }
         //--------------------------------------------------------
         public override void OnSaveChanges()

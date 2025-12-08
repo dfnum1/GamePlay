@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using TagLib.Asf;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,6 +33,60 @@ namespace Framework.Guide.Editor
             code += "\t\tpublic static bool bDoing\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tget{return GuideSystem.getInstance().bDoing;}\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void StopGuiding(bool bRecord = false)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tGuideSystem.getInstance().OverGuide(bRecord);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic int GetCurrentTriggerIntPort(int index)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tvar trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
+            code += "\t\t\tif (trigger == null || index < 0 || trigger._Ports == null || index >= trigger._Ports.Count)\r\n";
+            code += "\t\t\t{\r\n";
+            code += "\t\t\t\tDebug.LogWarning(\"GuideWrapper GetCurrentTriggerIntPort index error:\"+index);\r\n";
+            code += "\t\t\t\treturn -1;\r\n";
+            code += "\t\t\t}\r\n";
+            code += "\t\t\treturn trigger._Ports[index].fillValue;\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic string GetCurrentTriggerStrPort(int index)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tvar trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
+            code += "\t\t\tif (trigger == null || index < 0 || trigger._Ports == null || index >= trigger._Ports.Count)\r\n";
+            code += "\t\t\t{\r\n";
+            code += "\t\t\t\tDebug.LogWarning(\"GuideWrapper GetCurrentTriggerStrPort index error:\"+index);\r\n";
+            code += "\t\t\t\treturn null;\r\n";
+            code += "\t\t\t}\r\n";
+            code += "\t\t\treturn trigger._Ports[index].fillStrValue;\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic int GetCurrentGroupGuid()\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
+            code += "\t\t\tif (trigger == null) return -1;\r\n";
+            code += "\t\t\treturn trigger.guideGroupGUID;\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic int GetCurrentTriggerType()\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
+            code += "\t\t\tif (trigger == null) return -1;\r\n";
+            code += "\t\t\treturn trigger.GetEnumType();\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic int GetCurrentTriggerTag()\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
+            code += "\t\t\tif (trigger == null) return -1;\r\n";
+            code += "\t\t\treturn trigger.GetTag();\r\n";
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";

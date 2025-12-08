@@ -31,10 +31,26 @@ namespace Framework.ED
             {
                 foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    Type[] types = ass.GetTypes();
+                    Type[] types = null;
+                    try
+                    {
+                        types = ass.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
                     for (int i = 0; i < types.Length; ++i)
                     {
                         Type tp = types[i];
+                        if (tp == null) continue;
                         if (tp.IsDefined(typeof(EditorLoaderAttribute), false))
                         {
                             var clipAttri = tp.GetCustomAttribute<EditorLoaderAttribute>();
@@ -93,11 +109,11 @@ namespace Framework.ED
                     {
                         types = ex.Types; // 部分可用类型
                                           // 可选：输出警告
-                        UnityEngine.Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                        UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
                     }
                     catch (Exception ex)
                     {
-                        UnityEngine.Debug.LogWarning($"[GuideSystemEditor] 加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时发生异常: {ex}");
                         continue;
                     }
                     for (int i = 0; i < types.Length; ++i)
@@ -888,6 +904,79 @@ namespace Framework.ED
                 UnityEngine.Debug.Log("更改分辨率失败");
                 Debug.LogWarning(expection.ToString());
             }
+        }
+        //------------------------------------------------------
+        public static void PlayClip(AudioClip clip, int startSample = 0, bool loop = false)
+        {
+            var unityEditorAssembly = typeof(AudioImporter).Assembly;
+            var audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+            var method = audioUtilClass.GetMethod("PlayClip", BindingFlags.Static | BindingFlags.Public);
+            if (method == null)
+            {
+                method = audioUtilClass.GetMethod("PlayPreviewClip", BindingFlags.Static | BindingFlags.Public);
+            }
+            if (method == null)
+                return;
+
+            method.Invoke(null, new object[] { clip, startSample, loop });
+        }
+        static MethodInfo ms_pExternAudioPlayer = null;
+        //------------------------------------------------------
+        public static void PlayClip(string audioFile, int startSample = 0, bool loop = false)
+        {
+            AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(audioFile);
+            if (clip == null)
+            {
+                if (ms_pExternAudioPlayer == null)
+                {
+                    foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        Type[] types = null;
+                        try
+                        {
+                            types = assembly.GetTypes();
+                        }
+                        catch (ReflectionTypeLoadException ex)
+                        {
+                            types = ex.Types; // 部分可用类型
+                                              // 可选：输出警告
+                            UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                            continue;
+                        }
+                        for (int i = 0; i < types.Length; ++i)
+                        {
+                            System.Type tp = types[i];
+                            if (tp == null) continue;
+                            if (tp.IsDefined(typeof(ExternPlayAudioAttribute), false))
+                            {
+                                ExternPlayAudioAttribute attr = (ExternPlayAudioAttribute)tp.GetCustomAttribute(typeof(ExternPlayAudioAttribute));
+                                ms_pExternAudioPlayer = tp.GetMethod(attr.strMethod, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (ms_pExternAudioPlayer != null)
+                {
+                    ms_pExternAudioPlayer.Invoke(null, new object[] { audioFile });
+                }
+                return;
+            }
+
+            PlayClip(clip, startSample, loop);
+        }
+        //------------------------------------------------------
+        public static void StopAllAudioClips()
+        {
+            var unityEditorAssembly = typeof(AudioImporter).Assembly;
+            var audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+            var method = audioUtilClass.GetMethod("StopAllClips", BindingFlags.Static | BindingFlags.Public);
+            if (method == null) return;
+            method.Invoke(null, null);
         }
     }
 }

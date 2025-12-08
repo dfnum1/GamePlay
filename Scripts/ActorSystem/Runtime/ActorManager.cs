@@ -254,7 +254,7 @@ namespace Framework.ActorSystem.Runtime
 
             m_vNodes.Add(pNode.GetInstanceID(), pNode);
             
-            if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
+            if (pNode.IsSpatial()&& m_isSpatialIndexEnabled && m_pSpatialIndex != null)
             {
                 m_pSpatialIndex.AddActor(pNode);
             }

@@ -94,14 +94,9 @@ namespace Framework.AT.Editor
             if(m_pGraphView!=null) m_pGraphView.OnUpdate(fTime);
         }
         //-----------------------------------------------------
-        public void OnRefreshData(System.Object data)
+        public void OnRefreshData(AgentTreeData pATData, System.Object pOwner)
         {
-            /*
-            if (data is CutsceneObject)
-            {
-                CutsceneObject cutsceneObj = data as CutsceneObject;
-                m_pGraphView.SetAgentTree(cutsceneObj,cutsceneObj.GetCutsceneGraph().agentTree);
-            }*/
+            m_pGraphView.SetAgentTree(pATData, pOwner);
         }
         //--------------------------------------------------------
         public void OnSaveChanges()

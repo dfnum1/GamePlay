@@ -1,22 +1,24 @@
 /********************************************************************
 生成日期:	06:30:2025
-类    名: 	PlayCutsceneGraphNode
+类    名: 	TrackBindCutsceneGraphNode
 作    者:	HappLI
-描    述:	播放子场景节点
+描    述:	轨道绑定过场动画节点
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using Framework.Cutscene.Runtime;
+using Framework.Cutscne.Runtime;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 namespace Framework.AT.Editor
 {
-    [NodeBind(EActionType.ePlaySubCutscene)]
-    public class PlayCutsceneGraphNode : GraphNode
+    [NodeBind((int)ECutsceneATActionType.eBindCutsceneTrackData)]
+    public class TrackBindCutsceneGraphNode : GraphNode
     {
         List<string> m_vCutscenePops = new List<string>();
         List<int> m_vCutsceneIds = new List<int>();
-        public PlayCutsceneGraphNode(AgentTreeGraphView pAgent, BaseNode pNode, bool bUpdatePos = true) : base(pAgent, pNode, bUpdatePos)
+        public TrackBindCutsceneGraphNode(AgentTreeGraphView pAgent, BaseNode pNode, bool bUpdatePos = true) : base(pAgent, pNode, bUpdatePos)
         {
         }
         //------------------------------------------------------
@@ -29,31 +31,33 @@ namespace Framework.AT.Editor
         {
             m_vCutscenePops.Clear();
             m_vCutsceneIds.Clear();
-            /*
-            var nodes = m_pGraphView.GetCutsceneGraph();
-            if(nodes!=null)
+            var nodes = m_pGraphView.GetEditOwnerObject();
+            if (nodes != null && nodes is CutsceneGraph)
             {
-                foreach (var node in nodes.vCutscenes)
+                CutsceneGraph graph = nodes as CutsceneGraph;
+                foreach (var node in graph.vCutscenes)
                 {
                     if (node is CutsceneNode cutsceneNode)
                     {
-                        if (cutsceneNode.cutSceneData == null) continue;
-                        m_vCutscenePops.Add(cutsceneNode.cutSceneData.name);
-                        m_vCutsceneIds.Add(cutsceneNode.cutSceneData.id);
+                        if (cutsceneNode.cutSceneData == null || cutsceneNode.cutSceneData.groups == null) continue;
+                        foreach (var db in cutsceneNode.cutSceneData.groups)
+                        {
+                            if (db == null) continue;
+                            m_vCutscenePops.Add(cutsceneNode.cutSceneData.name + " - " + db.name);
+                            m_vCutsceneIds.Add((cutsceneNode.cutSceneData.id << 16) | db.id); // 高16位为过场动画ID，低16位为组ID
+                        }
                     }
                 }
-            }*/
+            }
         }
         //-----------------------------------------------------
         protected override void BuildArvPort()
         {
             base.BuildArvPort();
-            /*
-            if(m_vArgvPorts.Count>0)
-            {
-                var nodes = m_pGraphView.GetCutsceneGraph();
 
-                ArvgPort port = m_vArgvPorts[0];
+            if(m_vArgvPorts.Count>2)
+            {
+                ArvgPort port = m_vArgvPorts[1];
                 short varGuid = port.GetVariableGuid();
                 var portVariable = m_pGraphView.GetVariable(varGuid);
                 if(portVariable!=null && portVariable.GetVariableType() == EVariableType.eInt)
@@ -61,12 +65,9 @@ namespace Framework.AT.Editor
                     RefreshCutscenePopupList();
                     var intVar = (AT.Runtime.VariableInt)portVariable;
                     int selectedIndex = m_vCutsceneIds.IndexOf(intVar.value);
-                    if (m_vCutsceneIds.Count> 0 && selectedIndex < 0)
+                    if(selectedIndex <0 && m_vCutsceneIds.Count>0)
                     {
                         intVar.value = m_vCutsceneIds[0];
-                        selectedIndex = 0;
-                        m_pGraphView.UpdateVariable(intVar);
-
                         if (port.fieldRoot.childCount > 0)
                         {
                             var field = port.fieldRoot.ElementAt(0);
@@ -135,7 +136,7 @@ namespace Framework.AT.Editor
                     }
                     port.fieldRoot.Add(popup);
                 }
-            }*/
+            }
         }
     }
 }

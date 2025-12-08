@@ -6,6 +6,7 @@
 描    述:	
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
+using Framework.AT.Editor;
 using Framework.Cutscene.Editor;
 using Framework.ED;
 using System.Collections.Generic;
@@ -459,10 +460,9 @@ namespace Framework.ActorSystem.Editor
             }
             else if (rowData.column == 4)
             {
-                GUILayout.BeginArea(rowData.rowRect);
-                if(GUILayout.Button("删除", GUILayout.Height(rowData.rowRect.height)))
+                if (GUI.Button(new Rect(rowData.rowRect.x, rowData.rowRect.y,35, rowData.rowRect.height), "删除"))
                 {
-                    if(EditorUtility.DisplayDialog("提示", "确认是否要删除该动作", "删除", "取消"))
+                    if (EditorUtility.DisplayDialog("提示", "确认是否要删除该动作", "删除", "取消"))
                     {
                         if (m_pActor.GetGraphData().timelineActions != null)
                         {
@@ -471,7 +471,10 @@ namespace Framework.ActorSystem.Editor
                         }
                     }
                 }
-                GUILayout.EndArea();
+                if (GUI.Button(new Rect(rowData.rowRect.x+35, rowData.rowRect.y, 35, rowData.rowRect.height), "行为"))
+                {
+                    AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab);
+                }
             }
             return true;
         }

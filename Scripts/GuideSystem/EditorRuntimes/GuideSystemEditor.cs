@@ -1122,6 +1122,10 @@ namespace Framework.Guide.Editor
         {
             return false;
         }
+        //------------------------------------------------------
+        public void OnGuideExitNode(BaseNode pNode)
+        {
+        }
     }
 }
 #endif

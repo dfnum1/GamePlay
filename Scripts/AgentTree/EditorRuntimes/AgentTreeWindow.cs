@@ -30,7 +30,7 @@ namespace Framework.AT.Editor
             window.titleContent = new GUIContent("蓝图脚本");
         }
         //--------------------------------------------------------
-        public static AgentTreeWindow Open(AgentTreeData atData, UnityEngine.Object pObject)
+        public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject)
         {
             AgentTreeWindow[] editors = EditorWindow.FindObjectsOfType<AgentTreeWindow>();
             if(editors!=null)
@@ -47,7 +47,7 @@ namespace Framework.AT.Editor
                 }
             }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
-            window.titleContent = new GUIContent("[" + pObject.name + "]-行为树");
+            window.titleContent = new GUIContent("行为树");
             window.m_pCurrentObj = pObject;
             window.m_pATData = atData;
             window.OnChangeSelect(pObject);

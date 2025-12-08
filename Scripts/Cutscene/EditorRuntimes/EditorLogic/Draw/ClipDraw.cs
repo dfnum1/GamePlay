@@ -131,13 +131,17 @@ namespace Framework.Cutscene.Editor
             return m_ClipCenterSection.Contains(mousePos) || IsPointLocatedInClipBlend(mousePos, clipBlends);
         }
         //--------------------------------------------------------
+        public Rect GetDurationSnap()
+        {
+            float durSnap = Mathf.Min(10, Mathf.Max(m_ClipCenterSection.width * 0.1f, 3));
+            return new Rect(m_ClipCenterSection.position + Vector2.right * (m_ClipCenterSection.width - durSnap), new Vector2(durSnap, m_ClipCenterSection.height));
+        }
+        //--------------------------------------------------------
         public bool CanSelectDurationSnap(Event evt, TimelineDrawLogic stateLogic)
         {
             ClipBlends clipBlends = GetClipBlends();
             Vector2 mousePos = evt.mousePosition - stateLogic.ToWindowSpace(treeViewRect.position);
-            float durSnap = Mathf.Min(10, Mathf.Max(m_ClipCenterSection.width * 0.1f, 3));
-            Rect right = new Rect(m_ClipCenterSection.position + Vector2.right * (m_ClipCenterSection.width - durSnap), new Vector2(durSnap, m_ClipCenterSection.height));
-            return right.Contains(mousePos);
+            return GetDurationSnap().Contains(mousePos);
         }
         //--------------------------------------------------------
         bool IsPointLocatedInClipBlend(Vector2 pt, ClipBlends blends)
@@ -473,6 +477,8 @@ namespace Framework.Cutscene.Editor
             m_ClipDrawData.localVisibleEndTime = clip.ToLocalTimeUnbound(Math.Min(GetEnd(), shownAreaTime.y));
 
             m_ClipDrawData.clippedRect = new Rect(clippedRect.x - rectXOffset, 0.0f, clippedRect.width, clippedRect.height);
+
+            m_ClipDrawData.dragDurationSnapRect = GetDurationSnap();
 
             m_ClipDrawData.swatchColor = EditorPreferences.GetTypeColor(this.clip.GetType());
 

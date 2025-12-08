@@ -57,6 +57,7 @@ namespace Framework.Guide
         IUserData OnGuideBuildEvent(string strEvent);
         bool OnTriggerGuideEvent(IUserData pEvent, IUserData pTrigger = null);
         void OnGuideExecuteNode(BaseNode pNode);
+        void OnGuideExitNode(BaseNode pNode);
         bool OnGuideCheckSign(BaseNode pNode, CallbackParam param);
         void OnGuideNodeAutoNext(BaseNode pNode);
         bool OnGuideSuccssedListener(BaseNode pNode);
@@ -442,6 +443,12 @@ namespace Framework.Guide
         public void OverGuide(bool bCheckRecord = false)
         {
             TriggerNode pDoingTriggerNode = m_pDoingTriggerNode;
+
+            foreach (var db in m_vTracking)
+            {
+                OnNodeExit(db);
+            }
+
             m_pDoingTriggerNode = null;
             SetDoingNod(null);
             m_fAutoNextDelta = 0;
@@ -764,7 +771,7 @@ namespace Framework.Guide
                         {
                             int loopTrack = 0;
                             ExcudeNode pNode = m_pDoingNode.GetAutoExcudeNode();
-                            while(pNode!=null && loopTrack < 100)
+                            while (pNode != null && loopTrack < 100)
                             {
                                 OnEvent(pNode.GetBeginEvents());
                                 OnNodeCall(pNode);
@@ -817,7 +824,7 @@ namespace Framework.Guide
             {
                 OnNodeAutoNext(m_pDoingNode);
             }
-
+			SeqNode pCurrent = m_pDoingNode;
             if (m_pDoingNode != null) OnEvent(m_pDoingNode.GetEndEvents());
 
             TriggerNode preTriggerNode = m_pDoingTriggerNode;
@@ -836,7 +843,6 @@ namespace Framework.Guide
                 }
                 return;
             }
-            SeqNode pCurrent = m_pDoingNode;
             if (pCurrent == m_pDoingNode)
             {
                 SetDoingNod(pNext);
@@ -1048,6 +1054,15 @@ namespace Framework.Guide
             for (int j = 0; j < m_vCallbacks.Count; ++j)
             {
                 m_vCallbacks[j].OnGuideExecuteNode(pNode);
+            }
+        }
+        //------------------------------------------------------
+        void OnNodeExit(BaseNode pNode)
+        {
+            if (m_vCallbacks.Count <= 0 || pNode == null) return;
+            for (int j = 0; j < m_vCallbacks.Count; ++j)
+            {
+                m_vCallbacks[j].OnGuideExitNode(pNode);
             }
         }
         //------------------------------------------------------

@@ -312,7 +312,7 @@ namespace Framework.Guide.Editor
             }
             else if (m_eTab == ETab.CustomStep)
             {
-                EditorGUILayout.HelpBox("步骤器：只有执行成功、满足对应的条件后，才会执行下一节点。步骤器，需要实现:\r\n1.需要实现OnGuideExecuteNode 的回调逻辑.\r\n2.需要实现OnGuideCheckSign信号检测结果逻辑，如果返回true，则会执行下一步.\r\n3.需要实现OnGuideNodeAutoNext回调函数，如果有自动执行的逻辑，这需要实现对应的业务行为", MessageType.Info);
+                EditorGUILayout.HelpBox("步骤器：只有执行成功、满足对应的条件后，才会执行下一节点。步骤器，需要实现:\r\n1.需要实现OnGuideExecuteNode 的回调逻辑.\r\n2.需要实现OnGuideExitNode 的回调逻辑.(如果需要)\r\n3.需要实现OnGuideCheckSign信号检测结果逻辑，如果返回true，则会执行下一步.\r\n4.需要实现OnGuideNodeAutoNext回调函数，如果有自动执行的逻辑，这需要实现对应的业务行为", MessageType.Info);
                 EditorGUILayout.HelpBox("步骤器自定义类型必须从:" + (int)GuideStepType.CustomBegin + " - " + ((int)GuideStepType.CustomEnd-1) + " 区间内", MessageType.Warning);
                 if (m_pSelect != null)
                 {
@@ -362,7 +362,7 @@ namespace Framework.Guide.Editor
             }
             else if (m_eTab == ETab.CustomExecute)
             {
-                EditorGUILayout.HelpBox("执行器：为调用业务逻辑，需要返回计算的值.\r\n比如获取背包物品个数，返回值为物品个数。\r\n1.需要实现OnGuideExecuteNode 回调函数，执行对应的业务逻辑行为，然后将对应的返回值设置给port(pNode._Ports[xxx].fillValue=xxx)", MessageType.Info);
+                EditorGUILayout.HelpBox("执行器：为调用业务逻辑，需要返回计算的值.\r\n比如获取背包物品个数，返回值为物品个数。\r\n1.需要实现OnGuideExecuteNode 回调函数，执行对应的业务逻辑行为，然后将对应的返回值设置给port(pNode._Ports[xxx].fillValue=xxx)\r\n2.需要实现OnGuideExitNode 回调函数,清理执行结果", MessageType.Info);
                 EditorGUILayout.HelpBox("执行器自定义类型必须从:" + (int)GuideExcudeType.CustomBegin + " - " + ((int)(GuideExcudeType.CustomEnd)-1) + " 区间内", MessageType.Warning);
                 if (m_pSelect != null)
                 {
