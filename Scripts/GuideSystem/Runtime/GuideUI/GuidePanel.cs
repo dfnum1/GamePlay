@@ -1298,12 +1298,12 @@ namespace Framework.Guide
             {
                 if (m_DialogCoroutine != null)
                 {
-                    TargetContainer.GetComponent<Image>().StopCoroutine(m_DialogCoroutine);
+                    this.m_Serialize?.StopCoroutine(m_DialogCoroutine);
                     m_DialogCoroutine = null;
                     SetAvatarTipsLabel(m_DialogContent);
                     SetGuideText(m_DialogContent);
-                    m_isShowingDialog = false;
                 }
+                m_isShowingDialog = false;
                 return false;
             }
             return true;
@@ -1458,7 +1458,7 @@ namespace Framework.Guide
 
             if (isTransition && text != null)
             {
-                m_DialogCoroutine = TargetContainer.GetComponent<Image>().StartCoroutine(GuideTextTransition(text, speed));
+                m_DialogCoroutine = this.m_Serialize?.StartCoroutine(GuideTextTransition(text, speed));
             }
             else
             {

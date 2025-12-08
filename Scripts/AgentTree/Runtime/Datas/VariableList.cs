@@ -25,7 +25,9 @@ namespace Framework.AT.Runtime
         }
         List<bool>          m_vBools = null;
         List<int>           m_vInts = null;
+        List<long>          m_vLongs = null;
         List<float>         m_vFloats = null;
+        List<double>        m_vDoubles = null;
         List<string>        m_vStrings = null;
         List<Vector2>       m_vVec2s = null;
         List<Vector3>       m_vVec3s = null;
@@ -57,7 +59,9 @@ namespace Framework.AT.Runtime
         {
             m_vBools?.Clear();
             m_vInts?.Clear();
+            m_vLongs?.Clear();
             m_vFloats?.Clear();
+            m_vDoubles?.Clear();
             m_vStrings?.Clear();
             m_vVec2s?.Clear();
             m_vVec3s?.Clear();
@@ -185,6 +189,56 @@ namespace Framework.AT.Runtime
             return m_vInts;
         }
         //-----------------------------------------------------
+        public void AddLong(long value)
+        {
+            if (m_vLongs == null) m_vLongs = new List<long>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eLong, (byte)m_vLongs.Count));
+            m_vLongs.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetLong(int index, long value)
+        {
+            if (index >= 0 && m_vLongs != null && m_vLongs.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eLong)
+                {
+                    Debug.LogError($"VariableList: SetLong type mismatch, expected {EVariableType.eLong}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vLongs.Count)
+                {
+                    Debug.LogError($"VariableList: SetLong index out of range, index={type.index}, count={m_vLongs.Count}");
+                    return;
+                }
+                m_vLongs[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public long GetLong(int index, long defaultValue = 0)
+        {
+            if (index >= 0 && m_vLongs != null && m_vLongs.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eLong)
+                {
+                    Debug.LogError($"VariableList: GetLong type mismatch, expected {EVariableType.eLong}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vLongs.Count)
+                {
+                    Debug.LogError($"VariableList: GetLong index out of range, index={type.index}, count={m_vLongs.Count}");
+                    return defaultValue;
+                }
+                return m_vLongs[type.index];
+            }
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public List<long> GetLongs()
+        {
+            return m_vLongs;
+        }
+        //-----------------------------------------------------
         public void AddFloat(float value)
         {
             if (m_vFloats == null) m_vFloats = new List<float>(m_nCapacity);
@@ -233,6 +287,56 @@ namespace Framework.AT.Runtime
         public List<float> GetFloats()
         {
             return m_vFloats;
+        }
+        //-----------------------------------------------------
+        public void AddDouble(double value)
+        {
+            if (m_vDoubles == null) m_vDoubles = new List<double>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eDouble, (byte)m_vDoubles.Count));
+            m_vDoubles.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetDouble(int index, double value)
+        {
+            if (index >= 0 && m_vDoubles != null && m_vDoubles.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eDouble)
+                {
+                    Debug.LogError($"VariableList: SetDouble type mismatch, expected {EVariableType.eDouble}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vDoubles.Count)
+                {
+                    Debug.LogError($"VariableList: SetDouble index out of range, index={type.index}, count={m_vDoubles.Count}");
+                    return;
+                }
+                m_vDoubles[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public double GetDouble(int index, double defaultValue = 0)
+        {
+            if (index >= 0 && m_vDoubles != null && m_vDoubles.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eDouble)
+                {
+                    Debug.LogError($"VariableList: GetDouble type mismatch, expected {EVariableType.eDouble}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vDoubles.Count)
+                {
+                    Debug.LogError($"VariableList: GetDouble index out of range, index={type.index}, count={m_vDoubles.Count}");
+                    return defaultValue;
+                }
+                return m_vDoubles[type.index];
+            }
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public List<double> GetDoubles()
+        {
+            return m_vDoubles;
         }
         //-----------------------------------------------------
         public void AddString(string value)
@@ -861,6 +965,8 @@ namespace Framework.AT.Runtime
                 case EVariableType.eRect: m_vRects?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eMatrix: m_vMatrixs?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eUserData: m_vUserDatas?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eLong: m_vLongs?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eDouble: m_vDoubles?.RemoveAt(removedDataIndex); break;
                 default: break;
             }
 
@@ -1000,6 +1106,16 @@ namespace Framework.AT.Runtime
                         AddUserData(default);
                     }
                     break;
+                case EVariableType.eLong:
+                    {
+                        AddLong(0);
+                    }
+                    break;
+                case EVariableType.eDouble:
+                    {
+                        AddDouble(0);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -1031,6 +1147,8 @@ namespace Framework.AT.Runtime
                 case EVariableType.eRect: m_vRects?.RemoveAt(dataIndex); break;
                 case EVariableType.eMatrix: m_vMatrixs?.RemoveAt(dataIndex); break;
                 case EVariableType.eUserData: m_vUserDatas?.RemoveAt(dataIndex); break;
+                case EVariableType.eLong: m_vLongs?.RemoveAt(dataIndex); break;
+                case EVariableType.eDouble: m_vDoubles?.RemoveAt(dataIndex); break;
                 default: break;
             }
 
@@ -1181,6 +1299,22 @@ namespace Framework.AT.Runtime
                             m_vUserDatas[typeIndex1.index] = tmp;
                         }
                         break;
+                    case EVariableType.eLong:
+                        if (m_vLongs != null)
+                        {
+                            long tmp = m_vLongs[typeIndex0.index];
+                            m_vLongs[typeIndex0.index] = m_vLongs[typeIndex1.index];
+                            m_vLongs[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eDouble:
+                        if (m_vDoubles != null)
+                        {
+                            double tmp = m_vDoubles[typeIndex0.index];
+                            m_vDoubles[typeIndex0.index] = m_vDoubles[typeIndex1.index];
+                            m_vDoubles[typeIndex1.index] = tmp;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1212,7 +1346,9 @@ namespace Framework.AT.Runtime
             else if (value is VariableBounds varBounds) AddBounds(varBounds.value);
             else if (value is VariableRect varRect) AddRect(varRect.value);
             else if (value is VariableMatrix varMatrix) AddMatrix(varMatrix.value);
-            else if (value is VariableUserData varUserData) AddUserData(varUserData.value);
+            else if (value is VariableUserData varUserData) AddUserData(varUserData.pUser);
+            else if (value is VariableLong varLongData) AddLong(varLongData.value);
+            else if (value is VariableDouble varDoubleData) AddDouble(varDoubleData.value);
             else return false;
             return true;
         }
@@ -1287,6 +1423,12 @@ namespace Framework.AT.Runtime
                 case EVariableType.eUserData:
                     AddUserData(value.GetUserData(index));
                     break;
+                case EVariableType.eLong:
+                    AddLong(value.GetLong(index));
+                    break;
+                case EVariableType.eDouble:
+                    AddDouble(value.GetDouble(index));
+                    break;
                 default:
                     // 跳过未知类型
                     break;
@@ -1320,6 +1462,8 @@ namespace Framework.AT.Runtime
             else if (value is Rect rectVal) AddRect(rectVal);
             else if (value is Matrix4x4 matrixVal) AddMatrix(matrixVal);
             else if (value is IUserData userDataVal) AddUserData(userDataVal);
+            else if (value is long userLong) AddLong(userLong);
+            else if (value is double userDouble) AddDouble(userDouble);
             else return false;
             return true;
         }

@@ -491,7 +491,7 @@ namespace Framework.Guide
         //-------------------------------------------
         public static bool OnClickAnywhereSign(StepNode pNode, CallbackParam param, GuidePanel guidePanel)
         {
-            if (param.triggerType == EUIWidgetTriggerType.Click)
+            if (param.triggerType == EUIWidgetTriggerType.Click || param.touchType == ETouchType.End)
             {
                 if (guidePanel.IsShowingDialog)
                 {

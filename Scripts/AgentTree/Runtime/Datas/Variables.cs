@@ -40,6 +40,8 @@ namespace Framework.AT.Runtime
         [InspectorName("Rect")] eRect = 13,
         [InspectorName("Matrix")] eMatrix = 14,
         [InspectorName("UserData")] eUserData = 15,
+        [InspectorName("长整形")] eLong,
+        [InspectorName("双浮点")] eDouble,
     }
     //-----------------------------------------------------
     public interface IVariable
@@ -63,6 +65,46 @@ namespace Framework.AT.Runtime
         public EVariableType GetVariableType()
         {
             return EVariableType.eInt;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableLong : IVariable
+    {
+        public short guid;
+        public long value;
+        //-----------------------------------------------------
+        public VariableLong(int value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eLong;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableDouble : IVariable
+    {
+        public short guid;
+        public long value;
+        //-----------------------------------------------------
+        public VariableDouble(int value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eDouble;
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
@@ -330,11 +372,13 @@ namespace Framework.AT.Runtime
     public struct VariableUserData : IVariable
     {
         public short guid;
-        public IUserData value;
+        public int value;
+        public IUserData pUser;
         //-----------------------------------------------------
-        public VariableUserData(IUserData value)
+        public VariableUserData(int value)
         {
             guid = 0;
+            this.pUser = null;
             this.value = value;
         }
         //-----------------------------------------------------

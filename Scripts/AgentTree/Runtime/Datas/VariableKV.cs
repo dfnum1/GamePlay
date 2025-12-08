@@ -14,7 +14,9 @@ namespace Framework.AT.Runtime
     {
         System.Collections.Generic.Dictionary<short, bool>      m_vBools = null;
         System.Collections.Generic.Dictionary<short, int>       m_vInts = null;
+        System.Collections.Generic.Dictionary<short, long>      m_vLongs = null;
         System.Collections.Generic.Dictionary<short, float>     m_vFloats = null;
+        System.Collections.Generic.Dictionary<short, double>    m_vDoubles = null;
         System.Collections.Generic.Dictionary<short, string>    m_vStrings = null;
         System.Collections.Generic.Dictionary<short, Vector2>   m_vVec2s = null;
         System.Collections.Generic.Dictionary<short, Vector3>   m_vVec3s = null;
@@ -32,7 +34,9 @@ namespace Framework.AT.Runtime
         {
             m_vBools?.Clear();
             m_vInts?.Clear();
+            m_vLongs?.Clear();
             m_vFloats?.Clear();
+            m_vDoubles?.Clear();
             m_vStrings?.Clear();
             m_vVec2s?.Clear();
             m_vVec3s?.Clear();
@@ -89,6 +93,27 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
+        public void SetLong(short key, long value)
+        {
+            if (m_vLongs == null) m_vLongs = new Dictionary<short, long>(2);
+            m_vLongs[key] = value;
+        }
+        //-----------------------------------------------------
+        public long GetLong(short key, long defaultValue = 0)
+        {
+            if (m_vLongs != null && m_vLongs.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetLong(short key, out long value)
+        {
+            if (m_vLongs != null && m_vLongs.TryGetValue(key, out value))
+                return true;
+            value = 0;
+            return false;
+        }
+        //-----------------------------------------------------
         public void SetFloat(short key, float value)
         {
             if (m_vFloats == null) m_vFloats = new System.Collections.Generic.Dictionary<short, float>(2);
@@ -107,6 +132,27 @@ namespace Framework.AT.Runtime
             if (m_vFloats != null && m_vFloats.TryGetValue(key, out value))
                 return true;
             value = 0.0f;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetDouble(short key, double value)
+        {
+            if (m_vDoubles == null) m_vDoubles = new Dictionary<short, double>(2);
+            m_vDoubles[key] = value;
+        }
+        //-----------------------------------------------------
+        public double GetDouble(short key, double defaultValue = 0)
+        {
+            if (m_vDoubles != null && m_vDoubles.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetDouble(short key, out double value)
+        {
+            if (m_vDoubles != null && m_vDoubles.TryGetValue(key, out value))
+                return true;
+            value = 0.0;
             return false;
         }
         //-----------------------------------------------------
@@ -366,10 +412,14 @@ namespace Framework.AT.Runtime
 		{
             if (variable is VariableInt vInt)
                 SetInt(vInt.GetGuid(), vInt.value);
+            else if (variable is VariableLong vLong)
+                SetLong(vLong.GetGuid(), vLong.value);
             else if (variable is VariableBool vBool)
                 SetBool(vBool.GetGuid(), vBool.value);
             else if (variable is VariableFloat vFloat)
                 SetFloat(vFloat.GetGuid(), vFloat.value);
+            else if (variable is VariableDouble vDouble)
+                SetDouble(vDouble.GetGuid(), vDouble.value);
             else if (variable is VariableString vString)
                 SetString(vString.GetGuid(), vString.value);
             else if (variable is VariableVec2 vVec2)
@@ -393,7 +443,7 @@ namespace Framework.AT.Runtime
             else if (variable is VariableMatrix vMatrix)
                 SetMatrix(vMatrix.GetGuid(), vMatrix.value);
             else if (variable is VariableUserData vUserData)
-                SetUserData(vUserData.GetGuid(), vUserData.value);
+                SetUserData(vUserData.GetGuid(), vUserData.pUser);
         }
     }
 }

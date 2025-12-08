@@ -40,6 +40,24 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    public class ATMonoAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public int guid;
+        public string displayName;
+        public System.Type type;
+#endif
+        public ATMonoAttribute(int guid, string displayName, Type type)
+        {
+#if UNITY_EDITOR
+            this.guid = guid;
+            this.displayName = displayName;
+            this.type = type;
+#endif
+        }
+    }
+    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class ATMethodAttribute : System.Attribute
     {
