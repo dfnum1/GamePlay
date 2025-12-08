@@ -50,16 +50,21 @@ namespace Framework.Guide.Editor
             //    if (pNode.guideGroup.Tag >= 0 && pNode.guideGroup.Tag < 65535)
             //        pNode.bMaster = EditorGUILayout.Toggle(new GUIContent("关键步骤", "如果勾选了关键步骤，则业务层需要发送服务器记录"), pNode.bMaster);
             //}
+            
             pNode.fDeltaTime = EditorGUILayout.FloatField("延时(s)", pNode.fDeltaTime);
-
+            if (pNode.GetEnumType() != (int)GuideStepType.Delay)
             {
-                float labelWidthBack = EditorGUIUtility.labelWidth;
-                EditorGUIUtility.labelWidth = 80;
-                pNode.bAutoSignCheck = EditorGUILayout.Toggle(new GUIContent("自动检测信号","如果满足条件后，自动跳转到下一步"), pNode.bAutoSignCheck);
-                EditorGUIUtility.labelWidth = labelWidthBack;
+                {
+                    float labelWidthBack = EditorGUIUtility.labelWidth;
+                    EditorGUIUtility.labelWidth = 80;
+                    pNode.bAutoSignCheck = EditorGUILayout.Toggle(new GUIContent("自动检测信号", "如果满足条件后，自动跳转到下一步"), pNode.bAutoSignCheck);
+                    EditorGUIUtility.labelWidth = labelWidthBack;
+                }
+
+                pNode.fDeltaSignTime = EditorGUILayout.FloatField("交互延时(s)", pNode.fDeltaSignTime);
             }
 
-            pNode.fDeltaSignTime = EditorGUILayout.FloatField("交互延时(s)", pNode.fDeltaSignTime);
+            
 
             for (int i = 0; i < pNode._Ports.Count; ++i)
             {
@@ -103,9 +108,12 @@ namespace Framework.Guide.Editor
             }
 
             float labelWidth = EditorGUIUtility.labelWidth;
-            EditorGUIUtility.labelWidth = 120;
-            pNode.bSuccessedListenerBreak = EditorGUILayout.Toggle("信号检测不成立时", pNode.bSuccessedListenerBreak);
-            EditorGUIUtility.labelWidth = labelWidth;
+            if (pNode.GetEnumType() != (int)GuideStepType.Delay)
+            {
+                EditorGUIUtility.labelWidth = 120;
+                pNode.bSuccessedListenerBreak = EditorGUILayout.Toggle("信号检测不成立时", pNode.bSuccessedListenerBreak);
+                EditorGUIUtility.labelWidth = labelWidth;
+            }
             if (pNode.bSuccessedListenerBreak)
             {
                 Rect auto_rect = GUILayoutUtility.GetLastRect();
@@ -125,32 +133,39 @@ namespace Framework.Guide.Editor
             {
                 pGraph.RemoveExternPort(20);
             }
-
-            pNode.bAutoNext = EditorGUILayout.Toggle(new GUIContent("自动跳转","勾选后，不管是否满足步骤条件，都自动跳转到对应节点"), pNode.bAutoNext);
-            if (pNode.bAutoNext)
+            if (pNode.GetEnumType() != (int)GuideStepType.Delay)
             {
-                pNode.fAutoTime = EditorGUILayout.FloatField("自动倒计时", pNode.fAutoTime);
-            }
-            if (pNode.IsAutoNext())
-            {
-                EditorGUILayout.LabelField("自动跳转节点");
-                Rect auto_rect = GUILayoutUtility.GetLastRect();
-                ExternPort externPort = pGraph.GetExternPort(10);
-                if (externPort == null)
+                pNode.bAutoNext = EditorGUILayout.Toggle(new GUIContent("自动跳转", "勾选后，不管是否满足步骤条件，都自动跳转到对应节点"), pNode.bAutoNext);
+                if (pNode.bAutoNext)
                 {
-                    externPort = new ExternPort();
-                    pGraph.vExternPorts.Add(externPort);
+                    pNode.fAutoTime = EditorGUILayout.FloatField("自动倒计时", pNode.fAutoTime);
                 }
-                externPort.baseNode = pGraph;
-                externPort.direction = EPortIO.LinkOut;
-                externPort.externID = 10;
-                externPort.reqNodeType = typeof(ExcudeNode);
-                externPort.portRect = new Vector2(auto_rect.width + 10, auto_rect.y);
+                if (pNode.IsAutoNext())
+                {
+                    EditorGUILayout.LabelField("自动跳转节点");
+                    Rect auto_rect = GUILayoutUtility.GetLastRect();
+                    ExternPort externPort = pGraph.GetExternPort(10);
+                    if (externPort == null)
+                    {
+                        externPort = new ExternPort();
+                        pGraph.vExternPorts.Add(externPort);
+                    }
+                    externPort.baseNode = pGraph;
+                    externPort.direction = EPortIO.LinkOut;
+                    externPort.externID = 10;
+                    externPort.reqNodeType = typeof(ExcudeNode);
+                    externPort.portRect = new Vector2(auto_rect.width + 10, auto_rect.y);
+                }
+                else
+                {
+                    pGraph.RemoveExternPort(10);
+                }
             }
             else
             {
                 pGraph.RemoveExternPort(10);
             }
+
 
             //if (GUILayout.Button("执行前事件" + "[" + pNode.GetBeginEvents().Count + "]"))
             //{

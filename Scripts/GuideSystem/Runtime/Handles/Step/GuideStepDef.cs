@@ -83,12 +83,16 @@ namespace Framework.Guide
         [GuideStep("等待Gameobject激活状态")]
         [GuideArgv("控件", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.GetAndPort)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
+        [GuideArgv("视野判定", "IsCheckInvew", "", typeof(bool), defaultValue =true)]
         WaitGameobjectActive = 106,
 
         [GuideStep("等待目标可以点击")]
         [GuideArgv("guid", "widgetID", "控件ID,需要在控件上绑定GuideGuid组件", typeof(AGuideGuid), EArgvFalg.GetAndPort)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
         WaitGameobjectCanClick = 107,
+
+        [GuideStep("延迟")]
+        Delay = 108,
 
         [GuideDisable]
         CustomBegin = GuideTriggerDef.CustomEnd,

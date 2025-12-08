@@ -72,6 +72,9 @@ namespace Framework.Guide
                         guidePanel.bDoing = true;
                     }
                     return true;
+                case GuideStepType.Delay:
+                    guidePanel.bDoing = true;
+                    return true;
                 default:
                     return false;
             }
@@ -164,9 +167,11 @@ namespace Framework.Guide
                     }
                     return result;
                 case GuideStepType.WaitGameobjectActive:
-                    return WaitGameobjectActive(pNode);
+                    return WaitGameobjectActive(pNode, guidePanel);
                 case GuideStepType.WaitGameobjectCanClick:
                     return WaitGameobjectCanClick(pNode);
+                case GuideStepType.Delay:
+                    return true;
                 default:
                     break;
             }
@@ -633,14 +638,24 @@ namespace Framework.Guide
             return false;
         }
         //------------------------------------------------------
-        private static bool WaitGameobjectActive(StepNode pNode)
+        private static bool WaitGameobjectActive(StepNode pNode, GuidePanel guidePanel)
         {
             AGuideGuid guide = GuideGuidUtl.FindGuide(pNode._Ports[0].fillValue, pNode._Ports[1].fillStrValue);
             if (guide == null)//找不到情况,结束当前等待
             {
                 return false;
             }
-            return guide.gameObject.activeInHierarchy;
+            bool isActived = guide.gameObject.activeInHierarchy;
+            if (isActived && 2 <pNode._Ports.Count)
+            {
+                if (pNode._Ports[2].fillValue !=0)
+                {
+                    //! 视野判定
+                    if (!guidePanel.IsCheckInViewAdnCanHit(guide.transform, false))
+                        isActived = false;
+                }
+            }
+            return isActived;
         }
         //------------------------------------------------------
         static PointerEventData ms_PointerEventData = null;
