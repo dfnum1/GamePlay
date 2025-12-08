@@ -166,6 +166,9 @@ namespace Framework.Cutscene.Runtime
             else if(subId>=0 && subId < ushort.MaxValue) playableCutsceneData = data.GetSubCutscene((ushort)subId);
             else playableCutsceneData = data.GetEnterCutscene();
             CreatePlayable(playableCutsceneData);
+
+            //! create agent tree
+            CreateAgentTree(data);
             
             return true;
         }
@@ -189,6 +192,26 @@ namespace Framework.Cutscene.Runtime
         {
             if (m_pPlayable == null) return 0;
             return m_pPlayable.GetId();
+        }
+        //-----------------------------------------------------
+        public bool CreateAgentTree(CutsceneGraph graphData)
+        {
+            if(m_pAgentTree!=null)
+            {
+                AgentTreePool.FreeAgentTree(m_pAgentTree);
+                m_pAgentTree = null;
+            }
+            if (graphData.agentTree != null && graphData.agentTree.IsValid())
+            {
+                m_pAgentTree = AgentTreePool.MallocAgentTree();
+            //    m_pAgentTree.SetCutscene(this);
+                if (!m_pAgentTree.Create(graphData.agentTree))
+                {
+                    AgentTreePool.FreeAgentTree(m_pAgentTree);
+                    m_pAgentTree = null;
+                }
+            }
+            return m_pAgentTree != null;
         }
         //-----------------------------------------------------
         public bool ExecuteTask(int type, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
@@ -524,7 +547,7 @@ namespace Framework.Cutscene.Runtime
             if (!m_bEnable)
                 return true;
 
-            if (m_pPlayable == null)
+            if (m_pPlayable == null && m_pAgentTree == null)
                 return false;
 
             if(m_pPlayable != null)
@@ -540,7 +563,15 @@ namespace Framework.Cutscene.Runtime
                     }
                 }
             }
-            return !(m_pPlayable == null);
+            if(m_pAgentTree!=null)
+            {
+                if(!m_pAgentTree.Update(deltaTime))
+                {
+                    AgentTreePool.FreeAgentTree(m_pAgentTree);
+                    m_pAgentTree = null;
+                }
+            }
+            return !(m_pPlayable == null && m_pAgentTree == null);
         }
         //-----------------------------------------------------
         public void Evaluate(float time)
@@ -548,6 +579,18 @@ namespace Framework.Cutscene.Runtime
             if (m_pPlayable == null)
                 return;
             m_pPlayable.Evaluate(time);
+        }
+        //-----------------------------------------------------
+        public void RegisterAgentTreeCallback(IAgentTreeCallback callback)
+        {
+            if (m_pAgentTree == null) return;
+            m_pAgentTree.RegisterCallback(callback);
+        }
+        //-----------------------------------------------------
+        public void UnregisterAgentTreeCallback(IAgentTreeCallback callback)
+        {
+            if (m_pAgentTree == null) return;
+            m_pAgentTree.UnregisterCallback(callback);
         }
         //-----------------------------------------------------
         internal bool OnAgentTreeExecute(AgentTree pAgentTree, BaseNode pNode)
@@ -817,7 +860,7 @@ namespace Framework.Cutscene.Runtime
             }
             if(m_pAgentTree!=null)
             {
-          //      m_pMgr.FreeAgentTree(m_pAgentTree);
+                AgentTreePool.FreeAgentTree(m_pAgentTree);
                 m_pAgentTree = null;
             }
             m_pData = null;

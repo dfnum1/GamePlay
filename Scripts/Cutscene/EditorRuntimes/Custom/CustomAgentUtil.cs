@@ -179,8 +179,8 @@ namespace Framework.Cutscene.Editor
                 EditorUtility.SetDirty(ms_Agent);
                 AssetDatabase.SaveAssetIfDirty(ms_Agent);
             }
-            //??????
-         //   AgentTreeUtil.Init(true);
+
+            AgentTreeUtil.Init(true);
         }
         //-----------------------------------------------------
         public static void CommitGit()

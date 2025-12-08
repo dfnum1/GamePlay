@@ -224,8 +224,7 @@ namespace Framework.Cutscene.Editor
         {
             if (m_pAgentTreeEdit == null || m_pCurrentObj !=null && m_pCurrentObj is ACutsceneObject)
             {
-                //??????
-         //       m_pAgentTreeEdit = AgentTreeWindow.Open(m_pCutscene, (ACutsceneObject)m_pCurrentObj);
+                m_pAgentTreeEdit = AgentTreeWindow.Open(((ACutsceneObject)m_pCurrentObj).GetCutsceneGraph().agentTree, (ACutsceneObject)m_pCurrentObj);
             }
             if (m_pAgentTreeEdit) m_pAgentTreeEdit.Focus();
         }
