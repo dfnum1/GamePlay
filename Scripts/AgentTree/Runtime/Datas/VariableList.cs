@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	变量列表存储类
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,7 +30,14 @@ namespace Framework.AT.Runtime
         List<Vector2>       m_vVec2s = null;
         List<Vector3>       m_vVec3s = null;
         List<Vector4>       m_vVec4s = null;
+        List<Ray>           m_vRays = null;
+        List<Ray2D>         m_vRay2Ds = null;
+        List<Quaternion>    m_vQuaternions = null;
+        List<Bounds>        m_vBounds = null;
+        List<Rect>          m_vRects = null;
+        List<Matrix4x4>     m_vMatrixs = null;
         List<ObjId>         m_vObjIds = null;
+        List<IUserData>     m_vUserDatas = null;
         List<TypeIndex>     m_vTypes = null;
         byte                m_nCapacity = 2;
         //-----------------------------------------------------
@@ -56,6 +64,13 @@ namespace Framework.AT.Runtime
             m_vVec4s?.Clear();
             m_vObjIds?.Clear();
             m_vTypes?.Clear();
+            m_vRays?.Clear();
+            m_vRay2Ds?.Clear();
+            m_vQuaternions?.Clear();
+            m_vBounds?.Clear();
+            m_vRects?.Clear();
+            m_vMatrixs?.Clear();
+            m_vUserDatas?.Clear();
         }
         //-----------------------------------------------------
         public int GetVarCount()
@@ -470,6 +485,356 @@ namespace Framework.AT.Runtime
             return m_vObjIds;
         }
         //-----------------------------------------------------
+        public void AddRay(Ray value)
+        {
+            if (m_vRays == null) m_vRays = new List<Ray>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eRay, (byte)m_vRays.Count));
+            m_vRays.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetRay(int index, Ray value)
+        {
+            if (index >= 0 && m_vRays != null && m_vRays.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRay)
+                {
+                    Debug.LogError($"VariableList: SetRay type mismatch, expected {EVariableType.eRay}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRays.Count)
+                {
+                    Debug.LogError($"VariableList: SetRay index out of range, index={type.index}, count={m_vRays.Count}");
+                    return;
+                }
+                m_vRays[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Ray GetRay(int index)
+        {
+            if (index >= 0 && m_vRays != null && m_vRays.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRay)
+                {
+                    Debug.LogError($"VariableList: GetRay type mismatch, expected {EVariableType.eRay}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRays.Count)
+                {
+                    Debug.LogError($"VariableList: GetRay index out of range, index={type.index}, count={m_vRays.Count}");
+                    return default;
+                }
+                return m_vRays[type.index];
+            }
+            return default;
+        }
+        //-----------------------------------------------------
+        public List<Ray> GetRays()
+        {
+            return m_vRays;
+        }
+        //-----------------------------------------------------
+        public void AddRay2D(Ray2D value)
+        {
+            if (m_vRay2Ds == null) m_vRay2Ds = new List<Ray2D>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eRay2D, (byte)m_vRay2Ds.Count));
+            m_vRay2Ds.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetRay2D(int index, Ray2D value)
+        {
+            if (index >= 0 && m_vRay2Ds != null && m_vRay2Ds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRay2D)
+                {
+                    Debug.LogError($"VariableList: SetRay2D type mismatch, expected {EVariableType.eRay2D}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRay2Ds.Count)
+                {
+                    Debug.LogError($"VariableList: SetRay2D index out of range, index={type.index}, count={m_vRay2Ds.Count}");
+                    return;
+                }
+                m_vRay2Ds[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Ray2D GetRay2D(int index)
+        {
+            if (index >= 0 && m_vRay2Ds != null && m_vRay2Ds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRay2D)
+                {
+                    Debug.LogError($"VariableList: GetRay2D type mismatch, expected {EVariableType.eRay2D}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRay2Ds.Count)
+                {
+                    Debug.LogError($"VariableList: GetRay2D index out of range, index={type.index}, count={m_vRay2Ds.Count}");
+                    return default;
+                }
+                return m_vRay2Ds[type.index];
+            }
+            return default;
+        }
+        //-----------------------------------------------------
+        public List<Ray2D> GetRay2Ds()
+        {
+            return m_vRay2Ds;
+        }
+        //-----------------------------------------------------
+        public void AddQuaternion(Quaternion value)
+        {
+            if (m_vQuaternions == null) m_vQuaternions = new List<Quaternion>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eQuaternion, (byte)m_vQuaternions.Count));
+            m_vQuaternions.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetQuaternion(int index, Quaternion value)
+        {
+            if (index >= 0 && m_vQuaternions != null && m_vQuaternions.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eQuaternion)
+                {
+                    Debug.LogError($"VariableList: SetQuaternion type mismatch, expected {EVariableType.eQuaternion}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vQuaternions.Count)
+                {
+                    Debug.LogError($"VariableList: SetQuaternion index out of range, index={type.index}, count={m_vQuaternions.Count}");
+                    return;
+                }
+                m_vQuaternions[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Quaternion GetQuaternion(int index)
+        {
+            if (index >= 0 && m_vQuaternions != null && m_vQuaternions.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eQuaternion)
+                {
+                    Debug.LogError($"VariableList: GetQuaternion type mismatch, expected {EVariableType.eQuaternion}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vQuaternions.Count)
+                {
+                    Debug.LogError($"VariableList: GetQuaternion index out of range, index={type.index}, count={m_vQuaternions.Count}");
+                    return Quaternion.identity;
+                }
+                return m_vQuaternions[type.index];
+            }
+            return Quaternion.identity;
+        }
+        //-----------------------------------------------------
+        public List<Quaternion> GetQuaternions()
+        {
+            return m_vQuaternions;
+        }
+        //-----------------------------------------------------
+        public void AddBounds(Bounds value)
+        {
+            if (m_vBounds == null) m_vBounds = new List<Bounds>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eBounds, (byte)m_vBounds.Count));
+            m_vBounds.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetBounds(int index, Bounds value)
+        {
+            if (index >= 0 && m_vBounds != null && m_vBounds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eBounds)
+                {
+                    Debug.LogError($"VariableList: SetBounds type mismatch, expected {EVariableType.eBounds}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vBounds.Count)
+                {
+                    Debug.LogError($"VariableList: SetBounds index out of range, index={type.index}, count={m_vBounds.Count}");
+                    return;
+                }
+                m_vBounds[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Bounds GetBounds(int index)
+        {
+            if (index >= 0 && m_vBounds != null && m_vBounds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eBounds)
+                {
+                    Debug.LogError($"VariableList: GetBounds type mismatch, expected {EVariableType.eBounds}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vBounds.Count)
+                {
+                    Debug.LogError($"VariableList: GetBounds index out of range, index={type.index}, count={m_vBounds.Count}");
+                    return default;
+                }
+                return m_vBounds[type.index];
+            }
+            return default;
+        }
+        //-----------------------------------------------------
+        public List<Bounds> GetBoundsList()
+        {
+            return m_vBounds;
+        }
+        //-----------------------------------------------------
+        public void AddRect(Rect value)
+        {
+            if (m_vRects == null) m_vRects = new List<Rect>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eRect, (byte)m_vRects.Count));
+            m_vRects.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetRect(int index, Rect value)
+        {
+            if (index >= 0 && m_vRects != null && m_vRects.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRect)
+                {
+                    Debug.LogError($"VariableList: SetRect type mismatch, expected {EVariableType.eRect}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRects.Count)
+                {
+                    Debug.LogError($"VariableList: SetRect index out of range, index={type.index}, count={m_vRects.Count}");
+                    return;
+                }
+                m_vRects[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Rect GetRect(int index)
+        {
+            if (index >= 0 && m_vRects != null && m_vRects.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eRect)
+                {
+                    Debug.LogError($"VariableList: GetRect type mismatch, expected {EVariableType.eRect}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vRects.Count)
+                {
+                    Debug.LogError($"VariableList: GetRect index out of range, index={type.index}, count={m_vRects.Count}");
+                    return default;
+                }
+                return m_vRects[type.index];
+            }
+            return default;
+        }
+        //-----------------------------------------------------
+        public List<Rect> GetRects()
+        {
+            return m_vRects;
+        }
+        //-----------------------------------------------------
+        public void AddMatrix(Matrix4x4 value)
+        {
+            if (m_vMatrixs == null) m_vMatrixs = new List<Matrix4x4>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eMatrix, (byte)m_vMatrixs.Count));
+            m_vMatrixs.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetMatrix(int index, Matrix4x4 value)
+        {
+            if (index >= 0 && m_vMatrixs != null && m_vMatrixs.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eMatrix)
+                {
+                    Debug.LogError($"VariableList: SetMatrix type mismatch, expected {EVariableType.eMatrix}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vMatrixs.Count)
+                {
+                    Debug.LogError($"VariableList: SetMatrix index out of range, index={type.index}, count={m_vMatrixs.Count}");
+                    return;
+                }
+                m_vMatrixs[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public Matrix4x4 GetMatrix(int index)
+        {
+            if (index >= 0 && m_vMatrixs != null && m_vMatrixs.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eMatrix)
+                {
+                    Debug.LogError($"VariableList: GetMatrix type mismatch, expected {EVariableType.eMatrix}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vMatrixs.Count)
+                {
+                    Debug.LogError($"VariableList: GetMatrix index out of range, index={type.index}, count={m_vMatrixs.Count}");
+                    return Matrix4x4.identity;
+                }
+                return m_vMatrixs[type.index];
+            }
+            return Matrix4x4.identity;
+        }
+        //-----------------------------------------------------
+        public List<Matrix4x4> GetMatrixs()
+        {
+            return m_vMatrixs;
+        }
+        //-----------------------------------------------------
+        public void AddUserData(IUserData value)
+        {
+            if (m_vUserDatas == null) m_vUserDatas = new List<IUserData>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eUserData, (byte)m_vUserDatas.Count));
+            m_vUserDatas.Add(value);
+        }
+        //-----------------------------------------------------
+        public void SetUserData(int index, IUserData value)
+        {
+            if (index >= 0 && m_vUserDatas != null && m_vUserDatas.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eUserData)
+                {
+                    Debug.LogError($"VariableList: SetUserData type mismatch, expected {EVariableType.eUserData}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vUserDatas.Count)
+                {
+                    Debug.LogError($"VariableList: SetUserData index out of range, index={type.index}, count={m_vUserDatas.Count}");
+                    return;
+                }
+                m_vUserDatas[type.index] = value;
+            }
+        }
+        //-----------------------------------------------------
+        public IUserData GetUserData(int index, IUserData defaultValue = null)
+        {
+            if (index >= 0 && m_vUserDatas != null && m_vUserDatas.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            {
+                var type = m_vTypes[index];
+                if (type.type != EVariableType.eUserData)
+                {
+                    Debug.LogError($"VariableList: GetUserData type mismatch, expected {EVariableType.eUserData}, got {type}");
+                }
+                if (type.index < 0 || type.index >= m_vUserDatas.Count)
+                {
+                    Debug.LogError($"VariableList: GetUserData index out of range, index={type.index}, count={m_vUserDatas.Count}");
+                    return defaultValue;
+                }
+                return m_vUserDatas[type.index];
+            }
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public List<IUserData> GetUserDatas()
+        {
+            return m_vUserDatas;
+        }
+        //-----------------------------------------------------
         internal void ChangeType(int index, EVariableType type, string defaultValue = null)
         {
             if (m_vTypes == null || index < 0 || index >= m_vTypes.Count)
@@ -489,6 +854,13 @@ namespace Framework.AT.Runtime
                 case EVariableType.eVec3: m_vVec3s?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eVec4: m_vVec4s?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eObjId: m_vObjIds?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eRay: m_vRays?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eRay2D: m_vRay2Ds?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eQuaternion: m_vQuaternions?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eBounds: m_vBounds?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eRect: m_vRects?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eMatrix: m_vMatrixs?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eUserData: m_vUserDatas?.RemoveAt(removedDataIndex); break;
                 default: break;
             }
 
@@ -593,6 +965,41 @@ namespace Framework.AT.Runtime
                         AddObjId(v);
                     }
                     break;
+                case EVariableType.eRay:
+                    {
+                        AddRay(default); // 可根据需求解析 defaultValue
+                    }
+                    break;
+                case EVariableType.eRay2D:
+                    {
+                        AddRay2D(default);
+                    }
+                    break;
+                case EVariableType.eQuaternion:
+                    {
+                        AddQuaternion(Quaternion.identity);
+                    }
+                    break;
+                case EVariableType.eBounds:
+                    {
+                        AddBounds(default);
+                    }
+                    break;
+                case EVariableType.eRect:
+                    {
+                        AddRect(default);
+                    }
+                    break;
+                case EVariableType.eMatrix:
+                    {
+                        AddMatrix(Matrix4x4.identity);
+                    }
+                    break;
+                case EVariableType.eUserData:
+                    {
+                        AddUserData(default);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -617,6 +1024,13 @@ namespace Framework.AT.Runtime
                 case EVariableType.eVec3: m_vVec3s?.RemoveAt(dataIndex); break;
                 case EVariableType.eVec4: m_vVec4s?.RemoveAt(dataIndex); break;
                 case EVariableType.eObjId: m_vObjIds?.RemoveAt(dataIndex); break;
+                case EVariableType.eRay: m_vRays?.RemoveAt(dataIndex); break;
+                case EVariableType.eRay2D: m_vRay2Ds?.RemoveAt(dataIndex); break;
+                case EVariableType.eQuaternion: m_vQuaternions?.RemoveAt(dataIndex); break;
+                case EVariableType.eBounds: m_vBounds?.RemoveAt(dataIndex); break;
+                case EVariableType.eRect: m_vRects?.RemoveAt(dataIndex); break;
+                case EVariableType.eMatrix: m_vMatrixs?.RemoveAt(dataIndex); break;
+                case EVariableType.eUserData: m_vUserDatas?.RemoveAt(dataIndex); break;
                 default: break;
             }
 
@@ -711,6 +1125,62 @@ namespace Framework.AT.Runtime
                             m_vObjIds[typeIndex1.index] = tmp;
                         }
                         break;
+                    case EVariableType.eRay:
+                        if (m_vRays != null)
+                        {
+                            Ray tmp = m_vRays[typeIndex0.index];
+                            m_vRays[typeIndex0.index] = m_vRays[typeIndex1.index];
+                            m_vRays[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eRay2D:
+                        if (m_vRay2Ds != null)
+                        {
+                            Ray2D tmp = m_vRay2Ds[typeIndex0.index];
+                            m_vRay2Ds[typeIndex0.index] = m_vRay2Ds[typeIndex1.index];
+                            m_vRay2Ds[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eQuaternion:
+                        if (m_vQuaternions != null)
+                        {
+                            Quaternion tmp = m_vQuaternions[typeIndex0.index];
+                            m_vQuaternions[typeIndex0.index] = m_vQuaternions[typeIndex1.index];
+                            m_vQuaternions[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eBounds:
+                        if (m_vBounds != null)
+                        {
+                            Bounds tmp = m_vBounds[typeIndex0.index];
+                            m_vBounds[typeIndex0.index] = m_vBounds[typeIndex1.index];
+                            m_vBounds[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eRect:
+                        if (m_vRects != null)
+                        {
+                            Rect tmp = m_vRects[typeIndex0.index];
+                            m_vRects[typeIndex0.index] = m_vRects[typeIndex1.index];
+                            m_vRects[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eMatrix:
+                        if (m_vMatrixs != null)
+                        {
+                            Matrix4x4 tmp = m_vMatrixs[typeIndex0.index];
+                            m_vMatrixs[typeIndex0.index] = m_vMatrixs[typeIndex1.index];
+                            m_vMatrixs[typeIndex1.index] = tmp;
+                        }
+                        break;
+                    case EVariableType.eUserData:
+                        if (m_vUserDatas != null)
+                        {
+                            IUserData tmp = m_vUserDatas[typeIndex0.index];
+                            m_vUserDatas[typeIndex0.index] = m_vUserDatas[typeIndex1.index];
+                            m_vUserDatas[typeIndex1.index] = tmp;
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -728,7 +1198,6 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public bool AddVariable(IVariable value)
         {
-            // 这里可以直接处理 IVariable
             if (value is VariableBool varB) AddBool(varB.value);
             else if (value is VariableInt varI) AddInt(varI.value);
             else if (value is VariableFloat varF) AddFloat(varF.value);
@@ -737,6 +1206,13 @@ namespace Framework.AT.Runtime
             else if (value is VariableVec4 varVec4) AddVec4(varVec4.value);
             else if (value is VariableString varStr) AddString(varStr.value);
             else if (value is VariableObjId varObj) AddObjId(varObj.value);
+            else if (value is VariableRay varRay) AddRay(varRay.value);
+            else if (value is VariableRay2D varRay2D) AddRay2D(varRay2D.value);
+            else if (value is VariableQuaternion varQuat) AddQuaternion(varQuat.value);
+            else if (value is VariableBounds varBounds) AddBounds(varBounds.value);
+            else if (value is VariableRect varRect) AddRect(varRect.value);
+            else if (value is VariableMatrix varMatrix) AddMatrix(varMatrix.value);
+            else if (value is VariableUserData varUserData) AddUserData(varUserData.value);
             else return false;
             return true;
         }
@@ -790,6 +1266,27 @@ namespace Framework.AT.Runtime
                 case EVariableType.eObjId:
                     AddObjId(value.GetObjId(index));
                     break;
+                case EVariableType.eRay:
+                    AddRay(value.GetRay(index));
+                    break;
+                case EVariableType.eRay2D:
+                    AddRay2D(value.GetRay2D(index));
+                    break;
+                case EVariableType.eQuaternion:
+                    AddQuaternion(value.GetQuaternion(index));
+                    break;
+                case EVariableType.eBounds:
+                    AddBounds(value.GetBounds(index));
+                    break;
+                case EVariableType.eRect:
+                    AddRect(value.GetRect(index));
+                    break;
+                case EVariableType.eMatrix:
+                    AddMatrix(value.GetMatrix(index));
+                    break;
+                case EVariableType.eUserData:
+                    AddUserData(value.GetUserData(index));
+                    break;
                 default:
                     // 跳过未知类型
                     break;
@@ -816,6 +1313,13 @@ namespace Framework.AT.Runtime
             else if (value is Vector3 v3Val) AddVec3(v3Val);
             else if (value is Vector4 v4Val) AddVec4(v4Val);
             else if (value is ObjId objId) AddObjId(objId);
+            else if (value is Ray rayVal) AddRay(rayVal);
+            else if (value is Ray2D ray2DVal) AddRay2D(ray2DVal);
+            else if (value is Quaternion quatVal) AddQuaternion(quatVal);
+            else if (value is Bounds boundsVal) AddBounds(boundsVal);
+            else if (value is Rect rectVal) AddRect(rectVal);
+            else if (value is Matrix4x4 matrixVal) AddMatrix(matrixVal);
+            else if (value is IUserData userDataVal) AddUserData(userDataVal);
             else return false;
             return true;
         }

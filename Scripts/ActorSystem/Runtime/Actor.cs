@@ -24,6 +24,7 @@ namespace Framework.ActorSystem.Runtime
     //--------------------------------------------------------
     //! Actor
     //--------------------------------------------------------
+    [ATExport("Actor",1)]
     public class Actor : TypeActor, ICutsceneObject
     {
         public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);

@@ -4,6 +4,8 @@
 作    者:	HappLI
 描    述:	变量Key-Value存储类
 *********************************************************************/
+using Framework.Core;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework.AT.Runtime
@@ -18,6 +20,13 @@ namespace Framework.AT.Runtime
         System.Collections.Generic.Dictionary<short, Vector3>   m_vVec3s = null;
         System.Collections.Generic.Dictionary<short, Vector4>   m_vVec4s = null;
         System.Collections.Generic.Dictionary<short, ObjId>     m_vObjIds = null;
+        System.Collections.Generic.Dictionary<short, Ray>       m_vRays = null;
+        System.Collections.Generic.Dictionary<short, Ray2D>     m_vRay2Ds = null;
+        System.Collections.Generic.Dictionary<short, Quaternion> m_vQuaternions = null;
+        System.Collections.Generic.Dictionary<short, Bounds>    m_vBounds = null;
+        System.Collections.Generic.Dictionary<short, Rect>      m_vRects = null;
+        System.Collections.Generic.Dictionary<short, Matrix4x4> m_vMatrixs = null;
+        System.Collections.Generic.Dictionary<short, IUserData> m_vUserDatas = null;
         //-----------------------------------------------------
         public void Clear()
         {
@@ -29,6 +38,13 @@ namespace Framework.AT.Runtime
             m_vVec3s?.Clear();
             m_vVec4s?.Clear();
             m_vObjIds?.Clear();
+            m_vRays?.Clear();
+            m_vRay2Ds?.Clear();
+            m_vQuaternions?.Clear();
+            m_vBounds?.Clear();
+            m_vRects?.Clear();
+            m_vMatrixs?.Clear();
+            m_vUserDatas?.Clear();
         }
         //-----------------------------------------------------
         public void SetBool(short key, bool value)
@@ -199,24 +215,185 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
+        public void SetRay(short key, Ray value)
+        {
+            if (m_vRays == null) m_vRays = new Dictionary<short, Ray>(2);
+            m_vRays[key] = value;
+        }
+        //-----------------------------------------------------
+        public Ray GetRay(short key, Ray defaultValue = default)
+        {
+            if (m_vRays != null && m_vRays.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetRay(short key, out Ray value)
+        {
+            if (m_vRays != null && m_vRays.TryGetValue(key, out value))
+                return true;
+            value = default;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetRay2D(short key, Ray2D value)
+        {
+            if (m_vRay2Ds == null) m_vRay2Ds = new Dictionary<short, Ray2D>(2);
+            m_vRay2Ds[key] = value;
+        }
+        //-----------------------------------------------------
+        public Ray2D GetRay2D(short key, Ray2D defaultValue = default)
+        {
+            if (m_vRay2Ds != null && m_vRay2Ds.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetRay2D(short key, out Ray2D value)
+        {
+            if (m_vRay2Ds != null && m_vRay2Ds.TryGetValue(key, out value))
+                return true;
+            value = default;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetQuaternion(short key, Quaternion value)
+        {
+            if (m_vQuaternions == null) m_vQuaternions = new Dictionary<short, Quaternion>(2);
+            m_vQuaternions[key] = value;
+        }
+        //-----------------------------------------------------
+        public Quaternion GetQuaternion(short key, Quaternion defaultValue = default)
+        {
+            if (m_vQuaternions != null && m_vQuaternions.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetQuaternion(short key, out Quaternion value)
+        {
+            if (m_vQuaternions != null && m_vQuaternions.TryGetValue(key, out value))
+                return true;
+            value = Quaternion.identity;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetBounds(short key, Bounds value)
+        {
+            if (m_vBounds == null) m_vBounds = new Dictionary<short, Bounds>(2);
+            m_vBounds[key] = value;
+        }
+        //-----------------------------------------------------
+        public Bounds GetBounds(short key, Bounds defaultValue = default)
+        {
+            if (m_vBounds != null && m_vBounds.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetBounds(short key, out Bounds value)
+        {
+            if (m_vBounds != null && m_vBounds.TryGetValue(key, out value))
+                return true;
+            value = default;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetRect(short key, Rect value)
+        {
+            if (m_vRects == null) m_vRects = new Dictionary<short, Rect>(2);
+            m_vRects[key] = value;
+        }
+        //-----------------------------------------------------
+        public Rect GetRect(short key, Rect defaultValue = default)
+        {
+            if (m_vRects != null && m_vRects.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetRect(short key, out Rect value)
+        {
+            if (m_vRects != null && m_vRects.TryGetValue(key, out value))
+                return true;
+            value = default;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetMatrix(short key, Matrix4x4 value)
+        {
+            if (m_vMatrixs == null) m_vMatrixs = new Dictionary<short, Matrix4x4>(2);
+            m_vMatrixs[key] = value;
+        }
+        //-----------------------------------------------------
+        public Matrix4x4 GetMatrix(short key, Matrix4x4 defaultValue = default)
+        {
+            if (m_vMatrixs != null && m_vMatrixs.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetMatrix(short key, out Matrix4x4 value)
+        {
+            if (m_vMatrixs != null && m_vMatrixs.TryGetValue(key, out value))
+                return true;
+            value = Matrix4x4.identity;
+            return false;
+        }
+        //-----------------------------------------------------
+        public void SetUserData(short key, IUserData value)
+        {
+            if (m_vUserDatas == null) m_vUserDatas = new Dictionary<short, IUserData>(2);
+            m_vUserDatas[key] = value;
+        }
+        //-----------------------------------------------------
+        public IUserData GetUserData(short key, IUserData defaultValue = null)
+        {
+            if (m_vUserDatas != null && m_vUserDatas.TryGetValue(key, out var val))
+                return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public bool GetUserData(short key, out IUserData value)
+        {
+            if (m_vUserDatas != null && m_vUserDatas.TryGetValue(key, out value))
+                return true;
+            value = null;
+            return false;
+        }
+        //-----------------------------------------------------
         public void SetVariable(IVariable variable)
 		{
-			if (variable is VariableInt vInt)
-				SetVariable(vInt);
-			else if (variable is VariableBool vBool)
-				SetVariable(vBool);
-			else if (variable is VariableFloat vFloat)
-				SetVariable(vFloat);
-			else if (variable is VariableString vString)
-				SetVariable(vString);
-			else if (variable is VariableVec2 vVec2)
-				SetVariable(vVec2);
-			else if (variable is VariableVec3 vVec3)
-				SetVariable(vVec3);
-			else if (variable is VariableVec4 vVec4)
-				SetVariable(vVec4);
-			else if (variable is VariableObjId vObjId)
-				SetVariable(vObjId);
-		}
+            if (variable is VariableInt vInt)
+                SetInt(vInt.GetGuid(), vInt.value);
+            else if (variable is VariableBool vBool)
+                SetBool(vBool.GetGuid(), vBool.value);
+            else if (variable is VariableFloat vFloat)
+                SetFloat(vFloat.GetGuid(), vFloat.value);
+            else if (variable is VariableString vString)
+                SetString(vString.GetGuid(), vString.value);
+            else if (variable is VariableVec2 vVec2)
+                SetVec2(vVec2.GetGuid(), vVec2.value);
+            else if (variable is VariableVec3 vVec3)
+                SetVec3(vVec3.GetGuid(), vVec3.value);
+            else if (variable is VariableVec4 vVec4)
+                SetVec4(vVec4.GetGuid(), vVec4.value);
+            else if (variable is VariableObjId vObjId)
+                SetObjId(vObjId.GetGuid(), vObjId.value);
+            else if (variable is VariableRay vRay)
+                SetRay(vRay.GetGuid(), vRay.value);
+            else if (variable is VariableRay2D vRay2D)
+                SetRay2D(vRay2D.GetGuid(), vRay2D.value);
+            else if (variable is VariableQuaternion vQuat)
+                SetQuaternion(vQuat.GetGuid(), vQuat.value);
+            else if (variable is VariableBounds vBounds)
+                SetBounds(vBounds.GetGuid(), vBounds.value);
+            else if (variable is VariableRect vRect)
+                SetRect(vRect.GetGuid(), vRect.value);
+            else if (variable is VariableMatrix vMatrix)
+                SetMatrix(vMatrix.GetGuid(), vMatrix.value);
+            else if (variable is VariableUserData vUserData)
+                SetUserData(vUserData.GetGuid(), vUserData.value);
+        }
     }
 }

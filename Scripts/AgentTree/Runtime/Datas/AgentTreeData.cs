@@ -15,24 +15,6 @@ namespace Framework.AT.Runtime
 {
     //-----------------------------------------------------
     [System.Serializable]
-    struct VaribaleSerizlizeGuidData
-    {
-        public VariableBool[] boolVariables;
-        public VariableInt[] intVariables;
-        public VariableFloat[] floatVariables;
-        public VariableString[] stringVariables;
-        public int GetVariableCnt()
-        {
-            int cnt = 0;
-            if(boolVariables!=null) cnt += boolVariables.Length;
-            if (intVariables != null) cnt += intVariables.Length;
-            if (floatVariables != null) cnt += floatVariables.Length;
-            if (stringVariables != null) cnt += stringVariables.Length;
-            return cnt;
-        }
-    }
-    //-----------------------------------------------------
-    [System.Serializable]
     public class AgentTreeData
     {
         public EnterTask[] tasks;
@@ -83,36 +65,8 @@ namespace Framework.AT.Runtime
             {
                 if (m_vVariables == null) m_vVariables = new Dictionary<short, IVariable>(cnt);
                 else m_vVariables.Clear();
-                if (varGuids.boolVariables != null)
-                {
-                    for (int i = 0; i < varGuids.boolVariables.Length; ++i)
-                    {
-                        m_vVariables[varGuids.boolVariables[i].GetGuid()] = varGuids.boolVariables[i];
-                    }
-                }
-                if (varGuids.intVariables != null)
-                {
-                    for (int i = 0; i < varGuids.intVariables.Length; ++i)
-                    {
-                        m_vVariables[varGuids.intVariables[i].GetGuid()] = varGuids.intVariables[i];
-                    }
-                }
-                if (varGuids.floatVariables != null)
-                {
-                    for (int i = 0; i < varGuids.floatVariables.Length; ++i)
-                    {
-                        m_vVariables[varGuids.floatVariables[i].GetGuid()] = varGuids.floatVariables[i];
-                    }
-                }
-                if (varGuids.stringVariables != null)
-                {
-                    for (int i = 0; i < varGuids.stringVariables.Length; ++i)
-                    {
-                        m_vVariables[varGuids.stringVariables[i].GetGuid()] = varGuids.stringVariables[i];
-                    }
-                }
+                varGuids.Fill(m_vVariables);
             }
-
             int nodeCnt = GetNodeCnt();
             if (nodeCnt > 0)
             {

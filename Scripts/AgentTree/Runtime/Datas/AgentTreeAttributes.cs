@@ -24,6 +24,22 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class| AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    public class ATExportAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public int guid;
+        public string nodeName;
+#endif
+        public ATExportAttribute(string nodeName = null, int guid = 0)
+        {
+#if UNITY_EDITOR
+            this.guid = guid;
+            this.nodeName = nodeName;
+#endif
+        }
+    }
+    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class ATMethodAttribute : System.Attribute
     {

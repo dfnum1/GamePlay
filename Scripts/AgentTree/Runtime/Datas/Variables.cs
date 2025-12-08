@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	变量
 *********************************************************************/
+using Framework.Core;
 using System;
 using UnityEngine;
 
@@ -32,6 +33,13 @@ namespace Framework.AT.Runtime
         [InspectorName("三维向量")] eVec3 = 6,
         [InspectorName("四维向量")] eVec4= 7,
         [InspectorName("ObjId")] eObjId = 8,
+        [InspectorName("Ray")] eRay = 9,
+        [InspectorName("Ray2D")] eRay2D = 10,
+        [InspectorName("Quaternion")] eQuaternion = 11,
+        [InspectorName("Bounds")] eBounds = 12,
+        [InspectorName("Rect")] eRect = 13,
+        [InspectorName("Matrix")] eMatrix = 14,
+        [InspectorName("UserData")] eUserData = 15,
     }
     //-----------------------------------------------------
     public interface IVariable
@@ -193,6 +201,146 @@ namespace Framework.AT.Runtime
         public EVariableType GetVariableType()
         {
             return EVariableType.eBool;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableRay : IVariable
+    {
+        public short guid;
+        public Ray value;
+        //-----------------------------------------------------
+        public VariableRay(Ray value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eRay;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableRay2D : IVariable
+    {
+        public short guid;
+        public Ray2D value;
+        //-----------------------------------------------------
+        public VariableRay2D(Ray2D value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eRay2D;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableQuaternion : IVariable
+    {
+        public short guid;
+        public Quaternion value;
+        //-----------------------------------------------------
+        public VariableQuaternion(Quaternion value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eQuaternion;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableBounds : IVariable
+    {
+        public short guid;
+        public Bounds value;
+        //-----------------------------------------------------
+        public VariableBounds(Bounds value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eBounds;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableRect : IVariable
+    {
+        public short guid;
+        public Rect value;
+        //-----------------------------------------------------
+        public VariableRect(Rect value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eRect;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableMatrix : IVariable
+    {
+        public short guid;
+        public Matrix4x4 value;
+        //-----------------------------------------------------
+        public VariableMatrix(Matrix4x4 value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eMatrix;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    public struct VariableUserData : IVariable
+    {
+        public short guid;
+        public IUserData value;
+        //-----------------------------------------------------
+        public VariableUserData(IUserData value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eUserData;
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
