@@ -1253,17 +1253,6 @@ namespace Framework.AT.Runtime
             return GetUserData(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        /*
-        //-----------------------------------------------------
-        public IVariable GetOutportVar(BaseNode pNode, int index)
-        {
-            var ports = pNode.GetOutports();
-            if (index < 0 || ports == null || index >= ports.Length)
-                return null;
-
-            return GetVariable(ports[index].varGuid);
-        }*/
-        //-----------------------------------------------------
         public bool GetOutportBool(BaseNode pNode, int index, bool defValue = false)
         {
             var ports = pNode.GetOutports();

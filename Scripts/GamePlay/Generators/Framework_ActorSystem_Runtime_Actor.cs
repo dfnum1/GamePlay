@@ -9,9 +9,8 @@ namespace Framework.ActorSystem.Runtime
 	{
 #if UNITY_EDITOR
 		[ATFunction(381027485,"GetInstanceID",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
-
 #endif
 		static bool AT_GetInstanceID(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -20,9 +19,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(312098358,"获取攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Byte))]
-
 #endif
 		static bool AT_GetAttackGroup(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -31,9 +29,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1837403457,"设置攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"attackGroup",false, null,typeof(System.Byte))]
-
 #endif
 		static bool AT_SetAttackGroup(Actor pPointerThis,System.Byte attackGroup)
 		{
@@ -42,10 +39,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(765517350,"是否可攻击",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"attackGroup",false, null,typeof(System.Byte))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_CanAttackGroup(Actor pPointerThis,System.Byte attackGroup,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -54,9 +50,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-955549743,"设置速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"speed",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetSpeed(Actor pPointerThis,UnityEngine.Vector3 speed)
 		{
@@ -65,9 +60,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-297293181,"设置速度XZ",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"speed",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetSpeedXZ(Actor pPointerThis,UnityEngine.Vector3 speed)
 		{
@@ -76,9 +70,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1073367040,"获取当前速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetSpeed(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -87,9 +80,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(833023976,"设置Y速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fSpeedY",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_SetSpeedY(Actor pPointerThis,System.Single fSpeedY)
 		{
@@ -98,9 +90,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1824765372,"设置摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fValue",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_SetFraction(Actor pPointerThis,System.Single fValue)
 		{
@@ -109,9 +100,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1928069877,"获取摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
-
 #endif
 		static bool AT_GetFraction(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -120,9 +110,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(964859665,"启用重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bEnable",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_EnableGravity(Actor pPointerThis,System.Boolean bEnable)
 		{
@@ -131,9 +120,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(347890795,"设置重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fValue",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_SetGravity(Actor pPointerThis,System.Single fValue)
 		{
@@ -142,9 +130,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(989414905,"获取重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
-
 #endif
 		static bool AT_GetGravity(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -153,9 +140,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-895517594,"获取当前位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetPosition(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -164,9 +150,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-628240668,"获取上一次位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetLastPosition(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -175,9 +160,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-726611153,"设置位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vPosition",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetPosition(Actor pPointerThis,UnityEngine.Vector3 vPosition)
 		{
@@ -186,9 +170,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1338512524,"位置偏移",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vOffset",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_OffsetPosition(Actor pPointerThis,UnityEngine.Vector3 vOffset)
 		{
@@ -197,9 +180,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-712341336,"获取角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetEulerAngle(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -208,9 +190,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1590410012,"设置角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vEulerAngle",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetEulerAngle(Actor pPointerThis,UnityEngine.Vector3 vEulerAngle)
 		{
@@ -218,10 +199,19 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-1394750896,"获取矩阵",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableMatrix), "pReturn", null,typeof(UnityEngine.Matrix4x4))]
+#endif
+		static bool AT_GetMatrix(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportMatrix(pNode, 0, pPointerThis.GetMatrix());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(1490974294,"设置方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vDirection",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetDirection(Actor pPointerThis,UnityEngine.Vector3 vDirection)
 		{
@@ -230,9 +220,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1472241877,"获取方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetDirection(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -241,9 +230,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1098330067,"获取Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetUp(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -252,9 +240,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-736682351,"设置Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"up",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetUp(Actor pPointerThis,UnityEngine.Vector3 up)
 		{
@@ -263,9 +250,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-2078882846,"获取Right朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetRight(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -274,9 +260,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-593849486,"获取缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_GetScale(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -285,9 +270,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(611036323,"设置缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"scale",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetScale(Actor pPointerThis,UnityEngine.Vector3 scale)
 		{
@@ -296,11 +280,10 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-88835465,"设置位置角度缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vPosition",false, null,typeof(UnityEngine.Vector3))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vEulerAngle",false, null,typeof(UnityEngine.Vector3))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vScale",false, null,typeof(UnityEngine.Vector3))]
-
 #endif
 		static bool AT_SetTransfrom(Actor pPointerThis,UnityEngine.Vector3 vPosition,UnityEngine.Vector3 vEulerAngle,UnityEngine.Vector3 vScale)
 		{
@@ -309,10 +292,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-375119552,"是否拥有标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"flag",false, null,typeof(Framework.ActorSystem.Runtime.EActorFlag))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsFlag(Actor pPointerThis,Framework.ActorSystem.Runtime.EActorFlag flag,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -321,10 +303,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(724323496,"设置标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"flag",false, null,typeof(Framework.ActorSystem.Runtime.EActorFlag))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bSet",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_SetFlag(Actor pPointerThis,Framework.ActorSystem.Runtime.EActorFlag flag,System.Boolean bSet)
 		{
@@ -333,9 +314,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1337224865,"是否开启逻辑",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsCanLogic(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -344,9 +324,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-902001298,"是否不可见",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsInvincible(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -355,9 +334,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-716677369,"设置延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fTime",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_SetDelayDestroy(Actor pPointerThis,System.Single fTime)
 		{
@@ -366,9 +344,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(458663211,"获取延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
-
 #endif
 		static bool AT_GetDelayDestroy(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -377,8 +354,7 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(854312887,"删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_SetDestroy(Actor pPointerThis)
 		{
@@ -387,9 +363,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1507174251,"是否删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsDestroy(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -398,9 +373,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-130130118,"HUD开关",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bHudBar",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_EnableHudBar(Actor pPointerThis,System.Boolean bHudBar)
 		{
@@ -409,9 +383,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1847440768,"是否开启HUD",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsEnableHudBar(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -420,9 +393,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(63681228,"是否拥有物理碰撞",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsColliderAble(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -431,9 +403,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-2139515976,"SetKilled",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bKilled",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_SetKilled(Actor pPointerThis,System.Boolean bKilled)
 		{
@@ -442,9 +413,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(635254065,"IsKilled",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsKilled(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -453,9 +423,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(873572757,"SetVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bVisible",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_SetVisible(Actor pPointerThis,System.Boolean bVisible)
 		{
@@ -464,9 +433,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1596967241,"IsVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsVisible(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -475,9 +443,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(943289552,"SetActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_SetActived(Actor pPointerThis,System.Boolean bToggle)
 		{
@@ -486,9 +453,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1392972814,"IsActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsActived(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -497,9 +463,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(59183278,"EnableLogic",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_EnableLogic(Actor pPointerThis,System.Boolean bToggle)
 		{
@@ -508,9 +473,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(511331437,"EnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_EnableAI(Actor pPointerThis,System.Boolean bToggle)
 		{
@@ -519,9 +483,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1742940291,"IsEnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsEnableAI(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -530,9 +493,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-733558894,"EnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_EnableRVO(Actor pPointerThis,System.Boolean bToggle)
 		{
@@ -541,9 +503,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-914902675,"IsEnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsEnableRVO(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -551,11 +512,35 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-228769905,"StopActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunction(1988170200,"StartActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
-
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bForce",false, null,typeof(System.Boolean))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pStateParam",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
+#endif
+		static bool AT_StartActionState(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 nTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam = null)
+		{
+			pPointerThis.StartActionState(eType,nTag,bForce,pStateParam);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(242567738,"StartActionState_1",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nActionTypeAndTag",false, null,typeof(System.UInt32))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bForce",false, null,typeof(System.Boolean))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pStateParam",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
+#endif
+		static bool AT_StartActionState_1(Actor pPointerThis,System.UInt32 nActionTypeAndTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam = null)
+		{
+			pPointerThis.StartActionState(nActionTypeAndTag,bForce,pStateParam);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-228769905,"StopActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
 #endif
 		static bool AT_StopActionState(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 nTag)
 		{
@@ -564,10 +549,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1689203650,"SetIdleType",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"tag",false, null,typeof(System.UInt32))]
-
 #endif
 		static bool AT_SetIdleType(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 tag)
 		{
@@ -576,10 +560,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-2072478675,"RemoveActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
-
 #endif
 		static bool AT_RemoveActionState(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 nTag)
 		{
@@ -588,10 +571,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-22641626,"SetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_SetAttr(Actor pPointerThis,System.Byte type,System.Single value)
 		{
@@ -600,11 +582,10 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1832336635,"GetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"defVal",false, null,typeof(System.Single))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
-
 #endif
 		static bool AT_GetAttr(Actor pPointerThis,System.Byte type,System.Single defVal,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -613,9 +594,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-468082741,"RemoveAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
-
 #endif
 		static bool AT_RemoveAttr(Actor pPointerThis,System.Byte type)
 		{
@@ -624,10 +604,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1610379500,"AppendAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_AppendAttr(Actor pPointerThis,System.Byte type,System.Single value)
 		{
@@ -636,11 +615,10 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(315679903,"SubAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"value",false, null,typeof(System.Int32))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bLowerZero",false, null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_SubAttr(Actor pPointerThis,System.Byte type,System.Int32 value,System.Boolean bLowerZero)
 		{
@@ -649,8 +627,7 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1249179647,"ClearAttrs",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_ClearAttrs(Actor pPointerThis)
 		{
@@ -659,10 +636,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-943336217,"IsInAction",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsInAction(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -671,9 +647,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1576406313,"IsAttacking",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsAttacking(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -682,9 +657,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(528609504,"IsCutscneHolded",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsCutscneHolded(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -693,8 +667,7 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-604755324,"ResetFreeze",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_ResetFreeze(Actor pPointerThis)
 		{
@@ -703,10 +676,9 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(181418108,"Freezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fDuration",false, null,typeof(System.Single))]
-
 #endif
 		static bool AT_Freezed(Actor pPointerThis,System.Boolean bToggle,System.Single fDuration)
 		{
@@ -715,9 +687,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1080427348,"IsFreezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"pPointerThis",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
-
 #endif
 		static bool AT_IsFreezed(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -868,6 +839,13 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetEulerAngle(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+			}
+			case -1394750896://GetMatrix
+			{
+				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetMatrix(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 1490974294://SetDirection
 			{
@@ -1078,6 +1056,20 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsEnableRVO(pUserClass.pPointer as Actor,pAgentTree, pNode);
+			}
+			case 1988170200://StartActionState
+			{
+				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 4) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_StartActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2),pAgentTree.GetInportBool(pNode,3));
+			}
+			case 242567738://StartActionState
+			{
+				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 3) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_StartActionState_1(pUserClass.pPointer as Actor,pAgentTree.GetInportUint(pNode,1),pAgentTree.GetInportBool(pNode,2));
 			}
 			case -228769905://StopActionState
 			{

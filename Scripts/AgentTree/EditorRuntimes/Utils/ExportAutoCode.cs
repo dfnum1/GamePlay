@@ -12,6 +12,7 @@ using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
@@ -221,7 +222,7 @@ namespace Framework.AT.Editor
                     }
                     else
                     {
-                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"pPointerThis\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
+                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
 
                         string callArgv = "";
                         functionHead += $"{export.type.Name} pPointerThis";
@@ -260,6 +261,8 @@ namespace Framework.AT.Editor
                     }
 
                     functionHead += ")";
+                    if (functionAttributes.EndsWith("\r\n"))
+                        functionAttributes = functionAttributes.Substring(0, functionAttributes.Length - "\r\n".Length);
 
                     methodCode.AppendLine("#if UNITY_EDITOR");
                     methodCode.AppendLine(functionAttributes);
@@ -452,9 +455,6 @@ namespace Framework.AT.Editor
                         ms_vRefTypes.Add(parameters[i].ParameterType);
                 }
             }
-
-
-
             return true;
         }
         //-----------------------------------------------------
@@ -465,12 +465,12 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static bool IsUserDataType(System.Type type)
         {
-            if ((type.IsClass || type.IsValueType))
+            if (type.IsClass || type.IsValueType)
             {
                 if (type.GetType().GetInterface(typeof(IUserData).FullName.Replace("+", ".")) != null)
                     return true;
             }
-            return false;
+            return type == typeof(IUserData) || type.GetInterfaces().Contains(typeof(IUserData));
         }
         //-----------------------------------------------------
         static System.Type ConvertTypeToATType(System.Type type)

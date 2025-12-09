@@ -42,7 +42,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic int GetCurrentTriggerIntPort(int index)\r\n";
+            code += "\t\tpublic static int GetCurrentTriggerIntPort(int index)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tvar trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
             code += "\t\t\tif (trigger == null || index < 0 || trigger._Ports == null || index >= trigger._Ports.Count)\r\n";
@@ -54,7 +54,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic string GetCurrentTriggerStrPort(int index)\r\n";
+            code += "\t\tpublic static string GetCurrentTriggerStrPort(int index)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tvar trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
             code += "\t\t\tif (trigger == null || index < 0 || trigger._Ports == null || index >= trigger._Ports.Count)\r\n";
@@ -66,7 +66,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic int GetCurrentGroupGuid()\r\n";
+            code += "\t\tpublic static int GetCurrentGroupGuid()\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
             code += "\t\t\tif (trigger == null) return -1;\r\n";
@@ -74,7 +74,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic int GetCurrentTriggerType()\r\n";
+            code += "\t\tpublic static int GetCurrentTriggerType()\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
             code += "\t\t\tif (trigger == null) return -1;\r\n";
@@ -82,7 +82,7 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
-            code += "\t\tpublic int GetCurrentTriggerTag()\r\n";
+            code += "\t\tpublic static int GetCurrentTriggerTag()\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\t var trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";
             code += "\t\t\tif (trigger == null) return -1;\r\n";

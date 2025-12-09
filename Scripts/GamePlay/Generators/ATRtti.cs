@@ -10,12 +10,14 @@ namespace Framework.AT.Runtime
 		static void Init()
 		{
 			if(ms_vIdTypes != null) return;
-			if(ms_vIdTypes == null) ms_vIdTypes = new Dictionary<int, System.Type>(1);
-			if(ms_vTypeIds == null) ms_vTypeIds = new Dictionary<System.Type,int>(1);
+			if(ms_vIdTypes == null) ms_vIdTypes = new Dictionary<int, System.Type>(2);
+			if(ms_vTypeIds == null) ms_vTypeIds = new Dictionary<System.Type,int>(2);
 			ms_vIdTypes.Clear();
 			ms_vTypeIds.Clear();
-			ms_vIdTypes[1] = typeof(Framework.ActorSystem.Runtime.Actor);
-			ms_vTypeIds[typeof(Framework.ActorSystem.Runtime.Actor)] = 1;
+			ms_vIdTypes[-1] = typeof(Framework.ActorSystem.Runtime.Actor);
+			ms_vTypeIds[typeof(Framework.ActorSystem.Runtime.Actor)] = -1;
+			ms_vIdTypes[-2] = typeof(Framework.ActorSystem.Runtime.ActorManager);
+			ms_vTypeIds[typeof(Framework.ActorSystem.Runtime.ActorManager)] = -2;
 		}
 		//-----------------------------------------------------
 		public static System.Type GetClassType(int typeId)

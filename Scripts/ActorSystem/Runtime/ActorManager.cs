@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	Actor管理器
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System.Collections.Generic;
@@ -235,6 +236,22 @@ namespace Framework.ActorSystem.Runtime
             OnActorStatusCallback(pActor, bAsync ? EActorStatus.AsyncCreate : EActorStatus.Create, userVariable);
             pActor.OnCreated();
             return pActor;
+        }
+        //-----------------------------------------------------
+        public Actor GetActor(int id)
+        {
+            if (m_vNodes == null) return null;
+            if (m_vNodes.TryGetValue(id, out var actor))
+                return actor;
+            return null;
+        }
+        //-----------------------------------------------------
+        public T GetActor<T>(int id) where T : Actor
+        {
+            if (m_vNodes == null) return null;
+            if (m_vNodes.TryGetValue(id, out var actor))
+                return actor as T;
+            return null;
         }
         //-----------------------------------------------------
         void AddActor(Actor pNode)

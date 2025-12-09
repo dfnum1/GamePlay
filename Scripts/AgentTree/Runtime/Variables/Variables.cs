@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.Core;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Framework.AT.Runtime
@@ -1015,7 +1016,7 @@ namespace Framework.AT.Runtime
                 return new VariableBounds { value = attri.ToValue<Bounds>(new Bounds(Vector3.zero, Vector3.zero)), guid = guid };
             else if (attri.argvType == typeof(Matrix4x4))
                 return new VariableMatrix { value = attri.ToValue<Matrix4x4>(Matrix4x4.identity), guid = guid };
-            else if (attri.argvType == typeof(VariableUserData))
+            else if (attri.argvType == typeof(VariableUserData) || attri.argvType.GetInterfaces().Contains(typeof(IUserData)))
                 return new VariableUserData { value = attri.ToValue<int>(0), pPointer = null, guid = guid };
             else if (attri.argvType == typeof(IVariable))
                 return new VariableInt { value = 0, guid = guid };

@@ -24,7 +24,7 @@ namespace Framework.ActorSystem.Runtime
     //--------------------------------------------------------
     //! Actor
     //--------------------------------------------------------
-    [ATExport("Actor",1)]
+    [ATExport("Actor",-1)]
     public class Actor : TypeActor, ICutsceneObject
     {
         public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);
@@ -370,6 +370,7 @@ namespace Framework.ActorSystem.Runtime
             m_Transform.SetEulerAngle(vEulerAngle);
         }
         //--------------------------------------------------------
+        [ATMethod("获取矩阵")]
         public Matrix4x4 GetMatrix()
         {
             return m_Transform.GetMatrix();
@@ -791,7 +792,6 @@ namespace Framework.ActorSystem.Runtime
             pAgent.PlayAnimation(action, 0.1f, bForce);
         }
         //--------------------------------------------------------
-        [ATMethod]
         public void StartActionState(ActorAction pAction, float blendTime = 0.1f, bool bForce = false, IContextData pStateParam = null)
         {
             if (pAction == null)
