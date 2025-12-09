@@ -13,7 +13,7 @@ namespace Framework.Guide
         [GuideStep("控件点击", true)]
         [GuideArgv("控件", "widgetGUID", "", typeof(AGuideGuid), EArgvFalg.PortAll)]
         [GuideStrArgv("Tag", "widgetTag", "", EArgvFalg.PortAll)]
-        [GuideArgv("控件索引", "index", "", null, EArgvFalg.PortAll)]
+        [GuideArgv("控件索引", "index", "", null, EArgvFalg.PortAll,defaultValue:-1)]
         [GuideStrArgv("控件名称", "listenerName", "动态加载查找的控件名称")]
         [GuideArgv("手势类型", "fingerType", "", typeof(EFingerType))]
         [GuideArgv("角度", "rotate", "")]

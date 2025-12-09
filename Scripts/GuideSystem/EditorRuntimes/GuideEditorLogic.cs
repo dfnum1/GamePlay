@@ -203,8 +203,9 @@ namespace Framework.Guide.Editor
             }
         }
         //------------------------------------------------------
-        public bool HasStepNodeWidgetGuide(int guide)
+        public bool HasStepNodeWidgetGuide(int guide, string widgetTag, int listIndex)
         {
+            return false;
             foreach (var db in m_vActioNodes)
             {
                 if (db.Value.bindNode != null && db.Value.bindNode is StepNode)

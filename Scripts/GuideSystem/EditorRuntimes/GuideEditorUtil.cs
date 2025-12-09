@@ -71,8 +71,30 @@ namespace Framework.Guide.Editor
             {
                 guidTag = tagPath;
             }
-
-            pEditor.AddRecodeClickStep(guide, guidTag, listIndex);
+            string searchName = "";
+            if (listIndex >= 0)
+            {
+                //! 如果为ScrollRect 列表,且widget 为SrcollRect Conten的子节点的子节点时,将计算出从Content到该节点的路径
+                ScrollRect scrollRect = guide.GetComponent<ScrollRect>();
+                if (scrollRect && scrollRect.content && listIndex < scrollRect.content.childCount)
+                {
+                    var listTransform = scrollRect.content.GetChild(listIndex);
+                    var widgetGo = listTransform.Find(widget.name);
+                    if (widgetGo == null)
+                    {
+                        //! 说明再content的子节点下
+                        string searchPath = widget.name;
+                        Transform cur = widget.transform.parent;
+                        while (cur && cur != listTransform)
+                        {
+                            searchPath = cur.name + "/" + searchPath;
+                            cur = cur.parent;
+                        }
+                        searchName = searchPath;
+                    }
+                }
+            }
+            pEditor.AddRecodeClickStep(guide, guidTag, listIndex, searchName);
         }
         //------------------------------------------------------
         internal static void SetNodeDefault(BaseNode pNode)

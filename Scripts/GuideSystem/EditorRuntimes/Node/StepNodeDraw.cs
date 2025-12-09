@@ -153,7 +153,7 @@ namespace Framework.Guide.Editor
                     externPort.baseNode = pGraph;
                     externPort.direction = EPortIO.LinkOut;
                     externPort.externID = 10;
-                    externPort.reqNodeType = typeof(ExcudeNode);
+               //     externPort.reqNodeType = typeof(ExcudeNode);
                     externPort.portRect = new Vector2(auto_rect.width + 10, auto_rect.y);
                 }
                 else

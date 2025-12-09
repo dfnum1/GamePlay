@@ -442,13 +442,13 @@ namespace Framework.Guide.Editor
             m_PreviousTime = EditorApplication.timeSinceStartup;
         }
         //------------------------------------------------------
-        internal void AddRecodeClickStep(AGuideGuid guide, string widgetTag, int listIndex)
+        internal void AddRecodeClickStep(GuideGuid guide, string widgetTag, int listIndex,string searchName)
         {
             StepParam stepParam = new StepParam();
             if (StepTypes.TryGetValue((int)GuideStepType.ClickUI, out stepParam.Data))
             {
                 bool bCtl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-                if (bCtl && !m_pLogic.HasStepNodeWidgetGuide(guide.guid))
+                if (bCtl && !m_pLogic.HasStepNodeWidgetGuide(guide.guid, widgetTag, listIndex))
                 {
                     var lastNode = m_pLogic.FindLastNodeAndNoNextLink();
                     if (lastNode != null)
@@ -495,6 +495,12 @@ namespace Framework.Guide.Editor
                                         var field = ports[j].GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
                                         if (field != null)
                                             field.SetValue(ports[j], listIndex+1);
+                                    }
+                                    else if (stepParam.Data.argvs[j].attr.argvName == "listenerName")
+                                    {
+                                        var field = ports[j].GetType().GetField("strValue", BindingFlags.Instance | BindingFlags.NonPublic);
+                                        if (field != null)
+                                            field.SetValue(ports[j], searchName);
                                     }
                                     else if (stepParam.Data.argvs[j].attr.argvName == "RayTest")
                                     {

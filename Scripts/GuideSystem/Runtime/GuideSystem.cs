@@ -573,7 +573,8 @@ namespace Framework.Guide
 
             if (pTrigger != null)
             {
-                m_vTracking.Clear();
+                int nTrackingCnt = m_vTracking.Count;
+               // m_vTracking.Clear();
                 AddTracking(pTrigger);
                 pTrigger.FillArgv(pArgvs);
                 SeqNode pNext = null;
@@ -590,6 +591,14 @@ namespace Framework.Guide
                     pNext = CheckStart(pTrigger);
                 if (pNext == null)
                 {
+                    if (nTrackingCnt < m_vTracking.Count)
+                    {
+                        for (int i = m_vTracking.Count - 1; i >= nTrackingCnt; --i)
+                        {
+                            OnNodeExit(m_vTracking[i]);
+                        }
+                        m_vTracking.RemoveRange(nTrackingCnt, m_vTracking.Count - nTrackingCnt);
+                    }
                     return false;
                 }
 
@@ -602,7 +611,15 @@ namespace Framework.Guide
                         Log("触发引导组id:" + pTrigger.guideGroup.Guid + ",优先级::" + pTrigger.priority + ",大于当前正在执行的引导组:" + pTrigger.guideGroup.Guid + ",优先级:" + m_pDoingTriggerNode.priority + ",覆盖当前正在执行的引导组");
                     OverGuide(false);
                 }
-
+                else
+                {
+                    while (nTrackingCnt > 0)
+                    {
+                        OnNodeExit(m_vTracking[0]);
+                        m_vTracking.RemoveAt(0);
+                        nTrackingCnt--;
+                    }
+                }
                 m_pDoingTriggerNode = pTrigger;
                 SetDoingNod(pNext);
                 AddTracking(m_pDoingNode);
