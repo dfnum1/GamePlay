@@ -26,6 +26,7 @@ namespace Framework.Cutscene.Runtime
     {
         [DefaultValue("")] public string name; //剪辑名称
         [DefaultValue(0),UnEdit] public float time; //开始时间
+        [DefaultValue(false),Display("关闭时未触发则强启")]public bool stopFireIfNoTrigger;
 #if UNITY_EDITOR
         [System.NonSerialized] public System.Object ownerObject;
         [System.NonSerialized] public CutsceneTrack ownerTrackObject;
@@ -34,6 +35,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public interface IBaseEvent : IDataer
     {
+        bool StopFireIfNoTrigger();
     }
   //  public abstract class ABaseEvent
   //  {

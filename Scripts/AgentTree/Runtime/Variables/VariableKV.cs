@@ -23,12 +23,12 @@ namespace Framework.AT.Runtime
         System.Collections.Generic.Dictionary<short, Vector4>   m_vVec4s = null;
         System.Collections.Generic.Dictionary<short, ObjId>     m_vObjIds = null;
         System.Collections.Generic.Dictionary<short, Ray>       m_vRays = null;
-        System.Collections.Generic.Dictionary<short, Ray2D>     m_vRay2Ds = null;
+        System.Collections.Generic.Dictionary<short, Color>     m_vColors = null;
         System.Collections.Generic.Dictionary<short, Quaternion> m_vQuaternions = null;
         System.Collections.Generic.Dictionary<short, Bounds>    m_vBounds = null;
         System.Collections.Generic.Dictionary<short, Rect>      m_vRects = null;
         System.Collections.Generic.Dictionary<short, Matrix4x4> m_vMatrixs = null;
-        System.Collections.Generic.Dictionary<short, IUserData> m_vUserDatas = null;
+        System.Collections.Generic.Dictionary<short, VariableUserData>  m_vUserDatas = null;
         //-----------------------------------------------------
         public void Clear()
         {
@@ -43,7 +43,7 @@ namespace Framework.AT.Runtime
             m_vVec4s?.Clear();
             m_vObjIds?.Clear();
             m_vRays?.Clear();
-            m_vRay2Ds?.Clear();
+            m_vColors?.Clear();
             m_vQuaternions?.Clear();
             m_vBounds?.Clear();
             m_vRects?.Clear();
@@ -183,10 +183,23 @@ namespace Framework.AT.Runtime
             m_vVec2s[key] = value;
         }
         //-----------------------------------------------------
+        public void SetVec2Int(short key, Vector2Int value)
+        {
+            if (m_vVec2s == null) m_vVec2s = new System.Collections.Generic.Dictionary<short, Vector2>(2);
+            m_vVec2s[key] = value;
+        }
+        //-----------------------------------------------------
         public Vector2 GetVec2(short key, Vector2 defaultValue = default)
         {
             if (m_vVec2s != null && m_vVec2s.TryGetValue(key, out var val))
                 return val;
+            return defaultValue;
+        }
+        //-----------------------------------------------------
+        public Vector2Int GetVec2Int(short key, Vector2Int defaultValue = default)
+        {
+            if (m_vVec2s != null && m_vVec2s.TryGetValue(key, out var val))
+                return new Vector2Int((int)val.x, (int)val.y);
             return defaultValue;
         }
         //-----------------------------------------------------
@@ -198,7 +211,25 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
+        public bool GetVec2Int(short key, out Vector2Int value)
+        {
+            Vector2 temp;
+            if (m_vVec3s != null && m_vVec2s.TryGetValue(key, out temp))
+            {
+                value = new Vector2Int((int)temp.x, (int)temp.y);
+                return true;
+            }
+            value = Vector2Int.zero;
+            return false;
+        }
+        //-----------------------------------------------------
         public void SetVec3(short key, Vector3 value)
+        {
+            if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, Vector3>(2);
+            m_vVec3s[key] = value;
+        }
+        //-----------------------------------------------------
+        public void SetVec3Int(short key, Vector3Int value)
         {
             if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, Vector3>(2);
             m_vVec3s[key] = value;
@@ -211,11 +242,30 @@ namespace Framework.AT.Runtime
             return Vector3.zero;
         }
         //-----------------------------------------------------
+        public Vector3Int GetVec3Int(short key)
+        {
+            if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out var val))
+                return new Vector3Int((int)val.x, (int)val.y,(int)val.z);
+            return Vector3Int.zero;
+        }
+        //-----------------------------------------------------
         public bool GetVec3(short key, out Vector3 value)
         {
             if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out value))
                 return true;
             value = Vector3.zero;
+            return false;
+        }
+        //-----------------------------------------------------
+        public bool GetVec3Int(short key, out Vector3Int value)
+        {
+            Vector3 temp;
+            if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out temp))
+            {
+                value = new Vector3Int((int)temp.x, (int)temp.y, (int)temp.z);
+                return true;
+            }
+            value = Vector3Int.zero;
             return false;
         }
         //-----------------------------------------------------
@@ -282,24 +332,24 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetRay2D(short key, Ray2D value)
+        public void SetColor(short key, Color value)
         {
-            if (m_vRay2Ds == null) m_vRay2Ds = new Dictionary<short, Ray2D>(2);
-            m_vRay2Ds[key] = value;
+            if (m_vColors == null) m_vColors = new Dictionary<short, Color>(2);
+            m_vColors[key] = value;
         }
         //-----------------------------------------------------
-        public Ray2D GetRay2D(short key, Ray2D defaultValue = default)
+        public Color GetColor(short key, Color defaultValue = default)
         {
-            if (m_vRay2Ds != null && m_vRay2Ds.TryGetValue(key, out var val))
+            if (m_vColors != null && m_vColors.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetRay2D(short key, out Ray2D value)
+        public bool GetColor(short key, out Color value)
         {
-            if (m_vRay2Ds != null && m_vRay2Ds.TryGetValue(key, out value))
+            if (m_vColors != null && m_vColors.TryGetValue(key, out value))
                 return true;
-            value = default;
+            value = Color.white;
             return false;
         }
         //-----------------------------------------------------
@@ -387,24 +437,24 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetUserData(short key, IUserData value)
+        public void SetUserData(short key, VariableUserData value)
         {
-            if (m_vUserDatas == null) m_vUserDatas = new Dictionary<short, IUserData>(2);
+            if (m_vUserDatas == null) m_vUserDatas = new Dictionary<short, VariableUserData>(2);
             m_vUserDatas[key] = value;
         }
         //-----------------------------------------------------
-        public IUserData GetUserData(short key, IUserData defaultValue = null)
+        public VariableUserData GetUserData(short key)
         {
             if (m_vUserDatas != null && m_vUserDatas.TryGetValue(key, out var val))
                 return val;
-            return defaultValue;
+            return VariableUserData.DEF;
         }
         //-----------------------------------------------------
-        public bool GetUserData(short key, out IUserData value)
+        public bool GetUserData(short key, out VariableUserData value)
         {
+            value = VariableUserData.DEF;
             if (m_vUserDatas != null && m_vUserDatas.TryGetValue(key, out value))
                 return true;
-            value = null;
             return false;
         }
         //-----------------------------------------------------
@@ -432,8 +482,8 @@ namespace Framework.AT.Runtime
                 SetObjId(vObjId.GetGuid(), vObjId.value);
             else if (variable is VariableRay vRay)
                 SetRay(vRay.GetGuid(), vRay.value);
-            else if (variable is VariableRay2D vRay2D)
-                SetRay2D(vRay2D.GetGuid(), vRay2D.value);
+            else if (variable is VariableColor vColor)
+                SetColor(vColor.GetGuid(), vColor.value);
             else if (variable is VariableQuaternion vQuat)
                 SetQuaternion(vQuat.GetGuid(), vQuat.value);
             else if (variable is VariableBounds vBounds)
@@ -443,7 +493,7 @@ namespace Framework.AT.Runtime
             else if (variable is VariableMatrix vMatrix)
                 SetMatrix(vMatrix.GetGuid(), vMatrix.value);
             else if (variable is VariableUserData vUserData)
-                SetUserData(vUserData.GetGuid(), vUserData.pUser);
+                SetUserData(vUserData.GetGuid(), vUserData);
         }
     }
 }

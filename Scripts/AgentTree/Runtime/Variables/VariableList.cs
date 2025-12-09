@@ -23,25 +23,25 @@ namespace Framework.AT.Runtime
                 this.index = index;
             }
         }
-        List<bool>          m_vBools = null;
-        List<int>           m_vInts = null;
-        List<long>          m_vLongs = null;
-        List<float>         m_vFloats = null;
-        List<double>        m_vDoubles = null;
-        List<string>        m_vStrings = null;
-        List<Vector2>       m_vVec2s = null;
-        List<Vector3>       m_vVec3s = null;
-        List<Vector4>       m_vVec4s = null;
-        List<Ray>           m_vRays = null;
-        List<Ray2D>         m_vRay2Ds = null;
-        List<Quaternion>    m_vQuaternions = null;
-        List<Bounds>        m_vBounds = null;
-        List<Rect>          m_vRects = null;
-        List<Matrix4x4>     m_vMatrixs = null;
-        List<ObjId>         m_vObjIds = null;
-        List<IUserData>     m_vUserDatas = null;
-        List<TypeIndex>     m_vTypes = null;
-        byte                m_nCapacity = 2;
+        List<bool>                  m_vBools = null;
+        List<int>                   m_vInts = null;
+        List<long>                  m_vLongs = null;
+        List<float>                 m_vFloats = null;
+        List<double>                m_vDoubles = null;
+        List<string>                m_vStrings = null;
+        List<Vector2>               m_vVec2s = null;
+        List<Vector3>               m_vVec3s = null;
+        List<Vector4>               m_vVec4s = null;
+        List<Ray>                   m_vRays = null;
+        List<Color>                 m_vColors = null;
+        List<Quaternion>            m_vQuaternions = null;
+        List<Bounds>                m_vBounds = null;
+        List<Rect>                  m_vRects = null;
+        List<Matrix4x4>             m_vMatrixs = null;
+        List<ObjId>                 m_vObjIds = null;
+        List<VariableUserData>      m_vUserDatas = null;
+        List<TypeIndex>             m_vTypes = null;
+        byte                        m_nCapacity = 2;
         //-----------------------------------------------------
         internal VariableList()
         {
@@ -69,7 +69,7 @@ namespace Framework.AT.Runtime
             m_vObjIds?.Clear();
             m_vTypes?.Clear();
             m_vRays?.Clear();
-            m_vRay2Ds?.Clear();
+            m_vColors?.Clear();
             m_vQuaternions?.Clear();
             m_vBounds?.Clear();
             m_vRects?.Clear();
@@ -639,54 +639,54 @@ namespace Framework.AT.Runtime
             return m_vRays;
         }
         //-----------------------------------------------------
-        public void AddRay2D(Ray2D value)
+        public void AddColor(Color value)
         {
-            if (m_vRay2Ds == null) m_vRay2Ds = new List<Ray2D>(m_nCapacity);
+            if (m_vColors == null) m_vColors = new List<Color>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
-            m_vTypes.Add(new TypeIndex(EVariableType.eRay2D, (byte)m_vRay2Ds.Count));
-            m_vRay2Ds.Add(value);
+            m_vTypes.Add(new TypeIndex(EVariableType.eColor, (byte)m_vColors.Count));
+            m_vColors.Add(value);
         }
         //-----------------------------------------------------
-        public void SetRay2D(int index, Ray2D value)
+        public void SetColor(int index, Color value)
         {
-            if (index >= 0 && m_vRay2Ds != null && m_vRay2Ds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            if (index >= 0 && m_vColors != null && m_vColors.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
                 var type = m_vTypes[index];
-                if (type.type != EVariableType.eRay2D)
+                if (type.type != EVariableType.eColor)
                 {
-                    Debug.LogError($"VariableList: SetRay2D type mismatch, expected {EVariableType.eRay2D}, got {type}");
+                    Debug.LogError($"VariableList: SetColor type mismatch, expected {EVariableType.eColor}, got {type}");
                 }
-                if (type.index < 0 || type.index >= m_vRay2Ds.Count)
+                if (type.index < 0 || type.index >= m_vColors.Count)
                 {
-                    Debug.LogError($"VariableList: SetRay2D index out of range, index={type.index}, count={m_vRay2Ds.Count}");
+                    Debug.LogError($"VariableList: SetColor index out of range, index={type.index}, count={m_vColors.Count}");
                     return;
                 }
-                m_vRay2Ds[type.index] = value;
+                m_vColors[type.index] = value;
             }
         }
         //-----------------------------------------------------
-        public Ray2D GetRay2D(int index)
+        public Color GetColor(int index)
         {
-            if (index >= 0 && m_vRay2Ds != null && m_vRay2Ds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
+            if (index >= 0 && m_vColors != null && m_vColors.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
                 var type = m_vTypes[index];
-                if (type.type != EVariableType.eRay2D)
+                if (type.type != EVariableType.eColor)
                 {
-                    Debug.LogError($"VariableList: GetRay2D type mismatch, expected {EVariableType.eRay2D}, got {type}");
+                    Debug.LogError($"VariableList: GetColor type mismatch, expected {EVariableType.eColor}, got {type}");
                 }
-                if (type.index < 0 || type.index >= m_vRay2Ds.Count)
+                if (type.index < 0 || type.index >= m_vColors.Count)
                 {
-                    Debug.LogError($"VariableList: GetRay2D index out of range, index={type.index}, count={m_vRay2Ds.Count}");
+                    Debug.LogError($"VariableList: GetColor index out of range, index={type.index}, count={m_vColors.Count}");
                     return default;
                 }
-                return m_vRay2Ds[type.index];
+                return m_vColors[type.index];
             }
             return default;
         }
         //-----------------------------------------------------
-        public List<Ray2D> GetRay2Ds()
+        public List<Color> GetColors()
         {
-            return m_vRay2Ds;
+            return m_vColors;
         }
         //-----------------------------------------------------
         public void AddQuaternion(Quaternion value)
@@ -889,15 +889,23 @@ namespace Framework.AT.Runtime
             return m_vMatrixs;
         }
         //-----------------------------------------------------
-        public void AddUserData(IUserData value)
+        public void AddUserData(int hash, IUserData pPointer)
         {
-            if (m_vUserDatas == null) m_vUserDatas = new List<IUserData>(m_nCapacity);
+            if (m_vUserDatas == null) m_vUserDatas = new List<VariableUserData>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eUserData, (byte)m_vUserDatas.Count));
-            m_vUserDatas.Add(value);
+            m_vUserDatas.Add(new VariableUserData() { value = hash, pPointer = pPointer });
         }
         //-----------------------------------------------------
-        public void SetUserData(int index, IUserData value)
+        public void AddUserData(VariableUserData pVar)
+        {
+            if (m_vUserDatas == null) m_vUserDatas = new List<VariableUserData>(m_nCapacity);
+            if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            m_vTypes.Add(new TypeIndex(EVariableType.eUserData, (byte)m_vUserDatas.Count));
+            m_vUserDatas.Add(pVar);
+        }
+        //-----------------------------------------------------
+        public void SetUserData(int index, int hash, IUserData pPointer)
         {
             if (index >= 0 && m_vUserDatas != null && m_vUserDatas.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -911,11 +919,11 @@ namespace Framework.AT.Runtime
                     Debug.LogError($"VariableList: SetUserData index out of range, index={type.index}, count={m_vUserDatas.Count}");
                     return;
                 }
-                m_vUserDatas[type.index] = value;
+                m_vUserDatas[type.index] = new VariableUserData() { value = hash, pPointer = pPointer };
             }
         }
         //-----------------------------------------------------
-        public IUserData GetUserData(int index, IUserData defaultValue = null)
+        public VariableUserData GetUserData(int index)
         {
             if (index >= 0 && m_vUserDatas != null && m_vUserDatas.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -927,14 +935,14 @@ namespace Framework.AT.Runtime
                 if (type.index < 0 || type.index >= m_vUserDatas.Count)
                 {
                     Debug.LogError($"VariableList: GetUserData index out of range, index={type.index}, count={m_vUserDatas.Count}");
-                    return defaultValue;
+                    return VariableUserData.DEF;
                 }
                 return m_vUserDatas[type.index];
             }
-            return defaultValue;
+            return VariableUserData.DEF;
         }
         //-----------------------------------------------------
-        public List<IUserData> GetUserDatas()
+        public List<VariableUserData> GetUserDatas()
         {
             return m_vUserDatas;
         }
@@ -959,7 +967,7 @@ namespace Framework.AT.Runtime
                 case EVariableType.eVec4: m_vVec4s?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eObjId: m_vObjIds?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eRay: m_vRays?.RemoveAt(removedDataIndex); break;
-                case EVariableType.eRay2D: m_vRay2Ds?.RemoveAt(removedDataIndex); break;
+                case EVariableType.eColor: m_vColors?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eQuaternion: m_vQuaternions?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eBounds: m_vBounds?.RemoveAt(removedDataIndex); break;
                 case EVariableType.eRect: m_vRects?.RemoveAt(removedDataIndex); break;
@@ -1076,9 +1084,9 @@ namespace Framework.AT.Runtime
                         AddRay(default); // 可根据需求解析 defaultValue
                     }
                     break;
-                case EVariableType.eRay2D:
+                case EVariableType.eColor:
                     {
-                        AddRay2D(default);
+                        AddColor(Color.white);
                     }
                     break;
                 case EVariableType.eQuaternion:
@@ -1103,7 +1111,7 @@ namespace Framework.AT.Runtime
                     break;
                 case EVariableType.eUserData:
                     {
-                        AddUserData(default);
+                        AddUserData(0,null);
                     }
                     break;
                 case EVariableType.eLong:
@@ -1141,7 +1149,7 @@ namespace Framework.AT.Runtime
                 case EVariableType.eVec4: m_vVec4s?.RemoveAt(dataIndex); break;
                 case EVariableType.eObjId: m_vObjIds?.RemoveAt(dataIndex); break;
                 case EVariableType.eRay: m_vRays?.RemoveAt(dataIndex); break;
-                case EVariableType.eRay2D: m_vRay2Ds?.RemoveAt(dataIndex); break;
+                case EVariableType.eColor: m_vColors?.RemoveAt(dataIndex); break;
                 case EVariableType.eQuaternion: m_vQuaternions?.RemoveAt(dataIndex); break;
                 case EVariableType.eBounds: m_vBounds?.RemoveAt(dataIndex); break;
                 case EVariableType.eRect: m_vRects?.RemoveAt(dataIndex); break;
@@ -1251,12 +1259,12 @@ namespace Framework.AT.Runtime
                             m_vRays[typeIndex1.index] = tmp;
                         }
                         break;
-                    case EVariableType.eRay2D:
-                        if (m_vRay2Ds != null)
+                    case EVariableType.eColor:
+                        if (m_vColors != null)
                         {
-                            Ray2D tmp = m_vRay2Ds[typeIndex0.index];
-                            m_vRay2Ds[typeIndex0.index] = m_vRay2Ds[typeIndex1.index];
-                            m_vRay2Ds[typeIndex1.index] = tmp;
+                            Color tmp = m_vColors[typeIndex0.index];
+                            m_vColors[typeIndex0.index] = m_vColors[typeIndex1.index];
+                            m_vColors[typeIndex1.index] = tmp;
                         }
                         break;
                     case EVariableType.eQuaternion:
@@ -1294,7 +1302,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eUserData:
                         if (m_vUserDatas != null)
                         {
-                            IUserData tmp = m_vUserDatas[typeIndex0.index];
+                            VariableUserData tmp = m_vUserDatas[typeIndex0.index];
                             m_vUserDatas[typeIndex0.index] = m_vUserDatas[typeIndex1.index];
                             m_vUserDatas[typeIndex1.index] = tmp;
                         }
@@ -1341,12 +1349,12 @@ namespace Framework.AT.Runtime
             else if (value is VariableString varStr) AddString(varStr.value);
             else if (value is VariableObjId varObj) AddObjId(varObj.value);
             else if (value is VariableRay varRay) AddRay(varRay.value);
-            else if (value is VariableRay2D varRay2D) AddRay2D(varRay2D.value);
+            else if (value is VariableColor varColor) AddColor(varColor.value);
             else if (value is VariableQuaternion varQuat) AddQuaternion(varQuat.value);
             else if (value is VariableBounds varBounds) AddBounds(varBounds.value);
             else if (value is VariableRect varRect) AddRect(varRect.value);
             else if (value is VariableMatrix varMatrix) AddMatrix(varMatrix.value);
-            else if (value is VariableUserData varUserData) AddUserData(varUserData.pUser);
+            else if (value is VariableUserData varUserData) AddUserData(varUserData.value, varUserData.pPointer);
             else if (value is VariableLong varLongData) AddLong(varLongData.value);
             else if (value is VariableDouble varDoubleData) AddDouble(varDoubleData.value);
             else return false;
@@ -1405,8 +1413,8 @@ namespace Framework.AT.Runtime
                 case EVariableType.eRay:
                     AddRay(value.GetRay(index));
                     break;
-                case EVariableType.eRay2D:
-                    AddRay2D(value.GetRay2D(index));
+                case EVariableType.eColor:
+                    AddColor(value.GetColor(index));
                     break;
                 case EVariableType.eQuaternion:
                     AddQuaternion(value.GetQuaternion(index));
@@ -1456,12 +1464,12 @@ namespace Framework.AT.Runtime
             else if (value is Vector4 v4Val) AddVec4(v4Val);
             else if (value is ObjId objId) AddObjId(objId);
             else if (value is Ray rayVal) AddRay(rayVal);
-            else if (value is Ray2D ray2DVal) AddRay2D(ray2DVal);
+            else if (value is Color varColor) AddColor(varColor);
             else if (value is Quaternion quatVal) AddQuaternion(quatVal);
             else if (value is Bounds boundsVal) AddBounds(boundsVal);
             else if (value is Rect rectVal) AddRect(rectVal);
             else if (value is Matrix4x4 matrixVal) AddMatrix(matrixVal);
-            else if (value is IUserData userDataVal) AddUserData(userDataVal);
+            else if (value is IUserData userDataVal) AddUserData(0,userDataVal);
             else if (value is long userLong) AddLong(userLong);
             else if (value is double userDouble) AddDouble(userDouble);
             else return false;

@@ -563,7 +563,7 @@ namespace Framework.Guide
 
             if (!bForce)
             {
-                if (m_pDoingTriggerNode != null && pTrigger.priority < m_pDoingTriggerNode.priority)
+                if (m_pDoingTriggerNode != null && pTrigger.priority <= m_pDoingTriggerNode.priority)
                 {
                     if (bGuideLogEnable && pTrigger != null && pTrigger.guideGroup != null && m_pDoingTriggerNode != null && m_pDoingTriggerNode.guideGroup != null)
                         Log("触发引导组id:" + pTrigger.guideGroup.Guid + ",优先级:" + pTrigger.priority + ",低于当前正在执行的引导组:" + m_pDoingTriggerNode.guideGroup.Guid + ",优先级:" + m_pDoingTriggerNode.priority + ",不执行");

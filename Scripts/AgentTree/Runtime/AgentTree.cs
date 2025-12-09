@@ -6,8 +6,6 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.XR;
 namespace Framework.AT.Runtime
 {
     public partial class AgentTree
@@ -52,6 +50,11 @@ namespace Framework.AT.Runtime
         {
             if (m_pData == null) return null;
             return m_pData.GetNode(guid);
+        }
+        //-----------------------------------------------------
+        public IUserData FindUserClass(int hashCode)
+        {
+            return null;
         }
         //-----------------------------------------------------
         VariableKV GetRuntimeVariable()
@@ -213,8 +216,8 @@ namespace Framework.AT.Runtime
                         case EVariableType.eRay:
                             SetRay(port.varGuid, vArgvs.GetRay(j));
                             break;
-                        case EVariableType.eRay2D:
-                            SetRay2D(port.varGuid, vArgvs.GetRay2D(j));
+                        case EVariableType.eColor:
+                            SetColor(port.varGuid, vArgvs.GetColor(j));
                             break;
                         case EVariableType.eQuaternion:
                             SetQuaternion(port.varGuid, vArgvs.GetQuaternion(j));
@@ -229,7 +232,8 @@ namespace Framework.AT.Runtime
                             SetMatrix(port.varGuid, vArgvs.GetMatrix(j));
                             break;
                         case EVariableType.eUserData:
-                            SetUserData(port.varGuid, vArgvs.GetUserData(j));
+                            var varVar = vArgvs.GetUserData(j);
+                            SetUserData(port.varGuid, varVar.pPointer);
                             break;
                     }
                 }

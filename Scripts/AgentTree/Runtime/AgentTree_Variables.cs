@@ -5,9 +5,7 @@
 描    述:	行为树
 *********************************************************************/
 using Framework.Core;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR;
 namespace Framework.AT.Runtime
 {
     public partial class AgentTree
@@ -76,9 +74,9 @@ namespace Framework.AT.Runtime
                                 if (m_vRuntimeVariables.GetRay(guid, out var retVal)) return new VariableRay { guid = guid, value = retVal };
                                 if (bRuntime) return null; break;
                             }
-                        case EVariableType.eRay2D:
+                        case EVariableType.eColor:
                             {
-                                if (m_vRuntimeVariables.GetRay2D(guid, out var retVal)) return new VariableRay2D { guid = guid, value = retVal };
+                                if (m_vRuntimeVariables.GetColor(guid, out var retVal)) return new VariableColor { guid = guid, value = retVal };
                                 if (bRuntime) return null; break;
                             }
                         case EVariableType.eQuaternion:
@@ -103,7 +101,7 @@ namespace Framework.AT.Runtime
                             }
                         case EVariableType.eUserData:
                             {
-                                if (m_vRuntimeVariables.GetUserData(guid, out var retVal)) return new VariableUserData { guid = guid, value = retVal };
+                                if (m_vRuntimeVariables.GetUserData(guid, out var retVal)) return retVal;
                                 if (bRuntime) return null; break;
                             }
                         default: if (bRuntime) return null; break;
@@ -294,6 +292,51 @@ namespace Framework.AT.Runtime
             return SetBool(outports[index].varGuid, bValue);
         }
         //-----------------------------------------------------
+        public bool SetOutportByte(BaseNode pNode, int index, byte val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetByte(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportShort(BaseNode pNode, int index, short val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetShort(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportUshort(BaseNode pNode, int index, ushort val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetUshort(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportLong(BaseNode pNode, int index, long val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetLong(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportUlong(BaseNode pNode, int index, ulong val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetUlong(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
         public bool SetOutportInt(BaseNode pNode, int index, int nValue)
         {
             var outports = pNode.GetOutports();
@@ -321,6 +364,15 @@ namespace Framework.AT.Runtime
             return SetFloat(outports[index].varGuid, fValue);
         }
         //-----------------------------------------------------
+        public bool SetOutportDouble(BaseNode pNode, int index, double val)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetDouble(outports[index].varGuid, val);
+        }
+        //-----------------------------------------------------
         public bool SetOutportString(BaseNode pNode, int index, string strValue)
         {
             var outports = pNode.GetOutports();
@@ -339,6 +391,15 @@ namespace Framework.AT.Runtime
             return SetVec2(outports[index].varGuid, vecValue);
         }
         //-----------------------------------------------------
+        public bool SetOutportVec2Int(BaseNode pNode, int index, Vector2Int vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetVec2Int(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
         public bool SetOutportVec3(BaseNode pNode, int index, Vector3 vecValue)
         {
             var outports = pNode.GetOutports();
@@ -348,6 +409,15 @@ namespace Framework.AT.Runtime
             return SetVec3(outports[index].varGuid, vecValue);
         }
         //-----------------------------------------------------
+        public bool SetOutportVec3Int(BaseNode pNode, int index, Vector3Int vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetVec3Int(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
         public bool SetOutportVec4(BaseNode pNode, int index, Vector4 vecValue)
         {
             var outports = pNode.GetOutports();
@@ -355,6 +425,69 @@ namespace Framework.AT.Runtime
                 return false;
 
             return SetVec4(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportColor(BaseNode pNode, int index, Color vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetColor(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportRay(BaseNode pNode, int index, Ray vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetRay(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportRect(BaseNode pNode, int index, Rect vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetRect(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportBounds(BaseNode pNode, int index, Bounds vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetBounds(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportQuaternion(BaseNode pNode, int index, Quaternion vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetQuaternion(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportMatrix(BaseNode pNode, int index, Matrix4x4 vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetMatrix(outports[index].varGuid, vecValue);
+        }
+        //-----------------------------------------------------
+        public bool SetOutportUserData(BaseNode pNode, int index, IUserData vecValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetUserData(outports[index].varGuid, vecValue);
         }
         //-----------------------------------------------------
         public bool GetInportBool(BaseNode pNode, int index, bool defValue = false)
@@ -377,6 +510,144 @@ namespace Framework.AT.Runtime
             }
 
             return GetBool(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public char GetInportChar(BaseNode pNode, int index, char defValue = '0')
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.type == 0) ports = pNode.GetInports();
+                else ports = pNode.GetOutports();
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetChar(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetChar(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public byte GetInportByte(BaseNode pNode, byte index, byte defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetByte(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetByte(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public int GetInportSbyte(BaseNode pNode, sbyte index, sbyte defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetSbyte(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetSbyte(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public int GetInportShort(BaseNode pNode, short index, short defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetShort(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetShort(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public int GetInportUshort(BaseNode pNode, ushort index, ushort defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetUshort(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetUshort(nodePort.varGuid, defValue);
         }
         /*
         //-----------------------------------------------------
@@ -431,29 +702,7 @@ namespace Framework.AT.Runtime
             return GetInt(nodePort.varGuid, defValue);
         }
         //-----------------------------------------------------
-        public ObjId GetInportObjId(BaseNode pNode, int index)
-        {
-            var inports = pNode.GetInports();
-            if (index < 0 || inports == null || index >= inports.Length)
-                return new ObjId();
-
-            var nodePort = inports[index];
-            DummyPort dummyPort = GetDummyPort(pNode, index, true);
-            if (dummyPort.IsValid())
-            {
-                NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
-                else ports = dummyPort.pNode.GetOutports();
-                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
-                {
-                    return GetObjId(ports[dummyPort.slotIndex].varGuid);
-                }
-            }
-
-            return GetObjId(nodePort.varGuid);
-        }
-        //-----------------------------------------------------
-        public float GetInportFloat(BaseNode pNode, int index, float defValue = 0.0f)
+        public uint GetInportUint(BaseNode pNode, int index, uint defValue = 0)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -464,8 +713,131 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = pNode.GetInports();
-                else ports = pNode.GetOutports();
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetUint(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetUint(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public long GetInportLong(BaseNode pNode, int index, long defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetLong(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetLong(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public ulong GetInportUlong(BaseNode pNode, int index, ulong defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetUlong(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetUlong(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public ObjId GetInportObjId(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return ObjId.DEF;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetObjId(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetObjId(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public float GetInportFloat(BaseNode pNode, int index, float defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
                 if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
                 {
                     return GetFloat(ports[dummyPort.slotIndex].varGuid, defValue);
@@ -473,6 +845,35 @@ namespace Framework.AT.Runtime
             }
 
             return GetFloat(nodePort.varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public double GetInportDouble(BaseNode pNode, int index, double defValue = 0)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return defValue;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetDouble(ports[dummyPort.slotIndex].varGuid, defValue);
+                }
+            }
+
+            return GetDouble(nodePort.varGuid, defValue);
         }
         //-----------------------------------------------------
         public string GetInportString(BaseNode pNode, int index, string defValue = null)
@@ -486,8 +887,15 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = pNode.GetInports();
-                else ports = pNode.GetOutports();
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
                 if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
                 {
                     return GetString(ports[dummyPort.slotIndex].varGuid, defValue);
@@ -508,8 +916,15 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = pNode.GetInports();
-                else ports = pNode.GetOutports();
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
                 if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
                 {
                     return GetVec2(ports[dummyPort.slotIndex].varGuid);
@@ -519,19 +934,55 @@ namespace Framework.AT.Runtime
             return GetVec2(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Vector3 GetInportVec3(BaseNode pNode, int index)
+        public Vector2Int GetInportVec2Int(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
-                return Vector2.zero;
+                return Vector2Int.zero;
 
             var nodePort = inports[index];
             DummyPort dummyPort = GetDummyPort(pNode, index, true);
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = pNode.GetInports();
-                else ports = pNode.GetOutports();
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetVec2Int(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetVec2Int(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Vector3 GetInportVec3(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Vector3.zero;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
                 if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
                 {
                     return GetVec3(ports[dummyPort.slotIndex].varGuid);
@@ -539,6 +990,35 @@ namespace Framework.AT.Runtime
             }
 
             return GetVec3(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Vector3Int GetInportVec3Int(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Vector3Int.zero;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetVec3Int(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetVec3Int(nodePort.varGuid);
         }
         //-----------------------------------------------------
         public Vector4 GetInportVec4(BaseNode pNode, int index)
@@ -552,8 +1032,15 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.type == 0) ports = pNode.GetInports();
-                else ports = pNode.GetOutports();
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
                 if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
                 {
                     return GetVec4(ports[dummyPort.slotIndex].varGuid);
@@ -562,6 +1049,210 @@ namespace Framework.AT.Runtime
 
             return GetVec4(nodePort.varGuid);
         }
+        //-----------------------------------------------------
+        public Ray GetInportRay(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return default;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetRay(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetRay(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Color GetInportColor(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Color.white;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetColor(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetColor(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Quaternion GetInportQuaternion(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Quaternion.identity;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetQuaternion(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetQuaternion(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Rect GetInportRect(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Rect.zero;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetRect(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetRect(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Bounds GetInportBounds(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return default;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetBounds(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetBounds(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public Matrix4x4 GetInportMatrix(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return Matrix4x4.identity;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetMatrix(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetMatrix(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
+        public VariableUserData GetInportUserData(BaseNode pNode, int index)
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return VariableUserData.DEF;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetUserData(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetUserData(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
         /*
         //-----------------------------------------------------
         public IVariable GetOutportVar(BaseNode pNode, int index)
@@ -582,6 +1273,51 @@ namespace Framework.AT.Runtime
             return GetBool(ports[index].varGuid, defValue);
         }
         //-----------------------------------------------------
+        public byte GetOutportByte(BaseNode pNode, int index, byte defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetByte(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public sbyte GetOutportSbyte(BaseNode pNode, int index, sbyte defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetSbyte(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public char GetOutportChar(BaseNode pNode, int index, char defValue = '0')
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetChar(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public short GetOutportShort(BaseNode pNode, int index, short defValue =0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetShort(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public ushort GetOutportUshort(BaseNode pNode, int index, ushort defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetUshort(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
         public int GetOutportInt(BaseNode pNode, int index, int defValue = 0)
         {
             var ports = pNode.GetOutports();
@@ -589,6 +1325,33 @@ namespace Framework.AT.Runtime
                 return defValue;
 
             return GetInt(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public uint GetOutportUint(BaseNode pNode, int index, uint defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetUint(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public long GetOutportLong(BaseNode pNode, int index, long defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetLong(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
+        public ulong GetOutportUlong(BaseNode pNode, int index, ulong defValue = 0)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetUlong(ports[index].varGuid, defValue);
         }
         //-----------------------------------------------------
         public ObjId GetOutportObjId(BaseNode pNode, int index)
@@ -609,6 +1372,15 @@ namespace Framework.AT.Runtime
             return GetFloat(ports[index].varGuid, defValue);
         }
         //-----------------------------------------------------
+        public double GetOutportDouble(BaseNode pNode, int index, double defValue = 0.0f)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return defValue;
+
+            return GetDouble(ports[index].varGuid, defValue);
+        }
+        //-----------------------------------------------------
         public string GetOutportString(BaseNode pNode, int index, string defValue = null)
         {
             var ports = pNode.GetOutports();
@@ -627,6 +1399,15 @@ namespace Framework.AT.Runtime
             return GetVec2(ports[index].varGuid);
         }
         //-----------------------------------------------------
+        public Vector2Int GetOutportVec2Int(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Vector2Int.zero;
+
+            return GetVec2Int(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
         public Vector3 GetOutportVec3(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
@@ -636,6 +1417,15 @@ namespace Framework.AT.Runtime
             return GetVec3(ports[index].varGuid);
         }
         //-----------------------------------------------------
+        public Vector3Int GetOutportVec3Int(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Vector3Int.zero;
+
+            return GetVec3Int(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
         public Vector4 GetOutportVec4(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
@@ -643,6 +1433,69 @@ namespace Framework.AT.Runtime
                 return Vector4.zero;
 
             return GetVec4(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Color GetOutportColor(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Color.white;
+
+            return GetColor(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Ray GetOutportRay(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return default;
+
+            return GetRay(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Bounds GetOutportBounds(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return default;
+
+            return GetBounds(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Rect GetOutportRect(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Rect.zero;
+
+            return GetRect(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Quaternion GetOutportQuaternion(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Quaternion.identity;
+
+            return GetQuaternion(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public Matrix4x4 GetOutportMatrix(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return Matrix4x4.identity;
+
+            return GetMatrix(ports[index].varGuid);
+        }
+        //-----------------------------------------------------
+        public VariableUserData GetOutportUserData(BaseNode pNode, int index)
+        {
+            var ports = pNode.GetOutports();
+            if (index < 0 || ports == null || index >= ports.Length)
+                return VariableUserData.DEF;
+
+            return GetUserData(ports[index].varGuid);
         }
         //-----------------------------------------------------
         public bool SetBool(short guid, bool bValue)
@@ -658,6 +1511,138 @@ namespace Framework.AT.Runtime
             if (varNode.GetVariableType() == EVariableType.eBool)
             {
                 GetRuntimeVariable().SetBool(guid, bValue);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetByte(short guid, byte bValue)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                GetRuntimeVariable().SetInt(guid, bValue);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetShort(short guid, short val)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                GetRuntimeVariable().SetInt(guid, val);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetUshort(short guid, ushort val)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                GetRuntimeVariable().SetInt(guid, val);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetUint(short guid, uint val)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                GetRuntimeVariable().SetInt(guid, (int)val);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetLong(short guid, long val)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eLong)
+            {
+                GetRuntimeVariable().SetLong(guid, val);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetUlong(short guid, ulong val)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eLong)
+            {
+                GetRuntimeVariable().SetLong(guid, (long)val);
             }
             else
             {
@@ -745,6 +1730,28 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
+        public bool SetDouble(short guid, double fValue)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eDouble)
+            {
+                GetRuntimeVariable().SetDouble(guid, fValue);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
         public bool SetString(short guid, string strValue)
         {
             if (m_pData == null)
@@ -801,6 +1808,28 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
+        public bool SetVec2Int(short guid, Vector2Int vecValue)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eVec2)
+            {
+                GetRuntimeVariable().SetVec2(guid, vecValue);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
         public bool SetVec3(short guid, Vector3 vecValue)
         {
             if (m_pData == null)
@@ -826,6 +1855,28 @@ namespace Framework.AT.Runtime
             else if (varNode.GetVariableType() == EVariableType.eFloat)
             {
                 GetRuntimeVariable().SetFloat(guid, vecValue.x);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool SetVec3Int(short guid, Vector3Int vecValue)
+        {
+            if (m_pData == null)
+                return false;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return false;
+            }
+            if (varNode.GetVariableType() == EVariableType.eVec3)
+            {
+                GetRuntimeVariable().SetVec3Int(guid, vecValue);
             }
             else
             {
@@ -891,7 +1942,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetRay2D(short guid, Ray2D ray)
+        public bool SetColor(short guid, Color color)
         {
             if (m_pData == null)
                 return false;
@@ -901,9 +1952,9 @@ namespace Framework.AT.Runtime
                 Debug.LogError("guid:" + guid + "  vairable is null");
                 return false;
             }
-            if (varNode.GetVariableType() == EVariableType.eRay2D)
+            if (varNode.GetVariableType() == EVariableType.eColor)
             {
-                GetRuntimeVariable().SetRay2D(guid, ray);
+                GetRuntimeVariable().SetColor(guid, color);
             }
             else
             {
@@ -1017,7 +2068,7 @@ namespace Framework.AT.Runtime
             }
             if (varNode.GetVariableType() == EVariableType.eUserData)
             {
-                GetRuntimeVariable().SetUserData(guid, userData);
+                GetRuntimeVariable().SetUserData(guid, new VariableUserData() {  value = m_pATManager.GetRttiId(userData), pPointer = userData });
             }
             else
             {
@@ -1051,6 +2102,126 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
+        public byte GetByte(short guid, byte bDefalue = 0)
+        {
+            if (m_pData == null)
+                return bDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return bDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var bVal))
+                return (byte)bVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (byte)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return bDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public sbyte GetSbyte(short guid, sbyte bDefalue = 0)
+        {
+            if (m_pData == null)
+                return bDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return bDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var bVal))
+                return (sbyte)bVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (sbyte)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return bDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public char GetChar(short guid, char bDefalue = '0')
+        {
+            if (m_pData == null)
+                return bDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return bDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var bVal))
+                return (char)bVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (char)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return bDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public short GetShort(short guid, short bDefalue = 0)
+        {
+            if (m_pData == null)
+                return bDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return bDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var bVal))
+                return (short)bVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (short)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return bDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public ushort GetUshort(short guid, ushort bDefalue = 0)
+        {
+            if (m_pData == null)
+                return bDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return bDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var bVal))
+                return (ushort)bVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (ushort)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return bDefalue;
+            }
+        }
+        //-----------------------------------------------------
         public int GetInt(short guid, int nDefalue = 0)
         {
             if (m_pData == null)
@@ -1067,6 +2238,102 @@ namespace Framework.AT.Runtime
             if (varNode.GetVariableType() == EVariableType.eInt)
             {
                 return ((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return nDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public uint GetUint(short guid, uint nDefalue = 0)
+        {
+            if (m_pData == null)
+                return nDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return nDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetInt(guid, out var retVal))
+                return (uint)retVal;
+
+            if (varNode.GetVariableType() == EVariableType.eInt)
+            {
+                return (uint)((VariableInt)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return nDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public long GetLong(short guid, long nDefalue = 0)
+        {
+            if (m_pData == null)
+                return nDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return nDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetLong(guid, out var retVal))
+                return retVal;
+
+            if (varNode.GetVariableType() == EVariableType.eLong)
+            {
+                return ((VariableLong)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return nDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public ulong GetUlong(short guid, ulong nDefalue = 0)
+        {
+            if (m_pData == null)
+                return nDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return nDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetLong(guid, out var retVal))
+                return (ulong)retVal;
+
+            if (varNode.GetVariableType() == EVariableType.eLong)
+            {
+                return (ulong)((VariableLong)varNode).value;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return nDefalue;
+            }
+        }
+        //-----------------------------------------------------
+        public double GetDouble(short guid, double nDefalue = 0)
+        {
+            if (m_pData == null)
+                return nDefalue;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return nDefalue;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetDouble(guid, out var retVal))
+                return retVal;
+
+            if (varNode.GetVariableType() == EVariableType.eLong)
+            {
+                return ((VariableDouble)varNode).value;
             }
             else
             {
@@ -1171,6 +2438,31 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
+        public Vector2Int GetVec2Int(short guid)
+        {
+            if (m_pData == null)
+                return Vector2Int.zero;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return Vector2Int.zero;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetVec2(guid, out var retVal))
+                return new Vector2Int((int)retVal.x, (int)retVal.y);
+
+            if (varNode.GetVariableType() == EVariableType.eVec2)
+            {
+                retVal = ((VariableVec2)varNode).value;
+                return new Vector2Int((int)retVal.x, (int)retVal.y);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return Vector2Int.zero;
+            }
+        }
+        //-----------------------------------------------------
         public Vector3 GetVec3(short guid)
         {
             if (m_pData == null)
@@ -1192,6 +2484,31 @@ namespace Framework.AT.Runtime
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
                 return Vector3.zero;
+            }
+        }
+        //-----------------------------------------------------
+        public Vector3Int GetVec3Int(short guid)
+        {
+            if (m_pData == null)
+                return Vector3Int.zero;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return Vector3Int.zero;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetVec3(guid, out var retVal))
+                return new Vector3Int((int)retVal.x, (int)retVal.y, (int)retVal.z);
+
+            if (varNode.GetVariableType() == EVariableType.eVec3)
+            {
+                retVal = ((VariableVec3)varNode).value;
+                return new Vector3Int((int)retVal.x, (int)retVal.y, (int)retVal.z);
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return Vector3Int.zero;
             }
         }
         //-----------------------------------------------------
@@ -1243,27 +2560,27 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Ray2D GetRay2D(short guid)
+        public Color GetColor(short guid)
         {
             if (m_pData == null)
-                return new Ray2D();
+                return Color.white;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return new Ray2D();
+                return Color.white;
             }
-            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetRay2D(guid, out var retVal))
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetColor(guid, out var retVal))
                 return retVal;
 
-            if (varNode.GetVariableType() == EVariableType.eRay)
+            if (varNode.GetVariableType() == EVariableType.eColor)
             {
-                return ((VariableRay2D)varNode).value;
+                return ((VariableColor)varNode).value;
             }
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return new Ray2D();
+                return Color.white;
             }
         }
         //-----------------------------------------------------
@@ -1363,27 +2680,29 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public IUserData GetUserData(short guid)
+        public VariableUserData GetUserData(short guid)
         {
             if (m_pData == null)
-                return null;
+                return VariableUserData.DEF;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return null;
+                return VariableUserData.DEF;
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetUserData(guid, out var retVal))
+            {
                 return retVal;
+            }
 
             if (varNode.GetVariableType() == EVariableType.eUserData)
             {
-                return ((VariableUserData)varNode).value;
+                return (VariableUserData)varNode;
             }
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return null;
+                return VariableUserData.DEF;
             }
         }
         #endregion

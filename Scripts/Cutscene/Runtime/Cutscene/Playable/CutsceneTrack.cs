@@ -793,6 +793,13 @@ namespace Framework.Cutscene.Runtime
                 for (int i = 0; i < m_vEvents.Count; ++i)
                 {
                     var clipData = m_vEvents[i];
+                    if(!clipData.bTriggered && clipData.eventData.StopFireIfNoTrigger())
+                    {
+                        if (clipData.pDriver == null || !clipData.pDriver.OnEventTrigger(this, clipData.eventData))
+                            OnEventTrigger(clipData.eventData);
+                        if (m_pOwner != null)
+                            m_pOwner.BindEventTrackData(m_pOwnerGroup, clipData.eventData);
+                    }
                     DestroyEvent(clipData);
                 }
                 m_vEvents.Clear();

@@ -8,6 +8,7 @@
 using Framework.AT.Runtime;
 using Framework.Core;
 using Framework.DrawProps;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,32 +27,9 @@ namespace Framework.AT.Editor
             {
                 public int guid;
                 public string memberName;
+                public string displayName;
                 public MemberInfo info;
-
-                public System.Type DeclaringType
-                {
-                    get { return info.DeclaringType; }
-                }
-                public T GetCustomAttribute<T>() where T : Attribute
-                {
-                    return info.GetCustomAttribute(typeof(T)) as T;
-                }
-                public T GetCustomAttribute<T>(bool inherit) where T : Attribute
-                {
-                    return info.GetCustomAttribute(typeof(T), inherit) as T;
-                }
-                public T[] GetCustomAttributes<T>() where T : Attribute
-                {
-                    return info.GetCustomAttributes(typeof(T)) as T[];
-                }
-                public T[] GetCustomAttributes<T>(bool inherit) where T : Attribute
-                {
-                    return info.GetCustomAttributes(typeof(T), inherit) as T[];
-                }
-                public bool IsDefined(System.Type attrType)
-                {
-                    return info.IsDefined(attrType);
-                }
+                public ATMethodAttribute attr;
             }
 
             public string exportPath;
@@ -64,6 +42,8 @@ namespace Framework.AT.Editor
         }
         static Dictionary<string, ExportInfo> ms_vExports = new Dictionary<string, ExportInfo>();
         static HashSet<System.Type> ms_vRefTypes = new HashSet<Type>();
+        static string EXPORT_PATH = "../GamePlay/Generators/";
+        [MenuItem("Tools/编译蓝图脚本")]
         public static void ExportATMothed()
         {
             ms_vExports.Clear();
@@ -114,7 +94,7 @@ namespace Framework.AT.Editor
                                     {
                                         exportData.guid = Animator.StringToHash(typeName);
                                     }
-                                    exportData.exportPath = "../ATExports/" + tp.FullName.Replace("+", "_") + ".cs";
+                                    exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
                                     exportData.type = tp;
                                     exportData.exportAttr = exportAttr;
                                     ms_vExports.Add(typeName, exportData);
@@ -128,16 +108,27 @@ namespace Framework.AT.Editor
 
                                 ExportInfo.ExportMethodInfo exportMth = new ExportInfo.ExportMethodInfo();
                                 exportMth.info = meths[m];
+                                exportMth.attr = attr;
+                                exportMth.displayName = attr.method;
                                 if (methodCnt <= 1) exportMth.memberName = meths[m].Name;
                                 else exportMth.memberName = meths[m].Name + "_" + (methodCnt - 1);
                                 exportMth.guid = Animator.StringToHash(typeName + ":" + exportMth.memberName);
+                                if (string.IsNullOrEmpty(exportMth.displayName))
+                                    exportMth.displayName = exportMth.memberName;
                                 exportData.methods[exportMth.memberName] =exportMth;
                             }
                         }
                     }
                 }
             }
-            foreach(var db in ms_vExports)
+
+            string epxortRoot = Application.dataPath + "/" + EXPORT_PATH;
+            if(Directory.Exists(epxortRoot))
+            {
+                Directory.Delete(epxortRoot, true);
+            }
+
+            foreach (var db in ms_vExports)
             {
                 ExportCode(db.Value);
             }
@@ -147,16 +138,31 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static void ExportCode(ExportInfo export)
         {
+            string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
+            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            StringBuilder methodCode = new StringBuilder();
             StringBuilder code = new StringBuilder();
             code.AppendLine("//auto generated");
+            code.AppendLine("using Framework.AT.Runtime;");
             code.AppendLine("namespace " + export.type.Namespace.Replace("+", "."));
             code.AppendLine("{");
-            code.AppendLine($"\tpublic class {export.type.FullName.Replace("+", "_")}");
+            code.AppendLine("#if UNITY_EDITOR");
+            code.AppendLine($"\t[ATClass(\"{export.exportAttr.nodeName}\")]");
+            code.AppendLine("#endif");
+            code.AppendLine($"\tpublic class {typeClassName}");
             code.AppendLine("\t{");
-            code.AppendLine("\t\tpublic static bool DoAction(AgentTree pAgentTree, BaseNode pNode)");
+            code.AppendLine("##FUNCTION##");
+            code.AppendLine("\t\tstatic bool CheckUserClassPointer(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
+            code.AppendLine("\t\t{");
+            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.FindUserClass(pUserClass.value);");
+            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) return false;");
+            code.AppendLine("\t\t\treturn true;");
+            code.AppendLine("\t\t}");
+            code.AppendLine("\t\tpublic static bool DoAction(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
             code.AppendLine("\t\t{");
             code.AppendLine("\t\t\tint actionType = pNode.type;");
             code.AppendLine("\t\t\tswitch(actionType)");
+            code.AppendLine("\t\t\t{");
             foreach (var db in export.methods)
             {
                 code.AppendLine("\t\t\tcase " + db.Value.guid + ":" + "//" + db.Value.info.Name);
@@ -164,33 +170,170 @@ namespace Framework.AT.Editor
                 if(db.Value.info is MethodInfo)
                 {
                     MethodInfo method = db.Value.info as MethodInfo;
-
-                    string functionHead = "public static bool AT_" + db.Value.memberName + "(";
-                    functionHead += "VariableUserData pUserClass";
-                    foreach (var parm in method.GetParameters())
+                    Type retType = null;
+                    bool hasReturn = false;
+                    if (method.ReturnType != null && method.ReturnType != typeof(void))
                     {
-                        getp
-                        functionHead += 
+                        retType = ConvertTypeToATType(method.ReturnType);
+                        hasReturn = true;
                     }
-                    functionHead += ")";
+
+                    string functionName = "AT_" + db.Value.memberName;
+
+
+                    string functionCall = "";
+                    string functionAttributes = $"\t\t[ATFunction({db.Value.guid},\"{db.Value.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+                    string functionHead = "\t\tstatic bool " + functionName + "(";
                     if (method.IsStatic)
                     {
+                        string callArgv = "";
+                        for (int i = 0; i < method.GetParameters().Length; ++i)
+                        {
+                            var parm = method.GetParameters()[i];
+                            string paramName = parm.Name;
+                            if (db.Value.attr.argvNames != null && i < db.Value.attr.argvNames.Length)
+                                paramName = db.Value.attr.argvNames[i];
+                            var paramType = ConvertTypeToATType(parm.ParameterType);
 
+                            functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
+                            callArgv += $"{parm.Name}";
+                            if (i < method.GetParameters().Length - 1)
+                            {
+                                functionHead += ",";
+                                callArgv += ",";
+                            }
+
+                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                        }
+                        functionCall += $"\t\t\t";
+                        if(hasReturn)
+                        {
+                            string castLabel = "";
+                            if (method.ReturnType.IsEnum)
+                            {
+                                castLabel = "(int)";
+                            }
+
+                            functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(retType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{method.Name}({callArgv}));";
+                        }
+                        else
+                            functionCall += $"{GetTypeName(export.type)}.{method.Name}({callArgv});";
                     }
                     else
                     {
+                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"pPointerThis\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
 
+                        string callArgv = "";
+                        functionHead += $"{export.type.Name} pPointerThis";
+                        for (int i =0; i < method.GetParameters().Length; ++i)
+                        {
+                            var parm = method.GetParameters()[i];
+                            string paramName = parm.Name;
+                            if (db.Value.attr.argvNames != null && i < db.Value.attr.argvNames.Length)
+                                paramName = db.Value.attr.argvNames[i];
+                            var paramType = ConvertTypeToATType(parm.ParameterType);
+                            functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
+                            callArgv += $"{parm.Name}";
+                            if(i < method.GetParameters().Length-1) 
+                            {
+                                callArgv += ",";
+                            }
+                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                        }
+                        functionCall += $"\t\t\t";
+                        if (hasReturn)
+                        {
+                            string castLabel = "";
+                            if(method.ReturnType.IsEnum)
+                            {
+                                castLabel = "(int)";
+                            }
+                            functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, 0, {castLabel}pPointerThis.{method.Name}({callArgv}));";
+                        }
+                        else
+                            functionCall += $"pPointerThis.{method.Name}({callArgv});";
                     }
-                }
-                code.AppendLine("\t\t\t\treturn true;");
-                code.AppendLine("\t\t\t}");
+                    if(hasReturn)
+                    { 
+                        functionHead += $",AgentTree pAgentTree, BaseNode pNode";
+                        functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
+                    }
 
+                    functionHead += ")";
+
+                    methodCode.AppendLine("#if UNITY_EDITOR");
+                    methodCode.AppendLine(functionAttributes);
+                    methodCode.AppendLine("#endif");
+                    methodCode.AppendLine(functionHead);
+                    methodCode.AppendLine("\t\t{");
+                    methodCode.AppendLine(functionCall);
+                    methodCode.AppendLine("\t\t\treturn true;");
+                    methodCode.AppendLine("\t\t}");
+
+
+                    if(!method.IsStatic)
+                    {
+                      //  code.AppendLine("\t\t\t\tif(pUserClass == null) return true;");
+                        code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;");
+                    }
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
+
+                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+
+                    bool bAddDot = true;
+                    if (!method.IsStatic)
+                    {
+                        code.Append($"\t\t\t\treturn {functionName}(pUserClass.pPointer as {oriTypeClassName}");
+                        bAddDot = false;
+                    }
+                    for (int i =0; i < method.GetParameters().Length;++i)
+                    {
+                        var parm = method.GetParameters()[i];
+                        var paramType = ConvertTypeToATType(parm.ParameterType);
+                        string castLabel = "";
+                        if(parm.ParameterType.IsEnum) castLabel = "(" + GetTypeName(parm.ParameterType) + ")";
+
+                        if(!bAddDot)
+                        {
+                            code.Append(",");
+                            bAddDot = true;
+                        }
+
+                        code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(parm.ParameterType)}(pNode,{i+1})");
+                        if(i < method.GetParameters().Length-1) code.Append(",");
+                    }
+                    if(hasReturn)
+                    {
+                        if (!bAddDot)
+                        {
+                            code.Append(",");
+                            bAddDot = true;
+                        }
+                        if (method.GetParameters().Length>0) code.Append($", ");
+                        code.Append($"pAgentTree, pNode");
+                    }
+
+                    code.AppendLine($");");
+                }
+                code.AppendLine("\t\t\t}");
             }
+            code.AppendLine("\t\t\t}");
             code.AppendLine("\t\t\treturn false;");
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
             code.AppendLine("}");
 
+            code.Replace("##FUNCTION##", methodCode.ToString());
+            string fullPath = Application.dataPath + "/" + export.exportPath;
+            if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            FileStream fs = new FileStream(fullPath, FileMode.OpenOrCreate);
+            StreamWriter writer = new StreamWriter(fs, System.Text.Encoding.UTF8);
+            fs.Position = 0;
+            fs.SetLength(0);
+            writer.Write(code);
+            writer.Close();
         }
         //-----------------------------------------------------
         static void ExportCallEnter()
@@ -234,6 +377,17 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
             code.AppendLine("}");
+
+            string fullPath = Application.dataPath + "/" + EXPORT_PATH + "ATRtti.cs";
+            if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            FileStream fs = new FileStream(fullPath, FileMode.OpenOrCreate);
+            StreamWriter writer = new StreamWriter(fs, System.Text.Encoding.UTF8);
+            fs.Position = 0;
+            fs.SetLength(0);
+            writer.Write(code);
+            writer.Close();
         }
         //-----------------------------------------------------
         static void ExportATClasses()
@@ -247,18 +401,31 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\tpublic static bool DoAction(AgentTree pAgentTree, BaseNode pNode)");
             code.AppendLine("\t\t{");
             code.AppendLine("\t\t\tif(pNode == null || pNode.GetInportCount()<=0) return true;");
-            code.AppendLine("\t\t\tint classId = pAgentTree.GetInportInt(pNode, 0);");
-            code.AppendLine("\t\t\tswitch(classId)");
+            code.AppendLine("\t\t\tvar pUserClasser = pAgentTree.GetInportUserData(pNode, 0);");
+            code.AppendLine("\t\t\tswitch(pUserClasser.value)");
+            code.AppendLine("\t\t\t{");
             foreach (var db in ms_vExports)
             {
                 code.Append("\t\t\tcase " + db.Value.guid + ":");
-                code.Append($"return {db.Value.type.FullName.Replace("+", "_")}.DoAction(pAgentTree, pNode);");
+                code.Append($"return {db.Value.type.Namespace.Replace("+",".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction(pUserClasser,pAgentTree, pNode);");
                 code.AppendLine("//" + db.Key);
             }
+            code.AppendLine("\t\t\t}");
             code.AppendLine("\t\t\treturn false;");
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
             code.AppendLine("}");
+
+            string fullPath = Application.dataPath + "/" + EXPORT_PATH + "ATCallHandler.cs";
+            if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            FileStream fs = new FileStream(fullPath, FileMode.OpenOrCreate);
+            StreamWriter writer = new StreamWriter(fs, System.Text.Encoding.UTF8);
+            fs.Position = 0;
+            fs.SetLength(0);
+            writer.Write(code);
+            writer.Close();
         }
         //-----------------------------------------------------
         static bool CheckMethodCanExport(MethodInfo method)
@@ -326,12 +493,111 @@ namespace Framework.AT.Editor
             else if (type == typeof(Vector4)) return typeof(VariableVec4);
             else if (type == typeof(Quaternion)) return typeof(VariableQuaternion);
             else if (type == typeof(Ray)) return typeof(VariableRay);
-            else if (type == typeof(Ray2D)) return typeof(VariableRay2D);
+            else if (type == typeof(Color)) return typeof(VariableColor);
             else if (type == typeof(Rect)) return typeof(VariableRect);
             else if (type == typeof(Bounds)) return typeof(VariableBounds);
             else if (type == typeof(Matrix4x4)) return typeof(VariableMatrix);
+            else if (type == typeof(ObjId)) return typeof(VariableObjId);
             else if (type == typeof(IUserData)) return typeof(VariableUserData);
             else if (IsUserDataType(type)) return typeof(VariableUserData);
+            else if (type.IsEnum) return typeof(VariableInt);
+            return null;
+        }
+        //-----------------------------------------------------
+        static string ConvertTypeToATGetInPortFunction(System.Type type)
+        {
+            if (type == typeof(bool)) return "GetInportBool";
+            else if (type == typeof(char)) return "GetInportChar";
+            else if (type == typeof(byte)) return "GetInportByte";
+            else if (type == typeof(sbyte)) return "GetInportSbyte";
+            else if (type == typeof(ushort)) return "GetInportUshort";
+            else if (type == typeof(short)) return "GetInportShort";
+            else if (type == typeof(int)) return "GetInportInt";
+            else if (type == typeof(uint)) return "GetInportUint";
+            else if (type == typeof(float)) return "GetInportFloat";
+            else if (type == typeof(double)) return "GetInportDouble";
+            else if (type == typeof(long)) return "GetInportLong";
+            else if (type == typeof(ulong)) return "GetInportUlong";
+            else if (type == typeof(Vector2)) return "GetInportVec2";
+            else if (type == typeof(Vector2Int)) return "GetInportVec2Int";
+            else if (type == typeof(Vector3)) return "GetInportVec3";
+            else if (type == typeof(Vector3Int)) return "GetInportVec3Int";
+            else if (type == typeof(Vector4)) return "GetInportVec4";
+            else if (type == typeof(Quaternion)) return "GetInportQuaternion";
+            else if (type == typeof(Ray)) return "GetInportRay";
+            else if (type == typeof(Color)) return "GetInportColor";
+            else if (type == typeof(Rect)) return "GetInportRect";
+            else if (type == typeof(Bounds)) return "GetInportBounds";
+            else if (type == typeof(Matrix4x4)) return "GetInportMatrix";
+            else if (type == typeof(string)) return "GetInportString";
+            else if (type == typeof(IUserData)) return "GetInportUserData";
+            else if (type == typeof(ObjId)) return "GetInportObjId";
+            else if (IsUserDataType(type)) return "GetInportUserData";
+            else if (type.IsEnum) return "GetInportInt";
+            return null;
+        }
+        //-----------------------------------------------------
+        static string ConvertTypeToATGetOutPortFunction(System.Type type)
+        {
+            if (type == typeof(bool)) return "GetOutportBool";
+            else if (type == typeof(char)) return "GetOutportChar";
+            else if (type == typeof(byte)) return "GetOutportByte";
+            else if (type == typeof(sbyte)) return "GetOutportSbyte";
+            else if (type == typeof(ushort)) return "GetOutportUshort";
+            else if (type == typeof(short)) return "GetOutportShort";
+            else if (type == typeof(int)) return "GetOutportInt";
+            else if (type == typeof(uint)) return "GetOutportUint";
+            else if (type == typeof(float)) return "GetOutportFloat";
+            else if (type == typeof(double)) return "GetOutportDouble";
+            else if (type == typeof(long)) return "GetOutportLong";
+            else if (type == typeof(ulong)) return "GetOutportUlong";
+            else if (type == typeof(Vector2)) return "GetOutportVec2";
+            else if (type == typeof(Vector2Int)) return "GetOutportVec2Int";
+            else if (type == typeof(Vector3)) return "GetOutportVec3";
+            else if (type == typeof(Vector3Int)) return "GetOutportVec3Int";
+            else if (type == typeof(Vector4)) return "GetOutportVec4";
+            else if (type == typeof(Quaternion)) return "GetOutportQuaternion";
+            else if (type == typeof(Ray)) return "GetOutportRay";
+            else if (type == typeof(Color)) return "GetOutportColor";
+            else if (type == typeof(Rect)) return "GetOutportRect";
+            else if (type == typeof(Bounds)) return "GetOutportBounds";
+            else if (type == typeof(Matrix4x4)) return "GetOutportMatrix";
+            else if (type == typeof(IUserData)) return "GetOutportUserData";
+            else if (type == typeof(string)) return "GetOutportString";
+            else if (IsUserDataType(type)) return "GetOutportUserData";
+            else if (type.IsEnum) return "GetOutportInt";
+            return null;
+        }
+        //-----------------------------------------------------
+        static string ConvertTypeToATSetOutPortFunction(System.Type type)
+        {
+            if (type == typeof(bool))               return "SetOutportBool";
+            else if (type == typeof(char))          return "SetOutportChar";
+            else if (type == typeof(byte))          return "SetOutportByte";
+            else if (type == typeof(sbyte))         return "SetOutportSbyte";
+            else if (type == typeof(ushort))        return "SetOutportUshort";
+            else if (type == typeof(short))         return "SetOutportShort";
+            else if (type == typeof(int))           return "SetOutportInt";
+            else if (type == typeof(uint))          return "SetOutportUint";
+            else if (type == typeof(float))         return "SetOutportFloat";
+            else if (type == typeof(double))        return "SetOutportDouble";
+            else if (type == typeof(long))          return "SetOutportLong";
+            else if (type == typeof(ulong))         return "SetOutportUlong";
+            else if (type == typeof(Vector2))       return "SetOutportVec2";
+            else if (type == typeof(Vector2Int))    return "SetOutportVec2Int";
+            else if (type == typeof(Vector3))       return "SetOutportVec3";
+            else if (type == typeof(Vector3Int))    return "SetOutportVec3Int";
+            else if (type == typeof(Vector4))       return "SetOutportVec4";
+            else if (type == typeof(Quaternion))    return "SetOutportQuaternion";
+            else if (type == typeof(Ray))           return "SetOutportRay";
+            else if (type == typeof(Color))         return "SetOutportColor";
+            else if (type == typeof(Rect))          return "SetOutportRect";
+            else if (type == typeof(Bounds))        return "SetOutportBounds";
+            else if (type == typeof(Matrix4x4))     return "SetOutportMatrix";
+            else if (type == typeof(IUserData))     return "SetOutportUserData";
+            else if (type == typeof(string))        return "SetOutportString";
+            else if (IsUserDataType(type))          return "SetOutportUserData";
+            else if (type.IsEnum)                   return "SetOutportInt";
             return null;
         }
         //-----------------------------------------------------
@@ -361,6 +627,7 @@ namespace Framework.AT.Editor
                 || type == typeof(Rect)
                 || type == typeof(Bounds)
                 || type == typeof(Matrix4x4)
+                || type == typeof(ObjId)
                 || type.IsEnum)
             {
                 return true;

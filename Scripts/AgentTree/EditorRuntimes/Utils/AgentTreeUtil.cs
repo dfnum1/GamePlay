@@ -7,10 +7,12 @@
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
 using Framework.Cutscene.Editor;
+using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 using UnityEngine;
 
@@ -164,10 +166,82 @@ namespace Framework.AT.Editor
                     {
                         Type tp = types[i];
                         if (tp == null) continue;
-                        if (!tp.IsEnum)
-                            continue;
-
-                        if (tp.IsDefined(typeof(ATTypeAttribute), false))
+                        if(tp.IsDefined(typeof(ATClassAttribute)))
+                        {
+                            ATClassAttribute classAT = tp.GetCustomAttribute<ATClassAttribute>();
+                            var methods = tp.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                            foreach(var method in methods)
+                            {
+                                if (method.IsDefined(typeof(ATFunctionAttribute), false))
+                                {
+                                    ATFunctionAttribute atTypeAttr = method.GetCustomAttribute<ATFunctionAttribute>();
+                                    AgentTreeAttri attr = new AgentTreeAttri();
+                                    attr.actionAttr = atTypeAttr.ToAction();
+                                    attr.cutsceneCusomtType = 0;
+                                    attr.isCutsceneCustomEvent = false;
+                                    attr.actionType = atTypeAttr.guid;
+                                    attr.displayName = atTypeAttr.DisplayName;
+                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString();
+                                    attr.strMenuName = classAT.className + "/" + atTypeAttr.DisplayName;
+                                    if (attr.actionAttr.isTask)
+                                    {
+                                        attr.actionAttr.hasInput = false;
+                                    }
+                                    if (method.IsDefined(typeof(ATFunctionArgvAttribute), false))
+                                    {
+                                        ATFunctionArgvAttribute[] argvs = (ATFunctionArgvAttribute[])method.GetCustomAttributes<ATFunctionArgvAttribute>();
+                                        if (argvs != null)
+                                        {
+                                            for(int j =0; j < argvs.Length; ++j)
+                                                attr.argvs.Add(argvs[j].ToArgv());
+                                        }
+                                    }
+                                    if (method.IsDefined(typeof(ATFunctionReturnAttribute), false))
+                                    {
+                                        ATFunctionReturnAttribute[] returns = (ATFunctionReturnAttribute[])method.GetCustomAttributes<ATFunctionReturnAttribute>();
+                                        if (returns != null)
+                                        {
+                                            for (int j = 0; j < returns.Length; ++j)
+                                            {
+                                                attr.returns.Add(new ArgvAttribute(returns[j].Name, returns[j].DisplayType));
+                                            }
+                                        }
+                                    }
+                                    long key = ((long)attr.actionType) << 32 | (long)attr.cutsceneCusomtType;
+                                    if (vGraphNodeTypes.TryGetValue(key, out var graphNodeType))
+                                    {
+                                        attr.graphNodeType = graphNodeType;
+                                    }
+                                    else
+                                    {
+                                        if (attr.actionAttr.isTask)
+                                            attr.graphNodeType = typeof(TaskGraphNode);
+                                        else
+                                            attr.graphNodeType = typeof(GraphNode);
+                                    }
+                                    if (ms_Attrs.TryGetValue(key, out var attrD))
+                                    {
+                                        Debug.LogError(tp.Name + " 存在重复定义:" + tp.FullName.ToString() + "." + method.Name);
+                                    }
+                                    else
+                                    {
+                                        foreach (var db in attr.argvs)
+                                        {
+                                            attr.popArgvs.Add(db.name);
+                                        }
+                                        foreach (var db in attr.returns)
+                                        {
+                                            attr.popReturns.Add(db.name);
+                                        }
+                                        ms_Attrs.Add(key, attr);
+                                        ms_vLists.Add(attr);
+                                        ms_vPops.Add(attr.displayName);
+                                    }
+                                }
+                            }
+                            
+                        }
+                        else if (tp.IsDefined(typeof(ATTypeAttribute), false))
                         {
                             ATTypeAttribute atTypeAttr = tp.GetCustomAttribute<ATTypeAttribute>();
                             foreach (Enum v in Enum.GetValues(tp))

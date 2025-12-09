@@ -29,19 +29,19 @@ namespace Framework.AT.Runtime
         [InspectorName("浮点数")] eFloat = 2,
         [InspectorName("字符串")] eString = 3,
         [InspectorName("Bool")] eBool = 4,
-        [InspectorName("二维向量")] eVec2 = 5,
-        [InspectorName("三维向量")] eVec3 = 6,
-        [InspectorName("四维向量")] eVec4= 7,
-        [InspectorName("ObjId")] eObjId = 8,
-        [InspectorName("Ray")] eRay = 9,
-        [InspectorName("Ray2D")] eRay2D = 10,
-        [InspectorName("Quaternion")] eQuaternion = 11,
-        [InspectorName("Bounds")] eBounds = 12,
-        [InspectorName("Rect")] eRect = 13,
-        [InspectorName("Matrix")] eMatrix = 14,
-        [InspectorName("UserData")] eUserData = 15,
         [InspectorName("长整形")] eLong,
         [InspectorName("双浮点")] eDouble,
+        [InspectorName("二维向量")] eVec2,
+        [InspectorName("三维向量")] eVec3,
+        [InspectorName("四维向量")] eVec4,
+        [InspectorName("ObjId")] eObjId,
+        [InspectorName("Color")] eColor,
+        [InspectorName("Ray")] eRay,
+        [InspectorName("Quaternion")] eQuaternion,
+        [InspectorName("Rect")] eRect,
+        [InspectorName("Bounds")] eBounds,
+        [InspectorName("Matrix")] eMatrix,
+        [InspectorName("UserData")] eUserData,
     }
     //-----------------------------------------------------
     public interface IVariable
@@ -94,7 +94,7 @@ namespace Framework.AT.Runtime
     public struct VariableDouble : IVariable
     {
         public short guid;
-        public long value;
+        public double value;
         //-----------------------------------------------------
         public VariableDouble(int value)
         {
@@ -209,6 +209,32 @@ namespace Framework.AT.Runtime
     }
     //-----------------------------------------------------
     [System.Serializable]
+    public struct VariableColor : IVariable
+    {
+        public short guid;
+        public Vector4 value;
+        //-----------------------------------------------------
+        public VariableColor(Vector4 value)
+        {
+            guid = 0;
+            this.value = value;
+        }
+        //-----------------------------------------------------
+        public VariableColor(float r, float g, float b, float a)
+        {
+            guid = 0;
+            this.value = new Color(r, g, b, a);
+        }
+        //-----------------------------------------------------
+        public EVariableType GetVariableType()
+        {
+            return EVariableType.eColor;
+        }
+        //-----------------------------------------------------
+        public short GetGuid() { return guid; }
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
     public struct VariableString : IVariable
     {
         public short guid;
@@ -263,26 +289,6 @@ namespace Framework.AT.Runtime
         public EVariableType GetVariableType()
         {
             return EVariableType.eRay;
-        }
-        //-----------------------------------------------------
-        public short GetGuid() { return guid; }
-    }
-    //-----------------------------------------------------
-    [System.Serializable]
-    public struct VariableRay2D : IVariable
-    {
-        public short guid;
-        public Ray2D value;
-        //-----------------------------------------------------
-        public VariableRay2D(Ray2D value)
-        {
-            guid = 0;
-            this.value = value;
-        }
-        //-----------------------------------------------------
-        public EVariableType GetVariableType()
-        {
-            return EVariableType.eRay2D;
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
@@ -373,12 +379,12 @@ namespace Framework.AT.Runtime
     {
         public short guid;
         public int value;
-        public IUserData pUser;
+        public IUserData pPointer;
         //-----------------------------------------------------
         public VariableUserData(int value)
         {
             guid = 0;
-            this.pUser = null;
+            this.pPointer = null;
             this.value = value;
         }
         //-----------------------------------------------------
@@ -388,6 +394,8 @@ namespace Framework.AT.Runtime
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
+
+        public static VariableUserData DEF = new VariableUserData() { guid =0, value =0, pPointer = null };
     }
     //-----------------------------------------------------
     [System.Serializable]
@@ -575,6 +583,132 @@ namespace Framework.AT.Runtime
                                 variables.AddObjId(obj);
                             }
                             break;
+                        case EVariableType.eLong:
+                            {
+                                long v = 0;
+                                long.TryParse(item.value, out v);
+                                variables.AddLong(v);
+                            }
+                            break;
+                        case EVariableType.eDouble:
+                            {
+                                double v = 0;
+                                double.TryParse(item.value, out v);
+                                variables.AddDouble(v);
+                            }
+                            break;
+                        case EVariableType.eColor:
+                            {
+                                Color v = Color.white;
+                                ColorUtility.TryParseHtmlString(item.value, out v);
+                                variables.AddColor(v);
+                            }
+                            break;
+                        case EVariableType.eRay:
+                            {
+                                var splitVal = item.value.Split('|');
+                                if (splitVal.Length == 6)
+                                {
+                                    Ray ray = new Ray();
+                                    float x = 0, y = 0, z = 0, dx = 0,dy=0,dz=0;
+                                    float.TryParse(splitVal[0], out x);
+                                    float.TryParse(splitVal[1], out y);
+                                    float.TryParse(splitVal[2], out z);
+                                    float.TryParse(splitVal[3], out dx);
+                                    float.TryParse(splitVal[4], out dy);
+                                    float.TryParse(splitVal[5], out dz);
+                                    ray.origin = new Vector3(x, y, z);
+                                    ray.direction = new Vector3(dx,dy,dz);
+                                    variables.AddRay(ray);
+                                }
+                            }
+                            break;
+                        case EVariableType.eQuaternion:
+                            {
+                                var splitVal = item.value.Split('|');
+                                if (splitVal.Length == 4)
+                                {
+                                    Quaternion rot = Quaternion.identity;
+                                    float.TryParse(splitVal[0], out rot.x);
+                                    float.TryParse(splitVal[1], out rot.y);
+                                    float.TryParse(splitVal[2], out rot.z);
+                                    float.TryParse(splitVal[3], out rot.w);
+                                    variables.AddQuaternion(rot);
+                                }
+                            }
+                            break;
+                        case EVariableType.eRect:
+                            {
+                                var splitVal = item.value.Split('|');
+                                if (splitVal.Length == 4)
+                                {
+                                    Rect rot = Rect.zero;
+                                    float x, y, z, w;
+                                    float.TryParse(splitVal[0], out x);
+                                    float.TryParse(splitVal[1], out y);
+                                    float.TryParse(splitVal[2], out z);
+                                    float.TryParse(splitVal[3], out w);
+                                    rot.x = x;
+                                    rot.y = y;
+                                    rot.width = z;
+                                    rot.height = w;
+                                    variables.AddRect(rot);
+                                }
+                            }
+                            break;
+                        case EVariableType.eBounds:
+                            {
+                                var splitVal = item.value.Split('|');
+                                if (splitVal.Length == 6)
+                                {
+                                    float x0, y0, z0;
+                                    float x1, y1, z1;
+                                    float.TryParse(splitVal[0], out x0);
+                                    float.TryParse(splitVal[1], out y0);
+                                    float.TryParse(splitVal[2], out z0);
+                                    float.TryParse(splitVal[3], out x1);
+                                    float.TryParse(splitVal[4], out y1);
+                                    float.TryParse(splitVal[5], out z1);
+                                    variables.AddBounds(new Bounds(new Vector3(x0,y0,z0), new Vector3(x1,y1,z1)));
+                                }
+                            }
+                            break;
+                        case EVariableType.eMatrix:
+                            {
+                                var splitVal = item.value.Split('|');
+                                if (splitVal.Length == 16)
+                                {
+                                    Matrix4x4 mat = Matrix4x4.identity;
+                                    float.TryParse(splitVal[0], out mat.m00);
+                                    float.TryParse(splitVal[1], out mat.m10);
+                                    float.TryParse(splitVal[2], out mat.m20);
+                                    float.TryParse(splitVal[3], out mat.m30);
+
+                                    float.TryParse(splitVal[0], out mat.m01);
+                                    float.TryParse(splitVal[1], out mat.m11);
+                                    float.TryParse(splitVal[2], out mat.m21);
+                                    float.TryParse(splitVal[3], out mat.m31);
+
+                                    float.TryParse(splitVal[0], out mat.m02);
+                                    float.TryParse(splitVal[1], out mat.m12);
+                                    float.TryParse(splitVal[2], out mat.m22);
+                                    float.TryParse(splitVal[3], out mat.m32);
+
+                                    float.TryParse(splitVal[0], out mat.m03);
+                                    float.TryParse(splitVal[1], out mat.m13);
+                                    float.TryParse(splitVal[2], out mat.m23);
+                                    float.TryParse(splitVal[3], out mat.m33);
+                                    variables.AddMatrix(mat);
+                                }
+                            }
+                            break;
+                        case EVariableType.eUserData:
+                            {
+                                int v = 0;
+                                int.TryParse(item.value, out v);
+                                variables.AddUserData(new VariableUserData() { value = v });
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -600,48 +734,89 @@ namespace Framework.AT.Runtime
                     switch (type)
                     {
                         case EVariableType.eInt:
-                            {
-                                item.value = variables.GetInt(i).ToString();
-                            }
+                            item.value = variables.GetInt(i).ToString();
                             break;
                         case EVariableType.eFloat:
-                            {
-                                item.value = variables.GetFloat(i).ToString("F3");
-                            }
+                            item.value = variables.GetFloat(i).ToString("F3");
                             break;
                         case EVariableType.eString:
-                            {
-                                item.value = variables.GetString(i);
-                            }
+                            item.value = variables.GetString(i);
                             break;
                         case EVariableType.eBool:
-                            {
-                                item.value = variables.GetBool(i).ToString();
-                            }
+                            item.value = variables.GetBool(i).ToString();
                             break;
                         case EVariableType.eVec2:
                             {
-                                var vv2 = variables.GetVec2(i);
-                                item.value = $"{vv2.x.ToString("F3")}|{vv2.y.ToString("F3")}";
+                                var v = variables.GetVec2(i);
+                                item.value = $"{v.x.ToString("F3")}|{v.y.ToString("F3")}";
                             }
                             break;
                         case EVariableType.eVec3:
                             {
-                                var vv3 = variables.GetVec3(i);
-                                item.value = $"{vv3.x.ToString("F3")}|{vv3.y.ToString("F3")}|{vv3.z.ToString("F3")}";
+                                var v = variables.GetVec3(i);
+                                item.value = $"{v.x.ToString("F3")}|{v.y.ToString("F3")}|{v.z.ToString("F3")}";
                             }
                             break;
                         case EVariableType.eVec4:
                             {
-                                var vv4 = variables.GetVec4(i);
-                                item.value = $"{vv4.x.ToString("F3")}|{vv4.y.ToString("F3")}|{vv4.z.ToString("F3")}|{vv4.w.ToString("F3")}";
+                                var v = variables.GetVec4(i);
+                                item.value = $"{v.x.ToString("F3")}|{v.y.ToString("F3")}|{v.z.ToString("F3")}|{v.w.ToString("F3")}";
                             }
                             break;
                         case EVariableType.eObjId:
                             {
-                                var vv4 = variables.GetObjId(i);
-                                item.value = JsonUtility.ToJson(vv4);
+                                var v = variables.GetObjId(i);
+                                item.value = JsonUtility.ToJson(v);
                             }
+                            break;
+                        case EVariableType.eLong:
+                            item.value = variables.GetLongs()[i].ToString();
+                            break;
+                        case EVariableType.eDouble:
+                            item.value = variables.GetDoubles()[i].ToString("F6");
+                            break;
+                        case EVariableType.eColor:
+                            {
+                                var c = variables.GetColors()[i];
+                                item.value = $"#{ColorUtility.ToHtmlStringRGBA(c)}";
+                            }
+                            break;
+                        case EVariableType.eRay:
+                            {
+                                var r = variables.GetRays()[i];
+                                item.value = $"{r.origin.x.ToString("F3")}|{r.origin.y.ToString("F3")}|{r.origin.z.ToString("F3")}|{r.direction.x.ToString("F3")}|{r.direction.y.ToString("F3")}|{r.direction.z.ToString("F3")}";
+                            }
+                            break;
+                        case EVariableType.eQuaternion:
+                            {
+                                var q = variables.GetQuaternions()[i];
+                                item.value = $"{q.x.ToString("F3")}|{q.y.ToString("F3")}|{q.z.ToString("F3")}|{q.w.ToString("F3")}";
+                            }
+                            break;
+                        case EVariableType.eRect:
+                            {
+                                var rect = variables.GetRects()[i];
+                                item.value = $"{rect.x.ToString("F3")}|{rect.y.ToString("F3")}|{rect.width.ToString("F3")}|{rect.height.ToString("F3")}";
+                            }
+                            break;
+                        case EVariableType.eBounds:
+                            {
+                                var b = variables.GetBoundsList()[i];
+                                item.value = $"{b.center.x.ToString("F3")}|{b.center.y.ToString("F3")}|{b.center.z.ToString("F3")}|{b.size.x.ToString("F3")}|{b.size.y.ToString("F3")}|{b.size.z.ToString("F3")}";
+                            }
+                            break;
+                        case EVariableType.eMatrix:
+                            {
+                                var m = variables.GetMatrixs()[i];
+                                item.value =
+                                    $"{m.m00.ToString("F3")}|{m.m10.ToString("F3")}|{m.m20.ToString("F3")}|{m.m30.ToString("F3")}|"
+                                    + $"{m.m01.ToString("F3")}|{m.m11.ToString("F3")}|{m.m21.ToString("F3")}|{m.m31.ToString("F3")}|"
+                                    + $"{m.m02.ToString("F3")}|{m.m12.ToString("F3")}|{m.m22.ToString("F3")}|{m.m32.ToString("F3")}|"
+                                    + $"{m.m03.ToString("F3")}|{m.m13.ToString("F3")}|{m.m23.ToString("F3")}|{m.m33.ToString("F3")}";
+                            }
+                            break;
+                        case EVariableType.eUserData:
+                            item.value = variables.GetUserDatas()[i].value.ToString();
                             break;
                     }
                     data.items[i] = item;
@@ -667,11 +842,15 @@ namespace Framework.AT.Runtime
                 case EVariableType.eInt:
                     return new VariableInt { value = 0, guid = guid };
                 case EVariableType.eFloat:
-                    return new VariableFloat {  value = 0f, guid = guid };
+                    return new VariableFloat { value = 0f, guid = guid };
                 case EVariableType.eString:
                     return new VariableString { value = string.Empty, guid = guid };
                 case EVariableType.eBool:
-                    return new VariableBool {  value = false, guid = guid };
+                    return new VariableBool { value = false, guid = guid };
+                case EVariableType.eLong:
+                    return new VariableLong { value = 0, guid = guid };
+                case EVariableType.eDouble:
+                    return new VariableDouble { value = 0, guid = guid };
                 case EVariableType.eVec2:
                     return new VariableVec2 { value = Vector2.zero, guid = guid };
                 case EVariableType.eVec3:
@@ -680,6 +859,20 @@ namespace Framework.AT.Runtime
                     return new VariableVec4 { value = Vector4.zero, guid = guid };
                 case EVariableType.eObjId:
                     return new VariableObjId { value = new ObjId(), guid = guid };
+                case EVariableType.eColor:
+                    return new VariableColor { value = Vector4.zero, guid = guid };
+                case EVariableType.eRay:
+                    return new VariableRay { value = new Ray(Vector3.zero, Vector3.forward), guid = guid };
+                case EVariableType.eQuaternion:
+                    return new VariableQuaternion { value = Quaternion.identity, guid = guid };
+                case EVariableType.eRect:
+                    return new VariableRect { value = new Rect(0, 0, 0, 0), guid = guid };
+                case EVariableType.eBounds:
+                    return new VariableBounds { value = new Bounds(Vector3.zero, Vector3.zero), guid = guid };
+                case EVariableType.eMatrix:
+                    return new VariableMatrix { value = Matrix4x4.identity, guid = guid };
+                case EVariableType.eUserData:
+                    return new VariableUserData { value = 0, pPointer = null, guid = guid };
                 default:
                     return null;
             }
@@ -695,8 +888,10 @@ namespace Framework.AT.Runtime
                 return new VariableInt { value = usVal, guid = guid };
             if (value is int intVal)
                 return new VariableInt { value = intVal, guid = guid };
-            if (value is int uintVal)
-                return new VariableInt { value = uintVal, guid = guid };
+            if (value is long longVal)
+                return new VariableLong { value = longVal, guid = guid };
+            if (value is double doubleVal)
+                return new VariableDouble { value = (long)doubleVal, guid = guid };
             if (value is float floatVal)
                 return new VariableFloat { value = floatVal, guid = guid };
             if (value is string strVal)
@@ -711,27 +906,63 @@ namespace Framework.AT.Runtime
                 return new VariableVec4 { value = v4Val, guid = guid };
             if (value is ObjId objId)
                 return new VariableObjId { value = objId, guid = guid };
+            if (value is Color colorVal)
+                return new VariableColor { value = new Vector4(colorVal.r, colorVal.g, colorVal.b, colorVal.a), guid = guid };
+            if (value is Ray rayVal)
+                return new VariableRay { value = rayVal, guid = guid };
+            if (value is Quaternion quatVal)
+                return new VariableQuaternion { value = quatVal, guid = guid };
+            if (value is Rect rectVal)
+                return new VariableRect { value = rectVal, guid = guid };
+            if (value is Bounds boundsVal)
+                return new VariableBounds { value = boundsVal, guid = guid };
+            if (value is Matrix4x4 matVal)
+                return new VariableMatrix { value = matVal, guid = guid };
+            if (value is VariableUserData userDataVal)
+                return new VariableUserData { value = userDataVal.value, pPointer = userDataVal.pPointer, guid = guid };
             return null;
         }
         //-----------------------------------------------------
 #if UNITY_EDITOR
-        public static Type GetVariableCsType(EVariableType type)
+        internal static Type GetVariableCsType(EVariableType type)
         {
-            if (type == EVariableType.eBool) return typeof(bool);
-            else if (type == EVariableType.eInt) return typeof(int);
-            else if (type == EVariableType.eFloat) return typeof(float);
-            else if (type == EVariableType.eString) return typeof(string);
-            else if (type == EVariableType.eVec2) return typeof(Vector2);
-            else if (type == EVariableType.eVec3) return typeof(Vector3);
-            else if (type == EVariableType.eVec4) return typeof(Vector4);
-            else if (type == EVariableType.eObjId) return typeof(ObjId);
-            return null;
+            switch (type)
+            {
+                case EVariableType.eBool: return typeof(bool);
+                case EVariableType.eInt: return typeof(int);
+                case EVariableType.eFloat: return typeof(float);
+                case EVariableType.eString: return typeof(string);
+                case EVariableType.eLong: return typeof(long);
+                case EVariableType.eDouble: return typeof(double);
+                case EVariableType.eVec2: return typeof(Vector2);
+                case EVariableType.eVec3: return typeof(Vector3);
+                case EVariableType.eVec4: return typeof(Vector4);
+                case EVariableType.eObjId: return typeof(ObjId);
+                case EVariableType.eColor: return typeof(Color);
+                case EVariableType.eRay: return typeof(Ray);
+                case EVariableType.eQuaternion: return typeof(Quaternion);
+                case EVariableType.eRect: return typeof(Rect);
+                case EVariableType.eBounds: return typeof(Bounds);
+                case EVariableType.eMatrix: return typeof(Matrix4x4);
+                case EVariableType.eUserData: return typeof(VariableUserData);
+                default: return null;
+            }
         }
         //-----------------------------------------------------
-        public static IVariable CreateVariable(ArgvAttribute attri, short guid)
+        internal static IVariable CreateVariable(ArgvAttribute attri, short guid)
         {
+            if(attri.argvType.GetInterface(typeof(IVariable).FullName.Replace("+", "."))!=null)
+            {
+                IVariable pVar =(IVariable)Activator.CreateInstance(attri.argvType);
+                var guideField = attri.argvType.GetField("guid", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if (guideField != null)
+                    guideField.SetValue(pVar, guid);
+                return pVar;
+            }
           if (attri.argvType == typeof(bool)) return new VariableBool { value = attri.ToValue<bool>(false), guid = guid };
             else if (attri.argvType == typeof(byte) ||
+                attri.argvType == typeof(char) ||
+                attri.argvType == typeof(sbyte) ||
                 attri.argvType.IsEnum ||
                 attri.argvType == typeof(short)||
                 attri.argvType == typeof(ushort)||
@@ -742,9 +973,9 @@ namespace Framework.AT.Runtime
             }
             else if (attri.argvType.IsEnum)
             {
-                if(!string.IsNullOrEmpty(attri.strValue))
+                if(attri.defValue!=null)
                 {
-                    if (Enum.TryParse(attri.argvType, attri.strValue, true, out object enumVal))
+                    if (Enum.TryParse(attri.argvType, attri.defValue.ToString(), true, out object enumVal))
                     {
                         return new VariableInt { value = Convert.ToInt32(enumVal), guid= guid };
                     }
@@ -756,38 +987,41 @@ namespace Framework.AT.Runtime
                 else
                     return new VariableInt { value = attri.ToValue<int>(0), guid = guid };
             }
+            else if (attri.argvType == typeof(long))
+                return new VariableLong { value = attri.ToValue<long>(0), guid = guid };
+            else if (attri.argvType == typeof(double))
+                return new VariableDouble { value = (long)attri.ToValue<double>(0), guid = guid };
             else if (attri.argvType == typeof(float))
-            {
                 return new VariableFloat { value = attri.ToValue<float>(0), guid = guid };
-            }
-            else if (attri.argvType == typeof(IVariable))
-            {
-                return new VariableInt { value = 0, guid = guid };
-            }
-            else if (attri.argvType == typeof(BaseNode))
-            {
-                return new VariableInt { value = 0, guid = guid };
-            }
             else if (attri.argvType == typeof(string))
-            {
-                return new VariableString { value = attri.strValue, guid = guid };
-            }
+                return new VariableString { value = attri.defValue!=null?attri.defValue.ToString():"", guid = guid };
             else if (attri.argvType == typeof(Vector2))
-            {
                 return new VariableVec2 { value = attri.ToValue<Vector2>(Vector2.zero), guid = guid };
-            }
             else if (attri.argvType == typeof(Vector3))
-            {
                 return new VariableVec3 { value = attri.ToValue<Vector3>(Vector3.zero), guid = guid };
-            }
             else if (attri.argvType == typeof(Vector4))
-            {
                 return new VariableVec4 { value = attri.ToValue<Vector4>(Vector4.zero), guid = guid };
-            }
             else if (attri.argvType == typeof(ObjId))
-            {
                 return new VariableObjId { value = new ObjId(), guid = guid };
-            }
+            else if (attri.argvType == typeof(Color))
+                return new VariableColor { value = attri.ToValue<Vector4>(Vector4.zero), guid = guid };
+            else if (attri.argvType == typeof(Ray))
+                return new VariableRay { value = attri.ToValue<Ray>(new Ray(Vector3.zero, Vector3.forward)), guid = guid };
+            else if (attri.argvType == typeof(Quaternion))
+                return new VariableQuaternion { value = attri.ToValue<Quaternion>(Quaternion.identity), guid = guid };
+            else if (attri.argvType == typeof(Rect))
+                return new VariableRect { value = attri.ToValue<Rect>(new Rect(0, 0, 0, 0)), guid = guid };
+            else if (attri.argvType == typeof(Bounds))
+                return new VariableBounds { value = attri.ToValue<Bounds>(new Bounds(Vector3.zero, Vector3.zero)), guid = guid };
+            else if (attri.argvType == typeof(Matrix4x4))
+                return new VariableMatrix { value = attri.ToValue<Matrix4x4>(Matrix4x4.identity), guid = guid };
+            else if (attri.argvType == typeof(VariableUserData))
+                return new VariableUserData { value = attri.ToValue<int>(0), pPointer = null, guid = guid };
+            else if (attri.argvType == typeof(IVariable))
+                return new VariableInt { value = 0, guid = guid };
+            else if (attri.argvType == typeof(BaseNode))
+                return new VariableInt { value = 0, guid = guid };
+
             UnityEngine.Debug.LogError($"Unsupported variable type: {attri.argvType}");
             return null;
         }

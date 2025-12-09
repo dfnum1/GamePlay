@@ -4,12 +4,14 @@
 作    者:	HappLI
 描    述:	行为树
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 namespace Framework.AT.Runtime
 {
     public interface IAgentTreeCallback
     {
         public bool OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode);
+        public int GetAgentTreeRttiTypeId(System.Type type);
     }
     //-----------------------------------------------------
     //! AgentTreeManager
@@ -47,6 +49,25 @@ namespace Framework.AT.Runtime
                 }
             }
             return false;
+        }
+        //-----------------------------------------------------
+        public int GetRttiId(IUserData pPointer)
+        {
+            if (pPointer == null) return 0;
+            return GetRttiId(pPointer.GetType());
+        }
+        //-----------------------------------------------------
+        public int GetRttiId(System.Type type)
+        {
+            if (m_vCallback != null)
+            {
+                for (var callback = m_vCallback.First; callback != null; callback = callback.Next)
+                {
+                    var typeId = callback.Value.GetAgentTreeRttiTypeId(type);
+                    if (typeId != 0) return typeId;
+                }
+            }
+            return 0;
         }
         //-----------------------------------------------------
         internal AgentTree MallocAgentTree()

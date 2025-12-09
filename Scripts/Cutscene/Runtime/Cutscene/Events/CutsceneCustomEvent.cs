@@ -46,6 +46,11 @@ namespace Framework.Cutscene.Runtime
             return baseProp.time;
         }
         //-----------------------------------------------------
+        public bool StopFireIfNoTrigger()
+        {
+            return baseProp.stopFireIfNoTrigger;
+        }
+        //-----------------------------------------------------
         public int GetInArgvCount()
         {
             if (inputVariables == null) return 0;

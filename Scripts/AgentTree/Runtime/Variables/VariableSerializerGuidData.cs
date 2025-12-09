@@ -19,28 +19,34 @@ namespace Framework.AT.Runtime
     {
         public VariableBool[]           boolVariables;
         public VariableInt[]            intVariables;
+        public VariableLong[]           longVariables;
         public VariableFloat[]          floatVariables;
+        public VariableDouble[]         doubleVariables;
         public VariableVec2[]           vec2Variables;
         public VariableVec3[]           vec3Variables;
         public VariableVec4[]           vec4Variables;
         public VariableRay[]            rayVariables;
-        public VariableRay2D[]          ray2DVariables;
+        public VariableColor[]          colorVariables;
         public VariableQuaternion[]     quaternionVariables;
         public VariableBounds[]         boundsVariables;
         public VariableRect[]           rectVariables;
         public VariableMatrix[]         matrixVariables;
         public VariableString[]         stringVariables;
+
+        public UnityEngine.Object[]     objectVariables;
         public int GetVariableCnt()
         {
             int cnt = 0;
             if(boolVariables!=null) cnt += boolVariables.Length;
             if (intVariables != null) cnt += intVariables.Length;
+            if (longVariables != null) cnt += longVariables.Length;
             if (floatVariables != null) cnt += floatVariables.Length;
+            if (doubleVariables != null) cnt += doubleVariables.Length;
             if (vec2Variables != null) cnt += vec2Variables.Length;
             if (vec3Variables != null) cnt += vec3Variables.Length;
             if (vec4Variables != null) cnt += vec4Variables.Length;
             if (rayVariables != null) cnt += rayVariables.Length;
-            if (ray2DVariables != null) cnt += ray2DVariables.Length;
+            if (colorVariables != null) cnt += colorVariables.Length;
             if (quaternionVariables != null) cnt += quaternionVariables.Length;
             if (boundsVariables != null) cnt += boundsVariables.Length;
             if (rectVariables != null) cnt += rectVariables.Length;
@@ -65,11 +71,25 @@ namespace Framework.AT.Runtime
                     vVariables[intVariables[i].GetGuid()] = intVariables[i];
                 }
             }
+            if (longVariables != null)
+            {
+                for (int i = 0; i < longVariables.Length; ++i)
+                {
+                    vVariables[longVariables[i].GetGuid()] = longVariables[i];
+                }
+            }
             if (floatVariables != null)
             {
                 for (int i = 0; i < floatVariables.Length; ++i)
                 {
                     vVariables[floatVariables[i].GetGuid()] = floatVariables[i];
+                }
+            }
+            if (doubleVariables != null)
+            {
+                for (int i = 0; i < doubleVariables.Length; ++i)
+                {
+                    vVariables[doubleVariables[i].GetGuid()] = doubleVariables[i];
                 }
             }
             if (vec2Variables != null)
@@ -100,11 +120,11 @@ namespace Framework.AT.Runtime
                     vVariables[rayVariables[i].GetGuid()] = rayVariables[i];
                 }
             }
-            if (ray2DVariables != null)
+            if (colorVariables != null)
             {
-                for (int i = 0; i < ray2DVariables.Length; ++i)
+                for (int i = 0; i < colorVariables.Length; ++i)
                 {
-                    vVariables[ray2DVariables[i].GetGuid()] = ray2DVariables[i];
+                    vVariables[colorVariables[i].GetGuid()] = colorVariables[i];
                 }
             }
             if (this.quaternionVariables != null)

@@ -38,6 +38,11 @@ namespace Framework.Cutscene.Runtime
         {
             return baseProp.time;
         }
+        //-----------------------------------------------------
+        public bool StopFireIfNoTrigger()
+        {
+            return baseProp.stopFireIfNoTrigger;
+        }
 #if UNITY_EDITOR
         //-----------------------------------------------------
         [NonSerialized] List<string> m_vCutscenePops = new List<string>();

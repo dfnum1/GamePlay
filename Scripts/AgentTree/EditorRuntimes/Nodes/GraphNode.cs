@@ -871,323 +871,364 @@ namespace Framework.AT.Editor
             if (portVariable == null)
                 return;
 
-            if (portVariable is AT.Runtime.VariableInt)
+            if (portVariable is AT.Runtime.VariableInt && port.attri.argvType.IsEnum)
             {
-                if (port.attri.argvType.IsEnum)
+                var intVar = (AT.Runtime.VariableInt)portVariable;
+                Enum enumVal = (Enum)Enum.ToObject(port.attri.argvType, intVar.value);
+                var varTypeField = new EnumField(enumVal)
                 {
-                    var intVar = (AT.Runtime.VariableInt)portVariable;
-                    Enum enumVal = (Enum)Enum.ToObject(port.attri.argvType, intVar.value);
-                    var varTypeField = new EnumField(enumVal)
-                    {
-                        style =
+                    style =
                         {
                             width = 50,
                             marginLeft = 4,
                             unityTextAlign = TextAnchor.MiddleRight
                         }
-                    };
-                    varTypeField.RegisterValueChangedCallback(evt =>
+                };
+                varTypeField.RegisterValueChangedCallback(evt =>
+                {
+                    // 更新变量值
+                    if (CanChangeValue(port))
                     {
-                        // 更新变量值
-                        if(CanChangeValue(port))
+                        intVar.value = Convert.ToInt32(evt.newValue);
+                        OnArgvPortChanged(port);
+                        // 需要重新赋值回去（struct）
+                        m_pGraphView.UpdateVariable(intVar);
+                    }
+                });
+                varTypeField.userData = port;
+                varTypeField.SetEnabled(port.attri.canEdit);
+                {
+                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
+                        varTypeField.value = (Enum)Enum.ToObject(port.attri.argvType, ((AT.Runtime.VariableInt)runtimeVar).value);
+                }
+                port.fieldRoot.Add(varTypeField);
+                port.fieldElement = varTypeField;
+            }
+            else if (portVariable is AT.Runtime.VariableInt intVar)
+            {
+                DrawField<IntegerField, int>(
+                    intVar, port, intVar.value,
+                    () => new IntegerField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableObjId objIdVar)
+            {
+                DrawField<IntegerField, int>(
+                    objIdVar, port, objIdVar.value.id,
+                    () => new IntegerField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableBool boolVar)
+            {
+                DrawField<Toggle, bool>(
+                    boolVar, port, boolVar.value,
+                    () => new Toggle { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableFloat floatVar)
+            {
+                DrawField<FloatField, float>(
+                    floatVar, port, floatVar.value,
+                    () => new FloatField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableString strVar)
+            {
+                DrawField<TextField, string>(
+                    strVar, port, strVar.value,
+                    () => new TextField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableVec2 vec2Var)
+            {
+                DrawField<Vector2Field, Vector2>(
+                    vec2Var, port, vec2Var.value,
+                    () => new Vector2Field { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableVec3 vec3Var)
+            {
+                DrawField<Vector3Field, Vector3>(
+                    vec3Var, port, vec3Var.value,
+                    () => new Vector3Field { style = { width = 200, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableVec4 vec4Var)
+            {
+                DrawField<Vector4Field, Vector4>(
+                    vec4Var, port, vec4Var.value,
+                    () => new Vector4Field { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableLong longVar)
+            {
+                DrawField<LongField, long>(
+                    longVar, port, longVar.value,
+                    () => new LongField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableDouble doubleVar)
+            {
+                DrawField<DoubleField, double>(
+                    doubleVar, port, doubleVar.value,
+                    () => new DoubleField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableColor colorVar)
+            {
+                DrawField<ColorField, Color>(
+                    colorVar, port, colorVar.value,
+                    () => new ColorField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableRect rectVar)
+            {
+                DrawField<RectField, Rect>(
+                    rectVar, port, rectVar.value,
+                    () => new RectField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => f.value = v,
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableQuaternion drawVar)
+            {
+                VariableVec4 tempVec = new VariableVec4();
+                tempVec.value = new Vector4(drawVar.value.x, drawVar.value.y, drawVar.value.z, drawVar.value.w);
+                DrawField<Vector4Field, Vector4>(
+                    drawVar, port, tempVec.value,
+                    () => new Vector4Field { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    (f, v) => { f.value = v; drawVar.value = new Quaternion(v.x, v.y, v.z, v.w); },
+                    f => f.value,
+                    (f, cb) => f.RegisterValueChangedCallback(cb)
+                );
+            }
+            else if (portVariable is AT.Runtime.VariableRay rayVar)
+            {
+                // Ray没有内置UI控件，使用两个Vector3Field分别编辑origin和direction
+                var container = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+
+                var originField = new Vector3Field("Origin")
+                {
+                    value = rayVar.value.origin,
+                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                };
+                var dirField = new Vector3Field("Dir")
+                {
+                    value = rayVar.value.direction,
+                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                };
+
+                originField.SetEnabled(port.attri.canEdit);
+                dirField.SetEnabled(port.attri.canEdit);
+
+                // 设置运行时值
+                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                if (runtimeVar is AT.Runtime.VariableRay runtimeRay)
+                {
+                    originField.value = runtimeRay.value.origin;
+                    dirField.value = runtimeRay.value.direction;
+                }
+
+                originField.RegisterValueChangedCallback(evt =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        rayVar.value.origin = evt.newValue;
+                        OnArgvPortChanged(port);
+                        m_pGraphView.UpdateVariable(rayVar);
+                    }
+                });
+                dirField.RegisterValueChangedCallback(evt =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        rayVar.value.direction = evt.newValue;
+                        OnArgvPortChanged(port);
+                        m_pGraphView.UpdateVariable(rayVar);
+                    }
+                });
+
+                container.Add(originField);
+                container.Add(dirField);
+                port.fieldRoot.Add(container);
+                port.fieldElement = container;
+            }
+            else if (portVariable is AT.Runtime.VariableBounds boundsVar)
+            {
+                // Bounds没有内置UI控件，使用两个Vector3Field分别编辑center和size
+                var container = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+
+                var centerField = new Vector3Field("Center")
+                {
+                    value = boundsVar.value.center,
+                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                };
+                var sizeField = new Vector3Field("Size")
+                {
+                    value = boundsVar.value.size,
+                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                };
+
+                centerField.SetEnabled(port.attri.canEdit);
+                sizeField.SetEnabled(port.attri.canEdit);
+
+                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                if (runtimeVar is AT.Runtime.VariableBounds runtimeBounds)
+                {
+                    centerField.value = runtimeBounds.value.center;
+                    sizeField.value = runtimeBounds.value.size;
+                }
+
+                centerField.RegisterValueChangedCallback(evt =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        boundsVar.value.center = evt.newValue;
+                        OnArgvPortChanged(port);
+                        m_pGraphView.UpdateVariable(boundsVar);
+                    }
+                });
+                sizeField.RegisterValueChangedCallback(evt =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        boundsVar.value.size = evt.newValue;
+                        OnArgvPortChanged(port);
+                        m_pGraphView.UpdateVariable(boundsVar);
+                    }
+                });
+
+                container.Add(centerField);
+                container.Add(sizeField);
+                port.fieldRoot.Add(container);
+                port.fieldElement = container;
+            }
+            else if (portVariable is AT.Runtime.VariableMatrix matrixVar)
+            {
+                // Matrix4x4没有内置UI控件，用TextField显示和编辑16个float（用|分隔）
+                var textField = new TextField("Matrix4x4")
+                {
+                    value = MatrixToString(matrixVar.value),
+                    style = { width = 340, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                };
+                textField.SetEnabled(port.attri.canEdit);
+
+                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                if (runtimeVar is AT.Runtime.VariableMatrix runtimeMatrix)
+                    textField.value = MatrixToString(runtimeMatrix.value);
+
+                textField.RegisterValueChangedCallback(evt =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        if (TryParseMatrix(evt.newValue, out var mat))
                         {
-                            intVar.value = Convert.ToInt32(evt.newValue);
+                            matrixVar.value = mat;
                             OnArgvPortChanged(port);
-                            // 需要重新赋值回去（struct）
-                            m_pGraphView.UpdateVariable(intVar);
+                            m_pGraphView.UpdateVariable(matrixVar);
                         }
-                    });
-                    varTypeField.userData = port;
-                    varTypeField.SetEnabled(port.attri.canEdit);
-                    {
-                        var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                        if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
-                            varTypeField.value = (Enum)Enum.ToObject(port.attri.argvType, ((AT.Runtime.VariableInt)runtimeVar).value);
-                    }
-                    port.fieldRoot.Add(varTypeField);
-                    port.fieldElement = varTypeField;
-                }
-                else
-                {
-                    var intVar = (AT.Runtime.VariableInt)portVariable;
-                    var intField = new IntegerField
-                    {
-                        value = intVar.value,
-                        style =
-                        {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                    };
-                    intField.RegisterValueChangedCallback(evt =>
-                    {
-                        if (CanChangeValue(port))
-                        {
-                            // 更新变量值
-                            intVar.value = evt.newValue;
-                            OnArgvPortChanged(port);
-                            // 需要重新赋值回去（struct）
-                            m_pGraphView.UpdateVariable(intVar);
-                        }
-                    });
-                    intField.userData = port;
-                    intField.SetEnabled(port.attri.canEdit);
-                    if (!port.attri.canEdit)
-                    {
-                        var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                        if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
-                            intField.value =  ((AT.Runtime.VariableInt)runtimeVar).value;
-                    }
-                    port.fieldRoot.Add(intField);
-                    port.fieldElement = intField;
-                }
-            }
-            if (portVariable is AT.Runtime.VariableObjId)
-            {
-                var intVar = (AT.Runtime.VariableObjId)portVariable;
-                var intField = new IntegerField
-                {
-                    value = intVar.value.id,
-                    style =
-                        {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        intVar.value.id = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(intVar);
                     }
                 });
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableObjId)
-                        intField.value = ((AT.Runtime.VariableObjId)runtimeVar).value.id;
-                }
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
+
+                port.fieldRoot.Add(textField);
+                port.fieldElement = textField;
             }
-            else if (portVariable is AT.Runtime.VariableBool)
+            else if (portVariable is AT.Runtime.VariableUserData)
             {
-                var intVar = (AT.Runtime.VariableBool)portVariable;
-                var intField = new UnityEngine.UIElements.Toggle
-                {
-                    value = intVar.value,
-                    style =
-                        {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableBool)
-                        intField.value = ((AT.Runtime.VariableBool)runtimeVar).value;
-                }
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        intVar.value = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(intVar);
-                    }
-                });
-                   
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
+
             }
-            else if (portVariable is AT.Runtime.VariableFloat)
+        }
+        //-----------------------------------------------------
+        private string MatrixToString(Matrix4x4 m)
+        {
+            return $"{m.m00}|{m.m01}|{m.m02}|{m.m03}|{m.m10}|{m.m11}|{m.m12}|{m.m13}|{m.m20}|{m.m21}|{m.m22}|{m.m23}|{m.m30}|{m.m31}|{m.m32}|{m.m33}";
+        }
+        //-----------------------------------------------------
+        private bool TryParseMatrix(string str, out Matrix4x4 mat)
+        {
+            mat = Matrix4x4.identity;
+            var arr = str.Split('|');
+            if (arr.Length != 16) return false;
+            float[] vals = new float[16];
+            for (int i = 0; i < 16; ++i)
+                if (!float.TryParse(arr[i], out vals[i])) return false;
+            mat.m00 = vals[0]; mat.m01 = vals[1]; mat.m02 = vals[2]; mat.m03 = vals[3];
+            mat.m10 = vals[4]; mat.m11 = vals[5]; mat.m12 = vals[6]; mat.m13 = vals[7];
+            mat.m20 = vals[8]; mat.m21 = vals[9]; mat.m22 = vals[10]; mat.m23 = vals[11];
+            mat.m30 = vals[12]; mat.m31 = vals[13]; mat.m32 = vals[14]; mat.m33 = vals[15];
+            return true;
+        }
+        //-----------------------------------------------------
+        private void DrawField<TField, TValue>(
+                IVariable portVariable,
+                ArvgPort port,
+                TValue value,
+                Func<TField> fieldFactory,
+                Action<TField, TValue> setValue,
+                Func<TField, TValue> getValue,
+                Action<TField, EventCallback<ChangeEvent<TValue>>> registerCallback)
+                where TField : VisualElement, new()
+        {
+            var field = fieldFactory();
+            setValue(field, value);
+            field.style.width = 120;
+            field.style.marginLeft = 4;
+            field.userData = port;
+            field.SetEnabled(port.attri.canEdit);
+
+            // 设置运行时值
+            var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+            if (runtimeVar != null && runtimeVar is TValue runtimeValue)
+                setValue(field, runtimeValue);
+
+            registerCallback(field, evt =>
             {
-                var intVar = (AT.Runtime.VariableFloat)portVariable;
-                var intField = new FloatField
+                if (CanChangeValue(port))
                 {
-                    value = intVar.value,
-                    style =
-                        {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        intVar.value = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(intVar);
-                    }
-                });
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableFloat)
-                    {
-                        intField.value = ((AT.Runtime.VariableFloat)runtimeVar).value;
-                    }
+                    // 赋值
+                    setValue(field, evt.newValue);
+                    OnArgvPortChanged(port);
+                    m_pGraphView.UpdateVariable(portVariable);
                 }
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
-            }
-            else if (portVariable is AT.Runtime.VariableString)
-            {
-                var intVar = (AT.Runtime.VariableString)portVariable;
-                var intField = new UnityEngine.UIElements.TextField
-                {
-                    value = intVar.value,
-                    style =
-                        {
-                            width = 120,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableString)
-                        intField.value = ((AT.Runtime.VariableString)runtimeVar).value;
-                }
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if(CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        intVar.value = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(intVar);
-                    }
-                });
-                    
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
-            }
-            else if(portVariable is AT.Runtime.VariableVec2)
-            {
-                var temVar = (AT.Runtime.VariableVec2)portVariable;
-                var intField = new Vector2Field
-                {
-                    value = temVar.value,
-                    style =
-                        {
-                            width = 120,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec2)
-                        intField.value = ((AT.Runtime.VariableVec2)runtimeVar).value;
-                }
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        temVar.value = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(temVar);
-                    }
-                });
-                   
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
-            }
-            else if (portVariable is AT.Runtime.VariableVec3)
-            {
-                var temVar = (AT.Runtime.VariableVec3)portVariable;
-                var intField = new Vector3Field
-                {
-                    value = temVar.value,
-                    style =
-                        {
-                            width = 200,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec3)
-                        intField.value = ((AT.Runtime.VariableVec3)runtimeVar).value;
-                }
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        temVar.value = evt.newValue;
-                        // 需要重新赋值回去（struct）
-                        OnArgvPortChanged(port);
-                        m_pGraphView.UpdateVariable(temVar);
-                    }
-                });
-                
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
-            }
-            else if (portVariable is AT.Runtime.VariableVec4)
-            {
-                var temVar = (AT.Runtime.VariableVec4)portVariable;
-                var intField = new Vector4Field
-                {
-                    value = temVar.value,
-                    style =
-                        {
-                            width = 260,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                };
-                intField.userData = port;
-                intField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec4)
-                        intField.value = ((AT.Runtime.VariableVec4)runtimeVar).value;
-                }
-                intField.RegisterValueChangedCallback(evt =>
-                {
-                    if (CanChangeValue(port))
-                    {
-                        // 更新变量值
-                        temVar.value = evt.newValue;
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(temVar);
-                    }
-                });
-                 
-                port.fieldRoot.Add(intField);
-                port.fieldElement = intField;
-            }
+            });
+
+            port.fieldRoot.Add(field);
+            port.fieldElement = field;
         }
         //-----------------------------------------------------
         protected virtual void UpdatePortRuntimeValue(ArvgPort port)

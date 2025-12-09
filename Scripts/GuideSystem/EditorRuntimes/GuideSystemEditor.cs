@@ -442,7 +442,7 @@ namespace Framework.Guide.Editor
             m_PreviousTime = EditorApplication.timeSinceStartup;
         }
         //------------------------------------------------------
-        internal void AddRecodeClickStep(GuideGuid guide, string widgetTag, int listIndex,string searchName)
+        internal void AddRecodeClickStep(AGuideGuid guide, string widgetTag, int listIndex,string searchName)
         {
             StepParam stepParam = new StepParam();
             if (StepTypes.TryGetValue((int)GuideStepType.ClickUI, out stepParam.Data))

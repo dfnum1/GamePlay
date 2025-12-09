@@ -41,6 +41,20 @@ namespace Framework.AT.Runtime
     }
     //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    public class ATClassAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string className;
+#endif
+        public ATClassAttribute(string className)
+        {
+#if UNITY_EDITOR
+            this.className = className;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
     public class ATMonoAttribute : System.Attribute
     {
 #if UNITY_EDITOR
@@ -58,19 +72,176 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Method)]
+    public class ATFunctionAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        public string DisplayName { get; set; }
+        public string ToolTips;
+        public Type DecleType;
+        public int guid;
+        public string icon = "";
+        public bool bFieldGet = false;
+#endif
+        public ATFunctionAttribute(int guid, string displayName, Type type, bool bFieldGet = false, string ToolTips = "", string icon = "")
+        {
+#if UNITY_EDITOR
+            this.guid = guid;
+            this.ToolTips = ToolTips;
+            DisplayName = displayName;
+            this.DecleType = type;
+            this.bFieldGet = bFieldGet;
+            this.icon = icon;
+#endif
+        }
+#if UNITY_EDITOR
+        internal ATActionAttribute ToAction()
+        {
+            ATActionAttribute attr = new ATActionAttribute(DisplayName,false,true,true,true);
+
+            return attr;
+        }
+#endif
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+    public class ATFunctionArgvAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        public Type DisplayType;
+        public Type AlignType;
+        public Type ArgvType;
+        public string DisplayName;
+        public string ToolTips;
+        public bool bAutoDestroy = false;
+        public bool bReturn = false;
+        public bool bSeriable = true;
+        public bool bShowEdit = true;
+        public int ListElementByArgvIndex = -1;
+
+        internal System.Object defaultValue = null;
+        internal bool isExternAttrThis = false;
+        internal bool isDelegateCall;
+        internal bool isDelegateCallValid;
+        internal System.Collections.Generic.List<ATFunctionArgvAttribute> vDelegateArgvs;
+#endif
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName = "", bool bAutoDestroy = false, Type AlignType = null, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true)
+        {
+#if UNITY_EDITOR
+            this.ArgvType = ArgvType;
+            this.DisplayName = DisplayName;
+            this.ToolTips = ToolTips;
+            this.bAutoDestroy = bAutoDestroy;
+            this.DisplayType = DisplayType;
+            this.AlignType = AlignType;
+            this.bReturn = bReturn;
+            this.ListElementByArgvIndex = ListElementByArgvIndex;
+            this.bSeriable = bSeriable;
+            this.bShowEdit = bShowEdit;
+            this.isExternAttrThis = false;
+            this.isDelegateCall = false;
+            this.isDelegateCallValid = false;
+
+#endif
+        }
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type AlignType, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true)
+        {
+#if UNITY_EDITOR
+            this.ArgvType = ArgvType;
+            this.DisplayType = DisplayType;
+            this.DisplayName = DisplayName;
+            this.AlignType = AlignType;
+            this.ToolTips = ToolTips;
+            this.bAutoDestroy = false;
+            this.DisplayType = DisplayType;
+            this.bReturn = bReturn;
+            this.ListElementByArgvIndex = ListElementByArgvIndex;
+            this.bSeriable = bSeriable;
+            this.bShowEdit = bShowEdit;
+            this.isExternAttrThis = false;
+            this.isDelegateCall = false;
+            this.isDelegateCallValid = false;
+#endif
+        }
+#if UNITY_EDITOR
+        internal ArgvAttribute ToArgv()
+        {
+            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue);
+        }
+#endif
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class ATFunctionReturnAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        public Type DisplayType;
+        public Type AlignType;
+        public Type ReturnType;
+        public string Name;
+        public string ToolTips = "";
+        public bool bAutoDestroy = false;
+        public bool bSeriable = true;
+        public bool bShowEdit = true;
+        public byte bPropertySet = 0; //0=none, 1-get,2-set,3-getset
+        public int ListElementByArgvIndex = -1;
+#endif
+        public ATFunctionReturnAttribute(Type ReturnType, Type AlignType = null, string name = "", bool bAutoDestroy = false, string ToolTips = "", int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, byte bPropertySet = 0)
+        {
+#if UNITY_EDITOR
+            this.ReturnType = ReturnType;
+            this.AlignType = AlignType;
+            this.Name = name;
+            this.ToolTips = ToolTips;
+            this.bAutoDestroy = bAutoDestroy;
+            this.ListElementByArgvIndex = ListElementByArgvIndex;
+            this.bSeriable = bSeriable;
+            this.bShowEdit = bShowEdit;
+            this.bPropertySet = bPropertySet;
+#endif
+        }
+        public ATFunctionReturnAttribute(Type ReturnType, string name, Type AlignType = null, Type DisplayType = null, string ToolTips = "", int ListElementByArgvIndex = -1, bool lbSeriable = true, bool bShowEdit = true, byte bPropertySet = 0)
+        {
+#if UNITY_EDITOR
+            this.ReturnType = ReturnType;
+            this.AlignType = AlignType;
+            this.Name = name;
+            this.ToolTips = ToolTips;
+            this.bAutoDestroy = false;
+            this.DisplayType = DisplayType;
+            this.ListElementByArgvIndex = ListElementByArgvIndex;
+            this.bSeriable = lbSeriable;
+            this.bShowEdit = bShowEdit;
+            this.bPropertySet = bPropertySet;
+#endif
+        }
+#if UNITY_EDITOR
+        internal ReturnAttribute ToArgv()
+        {
+            return new ReturnAttribute(Name, AlignType, DisplayType);
+        }
+#endif
+    }
+    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class ATMethodAttribute : System.Attribute
     {
 #if UNITY_EDITOR
         public string method;
+        public string[] argvNames;
 #endif
-        public ATMethodAttribute()
+        public ATMethodAttribute(params string[] argvNames)
         {
+#if UNITY_EDITOR
+            this.method = null;
+            this.argvNames = argvNames;
+#endif
         }
-        public ATMethodAttribute(string name)
+        public ATMethodAttribute(string name, params string[] argvNames)
         {
 #if UNITY_EDITOR
             this.method = name;
+            this.argvNames = argvNames;
 #endif
         }
     }
@@ -117,30 +288,57 @@ namespace Framework.AT.Runtime
         public string name;
         public string tips;
         public System.Type argvType;
-        public string strValue; // 默认值
+        public object defValue; // 默认值
         public bool canEdit;
+        public System.Type displayType;
         public EVariableType[] limitVarTypes;
 #endif
         //-----------------------------------------------------
-        public ArgvAttribute(string name, System.Type argvType, bool canEdit = false, System.Object defVal = null, params EVariableType[] limitTypes)
+        public ArgvAttribute(string name, System.Type argvType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = null;
             this.argvType = argvType;
-            this.strValue = defVal != null ? defVal.ToString() : "";
+            this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
 #endif
         }
         //-----------------------------------------------------
-        public ArgvAttribute(string name, string tips, System.Type argvType, bool canEdit = false, System.Object defVal = null, params EVariableType[] limitTypes)
+        public ArgvAttribute(string name, System.Type argvType, System.Type displayType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
+        {
+#if UNITY_EDITOR
+            this.name = name;
+            this.tips = null;
+            this.argvType = argvType;
+            this.displayType = displayType;
+            this.defValue = defValue;
+            this.canEdit = canEdit;
+            this.limitVarTypes = limitTypes;
+#endif
+        }
+        //-----------------------------------------------------
+        public ArgvAttribute(string name, string tips, System.Type argvType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = tips;
             this.argvType = argvType;
-            this.strValue = defVal != null ? defVal.ToString() : "";
+            this.defValue = defValue;
+            this.canEdit = canEdit;
+            this.limitVarTypes = limitTypes;
+#endif
+        }
+        //-----------------------------------------------------
+        public ArgvAttribute(string name, string tips, System.Type argvType, System.Type displayType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
+        {
+#if UNITY_EDITOR
+            this.name = name;
+            this.tips = tips;
+            this.argvType = argvType;
+            this.displayType = displayType;
+            this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
 #endif
@@ -151,7 +349,7 @@ namespace Framework.AT.Runtime
         {
             try
             {
-                if (string.IsNullOrEmpty(strValue))
+                if (defValue == null)
                     return defVal;
 
                 Type targetType = typeof(T);
@@ -160,58 +358,43 @@ namespace Framework.AT.Runtime
                 if (targetType.IsEnum)
                 {
                     // 支持名称和数字
-                    if (Enum.TryParse(targetType, strValue, true, out object enumVal))
+                    if (Enum.TryParse(targetType, defValue.ToString(), true, out object enumVal))
                         return (T)enumVal;
                     // 尝试数字转枚举
-                    if (int.TryParse(strValue, out int intVal))
+                    if (int.TryParse(defValue.ToString(), out int intVal))
                         return (T)Enum.ToObject(targetType, intVal);
                     return defVal;
                 }
 
                 // 支持所有常见数值类型
                 if (targetType == typeof(byte))
-                    return (T)(object)byte.Parse(strValue);
+                    return (T)(object)byte.Parse(defValue.ToString());
                 if (targetType == typeof(bool))
-                    return (T)(object)strValue.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    return (T)(object)defValue.ToString().Equals("true", StringComparison.OrdinalIgnoreCase);
                 if (targetType == typeof(short))
-                    return (T)(object)short.Parse(strValue);
+                    return (T)(object)short.Parse(defValue.ToString());
                 if (targetType == typeof(ushort))
-                    return (T)(object)ushort.Parse(strValue);
+                    return (T)(object)ushort.Parse(defValue.ToString());
                 if (targetType == typeof(int))
-                    return (T)(object)int.Parse(strValue);
+                    return (T)(object)int.Parse(defValue.ToString());
                 if (targetType == typeof(uint))
-                    return (T)(object)uint.Parse(strValue);
+                    return (T)(object)uint.Parse(defValue.ToString());
                 if (targetType == typeof(long))
-                    return (T)(object)long.Parse(strValue);
+                    return (T)(object)long.Parse(defValue.ToString());
                 if (targetType == typeof(ulong))
-                    return (T)(object)ulong.Parse(strValue);
+                    return (T)(object)ulong.Parse(defValue.ToString());
                 if (targetType == typeof(float))
-                    return (T)(object)float.Parse(strValue);
+                    return (T)(object)float.Parse(defValue.ToString());
                 if (targetType == typeof(double))
-                    return (T)(object)double.Parse(strValue);
+                    return (T)(object)double.Parse(defValue.ToString());
                 if (targetType == typeof(decimal))
-                    return (T)(object)decimal.Parse(strValue);
-                if (targetType == typeof(Vector2))
+                    return (T)(object)decimal.Parse(defValue.ToString());
+                if (targetType == defValue.GetType())
                 {
-                    var splitVal = strValue.Split(new char[] { '|', ',' });
-                    if (splitVal.Length == 2 && float.TryParse(splitVal[0], out float x) && float.TryParse(splitVal[1], out float y))
-                        return (T)(object)(new Vector2(x, y));
+                    return (T)defValue;
                 }
-                if (targetType == typeof(Vector3))
-                {
-                    var splitVal = strValue.Split(new char[] { '|', ',' });
-                    if (splitVal.Length == 3 && float.TryParse(splitVal[0], out float x) && float.TryParse(splitVal[1], out float y) && float.TryParse(splitVal[2], out float z))
-                        return (T)(object)(new Vector3(x, y, z));
-                }
-                if (targetType == typeof(Vector4))
-                {
-                    var splitVal = strValue.Split(new char[] { '|', ',' });
-                    if (splitVal.Length == 4 && float.TryParse(splitVal[0], out float x) && float.TryParse(splitVal[1], out float y) && float.TryParse(splitVal[2], out float z) && float.TryParse(splitVal[3], out float w))
-                        return (T)(object)(new Vector4(x, y, z, w));
-                }
-
                 // 其它类型尝试通用转换
-                return (T)Convert.ChangeType(strValue, targetType);
+                return (T)Convert.ChangeType(defValue, targetType);
             }
             catch
             {
@@ -228,22 +411,25 @@ namespace Framework.AT.Runtime
         public string name;
         public string tips;
         public System.Type argvType;
+        public System.Type displayType;
 #endif
-        public ReturnAttribute(string name, System.Type argvType)
+        public ReturnAttribute(string name, System.Type argvType, System.Type displayType = null)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = null;
+            this.displayType = displayType;
             this.argvType = argvType;
 #endif
         }
         //-----------------------------------------------------
-        public ReturnAttribute(string name, string tips, System.Type argvType)
+        public ReturnAttribute(string name, string tips, System.Type argvType, System.Type displayType = null)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = tips;
             this.argvType = argvType;
+            this.displayType = displayType;
 #endif
         }
     }
