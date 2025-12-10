@@ -53,6 +53,7 @@ namespace Framework.AT.Editor
         {
             ms_vExports.Clear();
             ms_vRefTypes.Clear();
+            ms_vRefTypes.Add(typeof(IUserData));
             foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
             {
                 Type[] types = null;
@@ -85,6 +86,11 @@ namespace Framework.AT.Editor
                         if (tp.IsDefined(typeof(ATExportAttribute), false)) exportAttr = tp.GetCustomAttribute<ATExportAttribute>();
                     }
 
+                    if(IsUserDataType(tp))
+                    {
+                        ms_vRefTypes.Add(tp);
+                    }
+
                     if (exportAttr!=null)
                     {
                         string typeName = GetTypeName(tp);
@@ -106,7 +112,7 @@ namespace Framework.AT.Editor
                                     exportData.guid = exportAttr.guid;
                                     if (exportData.guid == 0)
                                     {
-                                        exportData.guid = Animator.StringToHash(typeName);
+                                        exportData.guid = BuildHashCode(tp);
                                     }
                                     exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
                                     exportData.type = tp;
@@ -170,9 +176,9 @@ namespace Framework.AT.Editor
             code.AppendLine($"\tpublic class {typeClassName}");
             code.AppendLine("\t{");
             code.AppendLine("##FUNCTION##");
-            code.AppendLine("\t\tstatic bool CheckUserClassPointer(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
+            code.AppendLine("\t\tstatic bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
             code.AppendLine("\t\t{");
-            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.FindUserClass(pUserClass.value);");
+            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.GetOwnerClass(pUserClass.value);");
             code.AppendLine("\t\t\tif(pUserClass.pPointer == null) return false;");
             code.AppendLine("\t\t\treturn true;");
             code.AppendLine("\t\t}");
@@ -294,7 +300,7 @@ namespace Framework.AT.Editor
                     if(!method.IsStatic)
                     {
                       //  code.AppendLine("\t\t\t\tif(pUserClass == null) return true;");
-                        code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;");
+                        code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
                     }
                     code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
 
@@ -472,7 +478,8 @@ namespace Framework.AT.Editor
             code.AppendLine("//auto generated");
             code.AppendLine("namespace Framework.AT.Runtime");
             code.AppendLine("{");
-            if(bInternal) code.AppendLine("\tinternal class ATRegisterInternalHandler");
+            code.AppendLine("\t[ATEditorInitialize]");
+            if (bInternal) code.AppendLine("\tinternal class ATRegisterInternalHandler");
             else code.AppendLine("\tinternal class ATRegisterHandler");
             code.AppendLine("\t{");
             code.AppendLine("\t\t//-----------------------------------------------------");
@@ -481,14 +488,22 @@ namespace Framework.AT.Editor
             foreach (var db in ms_vExports)
             {
                 string function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction";
-                code.AppendLine($"\t\t\tRegister({db.Value.guid}, typeof({db.Value.type.FullName.Replace("+", ".")}),{function});");
+                string parentTypeId = "0";
+                if(db.Value.type.BaseType!=null)
+                {
+                    if(IsUserDataType(db.Value.type.BaseType))
+                    {
+                        parentTypeId = BuildHashCode(db.Value.type.BaseType) + "/*" + GetTypeName(db.Value.type.BaseType) + "*/";
+                    }
+                }
+                code.AppendLine($"\t\t\tRegister({db.Value.guid}, typeof({db.Value.type.FullName.Replace("+", ".")}),{function},{parentTypeId});");
             }
             code.AppendLine("\t\t}");
             code.AppendLine("\t\t//-----------------------------------------------------");
-            code.AppendLine("\t\tpublic static void Register(int typeId, System.Type type, ATCallHandler.OnActionDelegate onFunction)");
+            code.AppendLine("\t\tpublic static void Register(int typeId, System.Type type, ATCallHandler.OnActionDelegate onFunction, int parentTypeId =0)");
             code.AppendLine("\t\t{");
             code.AppendLine("\t\t\t");
-            code.AppendLine("\t\t\tATRtti.Register(typeId,type);");
+            code.AppendLine("\t\t\tATRtti.Register(typeId,type,parentTypeId);");
             code.AppendLine("\t\t\tATCallHandler.RegisterHandler(typeId,onFunction);");
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
@@ -526,11 +541,16 @@ namespace Framework.AT.Editor
             {
                 for (int i = 0; i < parameters.Length; ++i)
                 {
-                    if (!IsUserDataType(parameters[i].ParameterType))
+                    if (IsUserDataType(parameters[i].ParameterType))
                         ms_vRefTypes.Add(parameters[i].ParameterType);
                 }
             }
             return true;
+        }
+        //------------------------------------------------------
+        static int BuildHashCode(System.Type type)
+        {
+            return ATRtti.BuildHashCode(type);
         }
         //-----------------------------------------------------
         static string GetTypeName(System.Type type)
@@ -605,9 +625,9 @@ namespace Framework.AT.Editor
             else if (type == typeof(Bounds)) return "GetInportBounds";
             else if (type == typeof(Matrix4x4)) return "GetInportMatrix";
             else if (type == typeof(string)) return "GetInportString";
-            else if (type == typeof(IUserData)) return "GetInportUserData";
+            else if (type == typeof(IUserData)) return "GetInportUserData<"+GetTypeName(type) +">";
             else if (type == typeof(ObjId)) return "GetInportObjId";
-            else if (IsUserDataType(type)) return "GetInportUserData";
+            else if (IsUserDataType(type)) return "GetInportUserData<"+GetTypeName(type) +">";
             else if (type.IsEnum) return "GetInportInt";
             return null;
         }

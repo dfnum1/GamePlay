@@ -43,6 +43,7 @@ namespace Framework.AT.Editor
         private static List<AgentTreeAttri> ms_vLists = new List<AgentTreeAttri>();
         private static List<string> ms_vPops = new List<string>();
         static string ms_installPath = null;
+        static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
         public static string BuildInstallPath()
         {
             ms_installPath = Framework.ED.EditorUtils.GetInstallEditorResourcePath();
@@ -82,6 +83,7 @@ namespace Framework.AT.Editor
         {
             if (bForce || ms_Attrs == null)
             {
+                ms_vInitCall.Clear();
                 ms_vPopEnumTypeNames.Clear();
                 ms_vPopEnumTypes.Clear();
                 foreach (Enum v in Enum.GetValues(typeof(EVariableType)))
@@ -137,6 +139,16 @@ namespace Framework.AT.Editor
                             {
                                 long key = ((long)atTypeAttrs[j].actionType) << 32 | (long)atTypeAttrs[j].customType;
                                 vGraphNodeTypes[key] = tp;
+                            }
+                        }
+                        if (tp.IsDefined(typeof(ATEditorInitializeAttribute), false))
+                        {
+                            ATEditorInitializeAttribute initAttri = tp.GetCustomAttribute<ATEditorInitializeAttribute>();
+                            if(!string.IsNullOrEmpty(initAttri.method))
+                            {
+                                var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+                                if (initCall != null)
+                                    ms_vInitCall.Add(initCall);
                             }
                         }
                     }
@@ -395,6 +407,30 @@ namespace Framework.AT.Editor
                         ms_vPops.Add(attr.displayName);
                     }
                 }*/
+            }
+        }
+        //-----------------------------------------------------
+        internal static void EditorInit()
+        {
+            Init();
+            bool bHasTips = false;
+            foreach (var db in ms_vInitCall)
+            {
+                db.Invoke(null, null);
+                if (db.DeclaringType.Name.Contains("ATRegisterInternalHandler"))
+                    continue;
+                bHasTips = true;
+            }
+            if (!bHasTips)
+                return;
+            UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
+            UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
+            UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
+            foreach (var db in ms_vInitCall)
+            {
+                if (db.DeclaringType.Name.Contains("ATRegisterInternalHandler"))
+                    continue;
+                UnityEngine.Debug.LogWarning(db.DeclaringType.FullName.ToString() + "." + db.Name);
             }
         }
         //-----------------------------------------------------

@@ -206,11 +206,11 @@ namespace Framework.ED
         //--------------------------------------------------------
         public override void SaveChanges()
         {
-            base.SaveChanges();
             for (int i = 0; i < m_vLogics.Count; ++i)
             {
                 m_vLogics[i].OnSaveChanges();
             }
+            base.SaveChanges();
         }
         //--------------------------------------------------------
         public float GetTimeScale()

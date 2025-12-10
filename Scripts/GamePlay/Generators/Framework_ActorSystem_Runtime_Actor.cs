@@ -519,7 +519,7 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bForce",false, null,typeof(System.Boolean))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pStateParam",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
 #endif
-		static bool AT_StartActionState(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 nTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam = null)
+		static bool AT_StartActionState(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 nTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam)
 		{
 			pPointerThis.StartActionState(eType,nTag,bForce,pStateParam);
 			return true;
@@ -531,7 +531,7 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bForce",false, null,typeof(System.Boolean))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pStateParam",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
 #endif
-		static bool AT_StartActionState_1(Actor pPointerThis,System.UInt32 nActionTypeAndTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam = null)
+		static bool AT_StartActionState_1(Actor pPointerThis,System.UInt32 nActionTypeAndTag,System.Boolean bForce,Framework.ActorSystem.Runtime.IContextData pStateParam)
 		{
 			pPointerThis.StartActionState(nActionTypeAndTag,bForce,pStateParam);
 			return true;
@@ -696,9 +696,9 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 
-		static bool CheckUserClassPointer(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)
+		static bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)
 		{
-			if(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.FindUserClass(pUserClass.value);
+			if(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.GetOwnerClass(pUserClass.value);
 			if(pUserClass.pPointer == null) return false;
 			return true;
 		}
@@ -709,469 +709,469 @@ namespace Framework.ActorSystem.Runtime
 			{
 			case 381027485://GetInstanceID
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetInstanceID(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 312098358://GetAttackGroup
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetAttackGroup(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 1837403457://SetAttackGroup
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetAttackGroup(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1));
 			}
 			case 765517350://CanAttackGroup
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_CanAttackGroup(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			case -955549743://SetSpeed
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetSpeed(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -297293181://SetSpeedXZ
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetSpeedXZ(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case 1073367040://GetSpeed
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetSpeed(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 833023976://SetSpeedY
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetSpeedY(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
 			}
 			case 1824765372://SetFraction
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetFraction(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
 			}
 			case 1928069877://GetFraction
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetFraction(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 964859665://EnableGravity
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_EnableGravity(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case 347890795://SetGravity
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetGravity(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
 			}
 			case 989414905://GetGravity
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetGravity(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -895517594://GetPosition
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetPosition(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -628240668://GetLastPosition
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetLastPosition(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -726611153://SetPosition
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetPosition(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -1338512524://OffsetPosition
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_OffsetPosition(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -712341336://GetEulerAngle
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetEulerAngle(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -1590410012://SetEulerAngle
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetEulerAngle(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -1394750896://GetMatrix
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetMatrix(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 1490974294://SetDirection
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetDirection(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case 1472241877://GetDirection
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetDirection(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 1098330067://GetUp
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetUp(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -736682351://SetUp
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetUp(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -2078882846://GetRight
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetRight(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -593849486://GetScale
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetScale(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 611036323://SetScale
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetScale(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
 			}
 			case -88835465://SetTransfrom
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetTransfrom(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportVec3(pNode,2),pAgentTree.GetInportVec3(pNode,3));
 			}
 			case -375119552://IsFlag
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsFlag(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
 			}
 			case 724323496://SetFlag
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetFlag(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportBool(pNode,2));
 			}
 			case -1337224865://IsCanLogic
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsCanLogic(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -902001298://IsInvincible
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsInvincible(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -716677369://SetDelayDestroy
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetDelayDestroy(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
 			}
 			case 458663211://GetDelayDestroy
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetDelayDestroy(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 854312887://SetDestroy
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetDestroy(pUserClass.pPointer as Actor);
 			}
 			case -1507174251://IsDestroy
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsDestroy(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -130130118://EnableHudBar
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_EnableHudBar(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case 1847440768://IsEnableHudBar
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsEnableHudBar(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 63681228://IsColliderAble
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsColliderAble(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -2139515976://SetKilled
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetKilled(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case 635254065://IsKilled
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsKilled(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 873572757://SetVisible
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetVisible(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -1596967241://IsVisible
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsVisible(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 943289552://SetActived
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetActived(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -1392972814://IsActived
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsActived(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 59183278://EnableLogic
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_EnableLogic(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case 511331437://EnableAI
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_EnableAI(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -1742940291://IsEnableAI
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsEnableAI(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -733558894://EnableRVO
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_EnableRVO(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -914902675://IsEnableRVO
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsEnableRVO(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 1988170200://StartActionState
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 4) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_StartActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2),pAgentTree.GetInportBool(pNode,3));
+				return AT_StartActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2),pAgentTree.GetInportBool(pNode,3),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,4));
 			}
 			case 242567738://StartActionState
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_StartActionState_1(pUserClass.pPointer as Actor,pAgentTree.GetInportUint(pNode,1),pAgentTree.GetInportBool(pNode,2));
+				return AT_StartActionState_1(pUserClass.pPointer as Actor,pAgentTree.GetInportUint(pNode,1),pAgentTree.GetInportBool(pNode,2),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,3));
 			}
 			case -228769905://StopActionState
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_StopActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
 			case 1689203650://SetIdleType
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetIdleType(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
 			case -2072478675://RemoveActionState
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_RemoveActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
 			case -22641626://SetAttr
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
 			case 1832336635://GetAttr
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2), pAgentTree, pNode);
 			}
 			case -468082741://RemoveAttr
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_RemoveAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1));
 			}
 			case 1610379500://AppendAttr
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_AppendAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
 			case 315679903://SubAttr
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SubAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportInt(pNode,2),pAgentTree.GetInportBool(pNode,3));
 			}
 			case 1249179647://ClearAttrs
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_ClearAttrs(pUserClass.pPointer as Actor);
 			}
 			case -943336217://IsInAction
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsInAction(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
 			}
 			case -1576406313://IsAttacking
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsAttacking(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case 528609504://IsCutscneHolded
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsCutscneHolded(pUserClass.pPointer as Actor,pAgentTree, pNode);
 			}
 			case -604755324://ResetFreeze
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_ResetFreeze(pUserClass.pPointer as Actor);
 			}
 			case 181418108://Freezed
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_Freezed(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
 			case -1080427348://IsFreezed
 			{
-				if(!CheckUserClassPointer(pUserClass, pAgentTree, pNode)) return true;
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsFreezed(pUserClass.pPointer as Actor,pAgentTree, pNode);

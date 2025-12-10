@@ -23,7 +23,7 @@ namespace Framework.Cutscene.Runtime
 
     }
     //-----------------------------------------------------
-    public class CutsceneInstance
+    public class CutsceneInstance : IUserData
     {
         bool                                        m_bEnable = false;
         bool                                        m_bEditorMode = false;
@@ -58,6 +58,12 @@ namespace Framework.Cutscene.Runtime
             m_vBindKeyDrivers = null;
             m_BindData = null;
             m_bEnable = false;
+        }
+        //-----------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pMgr == null) return null;
+            return m_pMgr.GetFramework();
         }
         //-----------------------------------------------------
         public void SetName(string name)
@@ -295,7 +301,9 @@ namespace Framework.Cutscene.Runtime
                 return;
             m_bEnable = bEnable;
             if (m_pAgentTree != null)
+            {
                 m_pAgentTree.Enable(bEnable);
+            }
         }
         //-----------------------------------------------------
         public bool IsEnable()
@@ -305,6 +313,8 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public void Play()
         {
+            if (m_pAgentTree != null)
+                m_pAgentTree.Start();
             if (m_pPlayable == null) return;
             m_pPlayable.Play();
         }
@@ -323,6 +333,8 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public void Stop(bool bTimeOver = false)
         {
+            if (m_pAgentTree != null)
+                m_pAgentTree.Exit();
             if (m_pPlayable == null) return;
             m_pPlayable.Stop(bTimeOver);
         }
@@ -387,6 +399,11 @@ namespace Framework.Cutscene.Runtime
         public void BindData(ICutsceneData pData)
         {
             m_BindData = pData;
+            if(m_pAgentTree!=null)
+            {
+                m_pAgentTree.AddOwnerClass(pData);
+                m_pAgentTree.AddOwnerClass(this);
+            }
         }
         //-----------------------------------------------------
         public ICutsceneData GetBindData()
@@ -566,17 +583,15 @@ namespace Framework.Cutscene.Runtime
             }
             if(m_pAgentTree!=null)
             {
-                if(!m_pAgentTree.Update(deltaTime))
-                {
-                    AgentTreePool.FreeAgentTree(m_pAgentTree);
-                    m_pAgentTree = null;
-                }
+                m_pAgentTree.Update(deltaTime);
             }
-            return !(m_pPlayable == null && m_pAgentTree == null);
+            return !(m_pPlayable == null);
         }
         //-----------------------------------------------------
         public void Evaluate(float time)
         {
+            if (m_pAgentTree != null)
+                m_pAgentTree.Update(time);
             if (m_pPlayable == null)
                 return;
             m_pPlayable.Evaluate(time);

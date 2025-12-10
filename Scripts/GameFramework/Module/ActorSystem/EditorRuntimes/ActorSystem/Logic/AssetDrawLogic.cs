@@ -7,6 +7,7 @@
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Editor;
+using Framework.AT.Runtime;
 using Framework.Cutscene.Editor;
 using Framework.ED;
 using System.Collections.Generic;
@@ -473,7 +474,16 @@ namespace Framework.ActorSystem.Editor
                 }
                 if (GUI.Button(new Rect(rowData.rowRect.x+35, rowData.rowRect.y, 35, rowData.rowRect.height), "ÐÐÎª"))
                 {
-                    AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab);
+                    AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab, (atData) => {
+                        if(m_pSelectData!=null)
+                        {
+                            var agentGrap = m_pSelectData.asset.GetCutsceneGraph(false);
+                            if(agentGrap!=null)
+                            {
+                                agentGrap.agentTree = atData;
+                            }
+                        }
+                    });
                 }
             }
             return true;

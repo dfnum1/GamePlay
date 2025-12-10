@@ -222,7 +222,7 @@ namespace Framework.Cutscene.Editor
         //--------------------------------------------------------
         public override void OpenAgentTreeEdit()
         {
-            if (m_pAgentTreeEdit == null || m_pCurrentObj !=null && m_pCurrentObj is ACutsceneObject)
+            if (m_pAgentTreeEdit == null && m_pCurrentObj !=null && m_pCurrentObj is ACutsceneObject)
             {
                 m_pAgentTreeEdit = AgentTreeWindow.Open(((ACutsceneObject)m_pCurrentObj).GetCutsceneGraph().agentTree, (ACutsceneObject)m_pCurrentObj);
             }

@@ -211,6 +211,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
             if (m_pCutsceneInstance.Create(cutsceneGraph))
             {
+                m_pCutsceneInstance.BindData(m_pOwner);
                 m_pCutsceneInstance.Enable(true);
                 m_pCutsceneInstance.Play();
                 m_pPlayingAction = pOwner;

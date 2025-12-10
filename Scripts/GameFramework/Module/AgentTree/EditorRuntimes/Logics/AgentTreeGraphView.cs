@@ -81,6 +81,10 @@ namespace Framework.AT.Editor
                         agentTree.Enable(false);
                     UpdatePortsVariableDefault();
                 });
+                evt.menu.InsertAction(2, "保存", (a) =>
+                {
+                    m_pOwnerEditorLogic.GetOwner().SaveChanges();
+                });
             }));
 
             var menuWindowProvider = (AgentTreeSearcher)ScriptableObject.CreateInstance<AgentTreeSearcher>();

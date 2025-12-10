@@ -4,11 +4,23 @@
 作    者:	HappLI
 描    述:	变量
 *********************************************************************/
-using Framework.AT.Editor;
 using System;
-using UnityEngine;
 namespace Framework.AT.Runtime
 {
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
+    public class ATEditorInitializeAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string method;
+#endif
+        public ATEditorInitializeAttribute(string method="Init")
+        {
+#if UNITY_EDITOR
+            this.method = method;
+#endif
+        }
+    }
     //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field, Inherited = false)]
     public class ATIconAttribute : System.Attribute
@@ -174,7 +186,7 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         internal ArgvAttribute ToArgv()
         {
-            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue);
+            return new ArgvAttribute(DisplayName, DisplayType, ArgvType, bShowEdit, defaultValue);
         }
 #endif
     }
@@ -226,7 +238,7 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         internal ReturnAttribute ToArgv()
         {
-            return new ReturnAttribute(Name, AlignType, DisplayType);
+            return new ReturnAttribute(Name, DisplayType, AlignType);
         }
 #endif
     }

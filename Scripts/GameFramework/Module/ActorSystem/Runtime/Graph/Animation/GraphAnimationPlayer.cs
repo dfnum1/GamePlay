@@ -1088,7 +1088,7 @@ namespace Framework.ActorSystem.Runtime
                  //   m_vStates[i] = state;
                 }
             }
-            playable.SetDone(true);
+            if(playable.IsValid()) playable.SetDone(true);
             return true;
         }
         //------------------------------------------------------

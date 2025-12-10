@@ -10,6 +10,7 @@ namespace Framework.AT.Runtime
 {
     public interface IAgentTreeCallback
     {
+        public bool OnATExecutedNode(AgentTree pAgentTree, BaseNode pNode);
     }
     //-----------------------------------------------------
     //! AgentTreeManager
@@ -20,6 +21,32 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public AgentTreeManager()
         {
+        }
+        //-----------------------------------------------------
+        protected override void OnInit()
+        {
+#if UNITY_EDITOR
+            Editor.AgentTreeUtil.EditorInit();
+#endif
+        }
+        //-----------------------------------------------------
+        public AgentTree CreateAgentTree(AgentTreeData atData)
+        {
+            if (atData == null) return null;
+            AgentTree pAT = MallocAgentTree();
+            if(!pAT.Create(atData))
+            {
+                FreeAgentTree(pAT);
+                return null;
+            }
+            return pAT;
+        }
+        //-----------------------------------------------------
+        public void DestroyAgentTree(AgentTree pAT)
+        {
+            if (pAT == null) return;
+            pAT.Destroy();
+            FreeAgentTree(pAT);
         }
         //-----------------------------------------------------
         public void RegisterCallback(IAgentTreeCallback pCallback)
@@ -38,6 +65,14 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         internal bool OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
         {
+            if(m_vCallback!=null)
+            {
+                foreach(var db in m_vCallback)
+                {
+                    if (db.OnATExecutedNode(pAgentTree, pNode))
+                        return true;
+                }
+            }
             return ATCallHandler.DoAction(pAgentTree, pNode);
         }
         //-----------------------------------------------------
@@ -60,6 +95,11 @@ namespace Framework.AT.Runtime
         internal void FreeAgentTree(AgentTree pDater)
         {
             AgentTreePool.FreeAgentTree(pDater);
+        }
+        //-----------------------------------------------------
+        internal void OnDestroyAgentTree(AgentTree pAt)
+        {
+
         }
         //-----------------------------------------------------
         protected override void OnDestroy()

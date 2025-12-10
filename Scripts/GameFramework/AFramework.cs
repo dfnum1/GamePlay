@@ -436,6 +436,11 @@ namespace Framework.Core
         {
             return false;
         }
+        //------------------------------------------------------
+        public bool OnATExecutedNode(AgentTree pAgentTree, BaseNode pNode)
+        {
+            return false;
+        }
         #endregion
     }
 }

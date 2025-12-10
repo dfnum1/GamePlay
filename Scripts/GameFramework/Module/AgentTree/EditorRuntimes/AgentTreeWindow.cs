@@ -7,6 +7,8 @@
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
 using Framework.ED;
+using System;
+using TagLib.Riff;
 using UnityEditor;
 using UnityEngine;
 using Color = UnityEngine.Color;
@@ -17,6 +19,7 @@ namespace Framework.AT.Editor
     {
         GUIStyle                        m_TileStyle;
         AgentTreeData                   m_pATData = null;
+        System.Action<AgentTreeData>    m_onSave = null;
         //--------------------------------------------------------
         [MenuItem("Tools/GamePlay/蓝图脚本")]
         public static void Open()
@@ -30,15 +33,16 @@ namespace Framework.AT.Editor
             window.titleContent = new GUIContent("蓝图脚本");
         }
         //--------------------------------------------------------
-        public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject)
+        public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject, System.Action<AgentTreeData> OnSave = null)
         {
-            AgentTreeWindow[] editors = EditorWindow.FindObjectsOfType<AgentTreeWindow>();
-            if(editors!=null)
+            var editors = Resources.FindObjectsOfTypeAll<AgentTreeWindow>();
+            if (editors!=null)
             {
                 for(int i =0; i < editors.Length; ++i)
                 {
                     if (editors[i].m_pATData == atData)
                     {
+                        editors[i].m_onSave = OnSave;
                         editors[i].m_pATData = atData;
                         editors[i].OnChangeSelect(pObject); 
                         editors[i].Focus();
@@ -48,8 +52,8 @@ namespace Framework.AT.Editor
             }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
             window.titleContent = new GUIContent("行为树");
-            window.m_pCurrentObj = pObject;
             window.m_pATData = atData;
+            window.m_onSave = OnSave;
             window.OnChangeSelect(pObject);
             return window;
         }
@@ -120,6 +124,8 @@ namespace Framework.AT.Editor
         public override void SaveChanges()
         {
             base.SaveChanges();
+            if (m_onSave != null)
+                m_onSave(m_pATData);
         }
         //--------------------------------------------------------
         protected override void OnInnerGUI()
@@ -128,6 +134,31 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         protected override void OnInnerEvent(Event evt)
         {
+        }
+        //-----------------------------------------------------
+        void OnNodeExecute(AgentTree pAT, BaseNode pNode)
+        {
+            var logics = GetLogics<AAgentTreeLogic>();
+            foreach(var db in logics)
+            {
+                db.OnNotifyExecutedNode(pAT, pNode);
+            }
+        }
+        //-----------------------------------------------------
+        internal static void OnAgentTreeNodeExecute(AgentTree pAT, BaseNode pNode)
+        {
+            if (pAT == null) return;
+            var editors = Resources.FindObjectsOfTypeAll<AgentTreeWindow>();
+            if (editors != null)
+            {
+                for (int i = 0; i < editors.Length; ++i)
+                {
+                    if (editors[i].m_pATData == pAT.GetData())
+                    {
+                        editors[i].OnNodeExecute(pAT, pNode);
+                    }
+                }
+            }
         }
     }
 }

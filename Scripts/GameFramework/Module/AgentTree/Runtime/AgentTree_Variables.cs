@@ -1253,6 +1253,35 @@ namespace Framework.AT.Runtime
             return GetUserData(nodePort.varGuid);
         }
         //-----------------------------------------------------
+        public T GetInportUserData<T>(BaseNode pNode, int index) where T : IUserData
+        {
+            var inports = pNode.GetInports();
+            if (index < 0 || inports == null || index >= inports.Length)
+                return default;
+
+            var nodePort = inports[index];
+            DummyPort dummyPort = GetDummyPort(pNode, index, true);
+            if (dummyPort.IsValid())
+            {
+                NodePort[] ports = null;
+                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                {
+                    ports = dummyPort.pNode.GetInports();
+                }
+                else
+                {
+                    if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
+                    else ports = dummyPort.pNode.GetOutports();
+                }
+                if (dummyPort.slotIndex >= 0 && ports != null && dummyPort.slotIndex < ports.Length)
+                {
+                    return GetUserData<T>(ports[dummyPort.slotIndex].varGuid);
+                }
+            }
+
+            return GetUserData<T>(nodePort.varGuid);
+        }
+        //-----------------------------------------------------
         public bool GetOutportBool(BaseNode pNode, int index, bool defValue = false)
         {
             var ports = pNode.GetOutports();
@@ -2692,6 +2721,32 @@ namespace Framework.AT.Runtime
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
                 return VariableUserData.DEF;
+            }
+        }
+        //-----------------------------------------------------
+        public T GetUserData<T>(short guid) where T :IUserData
+        {
+            if (m_pData == null)
+                return default;
+            var varNode = m_pData.GetVariable(guid);
+            if (varNode == null)
+            {
+                Debug.LogError("guid:" + guid + "  vairable is null");
+                return default;
+            }
+            if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetUserData(guid, out var retVal))
+            {
+                return (T)retVal.pPointer;
+            }
+
+            if (varNode.GetVariableType() == EVariableType.eUserData)
+            {
+                return (T)((VariableUserData)varNode).pPointer;
+            }
+            else
+            {
+                Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
+                return default;
             }
         }
         #endregion

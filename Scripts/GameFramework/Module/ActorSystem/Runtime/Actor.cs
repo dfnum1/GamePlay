@@ -59,6 +59,11 @@ namespace Framework.ActorSystem.Runtime
             return m_pSytstem;
         }
         //--------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            return m_pSytstem.GetFramework();
+        }
+        //--------------------------------------------------------
         internal void SetActorManager(ActorManager pSystem)
         {
             m_pSytstem = pSystem;
@@ -220,6 +225,7 @@ namespace Framework.ActorSystem.Runtime
             Reset();
             SetActived(false);
             SetVisible(false);
+            AddAgent<ActorAgentTree>();
         }
         //--------------------------------------------------------
         internal void Reset()
@@ -466,12 +472,23 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pSytstem == null)
                 return;
+            if(m_vAgents!=null)
+            {
+                foreach (var db in m_vAgents)
+                {
+                    db.DoFlagDirty(flag, IsUsed);
+                }
+            }
+
          //   if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.NodeFlag, (int)flag, IsUsed ? 1 : 0));
             switch (flag)
             {
                 case EActorFlag.Active:
                     {
-                        if (IsUsed) m_pSytstem.OnActorStatusCallback(this, EActorStatus.Active);
+                        if (IsUsed)
+                        {
+                            m_pSytstem.OnActorStatusCallback(this, EActorStatus.Active);
+                        }
                         return;
                     }
                 case EActorFlag.Visible:

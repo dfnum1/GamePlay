@@ -20,6 +20,19 @@ namespace Framework.AT.Runtime
             return new AgentTree();
         }
         //-----------------------------------------------------
+        internal static AgentTree MallocAgentTree(AgentTreeData pATData)
+        {
+            if (pATData == null) return null;
+            AgentTree pAT = null;
+            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count > 0)
+                pAT = ms_vAgentTreePool.Pop();
+            pAT =  new AgentTree();
+            if (pAT.Create(pATData))
+                return pAT;
+            FreeAgentTree(pAT);
+            return null;
+        }
+        //-----------------------------------------------------
         internal static void FreeAgentTree(AgentTree agentTree)
         {
             if (agentTree == null) return;

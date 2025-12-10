@@ -6,6 +6,7 @@
 描    述:	编辑器框架类
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
+using Framework.AT.Runtime;
 using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
@@ -90,6 +91,7 @@ namespace Framework.ED
         //--------------------------------------------------------
         protected override void OnInit()
         {
+
         }
         //--------------------------------------------------------
         protected override void OnStart()

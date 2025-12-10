@@ -958,27 +958,33 @@ namespace Framework.AT.Runtime
                 var guideField = attri.argvType.GetField("guid", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
                 if (guideField != null)
                     guideField.SetValue(pVar, guid);
+                if(pVar is VariableUserData)
+                {
+                    VariableUserData pUserData = (VariableUserData)pVar;
+                    pUserData.value = ATRtti.GetClassTypeId(attri.argvType);
+                    return pUserData;
+                }
                 return pVar;
             }
-          if (attri.argvType == typeof(bool)) return new VariableBool { value = attri.ToValue<bool>(false), guid = guid };
+            if (attri.argvType == typeof(bool)) return new VariableBool { value = attri.ToValue<bool>(false), guid = guid };
             else if (attri.argvType == typeof(byte) ||
                 attri.argvType == typeof(char) ||
                 attri.argvType == typeof(sbyte) ||
                 attri.argvType.IsEnum ||
-                attri.argvType == typeof(short)||
-                attri.argvType == typeof(ushort)||
-                attri.argvType == typeof(int)||
+                attri.argvType == typeof(short) ||
+                attri.argvType == typeof(ushort) ||
+                attri.argvType == typeof(int) ||
                 attri.argvType == typeof(uint))
             {
                 return new VariableInt { value = attri.ToValue<int>(0), guid = guid };
             }
             else if (attri.argvType.IsEnum)
             {
-                if(attri.defValue!=null)
+                if (attri.defValue != null)
                 {
                     if (Enum.TryParse(attri.argvType, attri.defValue.ToString(), true, out object enumVal))
                     {
-                        return new VariableInt { value = Convert.ToInt32(enumVal), guid= guid };
+                        return new VariableInt { value = Convert.ToInt32(enumVal), guid = guid };
                     }
                     else
                     {
@@ -995,7 +1001,7 @@ namespace Framework.AT.Runtime
             else if (attri.argvType == typeof(float))
                 return new VariableFloat { value = attri.ToValue<float>(0), guid = guid };
             else if (attri.argvType == typeof(string))
-                return new VariableString { value = attri.defValue!=null?attri.defValue.ToString():"", guid = guid };
+                return new VariableString { value = attri.defValue != null ? attri.defValue.ToString() : "", guid = guid };
             else if (attri.argvType == typeof(Vector2))
                 return new VariableVec2 { value = attri.ToValue<Vector2>(Vector2.zero), guid = guid };
             else if (attri.argvType == typeof(Vector3))
@@ -1017,7 +1023,11 @@ namespace Framework.AT.Runtime
             else if (attri.argvType == typeof(Matrix4x4))
                 return new VariableMatrix { value = attri.ToValue<Matrix4x4>(Matrix4x4.identity), guid = guid };
             else if (attri.argvType == typeof(VariableUserData) || attri.argvType.GetInterfaces().Contains(typeof(IUserData)))
-                return new VariableUserData { value = attri.ToValue<int>(0), pPointer = null, guid = guid };
+            {
+                var pVar = new VariableUserData { value = attri.ToValue<int>(0), pPointer = null, guid = guid };
+                pVar.value = ATRtti.GetClassTypeId(attri.argvType);
+                return pVar;
+            }
             else if (attri.argvType == typeof(IVariable))
                 return new VariableInt { value = 0, guid = guid };
             else if (attri.argvType == typeof(BaseNode))

@@ -140,6 +140,7 @@ namespace Framework.ActorSystem.Runtime
                     m_nNoActionSkillClear = 0;
                     m_pNoActionCurrentSkill = pSkill;
                 }
+                m_pOwner.GetAgent<ActorAgentTree>()?.OnSkill(pSkill);
             }
             return bFind;
         }

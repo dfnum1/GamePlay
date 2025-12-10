@@ -12,6 +12,7 @@ namespace Framework.AT.Runtime
     {
         AgentTreeManager                            m_pATManager = null;
         bool                                        m_bEnable = false;
+        bool                                        m_bStarted = false;
         AgentTreeData                               m_pData = null;
         VariableKV                                  m_vRuntimeVariables = null;
         LinkedList<BaseNode>                        m_vExecuting = null;
@@ -29,16 +30,58 @@ namespace Framework.AT.Runtime
 
         LinkedList<BaseNode>                        m_pCurrentExcuting = null;
         bool                                        m_bHasCustomTask = false;
+
+        private Dictionary<int, IUserData>          m_OwnerClass = null;
+        private Dictionary<int, IUserData>          m_OwnerParentClass = null;
         //-----------------------------------------------------
         internal AgentTree()
         {
             m_bEnable = false;
+            m_bStarted = false;
             m_bHasCustomTask = false;
         }
         //-----------------------------------------------------
         internal void SetATManager(AgentTreeManager pManager)
         {
             m_pATManager = pManager;
+        }
+        //------------------------------------------------------
+        public IUserData GetOwnerClass(int hashCode)
+        {
+            if (m_OwnerClass == null) return null;
+            IUserData userClass;
+            if (m_OwnerClass.TryGetValue(hashCode, out userClass))
+                return userClass;
+
+            if (m_OwnerParentClass != null)
+            {
+                if (m_OwnerParentClass.TryGetValue(hashCode, out userClass)) return userClass;
+            }
+
+            int parent = ATRtti.GetClassParentTypeId(hashCode);
+            while (parent != 0)
+            {
+                if (m_OwnerClass.TryGetValue(parent, out userClass))
+                    return userClass;
+                parent = ATRtti.GetClassParentTypeId(parent);
+            }
+            return null;
+        }
+        //------------------------------------------------------
+        public void AddOwnerClass(IUserData pOwner, int hashCode = 0)
+        {
+            if (pOwner == null) return;
+            if (hashCode == 0) hashCode = ATRtti.GetClassTypeId(pOwner.GetType());
+            if (m_OwnerClass == null) m_OwnerClass = new Dictionary<int, IUserData>(2);
+            if (m_OwnerParentClass == null) m_OwnerParentClass = new Dictionary<int, IUserData>(2);
+            m_OwnerClass[hashCode] = pOwner;
+
+            int parent = ATRtti.GetClassParentTypeId(hashCode);
+            while (parent != 0)
+            {
+                m_OwnerParentClass[parent] = pOwner;
+                parent = ATRtti.GetClassParentTypeId(parent);
+            }
         }
         //-----------------------------------------------------
         internal AgentTreeData GetData()
@@ -50,11 +93,6 @@ namespace Framework.AT.Runtime
         {
             if (m_pData == null) return null;
             return m_pData.GetNode(guid);
-        }
-        //-----------------------------------------------------
-        public IUserData FindUserClass(int hashCode)
-        {
-            return null;
         }
         //-----------------------------------------------------
         VariableKV GetRuntimeVariable()
@@ -104,37 +142,47 @@ namespace Framework.AT.Runtime
             if (m_bEnable == bEnable)
                 return;
             m_bEnable = bEnable;
-            if (m_bEnable)
+        }
+        //-----------------------------------------------------
+        public void Start()
+        {
+            if (m_bStarted)
+                return;
+            m_bStarted = true;
+            if (m_pStartTask != null)
             {
-                if (m_pStartTask != null)
-                {
-                    if (m_vExecuting == null) m_vExecuting = new LinkedList<BaseNode>();
-                    else m_vExecuting.Clear();
-                    m_vExecuting.AddFirst(m_pStartTask);
-                }
+                if (m_vExecuting == null) m_vExecuting = new LinkedList<BaseNode>();
+                else m_vExecuting.Clear();
+                m_vExecuting.AddFirst(m_pStartTask);
+            }
 
-                if (m_pTickTask != null)
-                {
-                    if (m_vTickExecuting == null) m_vTickExecuting = new LinkedList<BaseNode>();
-                    else m_vTickExecuting.Clear();
-                    m_vTickExecuting.AddFirst(m_pTickTask);
-                }
-            }
-            else
+            if (m_pTickTask != null)
             {
-                if (m_pExitTask != null)
-                {
-                    if (m_vExecuting != null) m_vExecuting.Clear();
-                    else m_vExecuting = new LinkedList<BaseNode>();
-                    m_vExecuting.AddLast(m_pExitTask);
-                    Execute(m_vExecuting);
-                }
+                if (m_vTickExecuting == null) m_vTickExecuting = new LinkedList<BaseNode>();
+                else m_vTickExecuting.Clear();
+                m_vTickExecuting.AddFirst(m_pTickTask);
             }
+            Update(0);
+        }
+        //-----------------------------------------------------
+        public void Exit()
+        {
+            if (m_pExitTask == null) return;
+            if (m_vExecuting != null) m_vExecuting.Clear();
+            else m_vExecuting = new LinkedList<BaseNode>();
+            m_vExecuting.AddLast(m_pExitTask);
+            Execute(m_vExecuting);
+            m_pExitTask = null;
         }
         //-----------------------------------------------------
         public bool IsEnable()
         {
             return m_bEnable;
+        }
+        //-----------------------------------------------------
+        public bool IsStarted()
+        {
+            return m_bStarted;
         }
         //-----------------------------------------------------
         public int GetTaskArgvCount(int type, out int argvType)
@@ -249,7 +297,7 @@ namespace Framework.AT.Runtime
             {
                 if (m_pTickTask != null)
                 {
-                    m_vTickExecuting.AddFirst(m_pStartTask);
+                    m_vTickExecuting.AddFirst(m_pTickTask);
                 }
             }
 
@@ -274,36 +322,49 @@ namespace Framework.AT.Runtime
             m_pCurrentExcuting = vList;
             if (vList == null)
                 return;
-            for (var node = vList.First; node != null;)
+            bool executedAny;
+            int executeCount = 0;
+            do
             {
-                var next = node.Next;
-                var curNode = node.Value;
-                bool bSucceed = OnExecute(curNode);
-                if (bSucceed)
-                    AddExecuted(curNode);
-                if (bSucceed)
+                executedAny = false;
+                var node = vList.First;
+                while (node != null)
                 {
-                    vList.Remove(node);
-                    var nexts = curNode.GetNexts(m_pData);
-                    if (nexts != null)
+                    executeCount++;
+                    var next = node.Next;
+                    var curNode = node.Value;
+                    bool bSucceed = OnExecute(curNode);
+                    if (bSucceed)
+                        AddExecuted(curNode);
+                    if (bSucceed)
                     {
-                        for (int i = 0; i < nexts.Length; ++i)
+                        vList.Remove(node);
+                        executedAny = true;
+                        var nexts = curNode.GetNexts(m_pData);
+                        if (nexts != null)
                         {
-                            if (nexts[i] == null) continue;
-                            if (vList.Contains(nexts[i])) continue;
-                            vList.AddLast(nexts[i]);
+                            for (int i = 0; i < nexts.Length; ++i)
+                            {
+                                if (nexts[i] == null) continue;
+                                if (vList.Contains(nexts[i])) continue;
+                                vList.AddLast(nexts[i]);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    if (IsOverAction(curNode.type))
+                    else
                     {
-                        AddExecuted(curNode);
-                        vList.Remove(node);
+                        if (IsOverAction(curNode.type))
+                        {
+                            AddExecuted(curNode);
+                            vList.Remove(node);
+                        }
                     }
+                    node = next;
                 }
-                node = next;
+            } while (executedAny && vList.Count > 0 && executeCount<1000);
+            if(executeCount>=1000)
+            {
+                UnityEngine.Debug.LogWarning("有死循环的风险！！！");
             }
         }
         //-----------------------------------------------------
@@ -326,6 +387,9 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         private bool OnExecute(BaseNode pNode)
         {
+#if UNITY_EDITOR
+                Editor.AgentTreeWindow.OnAgentTreeNodeExecute(this, pNode);
+#endif
             if (pNode.IsTask())
                 return true;
             switch (pNode.type)
@@ -341,21 +405,22 @@ namespace Framework.AT.Runtime
                     return VectorOpExecutor.OnExecutor(this, pNode);
                 case (short)EActionType.eCondition: return ConditionExecutor.OnExecute(this, pNode);
             }
-            //if (m_vCallback != null)
-            //{
-            //    for (var callback = m_vCallback.First; callback != null; callback = callback.Next)
-            //    {
-            //        if(callback.Value.OnNotifyExecutedNode(this, pNode))
-            //        {
-            //            return true;
-            //        }
-            //    }
-            //}
+            if (m_vCallback != null)
+            {
+                for (var callback = m_vCallback.First; callback != null; callback = callback.Next)
+                {
+                    if (callback.Value.OnATExecutedNode(this, pNode))
+                    {
+                        return true;
+                    }
+                }
+            }
             if (m_pATManager != null)
             {
-                return m_pATManager.OnNotifyExecutedNode(this, pNode);
+                if (m_pATManager.OnNotifyExecutedNode(this, pNode))
+                    return true;
             }
-            return false;
+            return ATCallHandler.DoAction(this,pNode);
         }
         //-----------------------------------------------------
         public void RegisterCallback(IAgentTreeCallback pCallback)
@@ -390,6 +455,7 @@ namespace Framework.AT.Runtime
         void Clear()
         {
             Enable(false);
+            m_bStarted = false;
             m_pData = null;
             if (m_vRuntimeVariables != null)
             {
@@ -409,7 +475,9 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         internal void Destroy()
         {
+            Exit();
             Clear();
+            if (m_pATManager != null) m_pATManager.OnDestroyAgentTree(this);
             m_pATManager = null;
             if (m_vCallback != null) m_vCallback.Clear();
         }

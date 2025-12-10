@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿/********************************************************************
+生成日期:	07:03:2025
+类    名: 	ATCallHandler
+作    者:	HappLI
+描    述:	AT 调用句柄
+*********************************************************************/
+using System.Collections.Generic;
 
 namespace Framework.AT.Runtime
 {

@@ -64,6 +64,12 @@ namespace Framework.ActorSystem.Runtime
         }
         //--------------------------------------------------------
         protected virtual void OnLoadedAble(ActorContext component) { }
+        internal virtual void DoFlagDirty(EActorFlag flag, bool IsUsed)
+        {
+            OnFlagDirty(flag, IsUsed);
+        }
+        //--------------------------------------------------------
+        protected virtual void OnFlagDirty(EActorFlag flag, bool IsUsed) { }
         //--------------------------------------------------------
         public void Update(float fDelta)
         {

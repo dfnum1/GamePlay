@@ -1238,6 +1238,8 @@ namespace Framework.AT.Editor
                 {
                     // 赋值
                     setValue(field, evt.newValue);
+                    var valueField = portVariable.GetType().GetField("value", System.Reflection.BindingFlags.Public| System.Reflection.BindingFlags.Instance| System.Reflection.BindingFlags.NonPublic);
+                    valueField?.SetValue(portVariable, evt.newValue);
                     OnArgvPortChanged(port);
                     m_pGraphView.UpdateVariable(portVariable);
                 }
