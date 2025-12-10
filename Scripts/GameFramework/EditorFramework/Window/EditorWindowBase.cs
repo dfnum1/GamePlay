@@ -18,6 +18,9 @@ namespace Framework.ED
         private bool                                    m_bRuntimingOpened = false;
         protected EditorTimer                           m_pTimer = new EditorTimer();
 
+        private Framework.Core.AFramework               m_pEditorGame = null;
+
+
         protected System.Object                         m_pCurrentObj;
         private List<AEditorLogic>                      m_vLogics = new List<AEditorLogic>();
         private Dictionary<System.Type, AEditorLogic>   m_vLogicKV = new Dictionary<System.Type, AEditorLogic>();
@@ -35,6 +38,15 @@ namespace Framework.ED
                 if (db is T) vLogics.Add(db as T);
             }
             return vLogics;
+        }
+        //--------------------------------------------------------
+        public Framework.Core.AFramework GetEditorGame()
+        {
+            if (m_pEditorGame == null)
+            {
+                m_pEditorGame = EditorFramework.BuildEditorInstnace();
+            }
+            return m_pEditorGame;
         }
         //--------------------------------------------------------
         public System.Object GetCurrentObj()
@@ -67,6 +79,8 @@ namespace Framework.ED
                 m_vLogics[i].Disable();
             m_bRuntimingOpened = false;
             m_pCurrentObj = null;
+            if (m_pEditorGame != null) m_pEditorGame.Destroy();
+            m_pEditorGame = null;
         }
         //--------------------------------------------------------
         private void OnDestroy()
@@ -95,7 +109,9 @@ namespace Framework.ED
             OnInnerUpdate();
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Update(m_pTimer.deltaTime);
-          //  this.Repaint();
+
+            if (m_pEditorGame != null) m_pEditorGame.Update(m_pTimer.deltaTime);
+            //  this.Repaint();
         }
         //--------------------------------------------------------
         public void ForceRepaint()

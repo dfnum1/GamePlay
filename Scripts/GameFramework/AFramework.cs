@@ -4,16 +4,17 @@
 作    者:	HappLI
 描    述:	框架基类
 *********************************************************************/
-using Codice.CM.Client.Differences;
+using Framework.ActorSystem.Runtime;
+using Framework.AT.Runtime;
+using Framework.Cutscene.Runtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Framework.Core
 {
-    public abstract class AFramework
+    public abstract class AFramework : IAgentTreeCallback, ICutsceneCallback, IActorSystemCallback
     {
         private static AFramework ms_pMainFramework;
 #if UNITY_EDITOR
@@ -53,6 +54,9 @@ namespace Framework.Core
                 return;
 
             AddModule<TouchInput>();
+            var atMgr = AddModule<AT.Runtime.AgentTreeManager>(); atMgr.RegisterCallback(this);
+            var cutsceneMgr = AddModule<Cutscene.Runtime.CutsceneManager>(); cutsceneMgr.RegisterCallback(this);
+            var actorMgr = AddModule<ActorSystem.Runtime.ActorManager>(); actorMgr.RegisterCallback(this);
 
             m_bAwaked = false;
             m_bStarted = false;
@@ -109,6 +113,9 @@ namespace Framework.Core
         //------------------------------------------------------
         protected T AddModule<T>() where T : AModule, new()
         {
+            int hash = typeof(T).GetHashCode();
+            if (m_vTypeModdules.TryGetValue(hash, out var existModule))
+                return existModule as T;
             for (int i = 0; i < m_vModdules.Count; ++i)
             {
                 if (m_vModdules[i] is T)
@@ -123,6 +130,7 @@ namespace Framework.Core
             if (m_bStarted)
                 moduel.Start();
 
+            m_vTypeModdules[hash] = moduel;
             OnAddModule(moduel);
 
             if (m_bStarted)
@@ -208,6 +216,21 @@ namespace Framework.Core
                 db.Value.OnTouchEnd(touch);
         }
         //------------------------------------------------------
+        public float GetDeltaTime()
+        {
+            return Time.deltaTime;
+        }
+        //------------------------------------------------------
+        public long GetRunTime()
+        {
+            return m_lRuntime;
+        }
+        //------------------------------------------------------
+        public long GetRunUnScaleTime()
+        {
+            return m_lRuntimeUnScale;
+        }
+        //------------------------------------------------------
         public void RegisterFunction(IUserData pointer, int hashCode = 0)
         {
             if (pointer == null) return;
@@ -261,7 +284,61 @@ namespace Framework.Core
         }
         //-------------------------------------------------
         protected virtual void OnUnRegisterFunction(IUserData pointer, int hashCode = 0) { }
+        //------------------------------------------------------
+        public void Update(float fFrameTime)
+        {
+            if (!m_bInited || !m_bStarted || !m_bAwaked)
+                return;
 
+#if USE_SERVER
+            m_pExterTimer.DoUpdate(fFrameTime);
+            m_lRuntime += (int)(fFrameTime * 1000);
+            m_lRuntimeUnScale = m_pExterTimer.realtimeSinceStartup;
+#else
+            m_lRuntime = (int)(Time.time * 1000);
+            m_lRuntimeUnScale = (int)(Time.unscaledTime * 1000);
+#endif
+            bool bLockFrame = false;// IsPause() || IsLogicLock();
+
+            if (!bLockFrame)
+            {
+                for (int i = 0; i < m_vModdules.Count; ++i)
+                {
+                    m_vModdules[i].Update(fFrameTime);
+                }
+                for (int i = 0; i < m_vAllUpdates.Count; i++)
+                    m_vAllUpdates[i].Update(fFrameTime);
+                OnUpdate(fFrameTime);
+            }
+        }
+        //------------------------------------------------------
+        protected virtual void OnUpdate(float fTime)
+        {
+
+        }
+        //------------------------------------------------------
+        public void LateUpdate()
+        {
+            if (!m_bInited || !m_bStarted || !m_bAwaked)
+                return;
+            float fDelta = Time.deltaTime;
+            foreach (var db in m_vAllLateUpdates)
+                db.Value.LateUpdate(fDelta);
+
+            OnLateUpdate(fDelta);
+
+        }
+        protected virtual void OnLateUpdate(float fFrameTime) { }
+        //------------------------------------------------------
+        public void FixedUpdate()
+        {
+            float fixedDeltaTime = Time.fixedDeltaTime;
+            foreach (var db in m_vAllFixedUpdates)
+                db.Value.FixedUpdate(fixedDeltaTime);
+            OnFixedUpdate(fixedDeltaTime);
+        }
+        //------------------------------------------------------
+        protected virtual void OnFixedUpdate(float fFrameTime) { }
         //------------------------------------------------------
         public void Destroy()
         {
@@ -284,5 +361,81 @@ namespace Framework.Core
         }
         //------------------------------------------------------
         protected abstract void OnDestroy();
+        #region ModelCallback
+        //------------------------------------------------------
+        public virtual bool OnLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnUnloadAsset(UnityEngine.Object pAsset)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnDespawnInstance(GameObject pInstance, string name = null)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)
+        {
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutscenePlayableCreateClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutscenePlayableDestroyClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutscenePlayableFrameClip(CutscenePlayable playable, FrameData frameData)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutscenePlayableFrameClipEnter(CutscenePlayable playable, CutsceneTrack track, FrameData frameData)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutscenePlayableFrameClipLeave(CutscenePlayable playable, CutsceneTrack track, FrameData frameData)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnCutsceneEventTrigger(CutscenePlayable pPlayablle, CutsceneTrack pTrack, IBaseEvent pEvent)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnAgentTreeExecute(AgentTree pAgentTree, BaseNode pNode)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, float oldValue, float newValue, IContextData externVar = null)
+        {
+            return false;
+        }
+        //------------------------------------------------------
+        public virtual bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor)
+        {
+            return false;
+        }
+        #endregion
     }
 }

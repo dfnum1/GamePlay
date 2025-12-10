@@ -45,8 +45,6 @@ namespace Framework.Core
         protected virtual void OnInit() { }
         protected virtual void OnAwake() { }
         //-------------------------------------------------
-        public virtual void OnClearWorld() { }
-        //-------------------------------------------------
         public void Destroy()
         {
             OnDestroy();
