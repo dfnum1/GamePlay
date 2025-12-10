@@ -190,7 +190,7 @@ namespace Framework.AT.Editor
                                     attr.isCutsceneCustomEvent = false;
                                     attr.actionType = atTypeAttr.guid;
                                     attr.displayName = atTypeAttr.DisplayName;
-                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString();
+                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString() + method.Name;
                                     attr.strMenuName = classAT.className + "/" + atTypeAttr.DisplayName;
                                     if (attr.actionAttr.isTask)
                                     {
@@ -276,7 +276,7 @@ namespace Framework.AT.Editor
                                 attr.iconAttr = fi.GetCustomAttribute<ATIconAttribute>();
                                 attr.actionType = flagValue;
                                 attr.displayName = strName;
-                                attr.strQueueName = strName + v.ToString();
+                                attr.strQueueName = strName + v.ToString() ;
                                 if (!string.IsNullOrEmpty(atTypeAttr.name))
                                 {
                                     attr.strMenuName = atTypeAttr.name + "/" + attr.displayName;

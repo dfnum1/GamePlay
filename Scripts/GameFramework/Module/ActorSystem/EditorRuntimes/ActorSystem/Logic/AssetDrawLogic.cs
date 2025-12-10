@@ -53,6 +53,7 @@ namespace Framework.ActorSystem.Editor
         Vector2 m_CommonActionList = Vector2.zero;
         Vector2 m_TimelineActionList = Vector2.zero;
         Dictionary<int, bool> m_vCommonActionExpand = new Dictionary<int, bool>();
+        AgentTreeWindow m_pEditorAT = null;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
@@ -67,14 +68,25 @@ namespace Framework.ActorSystem.Editor
         void OnTimlineTreeItemSelect(TreeAssetView.ItemData item)
         {
             m_pSelectData = item as GraphItem;
+            if (m_pEditorAT != null) m_pEditorAT.Close();
+            m_pEditorAT = null;
             GetOwner<ACutsceneEditor>()?.OnSetTime(0);
             GetOwner().OnChangeSelect(m_pSelectData.asset.GetCutsceneGraph(true));
+        }
+        //--------------------------------------------------------
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (m_pEditorAT != null) m_pEditorAT.Close();
+            m_pEditorAT = null;
         }
         //--------------------------------------------------------
         protected override void OnDestroy()
         {
             base.OnDestroy();
             m_pActor = null;
+            if (m_pEditorAT != null) m_pEditorAT.Close();
+            m_pEditorAT = null;
         }
         //--------------------------------------------------------
         public new Actor GetActor()
@@ -91,6 +103,8 @@ namespace Framework.ActorSystem.Editor
             if (pActor.GetAttackGroup() != 0)
                 return;
 
+            if (m_pEditorAT != null) m_pEditorAT.Close();
+            m_pEditorAT = null;
             m_pActor = pActor;
             m_pActor.GetAgent<ActorGraphicAgent>(true);
             m_pActorComp = m_pActor.GetComponent<AActorComponent>();
@@ -474,7 +488,8 @@ namespace Framework.ActorSystem.Editor
                 }
                 if (GUI.Button(new Rect(rowData.rowRect.x+35, rowData.rowRect.y, 35, rowData.rowRect.height), "ÐÐÎª"))
                 {
-                    AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab, (atData) => {
+                    if (m_pEditorAT != null) m_pEditorAT.Close();
+                    m_pEditorAT = AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab, (atData) => {
                         if(m_pSelectData!=null)
                         {
                             var agentGrap = m_pSelectData.asset.GetCutsceneGraph(false);

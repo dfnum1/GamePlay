@@ -44,48 +44,21 @@ namespace Framework.AT.Editor
             // 添加右键菜单
             this.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
             {
-                evt.menu.InsertAction(0,"执行", (a) =>
-                {
-                    var agentTree = GetCurrentRuntimeAgentTree();
-                    if(agentTree == null)
-                    {
-             //           CutsceneGraph graph = new CutsceneGraph();
-                        AgentTreeData pData = new AgentTreeData();
-                        Save(pData);
-                        pData.Init(true);
-               //         graph.agentTree = pData;
-                        //if(GetCurrentCutscene().CreateAgentTree(graph))
-                        //{
-                        //    GetCurrentCutscene().GetAgentTree().RegisterCallback(this);
-                        //    GetCurrentCutscene().Enable(true);
-                        //}
-                    }
-                    else
-                    {
-                        if (agentTree != null)
-                        {
-                            AgentTreeData pData = new AgentTreeData();
-                            Save(pData);
-                            pData.Init(true);
-                            agentTree.Create(pData);
-                            agentTree.Enable(true);
-                   //         GetCurrentCutscene().Enable(true);
-                        }
-                    }
-       
-                });
-                evt.menu.InsertAction(1,"停止", (a) =>
-                {
-                    var agentTree = GetCurrentRuntimeAgentTree();
-                    if (agentTree != null)
-                        agentTree.Enable(false);
-                    UpdatePortsVariableDefault();
-                });
                 evt.menu.InsertAction(2, "保存", (a) =>
                 {
                     m_pOwnerEditorLogic.GetOwner().SaveChanges();
                 });
             }));
+
+            this.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                // 检查 Ctrl+S
+                if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.S)
+                {
+                    m_pOwnerEditorLogic.GetOwner().SaveChanges();
+                    evt.StopPropagation(); // 阻止事件继续传递
+                }
+            });
 
             var menuWindowProvider = (AgentTreeSearcher)ScriptableObject.CreateInstance<AgentTreeSearcher>();
             menuWindowProvider.ownerGraphView = this;

@@ -387,6 +387,7 @@ namespace Framework.ActorSystem.Runtime
             return m_BoundBox;
         }
         //--------------------------------------------------------
+        [ATMethod("设置包围盒大小")]
         public void SetBound(FVector3 min, FVector3 max)
         {
             m_BoundBox.Set(min, max);
@@ -591,13 +592,13 @@ namespace Framework.ActorSystem.Runtime
             return IsFlag(EActorFlag.ColliderAble);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置死亡")]
         public void SetKilled(bool bKilled)
         {
             SetFlag(EActorFlag.Killed, bKilled);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否阵亡")]
         public bool IsKilled()
         {
             return IsFlag(EActorFlag.Killed);

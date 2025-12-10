@@ -206,6 +206,7 @@ namespace Framework.ED
         //--------------------------------------------------------
         public override void SaveChanges()
         {
+            this.ShowNotification(new GUIContent("保存蓝图数据"), 1);
             for (int i = 0; i < m_vLogics.Count; ++i)
             {
                 m_vLogics[i].OnSaveChanges();

@@ -47,6 +47,18 @@ namespace Framework.ActorSystem.Runtime
             m_WorldMax = m_Max;
         }
         //-------------------------------------------------
+        public static explicit operator Bounds(WorldBoundBox box)
+        {
+            return box.ToBounds(true);
+        }
+        //-------------------------------------------------
+        public Bounds ToBounds(bool useWorld = true)
+        {
+            var center = GetCenter(useWorld);
+            var size = useWorld ? (m_WorldMax - m_WorldMin) : (m_Max - m_Min);
+            return new Bounds(center, size);
+        }
+        //-------------------------------------------------
         public void SetTransform(FMatrix4x4 mtWorld)
         {
             m_Transform = mtWorld;
