@@ -34,9 +34,8 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
     }
-    public class ActorManager
+    public class ActorManager : AModule
     {
-        bool                                    m_isInitialized = false;
         CutsceneManager                         m_CutsceneManager = null;
         ProjectileManager                       m_ProjectileManager = null;
         bool                                    m_bEditMode = false;
@@ -66,12 +65,9 @@ namespace Framework.ActorSystem.Runtime
             return m_bEditMode;
         }
         //-----------------------------------------------------
-        public void Init(CutsceneManager cutsceneMgr, Bounds? worldBounds = null)
+        protected override void OnInit()
         {
-            if (m_isInitialized)
-                return;
             ActorSystemUtil.Register(this);
-            m_isInitialized = true;
             m_fTerrainHeight = 0;
             m_CutsceneManager = cutsceneMgr;
             

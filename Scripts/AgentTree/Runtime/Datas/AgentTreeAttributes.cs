@@ -41,6 +41,14 @@ namespace Framework.AT.Runtime
     }
     //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    public class ATInteralExportAttribute : ATExportAttribute
+    {
+        public ATInteralExportAttribute(string nodeName = null, int guid = 0) : base(nodeName, guid)
+        {
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
     public class ATClassAttribute : System.Attribute
     {
 #if UNITY_EDITOR
