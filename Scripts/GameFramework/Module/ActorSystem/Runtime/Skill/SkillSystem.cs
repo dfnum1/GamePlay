@@ -5,6 +5,8 @@
 作    者:	HappLI
 描    述:	技能系统
 *********************************************************************/
+using Framework.AT.Runtime;
+using Framework.DrawProps;
 using System.Collections.Generic;
 
 #if USE_FIXEDMATH
@@ -17,9 +19,10 @@ namespace Framework.ActorSystem.Runtime
 {
     public enum ESkillType
     {
-        eInitiative=0, //主动技
-        ePassivity =1 //被动技
+        [Display("主动技")]eInitiative=0, //主动技
+        [Display("被动技")]ePassivity =1 //被动技
     }
+    [ATInteralExport("Actor系统/技能系统", -3, "ActorSystem/actor_skillsytem")]
     public class SkillSystem : TypeActor
     {
         private Actor m_pOwner = null;
@@ -54,6 +57,7 @@ namespace Framework.ActorSystem.Runtime
             m_pOwner = pActor;
         }
         //-----------------------------------------------------
+        [ATMethod("获或当前Actor")]
         public Actor GetActor()
         {
             return m_pOwner;
@@ -69,6 +73,7 @@ namespace Framework.ActorSystem.Runtime
             return m_vLockTargets;
         }
         //-----------------------------------------------------
+        [ATMethod("添加索敌单位")]
         public void AddLockTarget(Actor pNode, bool bClear = false)
         {
             if (m_vLockTargets == null) m_vLockTargets = new List<Actor>(2);
@@ -77,12 +82,14 @@ namespace Framework.ActorSystem.Runtime
                 m_vLockTargets.Add(pNode);
         }
         //-----------------------------------------------------
+        [ATMethod("清除索敌单位")]
         public void ClearLockTargets()
         {
             if (m_vLockTargets != null)
                 m_vLockTargets.Clear();
         }
         //-----------------------------------------------------
+        [ATMethod("添加技能")]
         public void AddSkill(Skill pSkill, ESkillType eType)
         {
             if (pSkill == null) return;
@@ -117,6 +124,7 @@ namespace Framework.ActorSystem.Runtime
         {
         }
         //-----------------------------------------------------
+        [ATMethod("获取当前技能")]
         public Skill GetCurrentSkill(bool checkNoAction =true)
         {
             if (m_pCurrentSkill != null) return m_pCurrentSkill;
@@ -124,6 +132,7 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
+        [ATMethod("执行技能")]
         public bool DoSkill(Skill pSkill)
         {
             if (pSkill == null)
@@ -145,7 +154,7 @@ namespace Framework.ActorSystem.Runtime
             return bFind;
         }
         //-----------------------------------------------------
-        public void DoSkill()
+        void DoSkill()
         {
             if (m_vTodoList == null)
                 return;
@@ -229,9 +238,16 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
+        [ATMethod("设置自动执行")]
         public void EnableAutoSkill(bool bAuto)
         {
             m_bAutoSkill = bAuto;
+        }
+        //-----------------------------------------------------
+        [ATMethod("是否自动执行")]
+        public bool IsAutoSkill()
+        {
+            return m_bAutoSkill;
         }
         //-----------------------------------------------------
         public override void Destroy()

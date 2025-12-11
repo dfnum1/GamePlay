@@ -35,6 +35,23 @@ namespace Framework.AT.Editor
 
         public System.Type graphNodeType;
     }
+    internal class MenuTreeNode
+    {
+        public string Name { get; set; }
+        public List<MenuTreeNode> Children { get; set; }
+        public object UserData { get; set; } // 可以是AgentTreeAttri或null
+        public Texture Icon { get; set; }
+        public string Tips { get; set; }
+
+        public MenuTreeNode(string name)
+        {
+            Name = name;
+            Children = new List<MenuTreeNode>();
+            UserData = null;
+            Icon = null;
+            Tips = null;
+        }
+    }
     public static class AgentTreeUtil
     {
         private static List<EVariableType> ms_vPopEnumTypes = new List<EVariableType>();
@@ -44,6 +61,8 @@ namespace Framework.AT.Editor
         private static List<string> ms_vPops = new List<string>();
         static string ms_installPath = null;
         static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
+        static MenuTreeNode ms_SearchMenuRoot = new MenuTreeNode("添加节点");
+
         public static string BuildInstallPath()
         {
             ms_installPath = Framework.ED.EditorUtils.GetInstallEditorResourcePath();
@@ -178,6 +197,18 @@ namespace Framework.AT.Editor
                         if(tp.IsDefined(typeof(ATClassAttribute)))
                         {
                             ATClassAttribute classAT = tp.GetCustomAttribute<ATClassAttribute>();
+                            if (classAT.classType == null)
+                                continue;
+                            var iconAttr = tp.GetCustomAttribute<ATIconAttribute>(false);
+                            ATExportAttribute atExport = classAT.classType.GetCustomAttribute<ATExportAttribute>(false);
+                            if(atExport!=null)
+                            {
+                                if(!string.IsNullOrEmpty(atExport.icon))
+                                {
+                                    iconAttr = new ATIconAttribute(atExport.icon);
+                                }
+                            }
+
                             var methods = tp.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                             foreach(var method in methods)
                             {
@@ -186,12 +217,14 @@ namespace Framework.AT.Editor
                                     ATFunctionAttribute atTypeAttr = method.GetCustomAttribute<ATFunctionAttribute>();
                                     AgentTreeAttri attr = new AgentTreeAttri();
                                     attr.actionAttr = atTypeAttr.ToAction();
+                                    if (method.IsDefined(typeof(ATIconAttribute))) attr.iconAttr = method.GetCustomAttribute<ATIconAttribute>();
+                                    else attr.iconAttr = iconAttr;
                                     attr.cutsceneCusomtType = 0;
                                     attr.isCutsceneCustomEvent = false;
                                     attr.actionType = atTypeAttr.guid;
                                     attr.displayName = atTypeAttr.DisplayName;
-                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString() + method.Name + ED.EditorUtils.PinYin(atTypeAttr.DisplayName);
-                                    attr.strMenuName = classAT.className + "/" + atTypeAttr.DisplayName;
+                                    attr.strQueueName = classAT.displayName + atTypeAttr.DisplayName + tp.Name.ToString() + method.Name + ED.EditorUtils.PinYin(atTypeAttr.DisplayName);
+                                    attr.strMenuName = classAT.displayName + "/" + atTypeAttr.DisplayName;
                                     if (attr.actionAttr.isTask)
                                     {
                                         attr.actionAttr.hasInput = false;
@@ -408,11 +441,24 @@ namespace Framework.AT.Editor
                     }
                 }*/
 
-
-                ms_vLists.Sort((v1, v2) =>
+                ms_SearchMenuRoot = new MenuTreeNode("添加节点");
+                foreach (var item in AgentTreeUtil.GetAttrs())
                 {
-                    return v1.strMenuName.CompareTo(v2.strMenuName);
-                });
+                    if (!item.actionAttr.bShow)
+                        continue;
+
+                    string menuPath = item.strMenuName ?? item.displayName;
+                    var pathParts = menuPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    // 加载图标
+                    Texture icon = null;
+                    if (item.iconAttr != null)
+                        icon = AgentTreeUtil.LoadIcon(item.iconAttr.name);
+
+                    // 将菜单项添加到树形结构中
+                    AddToTreeNode(ms_SearchMenuRoot, pathParts, item, icon);
+                }
+                SortMenuTree(ms_SearchMenuRoot);
             }
         }
         //-----------------------------------------------------
@@ -452,6 +498,12 @@ namespace Framework.AT.Editor
             return ms_vLists;
         }
         //-----------------------------------------------------
+        internal static MenuTreeNode GetMenuRoot()
+        {
+            Init();
+            return ms_SearchMenuRoot;
+        }
+        //-----------------------------------------------------
         public static AgentTreeAttri GetAttri(int type, int customType)
         {
             Init();
@@ -469,6 +521,63 @@ namespace Framework.AT.Editor
         public static List<string> GetPopEnumTypeNames()
         {
             return ms_vPopEnumTypeNames;
+        }
+        //-----------------------------------------------------
+        // 将菜单项添加到树形结构
+        static void AddToTreeNode(MenuTreeNode parent, string[] pathParts, object userData, Texture icon)
+        {
+            if (pathParts.Length == 0)
+                return;
+
+            // 查找当前路径部分对应的子节点
+            string currentName = pathParts[0];
+            MenuTreeNode currentNode = parent.Children.Find(node => node.Name == currentName);
+
+            if (currentNode == null)
+            {
+                // 创建新节点
+                currentNode = new MenuTreeNode(currentName);
+                parent.Children.Add(currentNode);
+            }
+
+            if (pathParts.Length == 1)
+            {
+                currentNode.Icon = icon;
+          //      parent.Icon = icon;
+                // 这是叶节点，存储用户数据
+                currentNode.UserData = userData;
+                currentNode.Tips = userData.ToString(); // 假设userData有ToString()方法
+            }
+            else
+            {
+                // 递归处理剩余路径
+                string[] remainingPath = new string[pathParts.Length - 1];
+                Array.Copy(pathParts, 1, remainingPath, 0, remainingPath.Length);
+                AddToTreeNode(currentNode, remainingPath, userData, icon);
+            }
+        }
+        //-----------------------------------------------------
+        // 对菜单树进行排序
+        static void SortMenuTree(MenuTreeNode node)
+        {
+            // 先对子节点进行排序
+            node.Children.Sort((a, b) =>
+            {
+                // 首先按是否为叶节点排序（非叶节点在前）
+                bool aIsLeaf = a.UserData != null;
+                bool bIsLeaf = b.UserData != null;
+                if (aIsLeaf != bIsLeaf)
+                    return aIsLeaf ? 1 : -1;
+
+                // 然后按名称排序
+                return a.Name.CompareTo(b.Name);
+            });
+
+            // 递归排序每个子节点
+            foreach (var child in node.Children)
+            {
+                SortMenuTree(child);
+            }
         }
     }
 }

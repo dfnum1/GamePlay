@@ -30,6 +30,7 @@ namespace Framework.ActorSystem.Runtime
                     m_pAgentTree = null;
                 }
                 m_pAgentTree = AgentTreePool.MallocAgentTree(atData);
+                m_pAgentTree.SetATManager(GetActor().GetFramework().GetModule<AgentTreeManager>());
                 if (m_pAgentTree != null)
                 {
                     m_pAgentTree.AddOwnerClass(m_pActor);

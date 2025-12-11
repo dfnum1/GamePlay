@@ -89,7 +89,9 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         internal AgentTree MallocAgentTree()
         {
-            return AgentTreePool.MallocAgentTree();
+            AgentTree pAT = AgentTreePool.MallocAgentTree();
+            if (GetFramework() != null) pAT.SetATManager(GetFramework().GetModule<AgentTreeManager>());
+            return pAT;
         }
         //-----------------------------------------------------
         internal void FreeAgentTree(AgentTree pDater)

@@ -10,8 +10,10 @@ using Framework.Core;
 using Framework.Cutscene.Editor;
 using Framework.DrawProps;
 using Framework.ED;
+using PlasticPipe.PlasticProtocol.Messages;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -72,7 +74,8 @@ namespace Framework.AT.Editor
                 this.expanded = true;
             }
 
-            this.title += "[" + bindNode.guid + "]";
+           // this.title += "[" + bindNode.guid + "]";
+           this.tooltip= "GUID: " + bindNode.guid;
         }
         //------------------------------------------------------
         protected void AddIcon()
@@ -100,7 +103,6 @@ namespace Framework.AT.Editor
                     this.titleContainer.Insert(0, img);
                 }
             }
-
         }
         //------------------------------------------------------
         protected virtual void OnInit()
@@ -710,7 +712,14 @@ namespace Framework.AT.Editor
             {
                 var port = m_vArgvPorts[i];
                 var inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(ArvgPort));
-                inputPort.portName = port.attri.name;
+                inputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
+                {
+                    inputPort.portName = "";
+                    inputPort.tooltip += "\r\n变量名:" + port.attri.name;
+                }
+                else
+                    inputPort.portName = port.attri.name;
                 inputPort.portColor = EditorPreferences.GetTypeColor(port.GetVariable().GetType());
                 inputPort.source = port;
                 inputPort.style.marginRight = 4;
@@ -740,7 +749,15 @@ namespace Framework.AT.Editor
                     linkPort.graphNode = this;
                     linkPort.argvPort = port;
                     var outputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, UnityEditor.Experimental.GraphView.Port.Capacity.Single, typeof(LinkPort));
-                    outputPort.portName = port.attri.name;
+                    outputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                    if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
+                    {
+                        outputPort.portName = "";
+                        outputPort.tooltip += "\r\n变量名:" + port.attri.name;
+                    }
+                    else
+                        outputPort.portName = port.attri.name;
+
                     outputPort.style.marginLeft = 4;
                     outputPort.style.marginTop = (m_vReturnPorts.Count+m_vArgvPorts.Count-1)*16;
                     outputPort.style.backgroundImage = IconUtils.linkOuter;
@@ -758,7 +775,14 @@ namespace Framework.AT.Editor
                 else
                 {
                     var inputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(ArvgPort));
-                    inputPort.portName = port.attri.name;
+                    inputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                    if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
+                    {
+                        inputPort.portName = "";
+                        inputPort.tooltip += "\r\n变量名:" + port.attri.name;
+                    }
+                    else
+                        inputPort.portName = port.attri.name;
                     inputPort.portColor = EditorPreferences.GetTypeColor(port.GetVariable().GetType());
                     inputPort.source = port;
                     inputPort.style.marginRight = 4;
@@ -1225,14 +1249,15 @@ namespace Framework.AT.Editor
                 var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
                 {
+                    var popupField = popup.Q<PopupField<string>>();
                     System.Type type = ATRtti.GetClassType(runtimeInt.value);
                     int idx = 0;
                     if(type!=null)
                     {
-                        popup.choices.IndexOf(type.FullName.Replace("+", "."));
+                        popupField.choices.IndexOf(type.FullName.Replace("+", "."));
                     }
                     if (idx >= 0)
-                        popup.index = idx;
+                        popupField.index = idx;
                 }
 
                 port.fieldRoot.Add(popup);
@@ -1291,7 +1316,7 @@ namespace Framework.AT.Editor
             return popup;
         }
         //-----------------------------------------------------
-        public static PopupField<string> CreateClassPopupFieldWithDisplay(
+        VisualElement CreateClassPopupFieldWithDisplay(
         int typeId,
         IUserData pPointer,
         Action<System.Type> onValueChanged,
@@ -1315,16 +1340,78 @@ namespace Framework.AT.Editor
             };
             popup.SetEnabled(canEdit);
 
+            bool isRestore = false;
             popup.RegisterValueChangedCallback(evt =>
             {
                 int idx = displayNames.IndexOf(evt.newValue);
                 if (idx >= 0)
                 {
-                    onValueChanged?.Invoke(ATRtti.GetClassType(valueList[idx]));
+                    System.Type lastType = ATRtti.GetClassType(typeId);
+                    System.Type type = ATRtti.GetClassType(valueList[idx]);
+                    if (ATRtti.HasCommonConcreteBaseType(lastType, type))
+                    {
+                        onValueChanged?.Invoke(type);
+                        var iconImage = popup.Q<Image>();
+                        if (iconImage != null)
+                        {
+                            if (type != null && type.IsDefined(typeof(ATExportAttribute)))
+                            {
+                                ATExportAttribute atAtrr = type.GetCustomAttribute<ATExportAttribute>();
+                                if (atAtrr != null && !string.IsNullOrEmpty(atAtrr.icon))
+                                {
+                                    var icon = AgentTreeUtil.LoadIcon(atAtrr.icon);
+                                    iconImage.image = icon;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isRestore = true;
+                        popup.index = curIndex;
+                        if (isRestore)
+                            this.m_pGraphView.ShowNotificationError("该节点在类[" + type.Name + "]中不能用!!!");
+                        isRestore = false;
+                    }
                 }
             });
 
-            return popup;
+            Texture2D icon = null;
+            var type = ATRtti.GetClassType(typeId);
+            if (type!=null && type.IsDefined(typeof(ATExportAttribute)))
+            {
+                ATExportAttribute atAtrr = type.GetCustomAttribute<ATExportAttribute>();
+                if(atAtrr!=null && !string.IsNullOrEmpty(atAtrr.icon))
+                {
+                    icon = AgentTreeUtil.LoadIcon(atAtrr.icon);
+                }
+            }
+
+            // 创建横向容器
+            var container = new VisualElement();
+            container.style.flexDirection = FlexDirection.Row;
+            // 添加popup
+            container.Add(popup);
+
+            // 添加icon
+            if (icon != null)
+            {
+                var img = new Image
+                {
+                    image = icon,
+                    style =
+                    {
+                        width = 16,
+                        height = 16,
+                        marginRight = 4,
+                        marginTop = 2,
+                        marginLeft = 2,
+                    }
+                };
+                container.Add(img);
+            }
+
+            return container;
         }
         //-----------------------------------------------------
         private void DrawField<TField, TValue>(

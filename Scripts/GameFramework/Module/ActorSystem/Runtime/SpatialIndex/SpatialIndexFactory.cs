@@ -12,7 +12,7 @@ namespace Framework.ActorSystem.Runtime
         /// <summary>
         /// 默认世界边界
         /// </summary>
-        private static readonly Bounds DefaultWorldBounds = new Bounds(Vector3.zero, new Vector3(1000, 1000, 1000));
+        public static readonly Bounds DefaultWorldBounds = new Bounds(Vector3.zero, new Vector3(1000, 1000, 1000));
         //-----------------------------------------------------
         /// <summary>
         /// 创建空间索引

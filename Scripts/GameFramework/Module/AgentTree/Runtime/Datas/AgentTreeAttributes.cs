@@ -66,12 +66,14 @@ namespace Framework.AT.Runtime
     public class ATClassAttribute : System.Attribute
     {
 #if UNITY_EDITOR
-        public string className;
+        public string displayName;
+        public System.Type classType;
 #endif
-        public ATClassAttribute(string className)
+        public ATClassAttribute(System.Type classType, string className)
         {
 #if UNITY_EDITOR
-            this.className = className;
+            this.classType = classType;
+            this.displayName = className;
 #endif
         }
     }
@@ -264,6 +266,35 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
             this.method = name;
             this.argvNames = argvNames;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class ATMethodArgvAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string argv;
+        public System.Type displayType;
+        public string displayTypeStr;
+        public string drawerTypeStr;
+#endif
+        public ATMethodArgvAttribute(string argv, string displayType, string drawLabel = null)
+        {
+#if UNITY_EDITOR
+            this.argv = argv;
+            this.displayTypeStr = displayType;
+            this.displayType = null;
+            this.drawerTypeStr = drawLabel;
+#endif
+        }
+        public ATMethodArgvAttribute(string argv, System.Type displayType, string drawLabel = null)
+        {
+#if UNITY_EDITOR
+            this.argv = argv;
+            this.displayTypeStr = null;
+            this.displayType = displayType;
+            this.drawerTypeStr = drawLabel;
 #endif
         }
     }

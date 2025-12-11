@@ -36,6 +36,7 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
     }
+    [ATInteralExport("Actor系统/管理器",-1, icon: "ActorSystem/actormanager")]
     public class ActorManager : AModule
     {
         ProjectileManager                       m_ProjectileManager = null;
@@ -58,6 +59,7 @@ namespace Framework.ActorSystem.Runtime
         private ISpatialWorld                   m_pSpatialIndex;
         private ESpatialIndexType               m_eSpatialIndexType = ESpatialIndexType.Octree;
         private bool                            m_isSpatialIndexEnabled = true;
+        Bounds                                  m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -70,16 +72,19 @@ namespace Framework.ActorSystem.Runtime
             m_fTerrainHeight = 0;
         }
         //-----------------------------------------------------        
+        [ATMethod("设置空间大小")]
         public void InitializeSpatialIndex(Bounds? worldBounds = null)
         {
+            Bounds bounds = worldBounds ?? m_SpatialBounds;
             if (m_pSpatialIndex != null)
             {
                 m_pSpatialIndex.Dispose();
             }
 
-            m_pSpatialIndex = SpatialIndexFactory.CreateIndex(m_eSpatialIndexType, worldBounds);
+            m_pSpatialIndex = SpatialIndexFactory.CreateIndex(m_eSpatialIndexType, bounds);
         }
-        //-----------------------------------------------------        
+        //-----------------------------------------------------
+        [ATMethod("设置空间划分类型")]
         public void SetSpatialIndexType(ESpatialIndexType indexType)
         {
             if (m_eSpatialIndexType == indexType)
@@ -99,47 +104,56 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------        
+        [ATMethod("设置空间划分开关")]
         public void SetSpatialIndexEnabled(bool enabled)
         {
             m_isSpatialIndexEnabled = enabled;
         }
         //-----------------------------------------------------        
-        public ESpatialIndexType CurrentSpatialIndexType
+        [ATMethod("获取空间划分类型")]
+        public ESpatialIndexType GetSpatialIndexType()
         {
-            get { return m_eSpatialIndexType; }
+            return m_eSpatialIndexType;
         }
         //-----------------------------------------------------        
-        public bool IsSpatialIndexEnabled
+        [ATMethod("是否开始空间划分")]
+        public bool IsSpatialIndexEnabled()
         {
-            get { return m_isSpatialIndexEnabled; }
+            return m_isSpatialIndexEnabled;
         }
         //-----------------------------------------------------
+        [ATMethod("设置地形碰撞层Mask")]
         public void SetTerrainLayerMask(int layerMask)
         {
             m_nTerrainLayerMask = layerMask;
         }
         //-----------------------------------------------------
+        [ATMethod("获取地形碰撞层Mask")]
         public int GetTerrainLayerMask()
         {
             return m_nTerrainLayerMask;
         }
         //-----------------------------------------------------
+        [ATMethod("设置地表最低高度")]
         public void SetTerrainHeight(float layerMask)
         {
             m_fTerrainHeight = layerMask;
         }
         //-----------------------------------------------------
+        [ATMethod("获取地表最低高度")]
         public float GetTerrainHeight()
         {
             return m_fTerrainHeight;
         }
         //-----------------------------------------------------
+        [ATMethod("浮点区间随机")]
         public float GetRandom(float lower, float upper)
         {
             if(lower<upper) return UnityEngine.Random.Range(lower, upper);
             return UnityEngine.Random.Range(upper, lower);
         }
         //-----------------------------------------------------
+        [ATMethod("整数区间随机")]
         public int GetRandom(int lower, int upper)
         {
             if (lower < upper) return UnityEngine.Random.Range(lower, upper);
@@ -168,11 +182,13 @@ namespace Framework.ActorSystem.Runtime
             return new CutsceneInstance(GetFramework().GetModule<CutsceneManager>());
         }
         //-----------------------------------------------------
+        [ATMethod("同步创建Actor")]
         public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
         {
             return InnerCreateActor<Actor>(nodeID, pData, false, userVariable);
         }
         //-----------------------------------------------------
+        [ATMethod("异步创建Actor")]
         public Actor AsyncCreateActor(int nodeID, IContextData pData, IContextData userVariable = null)
         {
             return InnerCreateActor<Actor>(nodeID, pData, true, userVariable);
@@ -220,6 +236,7 @@ namespace Framework.ActorSystem.Runtime
             return pActor;
         }
         //-----------------------------------------------------
+        [ATMethod("根据ID获取Actor")]
         public Actor GetActor(int id)
         {
             if (m_vNodes == null) return null;
@@ -259,7 +276,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
-        public void RemoveNode(Actor pNode, bool bRemoveMaps = true)
+        void RemoveNode(Actor pNode, bool bRemoveMaps = true)
         {
             var prev = pNode.GetPrev();
             var next = pNode.GetNext();
@@ -324,10 +341,11 @@ namespace Framework.ActorSystem.Runtime
             GetProjectileManager().SetProjectileDatas(projectileDatas);
         }
         //------------------------------------------------------
-        public void StopProjectileByOwner(Actor pNode, float fLaucherTime)
+        [ATMethod("停掉所有指定对象在时间内的弹道")]
+        public void StopProjectileByOwner(Actor pActor, float fLaucherTime)
         {
             if (m_ProjectileManager == null) return;
-            m_ProjectileManager.StopProjectileByOwner(pNode, fLaucherTime);
+            m_ProjectileManager.StopProjectileByOwner(pActor, fLaucherTime);
         }
         //------------------------------------------------------
         public int LaunchProjectile(uint dwProjectileTableID, Actor pOwnerActor, AActorStateInfo stateParam,
@@ -350,6 +368,7 @@ namespace Framework.ActorSystem.Runtime
             m_ProjectileManager.TrackCheck(pTargetActor, vPosition, pData, pTrackTransform, ref pTrackSlot, ref damage_power, ref track_frame_id, ref track_body_id, ref trackOffset);
         }
         //------------------------------------------------------
+        [ATMethod("停掉所有弹道")]
         public void StopAllProjectiles()
         {
             if (m_ProjectileManager == null) return;
@@ -605,6 +624,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
+        [ATMethod("删除所有Actor对象")]
         public void Clear()
         {           // if (m_pWorldKDTree != null) m_pWorldKDTree.Clear();
            // if (m_WorldTriggers != null) m_WorldTriggers.Clear();

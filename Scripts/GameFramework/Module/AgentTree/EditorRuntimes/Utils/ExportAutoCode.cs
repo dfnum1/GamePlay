@@ -223,17 +223,21 @@ namespace Framework.AT.Editor
             code.AppendLine("namespace " + export.type.Namespace.Replace("+", "."));
             code.AppendLine("{");
             code.AppendLine("#if UNITY_EDITOR");
-            code.AppendLine($"\t[ATClass(\"{export.exportAttr.nodeName}\")]");
+            code.AppendLine($"\t[ATClass(typeof({GetTypeName(export.type)}),\"{export.exportAttr.nodeName}\")]");
             code.AppendLine("#endif");
             code.AppendLine($"\tpublic class {typeClassName}");
             code.AppendLine("\t{");
             code.AppendLine("##FUNCTION##");
-            code.AppendLine("\t\tstatic bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
-            code.AppendLine("\t\t{");
-            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.GetOwnerClass(pUserClass.value);");
-            code.AppendLine("\t\t\tif(pUserClass.pPointer == null) return false;");
-            code.AppendLine("\t\t\treturn true;");
-            code.AppendLine("\t\t}");
+            if(!export.type.IsSubclassOf(typeof(AModule)))
+            {
+                code.AppendLine("\t\tstatic bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
+                code.AppendLine("\t\t{");
+                code.AppendLine("\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = pAgentTree.GetOwnerClass(pUserClass.value);");
+                code.AppendLine("\t\t\tif(pUserClass.pPointer == null) return false;");
+                code.AppendLine("\t\t\treturn true;");
+                code.AppendLine("\t\t}");
+            }
+
             code.AppendLine("\t\tpublic static bool DoAction(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
             code.AppendLine("\t\t{");
             code.AppendLine("\t\t\tint actionType = pNode.type;");
@@ -273,6 +277,7 @@ namespace Framework.AT.Editor
         {
             code.AppendLine("\t\t\tcase " + info.guid + ":" + "//" + info.info.Name);
             code.AppendLine("\t\t\t{");
+            bool isModule = export.type.IsSubclassOf(typeof(AModule));
             MethodInfo method = info.info as MethodInfo;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
             string oriTypeClassName = export.type.Name.Replace("+", ".");
@@ -379,7 +384,7 @@ namespace Framework.AT.Editor
             methodCode.AppendLine("\t\t}");
 
 
-            if (!method.IsStatic)
+            if (!method.IsStatic && !isModule)
             {
                 //  code.AppendLine("\t\t\t\tif(pUserClass == null) return true;");
                 code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
@@ -388,9 +393,19 @@ namespace Framework.AT.Editor
             }
             else
                 code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
+            if(isModule)
+            {
+                code.AppendLine($"\t\t\t\t{export.type} pModulePointer = pAgentTree.GetModule<{export.type}>();");
+                code.AppendLine($"\t\t\t\tif(pModulePointer == null) return true;");
+            }
 
             bool bAddDot = true;
-            if (!method.IsStatic)
+            if (isModule)
+            {
+                code.Append($"\t\t\t\treturn {functionName}(pModulePointer");
+                bAddDot = false;
+            }
+            else if (!method.IsStatic)
             {
                 code.Append($"\t\t\t\treturn {functionName}(({oriTypeClassName})pUserClass.pPointer");
                 bAddDot = false;
@@ -436,6 +451,7 @@ namespace Framework.AT.Editor
             FieldInfo field = info.info as FieldInfo;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
             string oriTypeClassName = export.type.Name.Replace("+", ".");
+            bool isModule = export.type.IsSubclassOf(typeof(AModule));
 
             var paramType = ConvertTypeToATType(field.FieldType);
 
@@ -505,7 +521,7 @@ namespace Framework.AT.Editor
                 code.AppendLine("\t\t\tcase " + getGuid + ":" + "//" + info.info.Name + " get");
                 code.AppendLine("\t\t\t{");
 
-                if (!field.IsStatic)
+                if (!field.IsStatic && !isModule)
                 {
                     code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
                     code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
@@ -513,7 +529,16 @@ namespace Framework.AT.Editor
                 }
                 else
                     code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                if (isModule)
+                {
+                    code.AppendLine($"\t\t\t\t{export.type} pModulePointer = pAgentTree.GetModule<{export.type}>();");
+                    code.AppendLine($"\t\t\t\tif(pModulePointer == null) return true;");
+                }
 
+                if (isModule)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pModulePointer, pAgentTree, pNode");
+                }
                 if (!field.IsStatic)
                 {
                     code.Append($"\t\t\t\treturn {functionNameGet}(({oriTypeClassName})pUserClass.pPointer, pAgentTree, pNode");
@@ -541,7 +566,7 @@ namespace Framework.AT.Editor
                 code.AppendLine("\t\t\tcase " + setGuid + ":" + "//" + info.info.Name + " set");
                 code.AppendLine("\t\t\t{");
 
-                if (!field.IsStatic)
+                if (!field.IsStatic && !isModule)
                 {
                     code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
                     code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
@@ -549,8 +574,16 @@ namespace Framework.AT.Editor
                 }
                 else
                     code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
-
-                if (!field.IsStatic)
+                if (isModule)
+                {
+                    code.AppendLine($"\t\t\t\t{export.type} pModulePointer = pAgentTree.GetModule<{export.type}>();");
+                    code.AppendLine($"\t\t\t\tif(pModulePointer == null) return true;");
+                }
+                if (isModule)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pModulePointer,");
+                }
+                else if (!field.IsStatic)
                 {
                     code.Append($"\t\t\t\treturn {functionNameSet}(({oriTypeClassName})pUserClass.pPointer,");
                 }
@@ -705,7 +738,6 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t//-----------------------------------------------------");
             code.AppendLine("\t\tpublic static void Register(int typeId, System.Type type, ATCallHandler.OnActionDelegate onFunction, int parentTypeId =0)");
             code.AppendLine("\t\t{");
-            code.AppendLine("\t\t\t");
             code.AppendLine("\t\t\tATRtti.Register(typeId,type,parentTypeId);");
             code.AppendLine("\t\t\tATCallHandler.RegisterHandler(typeId,onFunction);");
             code.AppendLine("\t\t}");
@@ -767,6 +799,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static string GetTypeName(System.Type type)
         {
+            type = GetParameterType(type);
             return type.FullName.Replace("+", ".");
         }
         //-----------------------------------------------------
@@ -782,6 +815,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static System.Type ConvertTypeToATType(System.Type type)
         {
+            type = GetParameterType(type);
             if (type == typeof(bool)) return typeof(VariableBool);
             else if (type == typeof(byte)) return typeof(VariableInt);
             else if (type == typeof(sbyte)) return typeof(VariableInt);
@@ -805,6 +839,7 @@ namespace Framework.AT.Editor
             else if (type == typeof(Bounds)) return typeof(VariableBounds);
             else if (type == typeof(Matrix4x4)) return typeof(VariableMatrix);
             else if (type == typeof(ObjId)) return typeof(VariableObjId);
+            else if (type == typeof(string)) return typeof(VariableString);
             else if (type == typeof(IUserData)) return typeof(VariableUserData);
             else if (IsUserDataType(type)) return typeof(VariableUserData);
             else if (type.IsEnum) return typeof(VariableInt);
@@ -813,6 +848,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static string ConvertTypeToATGetInPortFunction(System.Type type)
         {
+            type = GetParameterType(type);
             if (type == typeof(bool)) return "GetInportBool";
             else if (type == typeof(char)) return "GetInportChar";
             else if (type == typeof(byte)) return "GetInportByte";
@@ -908,8 +944,19 @@ namespace Framework.AT.Editor
             return null;
         }
         //-----------------------------------------------------
+        static Type GetParameterType(System.Type type)
+        {
+            if ((type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            {
+                return Nullable.GetUnderlyingType(type);
+            }
+            return type;
+        }
+        //-----------------------------------------------------
         static bool SupportExportATType(System.Type type)
         {
+            type = GetParameterType(type);
+
             if (type == typeof(void)
                 || type == typeof(bool)
                 || type == typeof(byte)

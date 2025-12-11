@@ -215,6 +215,23 @@ namespace Framework.AT.Editor
             return m_pAgentTreeData;
         }
         //-----------------------------------------------------
+        public void ShowNotification(string content, float duration =1)
+        {
+            m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent(content), duration);
+        }
+        //-----------------------------------------------------
+        public void ShowNotificationError(string content, float duration = 1)
+        {
+            var icon = EditorGUIUtility.IconContent("console.erroricon").image;
+            m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent(content, icon), duration);
+        }
+        //-----------------------------------------------------
+        public void ShowNotificationWarning(string content, float duration = 1)
+        {
+            var icon = EditorGUIUtility.IconContent("console.warnicon").image;
+            m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent(content, icon), duration);
+        }
+        //-----------------------------------------------------
         public AgentTree GetCurrentRuntimeAgentTree()
         {
            // var cutsceneInstance = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetCutsceneInstance();

@@ -46,6 +46,12 @@ namespace Framework.AT.Runtime
             m_pATManager = pManager;
         }
         //------------------------------------------------------
+        public T GetModule<T>() where T : AModule
+        {
+            if (m_pATManager == null) return null;
+            return m_pATManager.GetFramework().GetModule<T>();
+        }
+        //------------------------------------------------------
         public IUserData GetOwnerClass(int hashCode)
         {
             if (m_OwnerClass == null) return null;

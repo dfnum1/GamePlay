@@ -19,7 +19,7 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
-    [ATInteralExport("Actor系统/技能", -2, "ActorSystem/actor_skill")]
+    [ATInteralExport("Actor系统/技能", -4, "ActorSystem/actor_skill")]
     public class Skill : AActorStateInfo
     {
         protected uint              m_nSkillID = 0;

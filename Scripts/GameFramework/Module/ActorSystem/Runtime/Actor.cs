@@ -24,7 +24,7 @@ namespace Framework.ActorSystem.Runtime
     //--------------------------------------------------------
     //! Actor
     //--------------------------------------------------------
-    [ATInteralExport("Actor系统/Actor", -1)]
+    [ATInteralExport("Actor系统/Actor", -2, icon:"ActorSystem/actor")]
     public class Actor : TypeActor, ICutsceneObject
     {
         public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);
@@ -80,7 +80,7 @@ namespace Framework.ActorSystem.Runtime
             m_nInstanceID = nID;
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("获取实例ID")]
         public int GetInstanceID()
         {
             return m_nInstanceID;
@@ -386,6 +386,12 @@ namespace Framework.ActorSystem.Runtime
         {
             return m_BoundBox;
         }
+        //-------------------------------------------------
+        [ATMethod("获取包围盒")]
+        public Bounds GetBound()
+        {
+            return m_BoundBox.ToBounds();
+        }
         //--------------------------------------------------------
         [ATMethod("设置包围盒大小")]
         public void SetBound(FVector3 min, FVector3 max)
@@ -634,60 +640,61 @@ namespace Framework.ActorSystem.Runtime
             return IsFlag(EActorFlag.Spatial);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置可见性")]
         public void SetVisible(bool bVisible)
         {
             SetFlag(EActorFlag.Visible, bVisible);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否可见")]
         public bool IsVisible()
         {
             return IsFlag(EActorFlag.Visible);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置激活")]
         public void SetActived(bool bToggle)
         {
             SetFlag(EActorFlag.Active, bToggle);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否激活")]
         public bool IsActived()
         {
             return IsFlag(EActorFlag.Active);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置逻辑开关")]
         public void EnableLogic(bool bToggle)
         {
             SetFlag(EActorFlag.Logic, bToggle);
         }
         //------------------------------------------------------
+        [ATMethod("是否开启逻辑")]
         public bool IsLogicEnable()
         {
             return IsFlag(EActorFlag.Logic);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置启用AI")]
         public void EnableAI(bool bToggle)
         {
             SetFlag(EActorFlag.AI, bToggle);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否启用AI")]
         public bool IsEnableAI()
         {
             return IsFlag(EActorFlag.AI);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置是否动态避障")]
         public void EnableRVO(bool bToggle)
         {
             SetFlag(EActorFlag.RVO, bToggle);
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否动态避障")]
         public bool IsEnableRVO()
         {
             return IsFlag(EActorFlag.RVO);
@@ -776,7 +783,7 @@ namespace Framework.ActorSystem.Runtime
             return GetActorGraph().GetGraphData();
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("播放动作-Type Tag")]
         public void StartActionState(EActionStateType eType, uint nTag = 0, bool bForce = false, IContextData pStateParam = null)
         {
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
@@ -793,7 +800,7 @@ namespace Framework.ActorSystem.Runtime
             pAgent.PlayAnimation(eType, nTag, bForce);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("播放动作-Type与Tag组合Key")]
         public void StartActionState(uint nActionTypeAndTag, bool bForce = false, IContextData pStateParam = null)
         {
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
@@ -825,7 +832,7 @@ namespace Framework.ActorSystem.Runtime
             pAgent.PlayAnimation(pAction, blendTime, bForce);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("停止动作")]
         public void StopActionState(EActionStateType eType, uint nTag = 0)
         {
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
@@ -841,7 +848,7 @@ namespace Framework.ActorSystem.Runtime
             pAgent.StopAnimation(eType, nTag);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置默认动作")]
         public void SetIdleType(EActionStateType eType, uint tag = 0)
         {
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
@@ -850,7 +857,7 @@ namespace Framework.ActorSystem.Runtime
             pAgent.SetIdleType(eType, tag);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("删除动作")]
         public void RemoveActionState(EActionStateType eType, uint nTag = 0)
         {
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
@@ -876,19 +883,19 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SetAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置属性"), ATMethodArgv("type", "", "DrawAttributePop")]
         public void SetAttr(byte type, FFloat value)
         {
             GetActorParameter().SetAttr(type, value);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("获取属性"), ATMethodArgv("type", "", "DrawAttributePop")]
         public FFloat GetAttr(byte type, FFloat defVal = 0)
         {
             return GetActorParameter().GetAttr(type, defVal);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("移除属性"), ATMethodArgv("type", "", "DrawAttributePop")]
         public void RemoveAttr(byte type)
         {
             GetActorParameter().RemoveAttr(type);
@@ -899,7 +906,7 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().AppendAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("添加属性"), ATMethodArgv("type", "", "DrawAttributePop")]
         public void AppendAttr(byte type, FFloat value)
         {
             GetActorParameter().AppendAttr(type, value);
@@ -910,13 +917,13 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SubAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("减少属性"), ATMethodArgv("type", "","DrawAttributePop")]
         public void SubAttr(byte type, int value, bool bLowerZero = false)
         {
             GetActorParameter().SubAttr(type, value, bLowerZero);
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("清除属性")]
         public void ClearAttrs()
         {
             GetActorParameter().ClearAttrs();
@@ -962,7 +969,7 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否播放某类型动作")]
         public bool IsInAction(EActionStateType eType)
         {
             if (m_pGraph != null)
@@ -976,6 +983,7 @@ namespace Framework.ActorSystem.Runtime
             return pAgent.IsInAction(eType);
         }
         //--------------------------------------------------------
+        [ATMethod("获取技能系统")]
         public SkillSystem GetSkillSystem()
         {
             if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>();
@@ -983,7 +991,7 @@ namespace Framework.ActorSystem.Runtime
             return m_pSkillSystem;
         }
         //--------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否在攻击")]
         public bool IsAttacking()
         {
             if (m_pSkillSystem == null) return false;
@@ -1282,7 +1290,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         protected virtual void OnDirtyScale() { }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否被过场控制")]
         public bool IsCutscneHolded()
         {
 #if USE_CUTSCENE
@@ -1303,7 +1311,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("重置逻辑冰冻")]
         public void ResetFreeze()
         {
             bool isFreezeCall = IsFreezed();
@@ -1313,7 +1321,7 @@ namespace Framework.ActorSystem.Runtime
                 OnFreezed(IsFreezed());
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("设置逻辑冰冻")]
         public void Freezed(bool bToggle, float fDuration)
         {
             bool isFreezeCall = IsFreezed();
@@ -1347,7 +1355,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        [ATMethod]
+        [ATMethod("是否逻辑冰冻")]
         public bool IsFreezed()
         {
             return m_nFreezeCounter > 0;
@@ -1358,18 +1366,20 @@ namespace Framework.ActorSystem.Runtime
             
         }
         //------------------------------------------------------
-        public virtual bool IsIntersecition(Actor pNode)
+        [ATMethod("碰撞检测-Actor")]
+        public virtual bool IsIntersecition(Actor pActor)
         {
-            if (pNode == null)
+            if (pActor == null)
                 return false;
-            WorldBoundBox bound = pNode.GetBounds();
-            if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), bound.GetCenter(), bound.GetHalf(), pNode.GetMatrix()) ||
-                IntersetionUtil.CU_OBBOBBIntersection(m_pSytstem.GetIntersetionParam(), bound.GetCenter(), bound.GetHalf(), pNode.GetMatrix(), GetBounds().GetCenter(), GetBounds().GetHalf(), GetMatrix()))
+            WorldBoundBox bound = pActor.GetBounds();
+            if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), bound.GetCenter(), bound.GetHalf(), pActor.GetMatrix()) ||
+                IntersetionUtil.CU_OBBOBBIntersection(m_pSytstem.GetIntersetionParam(), bound.GetCenter(), bound.GetHalf(), pActor.GetMatrix(), GetBounds().GetCenter(), GetBounds().GetHalf(), GetMatrix()))
                 return true;
             return false;
         }
         //------------------------------------------------------
-        public virtual bool IsIntersecition(Matrix4x4 mtTrans, FVector3 vCenter, FVector3 vHalf)
+        [ATMethod("碰撞检测-坐标大小")]
+        public virtual bool IsIntersecition(FMatrix4x4 mtTrans, FVector3 vCenter, FVector3 vHalf)
         {
             if (IntersetionUtil.CU_LineOBBIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vCenter, vHalf, mtTrans))
             {
@@ -1380,7 +1390,8 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
-        public virtual bool IsIntersecition(Matrix4x4 mtTrans, float radius)
+        [ATMethod("碰撞检测-球性")]
+        public virtual bool IsIntersecition(FMatrix4x4 mtTrans, float radius)
         {
             FVector3 vTransCenter = BaseUtil.GetPosition(mtTrans);
             if (IntersetionUtil.CU_LineSphereIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vTransCenter, radius))
@@ -1392,6 +1403,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //------------------------------------------------------
+        [ATMethod("获取绑定矩阵")]
         public virtual Matrix4x4 GetEventBindSlot(string strSlot, int bindSlot = (int)ESlotBindBit.All)
         {
             if (bindSlot == 0 || m_pObjectAble.pUnityTransform == null) return GetMatrix();

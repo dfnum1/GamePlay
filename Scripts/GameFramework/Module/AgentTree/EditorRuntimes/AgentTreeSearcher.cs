@@ -22,81 +22,49 @@ namespace Framework.AT.Editor
         public SerchMenuWindowOnSelectEntryDelegate OnSelectEntryHandler;
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            var _entries = new List<SearchTreeEntry>
-            {
-                new SearchTreeGroupEntry(new GUIContent("添加节点")) { level = 0 }
-            };
-
-            // 路径到分组的映射
-            var groupDict = new Dictionary<string, SearchTreeEntry>
-            {
-                { "", _entries[0] } // 根节点
-            };
-            foreach (var item in AgentTreeUtil.GetAttrs())
-            {
-                if (!item.actionAttr.bShow)
-                    continue;
-
-                string menuPath = item.strMenuName ?? item.displayName;
-
-                var pathParts = menuPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-                string curPath = "";
-                int level = 1;
-
-                // 逐级创建分组
-                for (int i = 0; i < pathParts.Length - 1; i++)
-                {
-                    string part = pathParts[i];
-                    string parentPath = curPath;
-                    curPath = string.IsNullOrEmpty(curPath) ? part : $"{curPath}/{part}";
-
-                    if (!groupDict.ContainsKey(curPath))
-                    {
-                        var groupEntry = new SearchTreeGroupEntry(new GUIContent(part), level);
-                        _entries.Add(groupEntry);
-                        groupDict[curPath] = groupEntry;
-                    }
-                    level++;
-                }
-
-
-                string displayName = pathParts[pathParts.Length - 1];
-                var entry = item.iconAttr != null
-                    ? new SearchTreeEntry(new GUIContent(displayName, AgentTreeUtil.LoadIcon(item.iconAttr.name), item.tips))
-                    : new SearchTreeEntry(new GUIContent(displayName, item.tips));
-                entry.level = level;
-                entry.userData = item;
-
-                _entries.Add(entry); // 直接添加即可
-            }
-            /*
-            if (ownerGraphView!=null)
-            {
-                SearchTreeGroupEntry callBack = new SearchTreeGroupEntry(new GUIContent("节点返回值"))
-                {
-                    level = 1
-                };
-                tree.Add(callBack);
-                var ports = ownerGraphView.GetArvgPorts();
-                foreach(var db in ports)
-                {
-                    if (db.isInput)
-                        continue;
-                    SearchTreeGroupEntry nodeGp = new SearchTreeGroupEntry(new GUIContent(db.grapNode.title))
-                    {
-                        level = 2
-                    };
-                    tree.Add(nodeGp);
-                    string name = db.GetName();
-                    tree.Add(new SearchTreeEntry(new GUIContent(name))
-                    {
-                        level = 3,
-                        userData = db
-                    });
-                }
-            }*/
+            var _entries = new List<SearchTreeEntry>();
+            
+            // 创建根节点
+            var rootEntry = new SearchTreeGroupEntry(new GUIContent("添加节点")) { level = 0 };
+            _entries.Add(rootEntry);
+            
+            BuildSearchMenuFromTree(AgentTreeUtil.GetMenuRoot(), _entries, 0);
+            
             return _entries;
         }
+        
+        // 从树形结构构建搜索菜单
+        private void BuildSearchMenuFromTree(MenuTreeNode node, List<SearchTreeEntry> entries, int level)
+        {
+            if (level > 0) // 跳过根节点，因为已经添加了
+            {
+                if (node.Children.Count > 0) // 如果有子节点，创建分组条目
+                {
+                    // 创建分组条目
+                    var groupEntry = node.Icon != null 
+                        ? new SearchTreeGroupEntry(new GUIContent(node.Name, node.Icon), level)
+                        : new SearchTreeGroupEntry(new GUIContent(node.Name), level);
+                    entries.Add(groupEntry);
+                }
+                else if (node.UserData != null) // 如果是叶节点，直接添加菜单项
+                {
+                    var entry = node.Icon != null
+                        ? new SearchTreeEntry(new GUIContent(node.Name, node.Icon, node.Tips))
+                        : new SearchTreeEntry(new GUIContent(node.Name, node.Tips));
+                    entry.level = level;
+                    entry.userData = node.UserData;
+                    entries.Add(entry);
+                }
+            }
+            
+            // 处理所有子节点
+            foreach (var child in node.Children)
+            {
+                BuildSearchMenuFromTree(child, entries, level + 1);
+            }
+        }
+        
+        
 
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
         {

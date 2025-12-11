@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass("Actor系统/命中帧数据")]
+	[ATClass(typeof(Framework.ActorSystem.Runtime.HitFrameActor),"Actor系统/命中帧数据")]
 #endif
 	public class Framework_ActorSystem_Runtime_HitFrameActor
 	{

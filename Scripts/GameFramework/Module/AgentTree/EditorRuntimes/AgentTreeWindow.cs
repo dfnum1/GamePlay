@@ -65,11 +65,12 @@ namespace Framework.AT.Editor
         //--------------------------------------------------------
         protected override void OnInnerEnable()
         {
-        //    m_CutsceneManager = new CutsceneManager();
-        //    m_pCutscene = new CutsceneInstance(m_CutsceneManager);
-        //    m_pCutscene.SetEditorMode(true, this);
-        //    m_pCutscene.SetGUID(DataUtils.EDITOR_INSTANCE_ID-1);
-        //    DataUtils.AddRuntimeCutsceneInstance(m_pCutscene);
+            Editor.AgentTreeUtil.EditorInit();
+            //    m_CutsceneManager = new CutsceneManager();
+            //    m_pCutscene = new CutsceneInstance(m_CutsceneManager);
+            //    m_pCutscene.SetEditorMode(true, this);
+            //    m_pCutscene.SetGUID(DataUtils.EDITOR_INSTANCE_ID-1);
+            //    DataUtils.AddRuntimeCutsceneInstance(m_pCutscene);
             this.minSize = new Vector2(600, 400);
             this.wantsMouseMove = true;
             this.wantsMouseEnterLeaveWindow = true;

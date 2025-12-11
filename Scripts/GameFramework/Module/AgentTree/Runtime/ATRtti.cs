@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 namespace Framework.AT.Runtime
@@ -44,7 +45,25 @@ namespace Framework.AT.Runtime
                 ms_vParentTypeIds[typeId] = parentTypeId;
             }
 #if UNITY_EDITOR
-            ms_TypeFullNameIds[type.FullName.Replace("+", "/").Replace(".", "/")] = typeId;
+            string fullName = type.FullName.Replace("+", "/").Replace(".", "/");
+            string[] parts = fullName.Split('/');
+            string regName = parts[parts.Length - 1];
+            bool found = false;
+            for (int i = parts.Length - 1; i >= 0; i--)
+            {
+                string tryName = string.Join("/", parts, i, parts.Length - i);
+                if (!ms_TypeFullNameIds.ContainsKey(tryName))
+                {
+                    regName = tryName;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                regName = fullName;
+            }
+            ms_TypeFullNameIds[regName] = typeId;
 #endif
         }
         //-----------------------------------------------------
@@ -137,6 +156,25 @@ namespace Framework.AT.Runtime
                 tempId = GetClassParentTypeId(tempId);
             }
             return false;
+        }
+        //------------------------------------------------------
+        internal static bool HasCommonConcreteBaseType(System.Type typeA, System.Type typeB)
+        {
+            if (typeA == typeB) return true;
+            var baseTypesA = GetConcreteBaseTypes(typeA);
+            var baseTypesB = GetConcreteBaseTypes(typeB);
+            return baseTypesA.Intersect(baseTypesB).Any();
+        }
+        //------------------------------------------------------
+        private static IEnumerable<System.Type> GetConcreteBaseTypes(System.Type type)
+        {
+            var current = type.BaseType;
+            while (current != null && current != typeof(object))
+            {
+                if (!current.IsAbstract && !current.IsInterface)
+                    yield return current;
+                current = current.BaseType;
+            }
         }
 #endif
     }
