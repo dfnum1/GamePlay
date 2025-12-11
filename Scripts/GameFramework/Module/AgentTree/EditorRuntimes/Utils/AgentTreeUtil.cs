@@ -524,7 +524,7 @@ namespace Framework.AT.Editor
         }
         //-----------------------------------------------------
         // 将菜单项添加到树形结构
-        static void AddToTreeNode(MenuTreeNode parent, string[] pathParts, object userData, Texture icon)
+        static void AddToTreeNode(MenuTreeNode parent, string[] pathParts, AgentTreeAttri userData, Texture icon)
         {
             if (pathParts.Length == 0)
                 return;
@@ -543,7 +543,6 @@ namespace Framework.AT.Editor
             if (pathParts.Length == 1)
             {
                 currentNode.Icon = icon;
-          //      parent.Icon = icon;
                 // 这是叶节点，存储用户数据
                 currentNode.UserData = userData;
                 currentNode.Tips = userData.ToString(); // 假设userData有ToString()方法
@@ -551,6 +550,12 @@ namespace Framework.AT.Editor
             else
             {
                 // 递归处理剩余路径
+                string lastPath = "";
+                for(int i =0; i < pathParts.Length;++i)
+                {
+                    lastPath += pathParts[i];
+                    if (i < pathParts.Length - 1) lastPath += "/";
+                }
                 string[] remainingPath = new string[pathParts.Length - 1];
                 Array.Copy(pathParts, 1, remainingPath, 0, remainingPath.Length);
                 AddToTreeNode(currentNode, remainingPath, userData, icon);

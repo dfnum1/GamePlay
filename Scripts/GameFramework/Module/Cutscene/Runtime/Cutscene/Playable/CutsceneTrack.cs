@@ -490,7 +490,7 @@ namespace Framework.Cutscene.Runtime
                                         if (clipData.pDriver == null || !clipData.pDriver.OnClipEnter(this, frameData))
                                             OnFrameClipEnter(ref frameData);
                                         clipData.eStatus = EDriverStatus.Framing;
-                                        UpdateFreming(ref frameData, ref clipData, i);
+                                        UpdateFreming(ref frameData, ref clipData, i,true);
                                         if (frameData.curTime >= endTime)
                                         {
                                             clipData.eStatus = EDriverStatus.Leave;
@@ -563,7 +563,7 @@ namespace Framework.Cutscene.Runtime
             return bOver;
         }
         //-----------------------------------------------------
-        void UpdateFreming(ref FrameData frameData, ref ClipData clipData, int index)
+        void UpdateFreming(ref FrameData frameData, ref ClipData clipData, int index, bool bSkipTime = false)
         {
             float beginTime = clipData.clipData.GetTime();
             float endTime = beginTime + clipData.clipData.GetDuration();
@@ -598,6 +598,12 @@ namespace Framework.Cutscene.Runtime
                         OnFrameClipLeave(ref frameData);
                 }
                 else if (frameData.curTime <= endTime)
+                {
+                    frameData.subTime = frameData.curTime - beginTime;
+                    if (clipData.pDriver == null || !clipData.pDriver.OnFrameClip(this, frameData))
+                        OnFrameClip(ref frameData);
+                }
+                else if (bSkipTime)
                 {
                     frameData.subTime = frameData.curTime - beginTime;
                     if (clipData.pDriver == null || !clipData.pDriver.OnFrameClip(this, frameData))
