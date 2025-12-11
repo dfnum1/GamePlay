@@ -380,6 +380,7 @@ namespace Framework.AT.Runtime
     {
         public short guid;
         public int value;
+        [System.NonSerialized]
         public IUserData pPointer;
         //-----------------------------------------------------
         public VariableUserData(int value)

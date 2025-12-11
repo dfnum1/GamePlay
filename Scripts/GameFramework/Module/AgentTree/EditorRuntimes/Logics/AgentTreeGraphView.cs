@@ -127,7 +127,7 @@ namespace Framework.AT.Editor
             if (inputPort != null && inputPort.connections.Count() <= 1 && inputPort.source != null && inputPort.source is ArvgPort)
             {
                 ArvgPort arvPort = inputPort.source as ArvgPort;
-                arvPort.fieldRoot.SetEnabled(arvPort.attri.canEdit); 
+                arvPort.fieldRoot.SetEnabled(arvPort.attri.canEdit);
                 if (arvPort.enumPopFieldElement != null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
             }
@@ -562,6 +562,17 @@ namespace Framework.AT.Editor
 
                         if (srcPort.GetVariable().GetType() != starPort.GetVariable().GetType())
                             continue;
+
+                        if(srcPort.GetVariable() is VariableUserData)
+                        {
+                            VariableUserData userDataSrc = (VariableUserData)srcPort.GetVariable();
+                            VariableUserData userDataStar = (VariableUserData)starPort.GetVariable();
+                            if(userDataSrc.value != userDataStar.value)
+                            {
+                                if (!ATRtti.IsSubOfTypeId(userDataStar.value, userDataSrc.value))
+                                    continue;
+                            }
+                        }
                     }
                     else if (port.source is LinkPort)
                     {

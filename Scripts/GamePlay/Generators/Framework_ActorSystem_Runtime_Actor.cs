@@ -3,12 +3,12 @@ using Framework.AT.Runtime;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass("Actor")]
+	[ATClass("Actor系统/Actor")]
 #endif
 	public class Framework_ActorSystem_Runtime_Actor
 	{
 #if UNITY_EDITOR
-		[ATFunction(381027485,"GetInstanceID",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(404601789,"GetInstanceID",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
 #endif
@@ -18,7 +18,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(312098358,"获取攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1173551111,"获取攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Byte))]
 #endif
@@ -28,7 +28,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1837403457,"设置攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(988564336,"设置攻击组",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"attackGroup",false, null,typeof(System.Byte))]
 #endif
@@ -38,7 +38,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(765517350,"是否可攻击",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2059933719,"是否可攻击",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"attackGroup",false, null,typeof(System.Byte))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
@@ -49,7 +49,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-955549743,"设置速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1654382610,"设置速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"speed",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -59,7 +59,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-297293181,"设置速度XZ",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-837711597,"设置速度XZ",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"speed",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -69,7 +69,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1073367040,"获取当前速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1704271933,"获取当前速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -79,7 +79,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(833023976,"设置Y速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(134270141,"设置Y速度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fSpeedY",false, null,typeof(System.Single))]
 #endif
@@ -89,7 +89,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1824765372,"设置摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(824513177,"设置摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fValue",false, null,typeof(System.Single))]
 #endif
@@ -99,7 +99,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1928069877,"获取摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(789226960,"获取摩檫力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
 #endif
@@ -109,7 +109,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(964859665,"启用重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(421729815,"启用重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bEnable",false, null,typeof(System.Boolean))]
 #endif
@@ -119,7 +119,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(347890795,"设置重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1711258735,"设置重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fValue",false, null,typeof(System.Single))]
 #endif
@@ -129,7 +129,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(989414905,"获取重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1270521341,"获取重力",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
 #endif
@@ -139,7 +139,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-895517594,"获取当前位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1753621693,"获取当前位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -149,7 +149,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-628240668,"获取上一次位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1977532792,"获取上一次位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -159,7 +159,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-726611153,"设置位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1990824950,"设置位置",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vPosition",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -169,7 +169,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1338512524,"位置偏移",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1500835776,"位置偏移",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vOffset",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -179,7 +179,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-712341336,"获取角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1274405658,"获取角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -189,7 +189,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1590410012,"设置角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1061891926,"设置角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vEulerAngle",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -199,7 +199,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1394750896,"获取矩阵",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1374303795,"获取矩阵",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableMatrix), "pReturn", null,typeof(UnityEngine.Matrix4x4))]
 #endif
@@ -209,7 +209,18 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1490974294,"设置方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-927767726,"设置包围盒大小",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"min",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"max",false, null,typeof(UnityEngine.Vector3))]
+#endif
+		static bool AT_SetBound(Actor pPointerThis,UnityEngine.Vector3 min,UnityEngine.Vector3 max)
+		{
+			pPointerThis.SetBound(min,max);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(327632054,"设置方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vDirection",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -219,7 +230,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1472241877,"获取方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(479826485,"获取方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -229,7 +240,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1098330067,"获取Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-2003762858,"获取Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -239,7 +250,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-736682351,"设置Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(502345748,"设置Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"up",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -249,7 +260,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-2078882846,"获取Right朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(562451489,"获取Right朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -259,7 +270,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-593849486,"获取缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2030699697,"获取缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
 #endif
@@ -269,7 +280,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(611036323,"设置缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-2114241696,"设置缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"scale",false, null,typeof(UnityEngine.Vector3))]
 #endif
@@ -279,7 +290,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-88835465,"设置位置角度缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1309849449,"设置位置角度缩放",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vPosition",false, null,typeof(UnityEngine.Vector3))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vEulerAngle",false, null,typeof(UnityEngine.Vector3))]
@@ -291,7 +302,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-375119552,"是否拥有标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-322938593,"是否拥有标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"flag",false, null,typeof(Framework.ActorSystem.Runtime.EActorFlag))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
@@ -302,7 +313,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(724323496,"设置标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1324424049,"设置标志",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"flag",false, null,typeof(Framework.ActorSystem.Runtime.EActorFlag))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bSet",false, null,typeof(System.Boolean))]
@@ -313,7 +324,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1337224865,"是否开启逻辑",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-906116501,"是否开启逻辑",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -323,7 +334,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-902001298,"是否不可见",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1288257277,"是否不可见",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -333,7 +344,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-716677369,"设置延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1288702801,"设置延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fTime",false, null,typeof(System.Single))]
 #endif
@@ -343,7 +354,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(458663211,"获取延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-2100366979,"获取延迟删除时间",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
 #endif
@@ -353,7 +364,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(854312887,"删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1135091635,"删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_SetDestroy(Actor pPointerThis)
@@ -362,7 +373,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1507174251,"是否删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1827891106,"是否删除",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -372,7 +383,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-130130118,"HUD开关",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(242724015,"HUD开关",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bHudBar",false, null,typeof(System.Boolean))]
 #endif
@@ -382,7 +393,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1847440768,"是否开启HUD",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1509444428,"是否开启HUD",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -392,7 +403,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(63681228,"是否拥有物理碰撞",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1409441560,"是否拥有物理碰撞",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -402,7 +413,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-2139515976,"SetKilled",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-2102292443,"设置死亡",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bKilled",false, null,typeof(System.Boolean))]
 #endif
@@ -412,7 +423,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(635254065,"IsKilled",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1176537280,"是否阵亡",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -422,7 +433,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(873572757,"SetVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1163030929,"SetVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bVisible",false, null,typeof(System.Boolean))]
 #endif
@@ -432,7 +443,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1596967241,"IsVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1778977152,"IsVisible",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -442,7 +453,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(943289552,"SetActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1232776406,"SetActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 #endif
@@ -452,7 +463,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1392972814,"IsActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1713493189,"IsActived",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -462,7 +473,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(59183278,"EnableLogic",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1725364953,"EnableLogic",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 #endif
@@ -472,7 +483,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(511331437,"EnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-725487424,"EnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 #endif
@@ -482,7 +493,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1742940291,"IsEnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1904103641,"IsEnableAI",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -492,7 +503,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-733558894,"EnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1199932339,"EnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 #endif
@@ -502,7 +513,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-914902675,"IsEnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2041689143,"IsEnableRVO",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -512,7 +523,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1988170200,"StartActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-112856003,"StartActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
@@ -525,7 +536,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(242567738,"StartActionState_1",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-48442208,"StartActionState_1",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nActionTypeAndTag",false, null,typeof(System.UInt32))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bForce",false, null,typeof(System.Boolean))]
@@ -537,7 +548,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-228769905,"StopActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-82564754,"StopActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
@@ -548,7 +559,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1689203650,"SetIdleType",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1719976999,"SetIdleType",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"tag",false, null,typeof(System.UInt32))]
@@ -559,7 +570,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-2072478675,"RemoveActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(207081506,"RemoveActionState",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nTag",false, null,typeof(System.UInt32))]
@@ -570,7 +581,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-22641626,"SetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1686383617,"SetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(System.Single))]
@@ -581,7 +592,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1832336635,"GetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-149580580,"GetAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"defVal",false, null,typeof(System.Single))]
@@ -593,7 +604,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-468082741,"RemoveAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(86650515,"RemoveAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 #endif
@@ -603,7 +614,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1610379500,"AppendAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1093680716,"AppendAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(System.Single))]
@@ -614,7 +625,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(315679903,"SubAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-1997386568,"SubAttr",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"value",false, null,typeof(System.Int32))]
@@ -626,7 +637,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1249179647,"ClearAttrs",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-894122339,"ClearAttrs",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_ClearAttrs(Actor pPointerThis)
@@ -635,7 +646,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-943336217,"IsInAction",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2015276513,"IsInAction",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
@@ -646,7 +657,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1576406313,"IsAttacking",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-2073512697,"IsAttacking",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -656,7 +667,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(528609504,"IsCutscneHolded",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(-448329711,"IsCutscneHolded",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -666,7 +677,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-604755324,"ResetFreeze",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2026433217,"ResetFreeze",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_ResetFreeze(Actor pPointerThis)
@@ -675,7 +686,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(181418108,"Freezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(817905509,"Freezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fDuration",false, null,typeof(System.Single))]
@@ -686,7 +697,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1080427348,"IsFreezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(1967178651,"IsFreezed",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
 #endif
@@ -707,477 +718,484 @@ namespace Framework.ActorSystem.Runtime
 			int actionType = pNode.type;
 			switch(actionType)
 			{
-			case 381027485://GetInstanceID
+			case 404601789://GetInstanceID
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetInstanceID(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetInstanceID((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 312098358://GetAttackGroup
+			case 1173551111://GetAttackGroup
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetAttackGroup(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetAttackGroup((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 1837403457://SetAttackGroup
+			case 988564336://SetAttackGroup
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetAttackGroup(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1));
+				return AT_SetAttackGroup((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
 			}
-			case 765517350://CanAttackGroup
+			case 2059933719://CanAttackGroup
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_CanAttackGroup(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+				return AT_CanAttackGroup((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
-			case -955549743://SetSpeed
+			case 1654382610://SetSpeed
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetSpeed(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetSpeed((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case -297293181://SetSpeedXZ
+			case -837711597://SetSpeedXZ
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetSpeedXZ(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetSpeedXZ((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case 1073367040://GetSpeed
+			case -1704271933://GetSpeed
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetSpeed(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetSpeed((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 833023976://SetSpeedY
+			case 134270141://SetSpeedY
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetSpeedY(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
+				return AT_SetSpeedY((Actor)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
 			}
-			case 1824765372://SetFraction
+			case 824513177://SetFraction
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetFraction(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
+				return AT_SetFraction((Actor)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
 			}
-			case 1928069877://GetFraction
+			case 789226960://GetFraction
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetFraction(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetFraction((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 964859665://EnableGravity
+			case 421729815://EnableGravity
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_EnableGravity(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
+				return AT_EnableGravity((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
 			}
-			case 347890795://SetGravity
+			case -1711258735://SetGravity
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetGravity(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
+				return AT_SetGravity((Actor)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
 			}
-			case 989414905://GetGravity
+			case -1270521341://GetGravity
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetGravity(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetGravity((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -895517594://GetPosition
+			case -1753621693://GetPosition
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetPosition(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetPosition((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -628240668://GetLastPosition
+			case 1977532792://GetLastPosition
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetLastPosition(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetLastPosition((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -726611153://SetPosition
+			case -1990824950://SetPosition
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetPosition(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetPosition((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case -1338512524://OffsetPosition
+			case 1500835776://OffsetPosition
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_OffsetPosition(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+				return AT_OffsetPosition((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case -712341336://GetEulerAngle
+			case -1274405658://GetEulerAngle
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetEulerAngle(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetEulerAngle((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -1590410012://SetEulerAngle
+			case -1061891926://SetEulerAngle
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetEulerAngle(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetEulerAngle((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case -1394750896://GetMatrix
+			case -1374303795://GetMatrix
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetMatrix(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetMatrix((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 1490974294://SetDirection
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetDirection(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
-			}
-			case 1472241877://GetDirection
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetDirection(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case 1098330067://GetUp
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetUp(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case -736682351://SetUp
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetUp(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
-			}
-			case -2078882846://GetRight
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetRight(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case -593849486://GetScale
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetScale(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case 611036323://SetScale
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetScale(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1));
-			}
-			case -88835465://SetTransfrom
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 3) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetTransfrom(pUserClass.pPointer as Actor,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportVec3(pNode,2),pAgentTree.GetInportVec3(pNode,3));
-			}
-			case -375119552://IsFlag
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsFlag(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
-			}
-			case 724323496://SetFlag
+			case -927767726://SetBound
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetFlag(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportBool(pNode,2));
+				return AT_SetBound((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportVec3(pNode,2));
 			}
-			case -1337224865://IsCanLogic
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsCanLogic(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case -902001298://IsInvincible
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsInvincible(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case -716677369://SetDelayDestroy
+			case 327632054://SetDirection
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetDelayDestroy(pUserClass.pPointer as Actor,pAgentTree.GetInportFloat(pNode,1));
+				return AT_SetDirection((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case 458663211://GetDelayDestroy
+			case 479826485://GetDirection
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetDelayDestroy(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetDirection((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 854312887://SetDestroy
+			case -2003762858://GetUp
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetDestroy(pUserClass.pPointer as Actor);
+				return AT_GetUp((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -1507174251://IsDestroy
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsDestroy(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case -130130118://EnableHudBar
+			case 502345748://SetUp
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_EnableHudBar(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
+				return AT_SetUp((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case 1847440768://IsEnableHudBar
+			case 562451489://GetRight
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsEnableHudBar(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetRight((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 63681228://IsColliderAble
+			case 2030699697://GetScale
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsColliderAble(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetScale((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -2139515976://SetKilled
+			case -2114241696://SetScale
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetKilled(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
+				return AT_SetScale((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
 			}
-			case 635254065://IsKilled
+			case -1309849449://SetTransfrom
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
+				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsKilled(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_SetTransfrom((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportVec3(pNode,2),pAgentTree.GetInportVec3(pNode,3));
 			}
-			case 873572757://SetVisible
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetVisible(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
-			}
-			case -1596967241://IsVisible
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsVisible(pUserClass.pPointer as Actor,pAgentTree, pNode);
-			}
-			case 943289552://SetActived
+			case -322938593://IsFlag
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetActived(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
+				return AT_IsFlag((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
 			}
-			case -1392972814://IsActived
+			case -1324424049://SetFlag
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 2) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetFlag((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActorFlag)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportBool(pNode,2));
+			}
+			case -906116501://IsCanLogic
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsActived(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_IsCanLogic((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 59183278://EnableLogic
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_EnableLogic(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
-			}
-			case 511331437://EnableAI
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_EnableAI(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
-			}
-			case -1742940291://IsEnableAI
+			case 1288257277://IsInvincible
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsEnableAI(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_IsInvincible((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -733558894://EnableRVO
+			case 1288702801://SetDelayDestroy
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_EnableRVO(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1));
+				return AT_SetDelayDestroy((Actor)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
 			}
-			case -914902675://IsEnableRVO
+			case -2100366979://GetDelayDestroy
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsEnableRVO(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_GetDelayDestroy((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 1988170200://StartActionState
+			case -1135091635://SetDestroy
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetDestroy((Actor)pUserClass.pPointer);
+			}
+			case 1827891106://IsDestroy
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsDestroy((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case 242724015://EnableHudBar
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_EnableHudBar((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 1509444428://IsEnableHudBar
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsEnableHudBar((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1409441560://IsColliderAble
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsColliderAble((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -2102292443://SetKilled
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetKilled((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 1176537280://IsKilled
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsKilled((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1163030929://SetVisible
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetVisible((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 1778977152://IsVisible
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsVisible((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1232776406://SetActived
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetActived((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 1713493189://IsActived
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsActived((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case 1725364953://EnableLogic
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_EnableLogic((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case -725487424://EnableAI
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_EnableAI((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case -1904103641://IsEnableAI
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsEnableAI((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case 1199932339://EnableRVO
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_EnableRVO((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 2041689143://IsEnableRVO
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsEnableRVO((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -112856003://StartActionState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 4) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_StartActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2),pAgentTree.GetInportBool(pNode,3),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,4));
+				return AT_StartActionState((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2),pAgentTree.GetInportBool(pNode,3),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,4));
 			}
-			case 242567738://StartActionState
+			case -48442208://StartActionState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_StartActionState_1(pUserClass.pPointer as Actor,pAgentTree.GetInportUint(pNode,1),pAgentTree.GetInportBool(pNode,2),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,3));
+				return AT_StartActionState_1((Actor)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1),pAgentTree.GetInportBool(pNode,2),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IContextData>(pNode,3));
 			}
-			case -228769905://StopActionState
+			case -82564754://StopActionState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_StopActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+				return AT_StopActionState((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
-			case 1689203650://SetIdleType
+			case -1719976999://SetIdleType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetIdleType(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+				return AT_SetIdleType((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
-			case -2072478675://RemoveActionState
+			case 207081506://RemoveActionState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_RemoveActionState(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+				return AT_RemoveActionState((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
-			case -22641626://SetAttr
+			case 1686383617://SetAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
+				return AT_SetAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
-			case 1832336635://GetAttr
+			case -149580580://GetAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_GetAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2), pAgentTree, pNode);
+				return AT_GetAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2), pAgentTree, pNode);
 			}
-			case -468082741://RemoveAttr
+			case 86650515://RemoveAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_RemoveAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1));
+				return AT_RemoveAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
 			}
-			case 1610379500://AppendAttr
+			case -1093680716://AppendAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_AppendAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
+				return AT_AppendAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
-			case 315679903://SubAttr
+			case -1997386568://SubAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SubAttr(pUserClass.pPointer as Actor,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportInt(pNode,2),pAgentTree.GetInportBool(pNode,3));
+				return AT_SubAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportInt(pNode,2),pAgentTree.GetInportBool(pNode,3));
 			}
-			case 1249179647://ClearAttrs
+			case -894122339://ClearAttrs
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_ClearAttrs(pUserClass.pPointer as Actor);
+				return AT_ClearAttrs((Actor)pUserClass.pPointer);
 			}
-			case -943336217://IsInAction
+			case 2015276513://IsInAction
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsInAction(pUserClass.pPointer as Actor,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
+				return AT_IsInAction((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
 			}
-			case -1576406313://IsAttacking
+			case -2073512697://IsAttacking
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsAttacking(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_IsAttacking((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 528609504://IsCutscneHolded
+			case -448329711://IsCutscneHolded
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsCutscneHolded(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_IsCutscneHolded((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case -604755324://ResetFreeze
+			case 2026433217://ResetFreeze
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_ResetFreeze(pUserClass.pPointer as Actor);
+				return AT_ResetFreeze((Actor)pUserClass.pPointer);
 			}
-			case 181418108://Freezed
+			case 817905509://Freezed
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_Freezed(pUserClass.pPointer as Actor,pAgentTree.GetInportBool(pNode,1),pAgentTree.GetInportFloat(pNode,2));
+				return AT_Freezed((Actor)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1),pAgentTree.GetInportFloat(pNode,2));
 			}
-			case -1080427348://IsFreezed
+			case 1967178651://IsFreezed
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_IsFreezed(pUserClass.pPointer as Actor,pAgentTree, pNode);
+				return AT_IsFreezed((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			}
-			return false;
+			return true;
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace Framework.AT.Runtime
         {
             int inportCnt = pNode.GetInportCount();
             int outportCnt = pNode.GetOutportCount();
-            if (inportCnt != 2 || outportCnt <= 0)
+            if (inportCnt < 1 || outportCnt <= 0)
             {
                 Debug.LogError("condtion executor inport or outport count error!");
                 return false;
@@ -24,16 +24,18 @@ namespace Framework.AT.Runtime
                 Debug.LogError("condtion input var type error!");
                 return false;
             }
-            var varType2 = pAgent.GetInportVarType(pNode, 1);
-            if (varType2 != varType1)
-            {
-                Debug.LogError("condtion op type error!");
-                return false;
-            }
+            var varType2 = EVariableType.eNone;
+            if(inportCnt>1) varType2 = pAgent.GetInportVarType(pNode, 1);
+            var outputType = pAgent.GetOutportVarType(pNode, 0);
             switch ((EActionType)pNode.type)
             {
                 case EActionType.eDotVariable:
                     {
+                        if (varType2 != varType1 || outputType!= EVariableType.eFloat)
+                        {
+                            Debug.LogError("condtion op type error!");
+                            return false;
+                        }
                         switch (varType1)
                         {
                             case EVariableType.eVec2:
@@ -68,10 +70,20 @@ namespace Framework.AT.Runtime
                     break;
                 case EActionType.eCrossVariable:
                     {
+                        if (varType2 != varType1)
+                        {
+                            Debug.LogError("condtion op type error!");
+                            return false;
+                        }
                         switch (varType1)
                         {
                             case EVariableType.eVec2:
                                 {
+                                    if(outputType!= EVariableType.eFloat)
+                                    {
+                                        Debug.LogError("condtion outport not float!");
+                                        return false;
+                                    }
                                     Vector2 a = pAgent.GetInportVec2(pNode, 0);
                                     Vector2 b = pAgent.GetInportVec2(pNode, 1);
                                     float result = a.x * b.y - a.y * b.x;
@@ -80,6 +92,11 @@ namespace Framework.AT.Runtime
                                 }
                             case EVariableType.eVec3:
                                 {
+                                    if (outputType != EVariableType.eVec3)
+                                    {
+                                        Debug.LogError("condtion outport not Vec3!");
+                                        return false;
+                                    }
                                     Vector3 a = pAgent.GetInportVec3(pNode, 0);
                                     Vector3 b = pAgent.GetInportVec3(pNode, 1);
                                     Vector3 result = Vector3.Cross(a, b);
@@ -94,10 +111,20 @@ namespace Framework.AT.Runtime
                     break;
                 case EActionType.eDistanceVariable:
                     {
+                        if (varType2 != varType1)
+                        {
+                            Debug.LogError("condtion op type error!");
+                            return false;
+                        }
                         switch (varType1)
                         {
                             case EVariableType.eVec2:
                                 {
+                                    if (outputType != EVariableType.eFloat)
+                                    {
+                                        Debug.LogError("condtion outport not float!");
+                                        return false;
+                                    }
                                     Vector2 a = pAgent.GetInportVec2(pNode, 0);
                                     Vector2 b = pAgent.GetInportVec2(pNode, 1);
                                     float result = Vector2.Distance(a, b);
@@ -106,6 +133,11 @@ namespace Framework.AT.Runtime
                                 }
                             case EVariableType.eVec3:
                                 {
+                                    if (outputType != EVariableType.eFloat)
+                                    {
+                                        Debug.LogError("condtion outport not float!");
+                                        return false;
+                                    }
                                     Vector3 a = pAgent.GetInportVec3(pNode, 0);
                                     Vector3 b = pAgent.GetInportVec3(pNode, 1);
                                     float result = Vector3.Distance(a, b);
@@ -114,6 +146,11 @@ namespace Framework.AT.Runtime
                                 }
                             case EVariableType.eVec4:
                                 {
+                                    if (outputType != EVariableType.eFloat)
+                                    {
+                                        Debug.LogError("condtion outport not float!");
+                                        return false;
+                                    }
                                     Vector4 a = pAgent.GetInportVec4(pNode, 0);
                                     Vector4 b = pAgent.GetInportVec4(pNode, 1);
                                     float result = (a - b).magnitude;
@@ -128,6 +165,11 @@ namespace Framework.AT.Runtime
                     break;
                 case EActionType.eLerp:
                     {
+                        if (varType2 != varType1 || outputType != varType1)
+                        {
+                            Debug.LogError("condtion op type error!");
+                            return false;
+                        }
                         switch (varType1)
                         {
                             case EVariableType.eVec2:
@@ -154,12 +196,183 @@ namespace Framework.AT.Runtime
                                     pAgent.SetOutportVec4(pNode, 0, result);
                                     return true;
                                 }
+                            case EVariableType.eQuaternion:
+                                {
+                                    Quaternion a = pAgent.GetInportQuaternion(pNode, 0);
+                                    Quaternion b = pAgent.GetInportQuaternion(pNode, 1);
+                                    Quaternion result = Quaternion.Lerp(a, b, Time.deltaTime * pAgent.GetInportFloat(pNode, 2));
+                                    pAgent.SetOutportQuaternion(pNode, 0, result);
+                                    return true;
+                                }
+                            case EVariableType.eColor:
+                                {
+                                    Color a = pAgent.GetInportColor(pNode, 0);
+                                    Color b = pAgent.GetInportColor(pNode, 1);
+                                    Color result = Color.Lerp(a, b, Time.deltaTime * pAgent.GetInportFloat(pNode, 2));
+                                    pAgent.SetOutportColor(pNode, 0, result);
+                                    return true;
+                                }
                             default:
-                                Debug.LogError("Lerp only supports Vec2/Vec3/Vec4");
+                                Debug.LogError("Lerp only supports Vec2/Vec3/Vec4/Color/Quaternion");
                                 return true;
                         }
                     }
                     break;
+                case EActionType.eSlerp:
+                    {
+                        if (varType2 != varType1 || varType1 != outputType)
+                        {
+                            Debug.LogError("condtion op type error!");
+                            return false;
+                        }
+                        switch (varType1)
+                        {
+                            case EVariableType.eVec3:
+                                {
+                                    Vector3 a = pAgent.GetInportVec3(pNode, 0);
+                                    Vector3 b = pAgent.GetInportVec3(pNode, 1);
+                                    Vector3 result = Vector3.Slerp(a, b, Time.deltaTime * pAgent.GetInportFloat(pNode, 2));
+                                    pAgent.SetOutportVec3(pNode, 0, result);
+                                    return true;
+                                }
+                            case EVariableType.eQuaternion:
+                                {
+                                    Quaternion a = pAgent.GetInportQuaternion(pNode, 0);
+                                    Quaternion b = pAgent.GetInportQuaternion(pNode, 1);
+                                    Quaternion result = Quaternion.Slerp(a, b, Time.deltaTime * pAgent.GetInportFloat(pNode, 2));
+                                    pAgent.SetOutportQuaternion(pNode, 0, result);
+                                    return true;
+                                }
+                            default:
+                                Debug.LogError("Lerp only supports Vec3/Quaternion");
+                                return true;
+                        }
+                    }
+                    break;
+                case EActionType.QuaternionToEuler:
+                    {
+                        if(varType1 == EVariableType.eQuaternion && outputType == EVariableType.eVec3)
+                        {
+                            Quaternion a = pAgent.GetInportQuaternion(pNode, 0);
+                            pAgent.SetOutportVec3(pNode, 0, a.eulerAngles);
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Quaternion");
+                        return true;
+                    }
+                case EActionType.EulerToQuaternion:
+                    {
+                        if (varType1 == EVariableType.eVec3 && outputType == EVariableType.eQuaternion)
+                        {
+                            var a = pAgent.GetInportVec3(pNode, 0);
+                            pAgent.SetOutportQuaternion(pNode, 0, Quaternion.Euler(a));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Quaternion");
+                        return true;
+                    }
+                case EActionType.MatrixToTRS:
+                    {
+                        if(inportCnt < 3)
+                        {
+                            Debug.LogError("MatrixToTRS need 3 Vec3 outports!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eMatrix && outputType == EVariableType.eVec3 && outputType == pAgent.GetOutportVarType(pNode, 1) && outputType == pAgent.GetOutportVarType(pNode, 2))
+                        {
+                            var a = pAgent.GetInportMatrix(pNode, 0);
+                            
+                            pAgent.SetOutportVec3(pNode, 0, a.GetPosition());
+                            pAgent.SetOutportVec3(pNode, 1, a.rotation.eulerAngles);
+                            pAgent.SetOutportVec3(pNode, 2, BaseUtil.GetScale(a));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
+                case EActionType.TRSToMatrix:
+                    {
+                        if (inportCnt < 3)
+                        {
+                            Debug.LogError("MatrixToTRS need 3 Vec3 outports!");
+                            return true;
+                        }
+                        if(inportCnt<3)
+                        {
+                            Debug.LogError("TRSToMatrix need 3 Vec3 inports!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eVec3 && varType1 == pAgent.GetInportVarType(pNode, 1) && varType1 == pAgent.GetInportVarType(pNode, 2) &&
+                            outputType == EVariableType.eMatrix )
+                        {
+                            var a = pAgent.GetInportMatrix(pNode, 0);
+                            pAgent.SetOutportMatrix(pNode, 0, Matrix4x4.TRS(pAgent.GetInportVec3(pNode, 0), Quaternion.Euler(pAgent.GetInportVec3(pNode, 1)), pAgent.GetInportVec3(pNode, 2)));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
+                case EActionType.MatrixMultiplyPoint:
+                    {
+                        if (inportCnt < 2)
+                        {
+                            Debug.LogError("MatrixMultiplyPoint need inports[matrix vec3]!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
+                            outputType == EVariableType.eVec3)
+                        {
+                            var a = pAgent.GetInportMatrix(pNode, 0);
+                            var b = pAgent.GetInportVec3(pNode, 10);
+                            pAgent.SetOutportVec3(pNode, 0, a.MultiplyPoint(b));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
+                case EActionType.MatrixMultiplyPoint3x4:
+                    {
+                        if (inportCnt < 2)
+                        {
+                            Debug.LogError("MatrixMultiplyPoint3x4 need inports[matrix vec3]!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
+                            outputType == EVariableType.eVec3)
+                        {
+                            var a = pAgent.GetInportMatrix(pNode, 0);
+                            var b = pAgent.GetInportVec3(pNode, 10);
+                            pAgent.SetOutportVec3(pNode, 0, a.MultiplyPoint3x4(b));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
+                case EActionType.MatrixMultiplyVector:
+                    {
+                        if (inportCnt < 2)
+                        {
+                            Debug.LogError("MatrixMultiplyVector need inports[matrix vec3]!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
+                            outputType == EVariableType.eVec3)
+                        {
+                            var a = pAgent.GetInportMatrix(pNode, 0);
+                            var b = pAgent.GetInportVec3(pNode, 10);
+                            pAgent.SetOutportVec3(pNode, 0, a.MultiplyVector(b));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
                 default:
                     Debug.LogError("Unsupported variable type for operation.");
                     return false;

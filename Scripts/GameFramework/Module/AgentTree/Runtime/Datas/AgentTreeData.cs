@@ -35,7 +35,11 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         internal BaseNode GetNode(short guid)
         {
-            if (m_vNodes == null) return null;
+            if (m_vNodes == null)
+            {
+                Init(true);
+                return null;
+            }
             if (m_vNodes.TryGetValue(guid, out var pNode))
                 return pNode;
             return null;
@@ -93,15 +97,13 @@ namespace Framework.AT.Runtime
             {
                 if (m_vNodes != null) m_vNodes.Clear();
             }
-#if UNITY_EDITOR
             if (m_vNodes != null)
             {
                 foreach (var db in m_vNodes)
                 {
-                    db.Value.GetNexts(this, true);
+                    db.Value.Init(this);
                 }
             }
-#endif
         }
         //-----------------------------------------------------
         public bool Deserialize(string content = null)
@@ -146,43 +148,7 @@ namespace Framework.AT.Runtime
         {
             varGuids = new VaribaleSerizlizeGuidData();
             if (m_vVariables != null)
-            {
-                List<VariableBool> vBools = new List<VariableBool>();
-                List<VariableInt> vInts = new List<VariableInt>();
-                List<VariableFloat> vFloats = new List<VariableFloat>();
-                List<VariableString> vStrs = new List<VariableString>();
-                foreach (var db in m_vVariables)
-                {
-                    if (db.Value is VariableBool)
-                    {
-                        VariableBool temp = (VariableBool)db.Value;
-                        temp.guid = db.Key;
-                        vBools.Add(temp);
-                    }
-                    else if (db.Value is VariableInt)
-                    {
-                        VariableInt temp = (VariableInt)db.Value;
-                        temp.guid = db.Key;
-                        vInts.Add(temp);
-                    }
-                    else if (db.Value is VariableFloat)
-                    {
-                        VariableFloat temp = (VariableFloat)db.Value;
-                        temp.guid = db.Key;
-                        vFloats.Add(temp);
-                    }
-                    else if (db.Value is VariableString)
-                    {
-                        VariableString temp = (VariableString)db.Value;
-                        temp.guid = db.Key;
-                        vStrs.Add(temp);
-                    }
-                }
-                if (vBools.Count > 0) varGuids.boolVariables = vBools.ToArray();
-                if (vInts.Count > 0) varGuids.intVariables = vInts.ToArray();
-                if (vFloats.Count > 0) varGuids.floatVariables = vFloats.ToArray();
-                if (vStrs.Count > 0) varGuids.stringVariables = vStrs.ToArray();
-            }
+                varGuids.Save(m_vVariables);
             if (toJson) return JsonUtility.ToJson(this, true);
             return null;
         }

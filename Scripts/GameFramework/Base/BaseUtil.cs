@@ -210,6 +210,11 @@ public static class BaseUtil
     {
         return mtWorld.GetColumn(3);
     }
+    //-----------------------------------------------------
+    static public Vector3 GetScale(Matrix4x4 mtWorld)
+    {
+        return new Vector3(mtWorld.m00, mtWorld.m11, mtWorld.m22);
+    }
     //------------------------------------------------------
     static public Vector3 RoateAround(Vector3 anchor, Vector3 point, Quaternion rot)
     {

@@ -346,6 +346,15 @@ namespace Framework.AT.Runtime
             return SetInt(outports[index].varGuid, nValue);
         }
         //-----------------------------------------------------
+        public bool SetOutportUint(BaseNode pNode, int index, uint nValue)
+        {
+            var outports = pNode.GetOutports();
+            if (index < 0 || outports == null || index >= outports.Length)
+                return false;
+
+            return SetUint(outports[index].varGuid, nValue);
+        }
+        //-----------------------------------------------------
         public bool SetOutportObjId(BaseNode pNode, int index, ObjId objValue)
         {
             var outports = pNode.GetOutports();
@@ -2086,7 +2095,7 @@ namespace Framework.AT.Runtime
             }
             if (varNode.GetVariableType() == EVariableType.eUserData)
             {
-                GetRuntimeVariable().SetUserData(guid, new VariableUserData() {  value = m_pATManager.GetRttiId(userData), pPointer = userData });
+                GetRuntimeVariable().SetUserData(guid, new VariableUserData() {  value = ATRtti.GetClassTypeId(userData), pPointer = userData });
             }
             else
             {

@@ -24,12 +24,14 @@ namespace Framework.AT.Runtime
 			if(pNode == null || pNode.GetInportCount()<=0) return true;
 			var pUserClasser = pAgentTree.GetInportUserData(pNode, 0);
 			if (pUserClasser.value == 0)
-				return false;
+			{
+				return true;
+			}
 			if(ms_CallHandles.TryGetValue(pUserClasser.value, out var callFunction))
 			{
 				return callFunction(pUserClasser, pAgentTree, pNode);
             }
-			return false;
+			return true;
 		}
 	}
 }

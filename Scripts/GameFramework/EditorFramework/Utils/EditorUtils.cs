@@ -254,6 +254,20 @@ namespace Framework.ED
             return strTemName;
         }
         //------------------------------------------------------
+        public static string GetEnumDisplayName(Type enumType, int value)
+        {
+            string name = Enum.GetName(enumType, value);
+            if (name == null) return value.ToString();
+            FieldInfo fi = enumType.GetField(name);
+            if (fi != null && fi.IsDefined(typeof(DisplayAttribute), false))
+            {
+                var attr = fi.GetCustomAttribute<DisplayAttribute>();
+                if (!string.IsNullOrEmpty(attr.displayName))
+                    return attr.displayName;
+            }
+            return name;
+        }
+        //------------------------------------------------------
         public static void Destroy(UnityEngine.Object go)
         {
             if (Application.isPlaying) UnityEngine.Object.Destroy(go);

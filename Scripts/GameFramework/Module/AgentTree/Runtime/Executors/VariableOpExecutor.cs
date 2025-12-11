@@ -51,9 +51,25 @@ namespace Framework.AT.Runtime
                             case EOpType.eSub: result = a - b; break;
                             case EOpType.eMul: result = a * b; break;
                             case EOpType.eDiv: result = b == 0 ? 0 : a / b; break;
-                            default: Debug.LogError("Unsupported EOpType for int"); return false;
+                            default: Debug.LogError($"Unsupported {opType}  for int"); return false;
                         }
                         pAgent.SetOutportInt(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eLong:
+                    {
+                        var a = pAgent.GetInportLong(pNode, 0);
+                        var b = pAgent.GetInportLong(pNode, 2);
+                        long result = 0;
+                        switch (opType)
+                        {
+                            case EOpType.eAdd: result = a + b; break;
+                            case EOpType.eSub: result = a - b; break;
+                            case EOpType.eMul: result = a * b; break;
+                            case EOpType.eDiv: result = b == 0 ? 0 : a / b; break;
+                            default: Debug.LogError($"Unsupported {opType}  for Long"); return false;
+                        }
+                        pAgent.SetOutportLong(pNode, 0, result);
                         return true;
                     }
                 case EVariableType.eFloat:
@@ -67,7 +83,39 @@ namespace Framework.AT.Runtime
                             case EOpType.eSub: result = a - b; break;
                             case EOpType.eMul: result = a * b; break;
                             case EOpType.eDiv: result = Mathf.Approximately(b, 0f) ? 0f : a / b; break;
-                            default: Debug.LogError("Unsupported EOpType for float"); return false;
+                            default: Debug.LogError($"Unsupported {opType}  for float"); return false;
+                        }
+                        pAgent.SetOutportFloat(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eDouble:
+                    {
+                        var a = pAgent.GetInportDouble(pNode, 0);
+                        var b = pAgent.GetInportDouble(pNode, 2);
+                        double result = 0;
+                        switch (opType)
+                        {
+                            case EOpType.eAdd: result = a + b; break;
+                            case EOpType.eSub: result = a - b; break;
+                            case EOpType.eMul: result = a * b; break;
+                            case EOpType.eDiv: result = b != 0 ? 0f : a / b; break;
+                            default: Debug.LogError($"Unsupported {opType}  for Double"); return false;
+                        }
+                        pAgent.SetOutportDouble(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eBool:
+                    {
+                        float a = pAgent.GetInportFloat(pNode, 0);
+                        float b = pAgent.GetInportFloat(pNode, 2);
+                        float result = 0f;
+                        switch (opType)
+                        {
+                            case EOpType.eAdd: result = a + b; break;
+                            case EOpType.eSub: result = a - b; break;
+                            case EOpType.eMul: result = a * b; break;
+                            case EOpType.eDiv: result = Mathf.Approximately(b, 0f) ? 0f : a / b; break;
+                            default: Debug.LogError($"Unsupported {opType}  for float"); return false;
                         }
                         pAgent.SetOutportFloat(pNode, 0, result);
                         return true;
@@ -88,7 +136,7 @@ namespace Framework.AT.Runtime
                                     Mathf.Approximately(b.y, 0f) ? 0f : a.y / b.y
                                 );
                                 break;
-                            default: Debug.LogError("Unsupported EOpType for Vector2"); return false;
+                            default: Debug.LogError($"Unsupported {opType}  for Vector2"); return false;
                         }
                         pAgent.SetOutportVec2(pNode, 0, result);
                         return true;
@@ -110,7 +158,7 @@ namespace Framework.AT.Runtime
                                     Mathf.Approximately(b.z, 0f) ? 0f : a.z / b.z
                                 );
                                 break;
-                            default: Debug.LogError("Unsupported EOpType for Vector3"); return false;
+                            default: Debug.LogError($"Unsupported {opType}  for Vector3"); return false;
                         }
                         pAgent.SetOutportVec3(pNode, 0, result);
                         return true;
@@ -133,7 +181,7 @@ namespace Framework.AT.Runtime
                                     Mathf.Approximately(b.w, 0f) ? 0f : a.w / b.w
                                 );
                                 break;
-                            default: Debug.LogError("Unsupported EOpType for Vector4"); return false;
+                            default: Debug.LogError($"Unsupported {opType}  for Vector4"); return false;
                         }
                         pAgent.SetOutportVec4(pNode, 0, result);
                         return true;
@@ -153,9 +201,80 @@ namespace Framework.AT.Runtime
                         pAgent.SetOutportString(pNode, 0, result);
                         return true;
                     }
+                case EVariableType.eColor:
+                    {
+                        var a = pAgent.GetInportColor(pNode, 0);
+                        var b = pAgent.GetInportColor(pNode, 2);
+                        Color result = Color.white;
+                        switch (opType)
+                        {
+                            case EOpType.eAdd: result = a + b; break;
+                            case EOpType.eSub: result = a - b; break;
+                            case EOpType.eMul: result = a * b; break;
+                            case EOpType.eDiv:
+                                result = new Color(
+                                    Mathf.Approximately(b.r, 0f) ? 0f : a.r / b.r,
+                                    Mathf.Approximately(b.g, 0f) ? 0f : a.g / b.g,
+                                    Mathf.Approximately(b.b, 0f) ? 0f : a.b / b.b,
+                                    Mathf.Approximately(b.a, 0f) ? 0f : a.a / b.a
+                                );
+                                break;
+                            default: Debug.LogError($"Unsupported {opType}  for Color"); return false;
+                        }
+                        pAgent.SetOutportColor(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eRay:
+                    {
+                        Debug.LogError($"Unsupported {opType}  for Color"); return false;
+                    }
+                case EVariableType.eQuaternion:
+                    {
+                        var a = pAgent.GetInportQuaternion(pNode, 0);
+                        var b = pAgent.GetInportQuaternion(pNode, 2);
+                        Quaternion result = Quaternion.identity;
+                        switch (opType)
+                        {
+                            case EOpType.eMul: result = a * b; break;
+                            default: Debug.LogError($"Unsupported {opType} for Quaternion"); return false;
+                        }
+                        pAgent.SetOutportQuaternion(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eRect:
+                    {
+                        var a = pAgent.GetInportRect(pNode, 0);
+                        var b = pAgent.GetInportRect(pNode, 2);
+                        Rect result = Rect.zero;
+                        switch (opType)
+                        {
+                            case EOpType.eAdd: result.min = Vector3.Min(a.min, b.min); result.max = Vector3.Max(a.max, b.max); break;
+                            default: Debug.LogError($"Unsupported {opType} for Quaternion"); return false;
+                        }
+                        pAgent.SetOutportRect(pNode, 0, result);
+                        return true;
+                    }
+                case EVariableType.eBounds:
+                    {
+                        Debug.LogError($"Unsupported {opType} for Quaternion"); return false;
+                    }
+                case EVariableType.eMatrix:
+                    {
+                        var a = pAgent.GetInportMatrix(pNode, 0);
+                        var b = pAgent.GetInportMatrix(pNode, 2);
+                        Matrix4x4 result = Matrix4x4.identity;
+                        switch (opType)
+                        {
+                            case EOpType.eMul: result = a * b; break;
+                            default: Debug.LogError($"Unsupported {opType}  for Matrix4x4"); return false;
+                        }
+                        pAgent.SetOutportMatrix(pNode, 0, result);
+                        return true;
+                    }
                 default:
                     Debug.LogError("Unsupported variable type for operation.");
                     return false;
+
             }
         }
     }

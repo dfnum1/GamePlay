@@ -42,12 +42,14 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         public int guid;
         public string nodeName;
+        public string icon;
 #endif
-        public ATExportAttribute(string nodeName = null, int guid = 0)
+        public ATExportAttribute(string nodeName = null, int guid = 0, string icon = null)
         {
 #if UNITY_EDITOR
             this.guid = guid;
             this.nodeName = nodeName;
+            this.icon = icon;
 #endif
         }
     }
@@ -55,7 +57,7 @@ namespace Framework.AT.Runtime
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
     public class ATInteralExportAttribute : ATExportAttribute
     {
-        public ATInteralExportAttribute(string nodeName = null, int guid = 0) : base(nodeName, guid)
+        public ATInteralExportAttribute(string nodeName = null, int guid = 0, string icon = null) : base(nodeName, guid, icon)
         {
         }
     }
@@ -262,6 +264,32 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
             this.method = name;
             this.argvNames = argvNames;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    public class ATFieldAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string method;
+        public bool bGet;
+        public bool bSet;
+#endif
+        public ATFieldAttribute(bool bGet = true, bool bSet = false)
+        {
+#if UNITY_EDITOR
+            this.method = null;
+            this.bGet = bGet;
+            this.bSet = bSet;
+#endif
+        }
+        public ATFieldAttribute(string name, bool bGet = true, bool bSet = false)
+        {
+#if UNITY_EDITOR
+            this.method = name;
+            this.bGet = bGet;
+            this.bSet = bSet;
 #endif
         }
     }
@@ -486,55 +514,13 @@ namespace Framework.AT.Runtime
     {
 #if UNITY_EDITOR
         public string name;
+        public System.Type ownerType;
 #endif
-        public ATTypeAttribute(string name)
+        public ATTypeAttribute(string name, System.Type ownerType = null)
         {
 #if UNITY_EDITOR
             this.name = name;
-#endif
-        }
-    }
-    //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
-    public class ATEventAttribute : Attribute
-    {
-#if UNITY_EDITOR   
-        public string DisplayName { get; set; }
-        private Type idType = null;
-        private string typeName = null;
-        public System.Type ownerType = null;
-#endif
-        public ATEventAttribute(string displayName, Type idType = null, System.Type ownerType = null)
-        {
-#if UNITY_EDITOR
-            this.idType = idType;
-            this.typeName = null;
-            DisplayName = displayName;
             this.ownerType = ownerType;
-#endif
-        }
-        public ATEventAttribute(string displayName, string typeName, System.Type ownerType = null)
-        {
-#if UNITY_EDITOR
-            this.idType = null;
-            this.typeName = typeName;
-            DisplayName = displayName;
-            this.ownerType = ownerType;
-#endif
-        }
-
-        public System.Type GetDisplayType()
-        {
-#if UNITY_EDITOR
-            if (this.idType != null) return this.idType;
-
-            if (!string.IsNullOrEmpty(this.typeName))
-            {
-                this.idType = ED.EditorUtils.GetTypeByName(typeName);
-            }
-            return this.idType;
-#else
-            return null;
 #endif
         }
     }

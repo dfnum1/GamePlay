@@ -107,6 +107,7 @@ namespace Framework.AT.Runtime
 
             if (agentTree == null)
                 return false;
+            agentTree.Init();
 
             m_bHasCustomTask = true;
             m_pData = agentTree;
@@ -287,6 +288,7 @@ namespace Framework.AT.Runtime
                 }
             }
             m_vExecuting.AddFirst(pNode);
+            if(m_bEnable) Execute(m_vExecuting);
             return true;
         }
         //-----------------------------------------------------

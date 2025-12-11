@@ -4,6 +4,8 @@
 作    者:	HappLI
 描    述:	命中帧数据
 *********************************************************************/
+using Framework.AT.Runtime;
+using Framework.Core;
 using Framework.DrawProps;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,27 +25,28 @@ namespace Framework.ActorSystem.Runtime
         MutiHit = 3,
     }
     //------------------------------------------------------
-    public struct HitFrameActor
+    [ATInteralExport("Actor系统/命中帧数据", -3, icon: "ActorSystem/hit_frame_actor")]
+    public struct HitFrameActor : IUserData
     {
-        public Actor attack_ptr;
-        public Actor target_ptr;
+        [ATField("攻击者",true,false)]public Actor attack_ptr;
+        [ATField("受击者",true,false)]public Actor target_ptr;
         public AttackFrameParameter frameParameter;
         public AActorStateInfo attack_state_param;
         public AActorStateInfo target_state_param;
-        public Vector3 hit_position;
-        public Vector3 hit_direction;
+        [ATField("受击位置",true,false)]public Vector3 hit_position;
+        [ATField("受击朝向", true,false)]public Vector3 hit_direction;
         public uint damage_id;
         public ushort damage_level;
         public IContextData skill_data;
         public byte projectileClassify;
         public int damage_power;
         public uint hit_body_part;
-        public EHitType hitType;
+        [ATField("受击类型",true,false)]public EHitType hitType;
         public int mul_hit_cnt;
         public int attacker_target_count;
         public int hitType_take_data_0;
         public int hitType_take_data_1;
-        public bool bHitScene;
+        [ATField("是否打到场景", true, false)] public bool bHitScene;
         public HitFrameActor(uint damage_id, Actor attacker, Actor targeter, AttackFrameParameter frameParameter, Vector3 hit_position, Vector3 hit_direction, byte projectileClassify = 0,
             AActorStateInfo attack_state_param = null, AActorStateInfo target_state_param = null/*,
             AFrameClip attack_frame = null, AFrameClip target_frame = null*/)

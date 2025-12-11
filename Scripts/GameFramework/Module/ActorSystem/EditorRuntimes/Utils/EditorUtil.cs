@@ -82,14 +82,21 @@ namespace Framework.ActorSystem.Editor
         //-----------------------------------------------------
         public static uint DrawActionAndTag(uint stateAndTag, string name = null, bool isHorizontal = false, GUILayoutOption[] op = null)
         {
-            GetActionTypeAndTag(stateAndTag, out var eType, out var tag);
-            if (isHorizontal)
-                GUILayout.BeginHorizontal(op);
-            eType = (EActionStateType)InspectorDrawUtil.PopEnum(name, eType, null);
-            tag = (ushort)EditorGUILayout.IntField((int)tag, GUILayout.Width(80));
-            stateAndTag = BuildActionKey(eType, tag);
-            if (isHorizontal)
-                GUILayout.EndHorizontal();
+            try
+            {
+                GetActionTypeAndTag(stateAndTag, out var eType, out var tag);
+                if (isHorizontal)
+                    GUILayout.BeginHorizontal(op);
+                eType = (EActionStateType)InspectorDrawUtil.PopEnum(name, eType, null);
+                tag = (ushort)EditorGUILayout.IntField((int)tag, GUILayout.Width(80));
+                stateAndTag = BuildActionKey(eType, tag);
+                if (isHorizontal)
+                    GUILayout.EndHorizontal();
+            }
+            catch
+            {
+            }
+
             return stateAndTag;
         }
         //-----------------------------------------------------

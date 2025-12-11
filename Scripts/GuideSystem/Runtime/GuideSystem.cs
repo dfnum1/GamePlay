@@ -896,7 +896,7 @@ namespace Framework.Guide
             if (pNode is Framework.Guide.StepNode)
             {
                 if (m_GuidePanel != null)
-                    m_GuidePanel.ClearWidget();
+                    m_GuidePanel.ResetData();
                 if (GuideStepHandler.OnGuideNodeAutoNext(pNode as Framework.Guide.StepNode))
                     return;
             }

@@ -88,6 +88,19 @@ namespace Framework.AT.Runtime
             {
                 m_vNextNodes = null;
             }
+            else if(m_vNextNodes != null)
+            {
+                if (nextActions.Length != m_vNextNodes.Length)
+                    m_vNextNodes = null;
+                else
+                {
+                    for (int i = 0; i < m_vNextNodes.Length; ++i)
+                    {
+                        if (m_vNextNodes[i] == null)
+                            m_vNextNodes[i] = pData.GetNode(nextActions[i]);
+                    }
+                }
+            }
 #endif
             if (m_vNextNodes != null) return m_vNextNodes;
             if(nextActions!=null && nextActions.Length>0)
@@ -107,7 +120,10 @@ namespace Framework.AT.Runtime
         internal abstract NodePort[] GetInports();
         internal abstract NodePort[] GetOutports();
 #endif
-        internal abstract void Init(AgentTreeData pTree);
+        internal virtual void Init(AgentTreeData pTree)
+        {
+            GetNexts(pTree, true);
+        }
 #if UNITY_EDITOR
         internal NodePort[] CreatePorts(NodePort[] lastPorts, int portCnt)
         {

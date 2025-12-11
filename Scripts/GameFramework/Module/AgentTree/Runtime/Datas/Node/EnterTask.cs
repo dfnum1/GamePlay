@@ -40,6 +40,7 @@ namespace Framework.AT.Runtime
         }
         internal override void Init(AgentTreeData pTree)
         {
+            base.Init(pTree);
             if (argvs != null)
             {
                 for (int i = 0; i < argvs.Length; ++i)

@@ -138,7 +138,8 @@ namespace Framework.Cutscene.Editor
                 }
                 InspectorDrawUtil.EndChangeCheck();
             }
-
+            else
+                GUILayout.Label("无可编辑内容", EditorStyles.centeredGreyMiniLabel);
             GUILayout.EndScrollView();
 
             //    HandleUtilityWrapper.DrawProperty(m_Test);

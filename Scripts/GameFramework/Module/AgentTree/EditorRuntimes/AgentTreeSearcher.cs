@@ -5,7 +5,10 @@
 描    述:	节点搜索器
 *********************************************************************/
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -19,55 +22,54 @@ namespace Framework.AT.Editor
         public SerchMenuWindowOnSelectEntryDelegate OnSelectEntryHandler;
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            var tree = new List<SearchTreeEntry>
+            var _entries = new List<SearchTreeEntry>
             {
                 new SearchTreeGroupEntry(new GUIContent("添加节点")) { level = 0 }
             };
 
-            // 路径到分组的映射，key为完整路径，value为分组entry   
-            var groupMap = new Dictionary<string, SearchTreeGroupEntry>
+            // 路径到分组的映射
+            var groupDict = new Dictionary<string, SearchTreeEntry>
             {
-                { "", (SearchTreeGroupEntry)tree[0] }
+                { "", _entries[0] } // 根节点
             };
-
             foreach (var item in AgentTreeUtil.GetAttrs())
             {
                 if (!item.actionAttr.bShow)
                     continue;
 
-                // 解析菜单路径
                 string menuPath = item.strMenuName ?? item.displayName;
-                string[] pathParts = menuPath.Split('/');
+
+                var pathParts = menuPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
                 string curPath = "";
                 int level = 1;
-                SearchTreeGroupEntry parentGroup = groupMap[""];
 
                 // 逐级创建分组
-                for (int i = 0; i < pathParts.Length - 1; ++i)
+                for (int i = 0; i < pathParts.Length - 1; i++)
                 {
-                    string part = pathParts[i].Trim();
-                    if (string.IsNullOrEmpty(part)) continue;
-                    curPath = curPath == "" ? part : curPath + "/" + part;
-                    if (!groupMap.TryGetValue(curPath, out var group))
+                    string part = pathParts[i];
+                    string parentPath = curPath;
+                    curPath = string.IsNullOrEmpty(curPath) ? part : $"{curPath}/{part}";
+
+                    if (!groupDict.ContainsKey(curPath))
                     {
-                        group = new SearchTreeGroupEntry(new GUIContent(part, item.tips)) { level = level };
-                        tree.Add(group);
-                        groupMap[curPath] = group;
+                        var groupEntry = new SearchTreeGroupEntry(new GUIContent(part), level);
+                        _entries.Add(groupEntry);
+                        groupDict[curPath] = groupEntry;
                     }
-                    parentGroup = group;
                     level++;
                 }
 
-                // 创建最终的节点
-                string displayName = pathParts[^1];
+
+                string displayName = pathParts[pathParts.Length - 1];
                 var entry = item.iconAttr != null
-                    ? new SearchTreeEntry(new GUIContent(displayName, AgentTreeUtil.LoadIcon("AT/"+item.iconAttr.name), item.tips))
+                    ? new SearchTreeEntry(new GUIContent(displayName, AgentTreeUtil.LoadIcon(item.iconAttr.name), item.tips))
                     : new SearchTreeEntry(new GUIContent(displayName, item.tips));
                 entry.level = level;
                 entry.userData = item;
-                tree.Add(entry);
-            }
 
+                _entries.Add(entry); // 直接添加即可
+            }
+            /*
             if (ownerGraphView!=null)
             {
                 SearchTreeGroupEntry callBack = new SearchTreeGroupEntry(new GUIContent("节点返回值"))
@@ -92,8 +94,8 @@ namespace Framework.AT.Editor
                         userData = db
                     });
                 }
-            }
-            return tree;
+            }*/
+            return _entries;
         }
 
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)

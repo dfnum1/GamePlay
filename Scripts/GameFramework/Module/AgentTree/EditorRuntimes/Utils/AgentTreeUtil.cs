@@ -190,7 +190,7 @@ namespace Framework.AT.Editor
                                     attr.isCutsceneCustomEvent = false;
                                     attr.actionType = atTypeAttr.guid;
                                     attr.displayName = atTypeAttr.DisplayName;
-                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString() + method.Name;
+                                    attr.strQueueName = classAT.className + atTypeAttr.DisplayName + tp.Name.ToString() + method.Name + ED.EditorUtils.PinYin(atTypeAttr.DisplayName);
                                     attr.strMenuName = classAT.className + "/" + atTypeAttr.DisplayName;
                                     if (attr.actionAttr.isTask)
                                     {
@@ -276,7 +276,7 @@ namespace Framework.AT.Editor
                                 attr.iconAttr = fi.GetCustomAttribute<ATIconAttribute>();
                                 attr.actionType = flagValue;
                                 attr.displayName = strName;
-                                attr.strQueueName = strName + v.ToString() ;
+                                attr.strQueueName = strName + v.ToString() + ED.EditorUtils.PinYin(strName);
                                 if (!string.IsNullOrEmpty(atTypeAttr.name))
                                 {
                                     attr.strMenuName = atTypeAttr.name + "/" + attr.displayName;
@@ -407,6 +407,12 @@ namespace Framework.AT.Editor
                         ms_vPops.Add(attr.displayName);
                     }
                 }*/
+
+
+                ms_vLists.Sort((v1, v2) =>
+                {
+                    return v1.strMenuName.CompareTo(v2.strMenuName);
+                });
             }
         }
         //-----------------------------------------------------

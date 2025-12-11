@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	RTTI 类
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -14,6 +15,19 @@ namespace Framework.AT.Runtime
 		static Dictionary<int, System.Type> ms_vIdTypes = null;
 		static Dictionary<System.Type, int> ms_vTypeIds = null;
         static Dictionary<int, int> ms_vParentTypeIds = null;
+#if UNITY_EDITOR
+        static Dictionary<string, int> ms_TypeFullNameIds = new Dictionary<string, int>(128);
+#endif
+        //-----------------------------------------------------
+        internal static void ClearAll()
+        {
+            ms_vIdTypes?.Clear();
+            ms_vTypeIds?.Clear();
+            ms_vParentTypeIds?.Clear();
+#if UNITY_EDITOR
+            ms_TypeFullNameIds?.Clear();
+#endif
+        }
         //-----------------------------------------------------
         public static void Register(int typeId, System.Type type, int parentTypeId = 0)
 		{
@@ -29,6 +43,9 @@ namespace Framework.AT.Runtime
             {
                 ms_vParentTypeIds[typeId] = parentTypeId;
             }
+#if UNITY_EDITOR
+            ms_TypeFullNameIds[type.FullName.Replace("+", "/").Replace(".", "/")] = typeId;
+#endif
         }
         //-----------------------------------------------------
         public static System.Type GetClassType(int typeId)
@@ -54,6 +71,17 @@ namespace Framework.AT.Runtime
 			if(ms_vTypeIds.TryGetValue(type, out var typeId)) return typeId;
             return BuildHashCode(type);
         }
+        //-----------------------------------------------------
+        public static int GetClassTypeId(IUserData pPointer)
+        {
+            if (pPointer == null) return 0;
+            if (ms_vIdTypes == null)
+            {
+                return BuildHashCode(pPointer.GetType());
+            }
+            if (ms_vTypeIds.TryGetValue(pPointer.GetType(), out var typeId)) return typeId;
+            return BuildHashCode(pPointer.GetType());
+        }
         //------------------------------------------------------
         internal static int BuildHashCode(System.Type type)
         {
@@ -64,11 +92,52 @@ namespace Framework.AT.Runtime
                 int hashGuid = type.GetCustomAttribute<ATExportAttribute>().guid;
                 if (hashGuid != 0) return hashGuid;
             }
-            return Animator.StringToHash(type.FullName);
+
+            return BuildHashCode(type.FullName);
 #else
             return 0;
 #endif
-
         }
+        //------------------------------------------------------
+        internal static int BuildHashCode(string typeName)
+        {
+            typeName = typeName.ToLower();
+            int hash = Animator.StringToHash(typeName);
+            if (hash >= 0 && hash <= 50000)
+            {
+                string baseName = typeName;
+                string append = "";
+                int tryCount = 0;
+                while (hash >= 0 && hash <= 50000 && tryCount < 1000)
+                {
+                    char ch = (char)('a' + (tryCount % 26));
+                    append += ch;
+                    hash = Animator.StringToHash(baseName + append);
+                    ++tryCount;
+                }
+            }
+            return hash;
+        }
+#if UNITY_EDITOR
+        //------------------------------------------------------
+        internal static Dictionary<string,int> GetTypeNameIds()
+        {
+            return ms_TypeFullNameIds;
+        }
+        //------------------------------------------------------
+        internal static bool IsSubOfTypeId(int typeId, int parentId)
+        {
+            if (typeId == 0 || parentId == 0) return false;
+            if (typeId == parentId) return true;
+            var tempId = GetClassParentTypeId(typeId);
+            while(tempId!=0)
+            {
+                if (tempId == parentId)
+                    return true;
+                tempId = GetClassParentTypeId(tempId);
+            }
+            return false;
+        }
+#endif
     }
 }

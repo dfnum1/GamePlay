@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	技能系统-单个技能
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.Data;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,7 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
+    [ATInteralExport("Actor系统/技能", -2, "ActorSystem/actor_skill")]
     public class Skill : AActorStateInfo
     {
         protected uint              m_nSkillID = 0;
@@ -111,6 +113,7 @@ namespace Framework.ActorSystem.Runtime
             return Mathf.Clamp01(nDelta / GetConfigCD());
         }
         //-----------------------------------------------------
+        [ATMethod("获得当前CD")]
         public float GetRuntimeCD()
         {
             if (GetConfigCD() <= 0)
@@ -124,6 +127,7 @@ namespace Framework.ActorSystem.Runtime
             return fCD;
         }
         //-----------------------------------------------------
+        [ATMethod("设置等级")]
         public void SetLevel(uint nLevel)
         {
             m_nLevel = nLevel;
@@ -134,6 +138,7 @@ namespace Framework.ActorSystem.Runtime
             return m_pConfigData;
         }
         //-----------------------------------------------------
+        [ATMethod("是否可触发")]
         public bool CanTrigger()
         {
             if (!m_bActived || m_nLevel<=0) return false;
@@ -141,11 +146,13 @@ namespace Framework.ActorSystem.Runtime
             return CheckCanTrigger();
         }
         //-----------------------------------------------------
+        [ATMethod("添加索敌目标")]
         public override void AddLockTarget(Actor pNode, bool bClear = false)
         {
             m_pOwner.AddLockTarget(pNode,bClear);
         }
         //-----------------------------------------------------
+        [ATMethod("清理索敌目标")]
         public override void ClearLockTargets()
         {
             m_pOwner.ClearLockTargets();
@@ -158,6 +165,15 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public virtual bool DoLockTargets()
         {
+            Actor pOwner = GetActor();
+            if (pOwner == null) return false;
+            ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
+            if(pAT!=null)
+            {
+                VariableList argvs = VariableList.Malloc();
+                argvs.AddUserData(this);
+                pAT.ExecuteTask((int)EActorATType.onLockTarget, argvs);
+            }
             return true;
         }
         //-----------------------------------------------------
@@ -170,37 +186,44 @@ namespace Framework.ActorSystem.Runtime
             return true;
         }
         //-----------------------------------------------------
+        [ATMethod("获取CD时长(ms)")]
         public long GetConfigCD()
         {
             return m_lConfigCD;
         }
         //-----------------------------------------------------
+        [ATMethod("设置CD时长(ms)")]
         public void SetConfigCD(long cd)
         {
             m_lConfigCD = cd;
         }
         //-----------------------------------------------------
+        [ATMethod("获取动作类型")]
         public EActionStateType GetActionType()
         {
             return m_ActionType;
         }
         //-----------------------------------------------------
+        [ATMethod("获取动作tag")]
         public uint GetActionTag()
         {
             return m_nActionTag;
         }
         //-----------------------------------------------------
+        [ATMethod("设置绑定动作")]
         public void SetActionTypeAndTag(EActionStateType eType, uint nTag)
         {
             m_ActionType = eType;
             m_nActionTag = nTag;
         }
         //-----------------------------------------------------
+        [ATMethod("获取属性计算公式")]
         public int GetAttrFormulaType()
         {
             return m_nAttrFormulaType;
         }
         //-----------------------------------------------------
+        [ATMethod("设置属性计算公式")]
         public void SetAttrFormulaType(int type)
         {
             m_nAttrFormulaType = type;

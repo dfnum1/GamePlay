@@ -6,11 +6,14 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using Framework.Core;
 using Framework.Cutscene.Editor;
+using Framework.DrawProps;
 using Framework.ED;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
@@ -79,7 +82,7 @@ namespace Framework.AT.Editor
                 return;
             if (attri.iconAttr != null)
             {
-                var icon = AgentTreeUtil.LoadIcon("AT/" +attri.iconAttr.name);
+                var icon = AgentTreeUtil.LoadIcon(attri.iconAttr.name);
                 if (icon != null)
                 {
                     var img = new Image
@@ -875,36 +878,33 @@ namespace Framework.AT.Editor
             if (portVariable is AT.Runtime.VariableInt && port.attri.argvType.IsEnum)
             {
                 var intVar = (AT.Runtime.VariableInt)portVariable;
-                Enum enumVal = (Enum)Enum.ToObject(port.attri.argvType, intVar.value);
-                var varTypeField = new EnumField(enumVal)
-                {
-                    style =
+                var popup = CreateEnumPopupFieldWithDisplay(
+                    port.attri.argvType,
+                    intVar.value,
+                    v => {
+                        if (CanChangeValue(port))
                         {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
+                            intVar.value = v;
+                            OnArgvPortChanged(port);
+                            m_pGraphView.UpdateVariable(intVar);
                         }
-                };
-                varTypeField.RegisterValueChangedCallback(evt =>
+                    },
+                    port.attri.canEdit
+                );
+
+                // 设置运行时变量的值
+                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
                 {
-                    // 更新变量值
-                    if (CanChangeValue(port))
-                    {
-                        intVar.value = Convert.ToInt32(evt.newValue);
-                        OnArgvPortChanged(port);
-                        // 需要重新赋值回去（struct）
-                        m_pGraphView.UpdateVariable(intVar);
-                    }
-                });
-                varTypeField.userData = port;
-                varTypeField.SetEnabled(port.attri.canEdit);
-                {
-                    var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
-                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
-                        varTypeField.value = (Enum)Enum.ToObject(port.attri.argvType, ((AT.Runtime.VariableInt)runtimeVar).value);
+                    int idx = popup.choices.IndexOf(
+                        Framework.ED.EditorUtils.GetEnumDisplayName(port.attri.argvType, runtimeInt.value)
+                    );
+                    if (idx >= 0)
+                        popup.index = idx;
                 }
-                port.fieldRoot.Add(varTypeField);
-                port.fieldElement = varTypeField;
+
+                port.fieldRoot.Add(popup);
+                port.fieldElement = popup;
             }
             else if (portVariable is AT.Runtime.VariableInt intVar)
             {
@@ -1206,8 +1206,125 @@ namespace Framework.AT.Editor
             }
             else if (portVariable is AT.Runtime.VariableUserData)
             {
+                var userVar = (AT.Runtime.VariableUserData)portVariable;
+                var popup = CreateClassPopupFieldWithDisplay(
+                    userVar.value,
+                    userVar.pPointer,
+                    v => {
+                        if (CanChangeValue(port))
+                        {
+                            userVar.value = ATRtti.GetClassTypeId(v);
+                            OnArgvPortChanged(port);
+                            m_pGraphView.UpdateVariable(userVar);
+                        }
+                    },
+                    port.attri.canEdit
+                );
 
+                // 设置运行时变量的值
+                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
+                {
+                    System.Type type = ATRtti.GetClassType(runtimeInt.value);
+                    int idx = 0;
+                    if(type!=null)
+                    {
+                        popup.choices.IndexOf(type.FullName.Replace("+", "."));
+                    }
+                    if (idx >= 0)
+                        popup.index = idx;
+                }
+
+                port.fieldRoot.Add(popup);
+                port.fieldElement = popup;
             }
+        }
+        //-----------------------------------------------------
+        public static PopupField<string> CreateEnumPopupFieldWithDisplay(
+        Type enumType,
+        int curValue,
+        Action<int> onValueChanged,
+        bool canEdit = true,
+        int width = 120)
+        {
+            Array enumValues = Enum.GetValues(enumType);
+            List<string> displayNames = new List<string>();
+            List<int> valueList = new List<int>();
+            foreach (var val in enumValues)
+            {
+                string name = Enum.GetName(enumType, val);
+                FieldInfo fi = enumType.GetField(name);
+                string displayName = name;
+                if (fi != null && fi.IsDefined(typeof(DisplayAttribute), false))
+                {
+                    var attr = fi.GetCustomAttribute<DisplayAttribute>();
+                    if (!string.IsNullOrEmpty(attr.displayName))
+                        displayName = attr.displayName;
+                }
+                displayNames.Add(displayName);
+                valueList.Add(Convert.ToInt32(val));
+            }
+
+            int curIndex = valueList.IndexOf(curValue);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(displayNames, curIndex)
+            {
+                style =
+            {
+                width = width,
+                marginLeft = 4,
+                unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+            }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = displayNames.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    onValueChanged?.Invoke(valueList[idx]);
+                }
+            });
+
+            return popup;
+        }
+        //-----------------------------------------------------
+        public static PopupField<string> CreateClassPopupFieldWithDisplay(
+        int typeId,
+        IUserData pPointer,
+        Action<System.Type> onValueChanged,
+        bool canEdit = true,
+        int width = 120)
+        {
+            var nameIds = ATRtti.GetTypeNameIds();
+            List<string> displayNames = nameIds.Keys.ToList();
+            List<int> valueList = nameIds.Values.ToList();
+            int curIndex = valueList.IndexOf(typeId);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(displayNames, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = displayNames.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    onValueChanged?.Invoke(ATRtti.GetClassType(valueList[idx]));
+                }
+            });
+
+            return popup;
         }
         //-----------------------------------------------------
         private void DrawField<TField, TValue>(

@@ -26,6 +26,14 @@ namespace Framework.ED
             return curVar;
         }
         //-----------------------------------------------------
+        public static int PopEnum(Rect rect, string strDisplayName, int curVar, System.Type enumType, bool bIndexAdd = false)
+        {
+            Enum val = (Enum)Enum.ToObject(enumType, curVar);
+            val = PopEnum(rect,new GUIContent(strDisplayName), val, enumType, bIndexAdd);
+            curVar = Convert.ToInt32(val);
+            return curVar;
+        }
+        //-----------------------------------------------------
         public static int PopEnum(GUIContent strDisplayName, int curVar, System.Type enumType, GUILayoutOption[] layOps = null, bool bIndexAdd = false)
         {
             Enum val = (Enum)Enum.ToObject(enumType, curVar);
@@ -34,9 +42,22 @@ namespace Framework.ED
             return curVar;
         }
         //-----------------------------------------------------
+        public static int PopEnum(Rect rect, GUIContent strDisplayName, int curVar, System.Type enumType, bool bIndexAdd = false)
+        {
+            Enum val = (Enum)Enum.ToObject(enumType, curVar);
+            val = PopEnum(rect,strDisplayName, val, enumType, bIndexAdd);
+            curVar = Convert.ToInt32(val);
+            return curVar;
+        }
+        //-----------------------------------------------------
         public static int PopEnum(string strDisplayName, int curVar, string enumTypeName, GUILayoutOption[] layOps = null, bool bIndexAdd = false)
         {
             return PopEnum(new GUIContent(strDisplayName), curVar, enumTypeName, layOps, bIndexAdd);
+        }
+        //-----------------------------------------------------
+        public static int PopEnum(Rect rect, string strDisplayName, int curVar, string enumTypeName, bool bIndexAdd = false)
+        {
+            return PopEnum(rect,new GUIContent(strDisplayName), curVar, enumTypeName, bIndexAdd);
         }
         //-----------------------------------------------------
         public static int PopEnum(GUIContent strDisplayName, int curVar, string enumTypeName, GUILayoutOption[] layOps = null, bool bIndexAdd = false)
@@ -52,6 +73,23 @@ namespace Framework.ED
             }
             Enum val = (Enum)Enum.ToObject(enumType, curVar);
             val = PopEnum(strDisplayName, val, enumType, layOps, bIndexAdd);
+            curVar = Convert.ToInt32(val);
+            return curVar;
+        }
+        //-----------------------------------------------------
+        public static int PopEnum(Rect rect, GUIContent strDisplayName, int curVar, string enumTypeName, bool bIndexAdd = false)
+        {
+            System.Type enumType = ED.EditorUtils.GetTypeByName(enumTypeName);
+            if (enumType == null)
+            {
+                if (strDisplayName == null || string.IsNullOrEmpty(strDisplayName.text))
+                    curVar = EditorGUILayout.IntField(curVar);
+                else
+                    curVar = EditorGUILayout.IntField(strDisplayName, curVar);
+                return curVar;
+            }
+            Enum val = (Enum)Enum.ToObject(enumType, curVar);
+            val = PopEnum(rect,strDisplayName, val, enumType, bIndexAdd);
             curVar = Convert.ToInt32(val);
             return curVar;
         }
@@ -144,6 +182,11 @@ namespace Framework.ED
             return PopEnum(new GUIContent(strDisplayName), curVar, enumType, layOps, bIndexAdd);
         }
         //-----------------------------------------------------
+        public static Enum PopEnum(Rect rect, string strDisplayName, Enum curVar, System.Type enumType = null, bool bIndexAdd = false)
+        {
+            return PopEnum(rect,new GUIContent(strDisplayName), curVar, enumType, bIndexAdd);
+        }
+        //-----------------------------------------------------
         public static Enum PopEnum(GUIContent strDisplayName, Enum curVar, System.Type enumType = null, GUILayoutOption[] layOps = null, bool bIndexAdd = false)
         {
             if (enumType == null)
@@ -181,12 +224,81 @@ namespace Framework.ED
                     EnumPops[i] = filter + "/" + EnumPops[i];
                 }
             }
-            if (strDisplayName == null || string.IsNullOrEmpty(strDisplayName.text))
-                index = EditorGUILayout.Popup(index, EnumPops.ToArray(), layOps);
-            else
+            try
             {
-                index = EditorGUILayout.Popup(strDisplayName, index, EnumPops.ToArray(), layOps);
+                if (strDisplayName == null || string.IsNullOrEmpty(strDisplayName.text))
+                    index = EditorGUILayout.Popup(index, EnumPops.ToArray(), layOps);
+                else
+                {
+                    index = EditorGUILayout.Popup(strDisplayName, index, EnumPops.ToArray(), layOps);
+                }
             }
+            catch
+            {
+
+            }
+
+            if (index >= 0 && index < EnumValuePops.Count)
+            {
+                curVar = EnumValuePops[index];
+            }
+            EnumPops.Clear();
+            EnumValuePops.Clear();
+
+            return curVar;
+        }
+        //-----------------------------------------------------
+        public static Enum PopEnum(Rect rect, GUIContent strDisplayName, Enum curVar, System.Type enumType = null, bool bIndexAdd = false)
+        {
+            if (enumType == null)
+                enumType = curVar.GetType();
+            EnumPops.Clear();
+            EnumValuePops.Clear();
+            int index = -1;
+            foreach (Enum v in Enum.GetValues(enumType))
+            {
+                FieldInfo fi = enumType.GetField(v.ToString());
+                string strTemName = v.ToString();
+                if (fi != null && fi.IsDefined(typeof(Framework.DrawProps.DisableAttribute)))
+                    continue;
+                if (fi != null && fi.IsDefined(typeof(Framework.DrawProps.DisplayAttribute)))
+                {
+                    strTemName = fi.GetCustomAttribute<Framework.DrawProps.DisplayAttribute>().displayName;
+                }
+                if (fi != null && fi.IsDefined(typeof(InspectorNameAttribute)))
+                {
+                    strTemName = fi.GetCustomAttribute<InspectorNameAttribute>().displayName;
+                }
+                if (bIndexAdd) strTemName += "[" + Convert.ToInt32(v).ToString() + "]";
+                EnumPops.Add(strTemName);
+                EnumValuePops.Add(v);
+                if (v.ToString().CompareTo(curVar.ToString()) == 0)
+                    index = EnumPops.Count - 1;
+            }
+            if (EnumPops.Count > 10 && !enumType.IsDefined(typeof(Framework.DrawProps.UnFilterAttribute), false))
+            {
+                //filter
+                for (int i = 0; i < EnumPops.Count; ++i)
+                {
+                    if (EnumPops[i].Contains("/")) continue;
+                    string filter = EnumValuePops[i].ToString().Substring(0, 1).ToUpper();
+                    EnumPops[i] = filter + "/" + EnumPops[i];
+                }
+            }
+            try
+            {
+                if (strDisplayName == null || string.IsNullOrEmpty(strDisplayName.text))
+                    index = EditorGUI.Popup( rect,"", index, EnumPops.ToArray());
+                else
+                {
+                    index = EditorGUI.Popup(rect, strDisplayName.text, index, EnumPops.ToArray());
+                }
+            }
+            catch
+            {
+
+            }
+
             if (index >= 0 && index < EnumValuePops.Count)
             {
                 curVar = EnumValuePops[index];

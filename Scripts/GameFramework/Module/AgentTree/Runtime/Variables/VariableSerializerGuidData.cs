@@ -8,8 +8,6 @@
 using Framework.AT.Editor;
 #endif
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
 
 namespace Framework.AT.Runtime
 {
@@ -32,8 +30,8 @@ namespace Framework.AT.Runtime
         public VariableRect[]           rectVariables;
         public VariableMatrix[]         matrixVariables;
         public VariableString[]         stringVariables;
+        public VariableUserData[]       userDataVariables;
 
-        public UnityEngine.Object[]     objectVariables;
         public int GetVariableCnt()
         {
             int cnt = 0;
@@ -52,6 +50,7 @@ namespace Framework.AT.Runtime
             if (rectVariables != null) cnt += rectVariables.Length;
             if (matrixVariables != null) cnt += matrixVariables.Length;
             if (stringVariables != null) cnt += stringVariables.Length;
+            if (userDataVariables != null) cnt += userDataVariables.Length;
             return cnt;
         }
         //-----------------------------------------------------
@@ -162,6 +161,46 @@ namespace Framework.AT.Runtime
                     vVariables[this.stringVariables[i].GetGuid()] = this.stringVariables[i];
                 }
             }
+            if (this.userDataVariables != null)
+            {
+                for (int i = 0; i < this.userDataVariables.Length; ++i)
+                {
+                    vVariables[this.userDataVariables[i].GetGuid()] = this.userDataVariables[i];
+                }
+            }
         }
+#if UNITY_EDITOR
+        internal void Save(Dictionary<short, IVariable> vairableMaps)
+        {
+            // 辅助方法：筛选并转为数组
+            T[] GetArray<T>() where T : struct, IVariable
+            {
+                var list = new List<T>();
+                foreach (var v in vairableMaps)
+                {
+                    var guideField = v.Value.GetType().GetField("guid", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                    if (guideField != null) guideField.SetValue(v.Value, v.Key);
+                    if (v.Value is T t) list.Add(t);
+                }
+                return list.Count > 0 ? list.ToArray() : null;
+            }
+            boolVariables = GetArray<VariableBool>();
+            intVariables = GetArray<VariableInt>();
+            longVariables = GetArray<VariableLong>();
+            floatVariables = GetArray<VariableFloat>();
+            doubleVariables = GetArray<VariableDouble>();
+            vec2Variables = GetArray<VariableVec2>();
+            vec3Variables = GetArray<VariableVec3>();
+            vec4Variables = GetArray<VariableVec4>();
+            rayVariables = GetArray<VariableRay>();
+            colorVariables = GetArray<VariableColor>();
+            quaternionVariables = GetArray<VariableQuaternion>();
+            boundsVariables = GetArray<VariableBounds>();
+            rectVariables = GetArray<VariableRect>();
+            matrixVariables = GetArray<VariableMatrix>();
+            stringVariables = GetArray<VariableString>();
+            userDataVariables = GetArray<VariableUserData>();
+        }
+#endif
     }
 }

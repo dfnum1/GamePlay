@@ -67,6 +67,7 @@ namespace Framework.ActorSystem.Editor
         private bool                    m_bCutscenInspectorExpand = true;
 
         Framework.AT.Editor.AgentTreeWindow m_pSkillEditor = null;
+        private Skill                   m_pDummySkill = new Skill();
         AActorComponent                  m_pActorComp = null;
         Actor                           m_pActor = null;
         Actor                           m_pTarget = null;
@@ -152,6 +153,11 @@ namespace Framework.ActorSystem.Editor
             }
         }
         //--------------------------------------------------------
+        internal Skill GetDummySkill()
+        {
+            return m_pDummySkill;
+        }
+        //--------------------------------------------------------
         protected override void OnInnerDisable()
         {
             if (m_pSkillEditor != null) m_pSkillEditor.Close();
@@ -194,6 +200,9 @@ namespace Framework.ActorSystem.Editor
                 m_pCutsceneInstance.RegisterCallback(this);
                 pActorInstance.GetActorGraph().SetAutoUpdate(false);
 #endif
+                m_pDummySkill.SetSkillSystem(m_pActor.GetSkillSystem());
+                m_pDummySkill.SetLevel(1);
+                m_pDummySkill.SetActived(true);
             }
 
             if(m_pTarget==null)
@@ -211,7 +220,12 @@ namespace Framework.ActorSystem.Editor
             m_pTarget.EnableLogic(true);
             m_pTarget.EnableRVO(false);
             m_pTarget.SetAttackGroup(1);
-            if(m_pActor!=null) m_pActor.GetSkillSystem().AddLockTarget(m_pTarget);
+            if (m_pActor != null)
+            {
+                m_pActor.GetSkillSystem().AddLockTarget(m_pTarget);
+                m_pActor.GetSkillSystem().AddSkill(m_pDummySkill, ESkillType.eInitiative);
+
+            }
         }
         //--------------------------------------------------------
         protected override void OnInnerUpdate()
@@ -287,7 +301,17 @@ namespace Framework.ActorSystem.Editor
                 }
                 m_pSkillEditor.Close();
             }
-             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component);
+            if(m_pActor!=null)
+            {
+                m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(component.ATData);
+            }
+             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component, (data) =>{
+                 component.ATData = data;
+                 if (m_pActor != null)
+                 {
+                     m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(component.ATData);
+                 }
+             });
         }
         //--------------------------------------------------------
         protected override void OnInnerEvent(Event evt)
@@ -580,6 +604,18 @@ namespace Framework.ActorSystem.Editor
                     m_pTarget.SetPosition(m_TargetPosition);
                     m_pTarget.SetEulerAngle(m_TargetEulerAngle);
                     m_pTarget.SetSpeed(Vector3.zero);
+
+                }
+            }
+            if(status == EPlayableStatus.Create)
+            {
+                if (m_pActor != null)
+                {
+                    if (m_pTarget != null)
+                    {
+                        m_pActor.GetSkillSystem().AddLockTarget(m_pTarget, true);
+                        m_pActor.GetSkillSystem().DoSkill(m_pDummySkill);
+                    }
                 }
             }
         }

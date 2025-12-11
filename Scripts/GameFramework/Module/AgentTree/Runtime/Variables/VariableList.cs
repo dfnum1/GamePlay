@@ -889,8 +889,9 @@ namespace Framework.AT.Runtime
             return m_vMatrixs;
         }
         //-----------------------------------------------------
-        public void AddUserData(int hash, IUserData pPointer)
+        public void AddUserData(IUserData pPointer, int hash =0)
         {
+            if (pPointer != null && hash == 0) hash = ATRtti.GetClassTypeId(pPointer.GetType());
             if (m_vUserDatas == null) m_vUserDatas = new List<VariableUserData>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eUserData, (byte)m_vUserDatas.Count));
@@ -905,10 +906,16 @@ namespace Framework.AT.Runtime
             m_vUserDatas.Add(pVar);
         }
         //-----------------------------------------------------
-        public void SetUserData(int index, int hash, IUserData pPointer)
+        public void SetUserData(int index, IUserData pPointer, int hash =0)
         {
+            if (pPointer == null)
+            {
+                Debug.LogError($"VariableList: SetUserData pPointer mismatch");
+                return;
+            }
             if (index >= 0 && m_vUserDatas != null && m_vUserDatas.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
+                if (hash == 0) hash = ATRtti.GetClassTypeId(pPointer.GetType());
                 var type = m_vTypes[index];
                 if (type.type != EVariableType.eUserData)
                 {
@@ -1111,7 +1118,7 @@ namespace Framework.AT.Runtime
                     break;
                 case EVariableType.eUserData:
                     {
-                        AddUserData(0,null);
+                        AddUserData(null,0);
                     }
                     break;
                 case EVariableType.eLong:
@@ -1354,7 +1361,7 @@ namespace Framework.AT.Runtime
             else if (value is VariableBounds varBounds) AddBounds(varBounds.value);
             else if (value is VariableRect varRect) AddRect(varRect.value);
             else if (value is VariableMatrix varMatrix) AddMatrix(varMatrix.value);
-            else if (value is VariableUserData varUserData) AddUserData(varUserData.value, varUserData.pPointer);
+            else if (value is VariableUserData varUserData) AddUserData(varUserData.pPointer,varUserData.value);
             else if (value is VariableLong varLongData) AddLong(varLongData.value);
             else if (value is VariableDouble varDoubleData) AddDouble(varDoubleData.value);
             else return false;
@@ -1469,7 +1476,7 @@ namespace Framework.AT.Runtime
             else if (value is Bounds boundsVal) AddBounds(boundsVal);
             else if (value is Rect rectVal) AddRect(rectVal);
             else if (value is Matrix4x4 matrixVal) AddMatrix(matrixVal);
-            else if (value is IUserData userDataVal) AddUserData(0,userDataVal);
+            else if (value is IUserData userDataVal) AddUserData(userDataVal,0);
             else if (value is long userLong) AddLong(userLong);
             else if (value is double userDouble) AddDouble(userDouble);
             else return false;

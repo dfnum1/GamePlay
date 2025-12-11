@@ -4,7 +4,9 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.DrawProps;
+using UnityEngine;
 
 namespace Framework.ActorSystem.Runtime
 {
@@ -52,11 +54,29 @@ namespace Framework.ActorSystem.Runtime
         SIDES = (1 << 2),
     };
     //------------------------------------------------------
-    [AT.Runtime.ATEvent("AT事件", ownerType:typeof(AActorComponent))]
+    [AT.Runtime.ATType("Actor系统", ownerType:typeof(Actor))]
     public enum EActorATType : int
     {
-        [AT.Runtime.ATEvent("onGround")] onGround = 60000,
-        [AT.Runtime.ATEvent("onHit")] onHit = 60001,
-        [AT.Runtime.ATEvent("onAttack")] onAttack = 60002,
+        [AT.Runtime.ATAction("回调/攻击回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_attack")]
+        [Return("受击者", typeof(Actor))]
+        [Return("技能", typeof(Skill))]
+        onAttack = 80,
+
+        [AT.Runtime.ATAction("回调/受击回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_hit")]
+        [Return("受击信息", typeof(HitFrameActor))]
+        onHit = 81,
+
+        [AT.Runtime.ATAction("回调/死亡回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_kill")]
+        onKilled = 82,
+
+        [AT.Runtime.ATAction("回调/复活回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_revive")]
+        onRevive = 83,
+
+        [AT.Runtime.ATAction("回调/索敌回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_lockTarget")]
+        [Return("技能", typeof(Skill))]
+        onLockTarget = 84,
+
+        [AT.Runtime.ATAction("回调/着陆回调",true, false, true), AT.Runtime.ATIcon("ActorSystem/on_ground")] 
+        onGround,
     }
 }

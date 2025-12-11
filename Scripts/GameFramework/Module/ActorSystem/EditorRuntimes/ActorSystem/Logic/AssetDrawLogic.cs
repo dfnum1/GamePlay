@@ -13,6 +13,7 @@ using Framework.ED;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static Framework.ED.TreeAssetView;
 
 namespace Framework.ActorSystem.Editor
@@ -46,6 +47,7 @@ namespace Framework.ActorSystem.Editor
         int m_nAddLayerMask = 0;
 
         bool m_bExpandSlot = false;
+        Vector2 m_Scroller = Vector2.zero;
 
         GameObject m_pActorPrefab = null;
         Actor m_pActor = null;
@@ -71,6 +73,7 @@ namespace Framework.ActorSystem.Editor
             if (m_pEditorAT != null) m_pEditorAT.Close();
             m_pEditorAT = null;
             GetOwner<ACutsceneEditor>()?.OnSetTime(0);
+            GetOwner<ActionEditorWindow>()?.GetDummySkill().SetActionTypeAndTag(m_pSelectData.asset.type, m_pSelectData.asset.actionTag);
             GetOwner().OnChangeSelect(m_pSelectData.asset.GetCutsceneGraph(true));
         }
         //--------------------------------------------------------
@@ -141,6 +144,8 @@ namespace Framework.ActorSystem.Editor
             GUI.color = backColor;
             GUILayout.EndHorizontal();
 
+            m_Scroller = EditorGUILayout.BeginScrollView(m_Scroller);
+
             Rect infoView = new Rect(viewRect.x, viewRect.y + 25, viewRect.width, viewRect.height - 25);
 
             try
@@ -151,10 +156,11 @@ namespace Framework.ActorSystem.Editor
                 else if (m_Tab == ETab.CommonAction) DrawCommonAction(infoView);
                 else if (m_Tab == ETab.TimelineAction) DrawTimelineAction(infoView);
             }
-            catch
+            catch//(System.Exception ex)
             {
-
+           //     Debug.LogException(ex);
             }
+            EditorGUILayout.EndScrollView();
             GUILayout.EndArea();
         }
         //--------------------------------------------------------
@@ -462,12 +468,7 @@ namespace Framework.ActorSystem.Editor
             }
             else if (rowData.column == 2)
             {
-                string name = ED.EditorUtils.GetEnumDisplayName(data.asset.type);
-                name += $"[{data.asset.actionTag}]";
-                EditorGUI.LabelField(rowData.rowRect, name);
-                GUILayout.BeginArea(rowData.rowRect);
-                data.asset.type = (EActionStateType)Framework.ED.EditorEnumPop.PopEnum(string.Empty, data.asset.type);
-                GUILayout.EndArea();
+                data.asset.type = (EActionStateType)Framework.ED.EditorEnumPop.PopEnum(rowData.rowRect,string.Empty, data.asset.type);
             }
             else if (rowData.column == 3)
             {

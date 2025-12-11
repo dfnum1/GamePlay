@@ -1154,6 +1154,7 @@ namespace Framework.Guide
             Transform trans = GetFinger(type);
             ListenWidget();
             if(m_Serialize) m_Serialize.gameObject.SetActive(true);
+            Update(0);
         }
         //------------------------------------------------------
         public void SetCurStepNode(StepNode stepNode)

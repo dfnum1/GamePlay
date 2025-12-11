@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
 using Framework.Core;
+using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using static PlasticPipe.Client.InvokeMethodRetry;
 
 namespace Framework.AT.Editor
 {
@@ -22,13 +24,14 @@ namespace Framework.AT.Editor
     {
         public class ExportInfo
         {
-            public class ExportMethodInfo
+            public class ExportMemberInfo
             {
                 public int guid;
                 public string memberName;
                 public string displayName;
                 public MemberInfo info;
                 public ATMethodAttribute attr;
+                public ATFieldAttribute fieldAttr;
             }
 
             public string exportPath;
@@ -37,7 +40,7 @@ namespace Framework.AT.Editor
             public Type type;
             public ATExportAttribute exportAttr;
             public Dictionary<string, int> methodCount = new Dictionary<string, int>();
-            public Dictionary<string, ExportMethodInfo> methods = new Dictionary<string, ExportMethodInfo>();
+            public Dictionary<string, ExportMemberInfo> methods = new Dictionary<string, ExportMemberInfo>();
         }
         static Dictionary<string, ExportInfo> ms_vExports = new Dictionary<string, ExportInfo>();
         static HashSet<System.Type> ms_vRefTypes = new HashSet<Type>();
@@ -126,13 +129,62 @@ namespace Framework.AT.Editor
                                 methodCnt++;
                                 exportData.methodCount[meths[m].Name] = methodCnt;
 
-                                ExportInfo.ExportMethodInfo exportMth = new ExportInfo.ExportMethodInfo();
+                                ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
                                 exportMth.info = meths[m];
                                 exportMth.attr = attr;
                                 exportMth.displayName = attr.method;
                                 if (methodCnt <= 1) exportMth.memberName = meths[m].Name;
                                 else exportMth.memberName = meths[m].Name + "_" + (methodCnt - 1);
-                                exportMth.guid = Animator.StringToHash(typeName + ":" + exportMth.memberName);
+                                exportMth.guid = ATRtti.BuildHashCode(typeName + ":" + exportMth.memberName);
+                                if (string.IsNullOrEmpty(exportMth.displayName))
+                                    exportMth.displayName = exportMth.memberName;
+                                exportData.methods[exportMth.memberName] = exportMth;
+                            }
+                        }
+                        FieldInfo[] fields = types[i].GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                        for (int m = 0; m < fields.Length; ++m)
+                        {
+                            if (fields[m].IsDefined(typeof(ATFieldAttribute), false))
+                            {
+                                if (!CheckCanExport(fields[m]))
+                                {
+                                    Debug.LogWarning(typeName + " Filed " + fields[m].Name + " can not export!");
+                                    continue;
+                                }
+                                ATFieldAttribute attr = (ATFieldAttribute)fields[m].GetCustomAttribute(typeof(ATFieldAttribute));
+                                if(!attr.bGet && !attr.bSet)
+                                {
+                                    continue;
+                                }
+                                ExportInfo exportData;
+                                if (!ms_vExports.TryGetValue(typeName, out exportData))
+                                {
+                                    exportData = new ExportInfo();
+                                    exportData.guid = exportAttr.guid;
+                                    if (exportData.guid == 0)
+                                    {
+                                        exportData.guid = BuildHashCode(tp);
+                                    }
+                                    exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    exportData.type = tp;
+                                    exportData.exportAttr = exportAttr;
+                                    ms_vExports.Add(typeName, exportData);
+                                }
+                                if (!exportData.methodCount.TryGetValue(fields[m].Name, out var methodCnt))
+                                {
+                                    methodCnt = 0;
+                                }
+                                methodCnt++;
+                                exportData.methodCount[fields[m].Name] = methodCnt;
+
+                                ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
+                                exportMth.info = fields[m];
+                                exportMth.fieldAttr = attr;
+                                exportMth.attr = null;
+                                exportMth.displayName = attr.method;
+                                if (methodCnt <= 1) exportMth.memberName = fields[m].Name;
+                                else exportMth.memberName = fields[m].Name + "_" + (methodCnt - 1);
+                                exportMth.guid = 0;
                                 if (string.IsNullOrEmpty(exportMth.displayName))
                                     exportMth.displayName = exportMth.memberName;
                                 exportData.methods[exportMth.memberName] = exportMth;
@@ -189,162 +241,17 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t\t{");
             foreach (var db in export.methods)
             {
-                code.AppendLine("\t\t\tcase " + db.Value.guid + ":" + "//" + db.Value.info.Name);
-                code.AppendLine("\t\t\t{");
                 if(db.Value.info is MethodInfo)
                 {
-                    MethodInfo method = db.Value.info as MethodInfo;
-                    Type retType = null;
-                    bool hasReturn = false;
-                    if (method.ReturnType != null && method.ReturnType != typeof(void))
-                    {
-                        retType = ConvertTypeToATType(method.ReturnType);
-                        hasReturn = true;
-                    }
-
-                    string functionName = "AT_" + db.Value.memberName;
-
-
-                    string functionCall = "";
-                    string functionAttributes = $"\t\t[ATFunction({db.Value.guid},\"{db.Value.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
-                    string functionHead = "\t\tstatic bool " + functionName + "(";
-                    if (method.IsStatic)
-                    {
-                        string callArgv = "";
-                        for (int i = 0; i < method.GetParameters().Length; ++i)
-                        {
-                            var parm = method.GetParameters()[i];
-                            string paramName = parm.Name;
-                            if (db.Value.attr.argvNames != null && i < db.Value.attr.argvNames.Length)
-                                paramName = db.Value.attr.argvNames[i];
-                            var paramType = ConvertTypeToATType(parm.ParameterType);
-
-                            functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
-                            callArgv += $"{parm.Name}";
-                            if (i < method.GetParameters().Length - 1)
-                            {
-                                functionHead += ",";
-                                callArgv += ",";
-                            }
-
-                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
-                        }
-                        functionCall += $"\t\t\t";
-                        if(hasReturn)
-                        {
-                            string castLabel = "";
-                            if (method.ReturnType.IsEnum)
-                            {
-                                castLabel = "(int)";
-                            }
-
-                            functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(retType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{method.Name}({callArgv}));";
-                        }
-                        else
-                            functionCall += $"{GetTypeName(export.type)}.{method.Name}({callArgv});";
-                    }
-                    else
-                    {
-                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
-
-                        string callArgv = "";
-                        functionHead += $"{export.type.Name} pPointerThis";
-                        for (int i =0; i < method.GetParameters().Length; ++i)
-                        {
-                            var parm = method.GetParameters()[i];
-                            string paramName = parm.Name;
-                            if (db.Value.attr.argvNames != null && i < db.Value.attr.argvNames.Length)
-                                paramName = db.Value.attr.argvNames[i];
-                            var paramType = ConvertTypeToATType(parm.ParameterType);
-                            functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
-                            callArgv += $"{parm.Name}";
-                            if(i < method.GetParameters().Length-1) 
-                            {
-                                callArgv += ",";
-                            }
-                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
-                        }
-                        functionCall += $"\t\t\t";
-                        if (hasReturn)
-                        {
-                            string castLabel = "";
-                            if(method.ReturnType.IsEnum)
-                            {
-                                castLabel = "(int)";
-                            }
-                            functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, 0, {castLabel}pPointerThis.{method.Name}({callArgv}));";
-                        }
-                        else
-                            functionCall += $"pPointerThis.{method.Name}({callArgv});";
-                    }
-                    if(hasReturn)
-                    { 
-                        functionHead += $",AgentTree pAgentTree, BaseNode pNode";
-                        functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
-                    }
-
-                    functionHead += ")";
-                    if (functionAttributes.EndsWith("\r\n"))
-                        functionAttributes = functionAttributes.Substring(0, functionAttributes.Length - "\r\n".Length);
-
-                    methodCode.AppendLine("#if UNITY_EDITOR");
-                    methodCode.AppendLine(functionAttributes);
-                    methodCode.AppendLine("#endif");
-                    methodCode.AppendLine(functionHead);
-                    methodCode.AppendLine("\t\t{");
-                    methodCode.AppendLine(functionCall);
-                    methodCode.AppendLine("\t\t\treturn true;");
-                    methodCode.AppendLine("\t\t}");
-
-
-                    if(!method.IsStatic)
-                    {
-                      //  code.AppendLine("\t\t\t\tif(pUserClass == null) return true;");
-                        code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
-                    }
-                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
-
-                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
-
-                    bool bAddDot = true;
-                    if (!method.IsStatic)
-                    {
-                        code.Append($"\t\t\t\treturn {functionName}(pUserClass.pPointer as {oriTypeClassName}");
-                        bAddDot = false;
-                    }
-                    for (int i =0; i < method.GetParameters().Length;++i)
-                    {
-                        var parm = method.GetParameters()[i];
-                        var paramType = ConvertTypeToATType(parm.ParameterType);
-                        string castLabel = "";
-                        if(parm.ParameterType.IsEnum) castLabel = "(" + GetTypeName(parm.ParameterType) + ")";
-
-                        if(!bAddDot)
-                        {
-                            code.Append(",");
-                            bAddDot = true;
-                        }
-
-                        code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(parm.ParameterType)}(pNode,{i+1})");
-                        if(i < method.GetParameters().Length-1) code.Append(",");
-                    }
-                    if(hasReturn)
-                    {
-                        if (!bAddDot)
-                        {
-                            code.Append(",");
-                            bAddDot = true;
-                        }
-                        if (method.GetParameters().Length>0) code.Append($", ");
-                        code.Append($"pAgentTree, pNode");
-                    }
-
-                    code.AppendLine($");");
+                    ExportMethod(code, methodCode, export,db.Value);
                 }
-                code.AppendLine("\t\t\t}");
+                else if (db.Value.info is FieldInfo)
+                {
+                    ExportField(code, methodCode, export, db.Value);
+                }
             }
             code.AppendLine("\t\t\t}");
-            code.AppendLine("\t\t\treturn false;");
+            code.AppendLine("\t\t\treturn true;");
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
             code.AppendLine("}");
@@ -360,6 +267,302 @@ namespace Framework.AT.Editor
             fs.SetLength(0);
             writer.Write(code);
             writer.Close();
+        }
+        //-----------------------------------------------------
+        static void ExportMethod(StringBuilder code, StringBuilder methodCode, ExportInfo export, ExportInfo.ExportMemberInfo info)
+        {
+            code.AppendLine("\t\t\tcase " + info.guid + ":" + "//" + info.info.Name);
+            code.AppendLine("\t\t\t{");
+            MethodInfo method = info.info as MethodInfo;
+            string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
+            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            Type retType = null;
+            bool hasReturn = false;
+            if (method.ReturnType != null && method.ReturnType != typeof(void))
+            {
+                retType = ConvertTypeToATType(method.ReturnType);
+                hasReturn = true;
+            }
+
+            string functionName = "AT_" + info.memberName;
+
+
+            string functionCall = "";
+            string functionAttributes = $"\t\t[ATFunction({info.guid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+            string functionHead = "\t\tstatic bool " + functionName + "(";
+            if (method.IsStatic)
+            {
+                string callArgv = "";
+                for (int i = 0; i < method.GetParameters().Length; ++i)
+                {
+                    var parm = method.GetParameters()[i];
+                    string paramName = parm.Name;
+                    if (info.attr.argvNames != null && i < info.attr.argvNames.Length)
+                        paramName = info.attr.argvNames[i];
+                    var paramType = ConvertTypeToATType(parm.ParameterType);
+
+                    functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
+                    callArgv += $"{parm.Name}";
+                    if (i < method.GetParameters().Length - 1)
+                    {
+                        functionHead += ",";
+                        callArgv += ",";
+                    }
+
+                    functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                }
+                functionCall += $"\t\t\t";
+                if (hasReturn)
+                {
+                    string castLabel = "";
+                    if (method.ReturnType.IsEnum)
+                    {
+                        castLabel = "(int)";
+                    }
+
+                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(retType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{method.Name}({callArgv}));";
+                }
+                else
+                    functionCall += $"{GetTypeName(export.type)}.{method.Name}({callArgv});";
+            }
+            else
+            {
+                functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
+
+                string callArgv = "";
+                functionHead += $"{export.type.Name} pPointerThis";
+                for (int i = 0; i < method.GetParameters().Length; ++i)
+                {
+                    var parm = method.GetParameters()[i];
+                    string paramName = parm.Name;
+                    if (info.attr.argvNames != null && i < info.attr.argvNames.Length)
+                        paramName = info.attr.argvNames[i];
+                    var paramType = ConvertTypeToATType(parm.ParameterType);
+                    functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
+                    callArgv += $"{parm.Name}";
+                    if (i < method.GetParameters().Length - 1)
+                    {
+                        callArgv += ",";
+                    }
+                    functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                }
+                functionCall += $"\t\t\t";
+                if (hasReturn)
+                {
+                    string castLabel = "";
+                    if (method.ReturnType.IsEnum)
+                    {
+                        castLabel = "(int)";
+                    }
+                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, 0, {castLabel}pPointerThis.{method.Name}({callArgv}));";
+                }
+                else
+                    functionCall += $"pPointerThis.{method.Name}({callArgv});";
+            }
+            if (hasReturn)
+            {
+                functionHead += $",AgentTree pAgentTree, BaseNode pNode";
+                functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
+            }
+
+            functionHead += ")";
+            if (functionAttributes.EndsWith("\r\n"))
+                functionAttributes = functionAttributes.Substring(0, functionAttributes.Length - "\r\n".Length);
+
+            methodCode.AppendLine("#if UNITY_EDITOR");
+            methodCode.AppendLine(functionAttributes);
+            methodCode.AppendLine("#endif");
+            methodCode.AppendLine(functionHead);
+            methodCode.AppendLine("\t\t{");
+            methodCode.AppendLine(functionCall);
+            methodCode.AppendLine("\t\t\treturn true;");
+            methodCode.AppendLine("\t\t}");
+
+
+            if (!method.IsStatic)
+            {
+                //  code.AppendLine("\t\t\t\tif(pUserClass == null) return true;");
+                code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
+                code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
+                code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+            }
+            else
+                code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {method.GetParameters().Length}) return true;");
+
+            bool bAddDot = true;
+            if (!method.IsStatic)
+            {
+                code.Append($"\t\t\t\treturn {functionName}(({oriTypeClassName})pUserClass.pPointer");
+                bAddDot = false;
+            }
+            else
+            {
+                code.Append($"\t\t\t\treturn {functionName}(");
+            }
+            for (int i = 0; i < method.GetParameters().Length; ++i)
+            {
+                var parm = method.GetParameters()[i];
+                var paramType = ConvertTypeToATType(parm.ParameterType);
+                string castLabel = "";
+                if (parm.ParameterType.IsEnum) castLabel = "(" + GetTypeName(parm.ParameterType) + ")";
+
+                if (!bAddDot)
+                {
+                    code.Append(",");
+                    bAddDot = true;
+                }
+
+                code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(parm.ParameterType)}(pNode,{i + 1})");
+                if (i < method.GetParameters().Length - 1) code.Append(",");
+            }
+            if (hasReturn)
+            {
+                if (!bAddDot)
+                {
+                    code.Append(",");
+                    bAddDot = true;
+                }
+                if (method.GetParameters().Length > 0) code.Append($", ");
+                code.Append($"pAgentTree, pNode");
+            }
+
+            code.AppendLine($");");
+
+            code.AppendLine("\t\t\t}");
+        }
+        //-----------------------------------------------------
+        static void ExportField(StringBuilder code, StringBuilder methodCode, ExportInfo export, ExportInfo.ExportMemberInfo info)
+        {
+            FieldInfo field = info.info as FieldInfo;
+            string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
+            string oriTypeClassName = export.type.Name.Replace("+", ".");
+
+            var paramType = ConvertTypeToATType(field.FieldType);
+
+            string functionNameGet = "AT_Get_" + info.memberName;
+            string functionNameSet = "AT_Set_" + info.memberName;
+            int getGuid = ATRtti.BuildHashCode(GetTypeName(export.type) + ".Get_" + info.memberName );
+            int setGuid = ATRtti.BuildHashCode(GetTypeName(export.type) + ".Set_" + info.memberName );
+
+            string castLabel = "";
+            if (field.FieldType.IsEnum)
+            {
+                castLabel = "(int)";
+            }
+
+            string functionCallGet = "";
+            string functionCallSet = "";
+            string functionAttributesGet = $"\t\t[ATFunction({getGuid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+            string functionAttributesSet = $"\t\t[ATFunction({setGuid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+            string functionHeadGet = "\t\tstatic bool " + functionNameGet + "(";
+            string functionHeadSet = "\t\tstatic bool " + functionNameSet + "(";
+            if (field.IsStatic)
+            {
+                functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+
+                functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(field.FieldType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{field.Name});";
+                functionCallSet += $"\t\t\t{GetTypeName(export.type)}.{field.Name}={field.Name};";
+
+                functionHeadGet += $"AgentTree pAgentTree, BaseNode pNode";
+                functionHeadSet += $"{GetTypeName(field.FieldType)} {field.Name}";
+            }
+            else
+            {
+                functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+
+                functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+
+                functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(field.FieldType)}(pNode, 0, {castLabel}pPointerThis.{field.Name});";
+                functionCallSet += $"\t\t\tpPointerThis.{field.Name}={field.Name};";
+
+                functionHeadGet += $"{oriTypeClassName} pPointerThis, AgentTree pAgentTree, BaseNode pNode";
+                functionHeadSet += $"{oriTypeClassName} pPointerThis,{GetTypeName(field.FieldType)} {field.Name}";
+            }
+
+            functionHeadGet += ")";
+            functionHeadSet += ")";
+            if (functionAttributesGet.EndsWith("\r\n"))
+                functionAttributesGet = functionAttributesGet.Substring(0, functionAttributesGet.Length - "\r\n".Length);
+
+            if (functionAttributesSet.EndsWith("\r\n"))
+                functionAttributesSet = functionAttributesSet.Substring(0, functionAttributesSet.Length - "\r\n".Length);
+
+            if(info.fieldAttr.bGet)
+            {
+                methodCode.AppendLine("#if UNITY_EDITOR");
+                methodCode.AppendLine(functionAttributesGet);
+                methodCode.AppendLine("#endif");
+                methodCode.AppendLine(functionHeadGet);
+                methodCode.AppendLine("\t\t{");
+                methodCode.AppendLine(functionCallGet);
+                methodCode.AppendLine("\t\t\treturn true;");
+                methodCode.AppendLine("\t\t}");
+
+
+                code.AppendLine("\t\t\tcase " + getGuid + ":" + "//" + info.info.Name + " get");
+                code.AppendLine("\t\t\t{");
+
+                if (!field.IsStatic)
+                {
+                    code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+                }
+                else
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+
+                if (!field.IsStatic)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(({oriTypeClassName})pUserClass.pPointer, pAgentTree, pNode");
+                }
+                else
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pAgentTree, pNode");
+                }
+
+                code.AppendLine($");");
+                code.AppendLine("\t\t\t}");
+            }
+
+            if (info.fieldAttr.bSet && !export.type.IsValueType)
+            {
+                methodCode.AppendLine("#if UNITY_EDITOR");
+                methodCode.AppendLine(functionAttributesSet);
+                methodCode.AppendLine("#endif");
+                methodCode.AppendLine(functionHeadSet);
+                methodCode.AppendLine("\t\t{");
+                methodCode.AppendLine(functionCallSet);
+                methodCode.AppendLine("\t\t\treturn true;");
+                methodCode.AppendLine("\t\t}");
+
+                code.AppendLine("\t\t\tcase " + setGuid + ":" + "//" + info.info.Name + " set");
+                code.AppendLine("\t\t\t{");
+
+                if (!field.IsStatic)
+                {
+                    code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+                }
+                else
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+
+                if (!field.IsStatic)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameSet}(({oriTypeClassName})pUserClass.pPointer,");
+                }
+                else
+                {
+                    code.Append($"\t\t\t\treturn {functionNameSet}(");
+                }
+
+                code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(field.FieldType)}(pNode,{1})");
+                code.AppendLine($");");
+                code.AppendLine("\t\t\t}");
+            }
         }
         //-----------------------------------------------------
         static void ExportCallEnter()
@@ -544,6 +747,15 @@ namespace Framework.AT.Editor
                     if (IsUserDataType(parameters[i].ParameterType))
                         ms_vRefTypes.Add(parameters[i].ParameterType);
                 }
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        static bool CheckCanExport(FieldInfo method)
+        {
+            if (!SupportExportATType(method.FieldType))
+            {
+                return false;
             }
             return true;
         }

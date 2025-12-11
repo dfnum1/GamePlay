@@ -10,13 +10,13 @@ namespace Framework.AT.Runtime
     [ATType("任务")]
     public enum ETaskType
     {
-        [ATAction("开始", true, false, true), ATIcon("at_enter_start")]
+        [ATAction("开始", true, false, true), ATIcon("AT/at_enter_start")]
         eStart = 1,//任务开始
 
-        [ATAction("Tick", true, false, true), ATIcon("at_enter_tick")]
+        [ATAction("Tick", true, false, true), ATIcon("AT/at_enter_tick")]
         eTick = 2,
 
-        [ATAction("退出", true, false, true), ATIcon("at_enter_exit")]
+        [ATAction("退出", true, false, true), ATIcon("AT/at_enter_exit")]
         eExit = 3,
 
         eTaskEndId = 100,//任务开始
@@ -64,16 +64,65 @@ namespace Framework.AT.Runtime
         eDistanceVariable,
 
         [ATAction("过渡Lerp")]
-        [Argv("参数1", typeof(IVariable), true,null,EVariableType.eFloat, EVariableType.eVec2, EVariableType.eVec3)]
-        [Argv("参数2", typeof(IVariable), true,null,EVariableType.eFloat, EVariableType.eVec2, EVariableType.eVec3)]
+        [Argv("参数1", typeof(IVariable), true,null,EVariableType.eFloat, EVariableType.eColor, EVariableType.eVec2, EVariableType.eVec3, EVariableType.eQuaternion)]
+        [Argv("参数2", typeof(IVariable), true,null,EVariableType.eFloat, EVariableType.eColor, EVariableType.eVec2, EVariableType.eVec3, EVariableType.eQuaternion)]
         [Argv("速度", typeof(float), true)]
         [Return("结果", typeof(IVariable))]
         eLerp,
 
+        [ATAction("过渡Slerp")]
+        [Argv("参数1", typeof(IVariable), true, null, EVariableType.eVec3, EVariableType.eQuaternion)]
+        [Argv("参数2", typeof(IVariable), true, null, EVariableType.eVec3, EVariableType.eQuaternion)]
+        [Argv("速度", typeof(float), true)]
+        [Return("结果", typeof(IVariable))]
+        eSlerp,
+
+        [ATAction("四元素转欧拉角")]
+        [Argv("欧拉角", typeof(VariableQuaternion), true)]
+        [Return("四元素", typeof(VariableVec3))]
+        QuaternionToEuler,
+
+        [ATAction("欧拉角转四元素")]
+        [Argv("欧拉角", typeof(VariableVec3), true)]
+        [Return("四元素", typeof(VariableQuaternion))]
+        EulerToQuaternion,
+
+        [ATAction("矩阵转TRS")]
+        [Argv("欧拉角", typeof(VariableMatrix), true)]
+        [Return("位置", typeof(VariableVec3))]
+        [Return("欧拉角", typeof(VariableVec3))]
+        [Return("缩放", typeof(VariableVec3))]
+        MatrixToTRS,
+
+        [ATAction("TRS转矩阵")]
+        [Argv("位置", typeof(VariableVec3),true)]
+        [Argv("欧拉角", typeof(VariableVec3), true)]
+        [Argv("缩放", typeof(VariableVec3), true)]
+        [Return("欧拉角", typeof(VariableMatrix))]
+        TRSToMatrix,
+
+        [ATAction("MultiplyPoint")]
+        [Argv("矩阵", typeof(VariableMatrix), true)]
+        [Argv("坐标位置", typeof(VariableVec3), true)]
+        [Return("矩阵下的空间坐标", typeof(VariableVec3))]
+        MatrixMultiplyPoint,
+
+        [ATAction("MultiplyPoint3x4")]
+        [Argv("矩阵", typeof(VariableMatrix), true)]
+        [Argv("坐标位置", typeof(VariableVec3), true)]
+        [Return("矩阵下的空间坐标", typeof(VariableVec3))]
+        MatrixMultiplyPoint3x4,
+
+        [ATAction("MultiplyVector")]
+        [Argv("矩阵", typeof(VariableMatrix), true)]
+        [Argv("坐标位置", typeof(VariableVec3), true)]
+        [Return("矩阵下的空间坐标", typeof(VariableVec3))]
+        MatrixMultiplyVector,
+
         [ATAction("新建变量", false, false, false)]
         [Argv("变量", typeof(IVariable), true)]
         [Return("输出", typeof(IVariable))]
-        eNewVariable,//新建变量
+        eNewVariable = 998,//新建变量
 
         [DrawProps.Disable]
         eCutsceneCustomEvent = 999,//Cutscene自定义事件

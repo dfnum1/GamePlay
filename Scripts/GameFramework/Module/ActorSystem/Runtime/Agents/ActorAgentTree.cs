@@ -5,6 +5,7 @@
 描    述:	行为树逻辑Agent
 *********************************************************************/
 using Framework.AT.Runtime;
+using UnityEngine.Playables;
 namespace Framework.ActorSystem.Runtime
 {
     public class ActorAgentTree : AActorAgent
@@ -19,7 +20,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        void LoadAT(AgentTreeData atData)
+        internal void LoadAT(AgentTreeData atData)
         {
             if (atData != null || (m_pAgentTree != null && m_pAgentTree.GetData() != atData))
             {
@@ -37,9 +38,35 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
+        public void ExecuteTask(int task, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
+        {
+            if (m_pAgentTree == null) return;
+            m_pAgentTree.ExecuteTask(task, vArgvs, bAutoReleaseAgvs);
+        }
+        //--------------------------------------------------------
         protected override void OnFlagDirty(EActorFlag flag, bool IsUsed)
         {
-            if (m_pAgentTree != null && IsUsed) m_pAgentTree.Start();
+            if (m_pAgentTree == null) return;
+            switch(flag)
+            {
+                case EActorFlag.Active:
+                    {
+                        if (IsUsed) m_pAgentTree.Start();
+                    }
+                    break;
+                case EActorFlag.Killed:
+                    {
+                        if (IsUsed)
+                        {
+                            m_pAgentTree.ExecuteTask((int)EActorATType.onKilled);
+                        }
+                        else
+                        {
+                            m_pAgentTree.ExecuteTask((int)EActorATType.onRevive);
+                        }
+                    }
+                    break;
+            }
         }
         //--------------------------------------------------------
         protected override void OnUpdate(float fDelta)
@@ -50,7 +77,15 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         internal void OnSkill(Skill pSkill)
         {
-        //    if (m_pAgentTree != null) m_pAgentTree.ExecuteTask(fDelta);
+            if (m_pAgentTree == null) return;
+            var argvs = VariableList.Malloc();
+            var lockTargets = pSkill.GetLockTargets();
+            if(lockTargets.Count>0)
+            {
+                argvs.AddUserData(lockTargets[0]);
+                argvs.AddUserData(pSkill);
+            }
+            m_pAgentTree.ExecuteTask((int)EActorATType.onAttack);
         }
         //--------------------------------------------------------
         protected override void OnDestroy()
