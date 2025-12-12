@@ -27,6 +27,7 @@ namespace Framework.ActorSystem.Editor
         public virtual void OnSelectActor(Actor pActor) { }
         //--------------------------------------------------------
         public virtual void OnSpwanGameObejct(GameObject pObject) { }
+        public virtual void OnStartAction(ActorAction pAction) { }
     }
 }
 #endif

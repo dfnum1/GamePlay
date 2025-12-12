@@ -704,12 +704,7 @@ namespace Framework.Cutscene.Editor
                 }
                 else
                 {
-                    if (m_pCutscene != null)
-                    {
-                        m_pCutscene.Stop();
-                        m_pCutscene.Enable(false);
-                        EnableCutscene(m_pCutscene, false);
-                    }
+                    FroceStop();
                 }
             }
             {
@@ -761,7 +756,7 @@ namespace Framework.Cutscene.Editor
             GUILayout.EndArea();
         }
         //--------------------------------------------------------
-        void ForcePlay(CutsceneData assetData = null)
+        public void ForcePlay(CutsceneData assetData = null)
         {
             if (assetData == null) assetData = GetAsset();
             m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
@@ -780,6 +775,16 @@ namespace Framework.Cutscene.Editor
                 m_pCutscene.Enable(true);
                 m_pCutscene.Play();
                 EnableCutscene(m_pCutscene, true);
+            }
+        }
+        //--------------------------------------------------------
+        public void FroceStop()
+        {
+            if (m_pCutscene != null)
+            {
+                m_pCutscene.Stop();
+                m_pCutscene.Enable(false);
+                EnableCutscene(m_pCutscene, false);
             }
         }
         //--------------------------------------------------------

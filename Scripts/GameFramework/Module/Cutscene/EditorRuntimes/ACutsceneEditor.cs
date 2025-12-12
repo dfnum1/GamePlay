@@ -22,6 +22,16 @@ namespace Framework.Cutscene.Editor
         public abstract AgentTreeWindow GetAgentTreeWindow();
         public virtual void OnSpawnInstance(GameObject pInstance) { }
         public virtual void OnSetTime(float time) { }
+        public virtual void SetCutsceneStatus(EPlayableStatus eStatus)
+        {
+            var logic = GetLogic<Framework.Cutscene.Editor.TimelineDrawLogic>();
+            if (logic == null)
+                return;
+            if (eStatus == EPlayableStatus.Start)
+                logic.ForcePlay();
+            else if (eStatus == EPlayableStatus.Stop)
+                logic.FroceStop();
+        }
     }
 }
 

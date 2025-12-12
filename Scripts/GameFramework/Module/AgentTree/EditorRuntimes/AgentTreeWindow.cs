@@ -11,6 +11,7 @@ using System;
 using TagLib.Riff;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Color = UnityEngine.Color;
 
 namespace Framework.AT.Editor
@@ -18,6 +19,7 @@ namespace Framework.AT.Editor
     public class AgentTreeWindow : EditorWindowBase
     {
         GUIStyle                        m_TileStyle;
+        AgentTree                       m_pAT;
         AgentTreeData                   m_pATData = null;
         System.Action<AgentTreeData>    m_onSave = null;
         //--------------------------------------------------------
@@ -33,7 +35,7 @@ namespace Framework.AT.Editor
             window.titleContent = new GUIContent("蓝图脚本");
         }
         //--------------------------------------------------------
-        public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject, System.Action<AgentTreeData> OnSave = null)
+        public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject, AgentTree pAT = null, System.Action<AgentTreeData> OnSave = null)
         {
             var editors = Resources.FindObjectsOfTypeAll<AgentTreeWindow>();
             if (editors!=null)
@@ -42,6 +44,7 @@ namespace Framework.AT.Editor
                 {
                     if (editors[i].m_pATData == atData)
                     {
+                        editors[i].m_pAT = pAT;
                         editors[i].m_onSave = OnSave;
                         editors[i].m_pATData = atData;
                         editors[i].OnChangeSelect(pObject); 
@@ -53,6 +56,7 @@ namespace Framework.AT.Editor
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
             window.titleContent = new GUIContent("行为树");
             window.m_pATData = atData;
+            window.m_pAT = pAT;
             window.m_onSave = OnSave;
             window.OnChangeSelect(pObject);
             return window;
@@ -61,6 +65,11 @@ namespace Framework.AT.Editor
         public AgentTreeData GetATData()
         {
             return m_pATData;
+        }
+        //-----------------------------------------------------
+        public void SetAT(AgentTree AT)
+        {
+            m_pAT = AT;
         }
         //--------------------------------------------------------
         protected override void OnInnerEnable()
@@ -125,8 +134,15 @@ namespace Framework.AT.Editor
         public override void SaveChanges()
         {
             base.SaveChanges();
+            if (m_pAT != null) m_pAT.Create(m_pATData);
             if (m_onSave != null)
                 m_onSave(m_pATData);
+        }
+        //--------------------------------------------------------
+        internal void OnGraphViewEvent(Event evt)
+        {
+            if (m_pAT != null)
+                m_pAT.EditorKeyEvent(evt);
         }
         //--------------------------------------------------------
         protected override void OnInnerGUI()

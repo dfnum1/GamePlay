@@ -89,8 +89,17 @@ namespace Framework.Guide.Editor
             code += "\t\tpublic static void AddGuideGuid(int guid, GuideGuid widget)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tif(widget== null) return;\r\n";
-            code += "\t\t\twidget.guid = guid;\r\n"; 
+            code += "\t\t\tif(widget.guid == guid) return;\r\n";
+            code += "\t\t\tFramework.Guide.GuideGuidUtl.OnRemove(widget);\r\n";
+            code += "\t\t\twidget.guid = guid;\r\n";
             code += "\t\t\tFramework.Guide.GuideGuidUtl.OnAdd(widget);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void AddGuideGuidStr(string strGuid, GuideGuid widget)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tif (widget == null || string.IsNullOrEmpty(strGuid)) return;\r\n";
+            code += "\t\t\tAddGuideGuid(Animator.StringToHash(strGuid), widget);\r\n";
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";

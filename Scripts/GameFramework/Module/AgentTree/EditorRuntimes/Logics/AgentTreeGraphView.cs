@@ -48,16 +48,32 @@ namespace Framework.AT.Editor
                 {
                     m_pOwnerEditorLogic.GetOwner().SaveChanges();
                 });
+                if (this.selection != null && this.selection.Count == 1 && this.selection.First() is GraphNode)
+                {
+                    var node = this.selection.First() as GraphNode;
+                    if(!node.GetAttri().isCutsceneCustomEvent && node.GetAttri().functionClassType!=null)
+                    {
+                        evt.menu.InsertAction(3, "函数定位", (a) =>
+                        {
+                            OnLocationNodeFunction(node);
+                        });
+                    }
+                }
             }));
 
             this.RegisterCallback<KeyDownEvent>(evt =>
             {
+                m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>()?.OnGraphViewEvent(evt.imguiEvent);
                 // 检查 Ctrl+S
                 if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.S)
                 {
                     m_pOwnerEditorLogic.GetOwner().SaveChanges();
                     evt.StopPropagation(); // 阻止事件继续传递
                 }
+            });
+            this.RegisterCallback<KeyUpEvent>(evt =>
+            {
+                m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>()?.OnGraphViewEvent(evt.imguiEvent);
             });
 
             var menuWindowProvider = (AgentTreeSearcher)ScriptableObject.CreateInstance<AgentTreeSearcher>();
@@ -105,6 +121,78 @@ namespace Framework.AT.Editor
                     return agentTree.IsEnable();
                 return false;
             }
+        }
+        //-----------------------------------------------------
+        void OnLocationNodeFunction(GraphNode pNode)
+        {
+            var attri = pNode.GetAttri();
+            if (attri == null || attri.functionClassType == null)
+            {
+                ShowNotification("无法定位函数地址");
+                return;
+            }
+            System.Type type = attri.functionClassType;
+            var guid = attri.functionAttr.guid;
+
+
+            string[] guids = AssetDatabase.FindAssets($"{type.Name} t:Script");
+            string filePath = null;
+            if(guids.Length==1)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            }
+            else
+            {
+                foreach (var g in guids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(g);
+                    if (string.IsNullOrEmpty(path) || !path.EndsWith(".cs"))
+                        continue;
+                    var lines = System.IO.File.ReadAllLines(path);
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains($"class {type.Name}") || line.Contains($"struct {type.Name}"))
+                        {
+                            if (string.IsNullOrEmpty(type.Namespace) || lines.Any(l => l.Contains($"namespace {type.Namespace}")))
+                            {
+                                filePath = path;
+                                break;
+                            }
+                        }
+                    }
+                    if (filePath != null)
+                        break;
+                }
+            }
+
+
+            if (string.IsNullOrEmpty(filePath))
+            {
+                ShowNotificationError("找不到类型对应的脚本文件路径");
+                return;
+            }
+
+            int targetLine = 1;
+            try
+            {
+                var lines = System.IO.File.ReadAllLines(filePath);
+                string guidStr = $"[ATFunction({guid}";
+                for (int i = 0; i < lines.Length; ++i)
+                {
+                    if (lines[i].Contains(guidStr))
+                    {
+                        targetLine = i + 1;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowNotificationError("读取脚本文件失败: " + ex.Message);
+                return;
+            }
+
+            UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal(filePath, targetLine);
         }
         //-----------------------------------------------------
         void OnEdgeConnected(Edge edge)
@@ -919,7 +1007,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public bool OnNotifyExecutedNode(AgentTree pAgentTree, BaseNode pNode)
         {
-            if (m_vNodes.TryGetValue(pNode, out var graphNode) && graphNode != null)
+            if (m_vGuidNodes.TryGetValue(pNode.guid, out var graphNode) && graphNode != null)
             {
                 graphNode.OnNotifyExcuted();
                 graphNode.FlashRed(1f);

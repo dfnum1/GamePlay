@@ -12,6 +12,11 @@ namespace Framework.ActorSystem.Runtime
     {
         AgentTree m_pAgentTree = null;
         //--------------------------------------------------------
+        public AgentTree GetAT()
+        {
+            return m_pAgentTree;
+        }
+        //--------------------------------------------------------
         protected override void OnLoadedAble(ActorContext component)
         {
             if(component.pContextData!=null && component.pContextData is AActorComponent)

@@ -205,8 +205,9 @@ namespace Framework.ActorSystem.Runtime
         }
 #if USE_CUTSCENE
         //--------------------------------------------------------
-        public void Play(CutsceneGraph cutsceneGraph, ActorAction pOwner, IContextData pStateParam = null)
+        public void Play(CutsceneGraph cutsceneGraph, ActorAction pOwner, bool bFroce =false, IContextData pStateParam = null)
         {
+            if (bFroce) m_pPlayingAction = null;
             if (m_pPlayingAction == pOwner)
                 return;
             m_pPlayingAction = pOwner;

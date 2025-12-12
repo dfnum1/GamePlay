@@ -1768,14 +1768,7 @@ namespace Framework.Guide
                     return bInView;
                 if(bInView)
                 {
-                    rectTrans.GetWorldCorners(ms_contersArray);
-                    Vector3 center = Vector3.zero;
-                    for (int i = 0; i < ms_contersArray.Length; ++i)
-                    {
-                        center += ms_contersArray[i];
-                    }
-                    center /= 4;
-                    Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(m_pUICamera, center/* rectTrans.position*/);
+                    Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(m_pUICamera, rectTrans.TransformPoint(rectTrans.rect.center));
                     if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
                     m_pTestEventData.position = screenPos;
                     if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);

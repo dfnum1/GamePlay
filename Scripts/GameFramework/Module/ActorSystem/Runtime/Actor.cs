@@ -794,7 +794,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
             if (action.GetPlayCutscene() != null)
             {
-                GetActorGraph().Play(action.GetPlayCutscene(), action, pStateParam);
+                GetActorGraph().Play(action.GetPlayCutscene(), action, bForce, pStateParam);
                 return;
             }
             pAgent.PlayAnimation(eType, nTag, bForce);
@@ -823,7 +823,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
             if (pAction.GetPlayCutscene() != null)
             {
-                GetActorGraph().Play(pAction.GetPlayCutscene(), pAction, pStateParam);
+                GetActorGraph().Play(pAction.GetPlayCutscene(), pAction, bForce, pStateParam);
                 return;
             }
             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();

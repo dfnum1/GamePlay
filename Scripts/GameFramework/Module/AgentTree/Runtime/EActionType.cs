@@ -4,8 +4,17 @@
 作    者:	HappLI
 描    述:	内置的行为类型
 *********************************************************************/
+using UnityEngine;
+
 namespace Framework.AT.Runtime
 {
+    public enum EATMouseType
+    {
+        Begin,
+        Move,
+        Wheel,
+        End,
+    }
     //-----------------------------------------------------
     [ATType("任务")]
     public enum ETaskType
@@ -18,6 +27,21 @@ namespace Framework.AT.Runtime
 
         [ATAction("退出", true, false, true), ATIcon("AT/at_enter_exit")]
         eExit = 3,
+
+        [ATAction("键盘输入", true, false, true), ATIcon("AT/at_key_input")]
+        [Argv("按键1", typeof(KeyCode), true)]
+        [Argv("按键2", typeof(KeyCode), true)]
+        [Argv("按键3", typeof(KeyCode), true)]
+        [Argv("按键4", typeof(KeyCode), true)]
+        eKeyInput = 4,
+
+        [ATAction("鼠标输入", true, false, true), ATIcon("AT/at_mouse_input")]
+        [Argv("状态", typeof(EATMouseType), false)]
+        [Argv("当前点击坐标", typeof(Vector2), false)]
+        [Argv("上次点击坐标", typeof(Vector2), false)]
+        [Argv("差值坐标", typeof(Vector2), false)]
+        [Argv("是否点击UI",typeof(bool), false)]
+        eMouseInput = 5,
 
         eTaskEndId = 100,//任务开始
     }

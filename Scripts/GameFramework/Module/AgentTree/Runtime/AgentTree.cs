@@ -6,10 +6,12 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
+using UnityEngine;
 namespace Framework.AT.Runtime
 {
     public partial class AgentTree
     {
+        delegate bool OnKeyEventDelegate(KeyCode key);
         AgentTreeManager                            m_pATManager = null;
         bool                                        m_bEnable = false;
         bool                                        m_bStarted = false;
@@ -26,6 +28,8 @@ namespace Framework.AT.Runtime
         EnterTask                                   m_pTickTask = null;
         LinkedList<BaseNode>                        m_vTickExecuting = null;
 
+        private HashSet<BaseNode>                   m_vMouseInputTask = null;
+
         LinkedList<IAgentTreeCallback>              m_vCallback = null;
 
         LinkedList<BaseNode>                        m_pCurrentExcuting = null;
@@ -33,6 +37,8 @@ namespace Framework.AT.Runtime
 
         private Dictionary<int, IUserData>          m_OwnerClass = null;
         private Dictionary<int, IUserData>          m_OwnerParentClass = null;
+
+        private Dictionary<KeyCode, LinkedList<BaseNode>>  m_vKeyListens = null;
         //-----------------------------------------------------
         internal AgentTree()
         {
@@ -136,8 +142,33 @@ namespace Framework.AT.Runtime
                     {
                         m_pStartTask = task;
                     }
-                    else
-                        m_bHasCustomTask = true;
+                    else if (task.type == (int)ETaskType.eMouseInput)
+                    {
+                        if (m_vMouseInputTask == null) m_vMouseInputTask = new HashSet<BaseNode>(2);
+                        m_vMouseInputTask.Add(task);
+                    }
+                    else if (task.type == (int)ETaskType.eKeyInput)
+                    {
+                        int outport = task.GetOutportCount();
+                        for(int j =0; j < outport; ++j)
+                        {
+                            int keyCode = GetOutportInt(task, j,-1);
+                            if(keyCode>0)
+                            {
+                                if(m_vKeyListens == null)
+                                {
+                                    m_vKeyListens = new Dictionary<KeyCode, LinkedList<BaseNode>>(2);
+                                }
+                                KeyCode key = (KeyCode)keyCode;
+                                if (!m_vKeyListens.TryGetValue(key, out var nodes))
+                                {
+                                    nodes = new LinkedList<BaseNode>();
+                                    m_vKeyListens[key] = nodes;
+                                }
+                                nodes.AddLast(task);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -313,16 +344,41 @@ namespace Framework.AT.Runtime
             Execute(m_vExecuting);
             m_pCurrentExcuting = null;
 
+            if (m_vKeyListens != null)
+            {
+                foreach(var db in m_vKeyListens)
+                {
+                    if (Input.GetKeyDown(db.Key) || Input.GetKeyUp(db.Key)) 
+                        KeyInputEvent(db.Value);
+                }
+            }
+
             return IsKeepUpdate();
+        }
+        //-----------------------------------------------------
+        internal void EditorKeyEvent(Event evt)
+        {
+            if (m_vKeyListens != null)
+            {
+                bool OnEventCheck(KeyCode key)
+                {
+                    return evt.keyCode == key;
+                }
+
+                if (evt.type == EventType.KeyDown || evt.type == EventType.KeyUp)
+                {
+                    foreach (var db in m_vKeyListens)
+                    {
+                        if (evt.keyCode == db.Key)
+                            KeyInputEvent(db.Value, OnEventCheck);
+                    }
+                }
+            }
         }
         //-----------------------------------------------------
         bool IsKeepUpdate()
         {
-            if (m_bHasCustomTask) return true;
-            if (m_pExitTask != null || m_pTickTask != null) return true;
-            if (m_vExecuting != null && m_vExecuting.Count > 0) return true;
-            if (m_vTickExecuting != null && m_vTickExecuting.Count > 0) return true;
-            return false;
+            return m_bHasCustomTask;
         }
         //-----------------------------------------------------
         void Execute(LinkedList<BaseNode> vList)
@@ -374,6 +430,54 @@ namespace Framework.AT.Runtime
             {
                 UnityEngine.Debug.LogWarning("有死循环的风险！！！");
             }
+        }
+        //------------------------------------------------------
+        bool KeyInputEvent(LinkedList<BaseNode> vNodes, OnKeyEventDelegate onCheck = null)
+        {
+            if (vNodes == null)
+                return false;
+            bool bDo = false;
+            foreach (var db in vNodes)
+            {
+                if (!db.HasFlag(ENodeFlag.Enable)) continue;
+                int inport = db.GetOutportCount();
+                bool bCanFire = true;
+                for (int i = 0; i < inport; ++i)
+                {
+                    var key = this.GetOutportInt(db, i, -1);
+                    if (key <= 0)
+                    {
+                        break;
+                    }
+                    if(onCheck!=null)
+                    {
+                        if(!onCheck((KeyCode)key))
+                        {
+                            bCanFire = false;
+                            break;
+                        }
+                    }
+                    else if(!Input.GetKey((KeyCode)key))
+                    {
+                        bCanFire = false;
+                        break;
+                    }
+                }
+                if (bCanFire)
+                {
+                    if (m_vExecuting == null) m_vExecuting = new LinkedList<BaseNode>();
+                    m_vExecuting.AddFirst(db);
+                    bDo = true;
+                }
+            }
+            return bDo;
+        }
+        //------------------------------------------------------
+        public bool MouseInputEvent(int touchId)
+        {
+            if (m_vMouseInputTask == null)
+                return false;
+            return false;
         }
         //-----------------------------------------------------
         public void PushDoNode(BaseNode currentNode, short nodeGuid)
@@ -474,6 +578,8 @@ namespace Framework.AT.Runtime
             if (m_vNodeExecTime != null) m_vNodeExecTime.Clear();
             if (m_vTickExecuting != null) m_vTickExecuting.Clear();
             if (m_vExecuted != null) m_vExecuted.Clear();
+            if (m_vMouseInputTask != null) m_vMouseInputTask.Clear();
+            if (m_vKeyListens != null) m_vKeyListens.Clear();
             m_pExitTask = null;
             m_pTickTask = null;
             m_pStartTask = null;
@@ -488,6 +594,8 @@ namespace Framework.AT.Runtime
             if (m_pATManager != null) m_pATManager.OnDestroyAgentTree(this);
             m_pATManager = null;
             if (m_vCallback != null) m_vCallback.Clear();
+            if (m_OwnerClass != null) m_OwnerClass.Clear();
+            if (m_OwnerParentClass != null) m_OwnerParentClass.Clear();
         }
     }
 }

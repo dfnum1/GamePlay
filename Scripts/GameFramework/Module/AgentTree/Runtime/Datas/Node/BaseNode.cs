@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	行为树基础节点类
 *********************************************************************/
+using Framework.DrawProps;
 using UnityEngine;
 
 namespace Framework.AT.Runtime
@@ -54,11 +55,20 @@ namespace Framework.AT.Runtime
         [System.NonSerialized] internal IVariable pVariable;
     }
     //-----------------------------------------------------
+    public enum ENodeFlag
+    {
+        [Display("是否可用")]Enable = 1<<0,
+        [Display("断点标准")]BreakPoint = 1 << 1,
+
+        [Disable]Default = Enable,
+    }
+    //-----------------------------------------------------
     [System.Serializable]
     public abstract class BaseNode
     {
         [SerializeField]internal short guid;
         public int type;
+        public byte flags = (byte)ENodeFlag.Default;
         [SerializeField] internal short[] nextActions;
 
         [System.NonSerialized]BaseNode[] m_vNextNodes;
@@ -69,6 +79,17 @@ namespace Framework.AT.Runtime
         public bool IsValid()
         {
             return type > 0;
+        }
+        public bool HasFlag(ENodeFlag flag)
+        {
+            return (this.flags & (byte)flag) != 0;
+        }
+        internal void EnableFlag(ENodeFlag flag, bool bEnable)
+        {
+            if (bEnable)
+                this.flags |= (byte)flag;
+            else
+                this.flags &= (byte)~flag;
         }
         public virtual bool IsTask() { return false; }
         public int GetInportCount()

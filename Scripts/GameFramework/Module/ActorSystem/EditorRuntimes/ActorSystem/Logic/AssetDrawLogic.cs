@@ -9,6 +9,7 @@ using Framework.ActorSystem.Runtime;
 using Framework.AT.Editor;
 using Framework.AT.Runtime;
 using Framework.Cutscene.Editor;
+using Framework.Cutscene.Runtime;
 using Framework.ED;
 using System.Collections.Generic;
 using UnityEditor;
@@ -490,7 +491,10 @@ namespace Framework.ActorSystem.Editor
                 if (GUI.Button(new Rect(rowData.rowRect.x+35, rowData.rowRect.y, 35, rowData.rowRect.height), "ÐÐÎª"))
                 {
                     if (m_pEditorAT != null) m_pEditorAT.Close();
-                    m_pEditorAT = AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab, (atData) => {
+                    var cutsceneInstance = GetOwner<ACutsceneEditor>()?.GetCutsceneInstance();
+                    AgentTree pAT = null;
+                    if (cutsceneInstance != null) pAT = cutsceneInstance.GetAgentTree();
+                    m_pEditorAT = AgentTreeWindow.Open(data.asset.GetCutsceneGraph(true).agentTree, m_pActorPrefab, pAT ,(atData) => {
                         if(m_pSelectData!=null)
                         {
                             var agentGrap = m_pSelectData.asset.GetCutsceneGraph(false);
@@ -503,6 +507,19 @@ namespace Framework.ActorSystem.Editor
                 }
             }
             return true;
+        }
+        //--------------------------------------------------------
+        public override void OnStartAction(ActorAction pAction)
+        {
+            base.OnStartAction(pAction);
+            GetOwner<ACutsceneEditor>()?.OnSetTime(0);
+            GetOwner<ActionEditorWindow>()?.GetDummySkill().SetActionTypeAndTag(pAction.type, pAction.actionTag);
+            if(pAction is ActorTimelineAction)
+            {
+                ActorTimelineAction timleineAtion = pAction as ActorTimelineAction;
+                GetOwner().OnChangeSelect(timleineAtion.GetCutsceneGraph(true));
+                GetOwner<ACutsceneEditor>()?.SetCutsceneStatus(EPlayableStatus.Start);
+            }
         }
         //--------------------------------------------------------
         protected override void OnUpdate(float delta)

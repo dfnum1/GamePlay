@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	表现图编辑窗口
 *********************************************************************/
+using Codice.Client.Common;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Editor;
 using Framework.AT.Runtime;
@@ -203,6 +204,8 @@ namespace Framework.ActorSystem.Editor
                 m_pDummySkill.SetSkillSystem(m_pActor.GetSkillSystem());
                 m_pDummySkill.SetLevel(1);
                 m_pDummySkill.SetActived(true);
+
+                m_pActor.GetActorGraph().AddStartActionCallback(OnStartAction);
             }
 
             if(m_pTarget==null)
@@ -305,12 +308,8 @@ namespace Framework.ActorSystem.Editor
             {
                 m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(component.ATData);
             }
-             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component, (data) =>{
+             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component, m_pActor.GetAgent<ActorAgentTree>().GetAT(), (data) =>{
                  component.ATData = data;
-                 if (m_pActor != null)
-                 {
-                     m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(component.ATData);
-                 }
              });
         }
         //--------------------------------------------------------
@@ -486,6 +485,18 @@ namespace Framework.ActorSystem.Editor
                 m_CutsceneInspectorRect.y = m_TimelineRect.y;
                 m_CutsceneInspectorRect.width = m_InspectorRect.width;
                 m_CutsceneInspectorRect.height = m_TimelineRect.height;
+            }
+        }
+        //--------------------------------------------------------
+        void OnStartAction(ActorAction pAction)
+        {
+            var actors = GetLogics();
+            for (int i = 0; i < actors.Count; ++i)
+            {
+                if (actors[i] is ActionEditorLogic)
+                {
+                    (actors[i] as ActionEditorLogic).OnStartAction(pAction);
+                }
             }
         }
         //--------------------------------------------------------

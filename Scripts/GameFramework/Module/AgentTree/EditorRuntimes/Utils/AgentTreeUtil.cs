@@ -24,6 +24,7 @@ namespace Framework.AT.Editor
         public int actionType;
         public bool isCutsceneCustomEvent = false;
         public int cutsceneCusomtType = 0;
+
         public ATActionAttribute actionAttr;
         public ATIconAttribute iconAttr;
         public List<ArgvAttribute> argvs = new List<ArgvAttribute>();
@@ -33,6 +34,9 @@ namespace Framework.AT.Editor
         public List<string> popArgvs = new List<string>();
         public List<string> popReturns = new List<string>();
 
+        public ATTypeAttribute atTypeAttr;
+        public ATFunctionAttribute functionAttr;
+        public System.Type functionClassType;
         public System.Type graphNodeType;
     }
     internal class MenuTreeNode
@@ -216,6 +220,8 @@ namespace Framework.AT.Editor
                                 {
                                     ATFunctionAttribute atTypeAttr = method.GetCustomAttribute<ATFunctionAttribute>();
                                     AgentTreeAttri attr = new AgentTreeAttri();
+                                    attr.functionClassType = tp;
+                                    attr.functionAttr = atTypeAttr;
                                     attr.actionAttr = atTypeAttr.ToAction();
                                     if (method.IsDefined(typeof(ATIconAttribute))) attr.iconAttr = method.GetCustomAttribute<ATIconAttribute>();
                                     else attr.iconAttr = iconAttr;
@@ -304,6 +310,7 @@ namespace Framework.AT.Editor
                                     strName = actionAttr.name;
                                 AgentTreeAttri attr = new AgentTreeAttri();
                                 attr.cutsceneCusomtType = 0;
+                                attr.atTypeAttr = atTypeAttr;
                                 attr.isCutsceneCustomEvent = false;
                                 attr.actionAttr = actionAttr;
                                 attr.iconAttr = fi.GetCustomAttribute<ATIconAttribute>();
