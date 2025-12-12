@@ -585,6 +585,18 @@ namespace Framework.AT.Editor
         //------------------------------------------------------
         protected void ClearPortVarEle(ArvgPort port)
         {
+            if (port.fieldRoot != null)
+            {
+                if (port.fieldElement != null)
+                    port.fieldRoot.Remove(port.fieldElement);
+
+                if (port.enumPopFieldElement != null)
+                    port.bindPort.Remove(port.enumPopFieldElement);
+
+                port.enumPopFieldElement = null;
+                port.fieldElement = null;
+                port.fieldRoot.Clear();
+            }
         }
         //------------------------------------------------------
         protected virtual void OnArgvPortVarTypeChanged(ArvgPort port)
@@ -799,9 +811,19 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
+        public void ReBuildPortContain(ArvgPort port)
+        {
+            ClearPortVarEle(port);
+            DrawPortValue(port);
+            if(port.byAttri!=null&& port.attri.argvType != port.byAttri.argvType)
+                OnArgvPortVarTypeChanged(port);
+        }
+        //------------------------------------------------------
         protected virtual void DrawPortValue(ArvgPort port)
         {
-            if(port.fieldRoot!=null)
+            ArgvAttribute attri = port.attri;
+            if (port.byAttri != null) attri = port.byAttri;
+            if (port.fieldRoot!=null)
             {
                 if ((port.nodePort.dummyPorts != null && port.nodePort.dummyPorts.Length > 0) || !port.attri.canEdit ||
                     (port.bindPort.connections != null && port.bindPort.connections.Count() > 0))
@@ -810,7 +832,20 @@ namespace Framework.AT.Editor
                     port.fieldRoot.SetEnabled(true);
             }
 
-            if (port.attri.argvType == typeof(AT.Runtime.IVariable))
+            if(port.nodePort.dummyPorts!=null && port.nodePort.dummyPorts.Length>0)
+            {
+                var dummyNode = m_pGraphView.GetNode(port.nodePort.dummyPorts[0].guid);
+                if (dummyNode != null)
+                {
+                    var dummyArv = dummyNode.GetArvg(port.nodePort.dummyPorts[0].slotIndex);
+                    if(dummyArv!=null)
+                    {
+                        attri = dummyArv.attri;
+                    }
+                }
+            }
+
+            if (attri.argvType == typeof(AT.Runtime.IVariable))
             {
                 InnerDrawPortValue(port);
                 bool bDrawEnumPopVarType = true;
@@ -824,9 +859,9 @@ namespace Framework.AT.Editor
                 }
                 if(bDrawEnumPopVarType && port.isInput)
                 {
-                    if (port.attri.limitVarTypes != null && port.attri.limitVarTypes.Length>0)
+                    if (attri.limitVarTypes != null && attri.limitVarTypes.Length>0)
                     {
-                        var popList = new List<AT.Runtime.EVariableType>(port.attri.limitVarTypes);
+                        var popList = new List<AT.Runtime.EVariableType>(attri.limitVarTypes);
                         if (!popList.Contains(port.eEnumType))
                             port.eEnumType = popList[0];
                         var popup = new PopupField<AT.Runtime.EVariableType>(
@@ -889,7 +924,9 @@ namespace Framework.AT.Editor
         //------------------------------------------------------
         protected virtual void InnerDrawPortValue(ArvgPort port, int insertIndex = -1)
         {
-            if(port.fieldElement!=null)
+            ArgvAttribute attri = port.attri;
+            if (port.byAttri != null) attri = port.byAttri;
+            if (port.fieldElement!=null)
             {
                 port.fieldRoot.Remove(port.fieldElement);
             }
@@ -899,11 +936,11 @@ namespace Framework.AT.Editor
             if (portVariable == null)
                 return;
 
-            if (portVariable is AT.Runtime.VariableInt && port.attri.argvType.IsEnum)
+            if (portVariable is AT.Runtime.VariableInt && attri.argvType.IsEnum)
             {
                 var intVar = (AT.Runtime.VariableInt)portVariable;
                 var popup = CreateEnumPopupFieldWithDisplay(
-                    port.attri.argvType,
+                    attri.argvType,
                     intVar.value,
                     v => {
                         if (CanChangeValue(port))
@@ -913,7 +950,7 @@ namespace Framework.AT.Editor
                             m_pGraphView.UpdateVariable(intVar);
                         }
                     },
-                    port.attri.canEdit
+                     port.attri.canEdit
                 );
 
                 // 设置运行时变量的值
@@ -921,7 +958,7 @@ namespace Framework.AT.Editor
                 if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
                 {
                     int idx = popup.choices.IndexOf(
-                        Framework.ED.EditorUtils.GetEnumDisplayName(port.attri.argvType, runtimeInt.value)
+                        Framework.ED.EditorUtils.GetEnumDisplayName(attri.argvType, runtimeInt.value)
                     );
                     if (idx >= 0)
                         popup.index = idx;
@@ -1242,7 +1279,7 @@ namespace Framework.AT.Editor
                             m_pGraphView.UpdateVariable(userVar);
                         }
                     },
-                    port.attri.canEdit
+                     port.attri.canEdit
                 );
 
                 // 设置运行时变量的值

@@ -6,11 +6,11 @@
 描    述:	编辑器框架类
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
-using Framework.AT.Runtime;
 using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -139,6 +139,11 @@ namespace Framework.ED
             var instance = Activator.CreateInstance(ms_EditorGameModule, true);
             Core.AFramework aFramework = (Core.AFramework)instance;
             return aFramework;
+        }
+        //------------------------------------------------------
+        public override void OnSimpleFindPath(Actor pActor, Vector3 toPos, float fSpeed, System.Action<List<Vector3>, float> onCallback)
+        {
+            Debug.LogWarning("业务层没有实现基于寻路的路径移动，请联系程序实现业务");
         }
     }
 }

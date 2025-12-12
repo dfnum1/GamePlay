@@ -63,17 +63,28 @@ namespace Framework.AT.Editor
 
             this.RegisterCallback<KeyDownEvent>(evt =>
             {
-                m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>()?.OnGraphViewEvent(evt.imguiEvent);
-                // 检查 Ctrl+S
-                if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.S)
+                var window = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>();
+                if (window!=null && window.OnGraphViewEvent(evt.imguiEvent))
                 {
-                    m_pOwnerEditorLogic.GetOwner().SaveChanges();
                     evt.StopPropagation(); // 阻止事件继续传递
                 }
+                else
+                {
+                    if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.S)
+                    {
+                        m_pOwnerEditorLogic.GetOwner().SaveChanges();
+                        evt.StopPropagation();
+                    }
+                }
+
             });
             this.RegisterCallback<KeyUpEvent>(evt =>
             {
-                m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>()?.OnGraphViewEvent(evt.imguiEvent);
+                var window = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>();
+                if (window != null && window.OnGraphViewEvent(evt.imguiEvent))
+                {
+                    evt.StopPropagation();
+                }
             });
 
             var menuWindowProvider = (AgentTreeSearcher)ScriptableObject.CreateInstance<AgentTreeSearcher>();
@@ -205,6 +216,13 @@ namespace Framework.AT.Editor
                 arvPort.fieldRoot.SetEnabled(false);
                 if(arvPort.enumPopFieldElement!=null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
+                if(arvPort.attri.argvType == typeof(IVariable))
+                {
+                    arvPort.byAttri = (outputPort.source as ArvgPort).attri;
+                    //! 重建arvPort.fieldRoot 下的节点
+                    arvPort.grapNode.ReBuildPortContain(arvPort);
+                }
+
             }
         }
         //-----------------------------------------------------
@@ -239,7 +257,7 @@ namespace Framework.AT.Editor
                 }
                 else if (attri.actionAttr.isTask)
                 {
-                    if(attri.actionType <= (int)ETaskType.eTaskEndId && HasTaskNode((ETaskType)attri.actionType))
+                    if(!attri.actionAttr.allowMuti && HasTaskNode((ETaskType)attri.actionType))
                     {
                         m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent("Task node already exists in the tree."), 2.0f);
                         return false;

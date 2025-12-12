@@ -973,8 +973,8 @@ namespace Framework.Guide
         //------------------------------------------------------
         public void OnTouchBegin(int touchId, Vector2 position, Vector2 deltaPosition)
         {
-            if (m_pDoingNode == null || m_fDeltaDelta > 0) return;
             m_nTouchID = touchId;
+            if (m_pDoingNode == null || m_fDeltaDelta > 0) return;
             if (!IsValid() || m_fDeltaDelta > 0) return;
 
             m_CallbackParam.Clear();

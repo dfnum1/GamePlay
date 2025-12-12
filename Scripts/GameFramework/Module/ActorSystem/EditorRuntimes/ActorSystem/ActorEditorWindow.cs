@@ -9,6 +9,7 @@ using Codice.Client.Common;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Editor;
 using Framework.AT.Runtime;
+using Framework.Core;
 using Framework.Cutscene.Editor;
 using Framework.Cutscene.Runtime;
 using System;
@@ -19,6 +20,7 @@ using UnityEngine;
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
+using UnityEngine;
 using UnityEngine;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
@@ -41,6 +43,7 @@ namespace Framework.ActorSystem.Editor
         }
 
         bool                            m_bShowActorSpatialDebug = false;
+        bool                            m_bDebugAT = false;
 
         Rect                            m_PreviewRect;
 
@@ -140,6 +143,7 @@ namespace Framework.ActorSystem.Editor
             RegisterLogic<Framework.Cutscene.Editor.InspectorDrawLogic>().InitRectMethod(this.GetType(), "m_CutsceneInspectorRect");
             RegisterLogic<Framework.Cutscene.Editor.UndoLogic>();
             m_vCutsceneLogics = GetLogics<ACutsceneLogic>();
+            RegisterLogic<Framework.Cutscene.Editor.TimelineDrawLogic>().SetSelfRepaint(false);
 #endif
         }
         //--------------------------------------------------------
@@ -206,9 +210,10 @@ namespace Framework.ActorSystem.Editor
                 m_pDummySkill.SetActived(true);
 
                 m_pActor.GetActorGraph().AddStartActionCallback(OnStartAction);
+                m_pActor.GetActorGraph().AddChangeActionCallback(OnChangeAction);
             }
 
-            if(m_pTarget==null)
+            if (m_pTarget==null)
             {
                 m_pTarget = GetActorManager().CreateActor(null, null, -9998);
                 m_pTarget.OnCreated();
@@ -315,7 +320,19 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnInnerEvent(Event evt)
         {
-            if(evt.control && evt.type == EventType.KeyDown && evt.keyCode == KeyCode.Z)
+            if(m_bDebugAT && m_pActor!=null && (evt.type == EventType.KeyUp|| evt.type == EventType.KeyDown))
+            {
+                var actorAT = m_pActor.GetAgent<ActorAgentTree>();
+                if (actorAT != null && actorAT.GetAT() != null)
+                {
+                    if (actorAT.GetAT().EditorKeyEvent(evt))
+                    {
+                        evt.Use();
+                    }
+                }
+            }
+
+            if (evt.control && evt.type == EventType.KeyDown && evt.keyCode == KeyCode.Z)
             {
                 evt.Use();
             }
@@ -488,8 +505,22 @@ namespace Framework.ActorSystem.Editor
             }
         }
         //--------------------------------------------------------
+        void OnChangeAction(ActorAction pAction)
+        {
+            m_pDummySkill.SetActionTypeAndTag(pAction.type, pAction.actionTag);
+            var actors = GetLogics();
+            for (int i = 0; i < actors.Count; ++i)
+            {
+                if (actors[i] is ActionEditorLogic)
+                {
+                    (actors[i] as ActionEditorLogic).OnChangeAction(pAction);
+                }
+            }
+        }
+        //--------------------------------------------------------
         void OnStartAction(ActorAction pAction)
         {
+            m_pDummySkill.SetActionTypeAndTag(pAction.type, pAction.actionTag);
             var actors = GetLogics();
             for (int i = 0; i < actors.Count; ++i)
             {
@@ -527,8 +558,19 @@ namespace Framework.ActorSystem.Editor
             m_bShowActorSpatialDebug = !m_bShowActorSpatialDebug;
         }
         //--------------------------------------------------------
+        public bool IsDebugAT()
+        {
+            return m_bDebugAT;
+        }
+        //--------------------------------------------------------
+        public void DebugAT(bool bDebug)
+        {
+            m_bDebugAT = bDebug;
+        }
+        //--------------------------------------------------------
         public void OnPreviewDraw(int controllerId, Camera camera, Event evt)
         {
+            GetEditorGame().GetModule<AgentTreeManager>()?.SetMainCamera(camera);
             if (m_vCutsceneLogics != null)
             {
                 foreach (var logic in m_vCutsceneLogics)
@@ -562,6 +604,59 @@ namespace Framework.ActorSystem.Editor
                 Handles.zTest = zTest;
 #endif
             }
+
+            if(m_bDebugAT && m_pActor!=null)
+            {
+                if (evt.type == EventType.MouseDown)
+                {
+                    var actorAT = m_pActor.GetAgent<ActorAgentTree>();
+                    if (actorAT != null && actorAT.GetAT() != null)
+                    {
+                        TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.position = evt.mousePosition;
+                        touch.lastPosition = evt.mousePosition;
+                        touch.deltaPosition = evt.delta;
+                        touch.isUITouched = false;
+                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.Begin, touch))
+                        {
+                            evt.Use();
+                        }
+                    }
+                }
+                if (evt.type == EventType.MouseUp)
+                {
+                    var actorAT = m_pActor.GetAgent<ActorAgentTree>();
+                    if (actorAT != null && actorAT.GetAT() != null)
+                    {
+                        TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.position = evt.mousePosition;
+                        touch.lastPosition = evt.mousePosition;
+                        touch.deltaPosition = evt.delta;
+                        touch.isUITouched = false;
+                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.End, touch))
+                        {
+                            evt.Use();
+                        }
+                    }
+                }
+                if (evt.type == EventType.MouseDrag)
+                {
+                    var actorAT = m_pActor.GetAgent<ActorAgentTree>();
+                    if (actorAT != null && actorAT.GetAT() != null)
+                    {
+                        TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.position = evt.mousePosition;
+                        touch.lastPosition = evt.mousePosition;
+                        touch.deltaPosition = evt.delta;
+                        touch.isUITouched = false;
+                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.Move, touch))
+                        {
+                            evt.Use();
+                        }
+                    }
+                }
+            }
+            
         }
         //--------------------------------------------------------
         public override bool IsRuntimeOpenPlayingCutscene()
@@ -678,21 +773,11 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public bool OnSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
         {
-            UnityEngine.Object pObj = ActorSystemUtil.EditLoadUnityObject(name);
-            if(pObj!=null && pObj is GameObject)
-            {
-                GameObject pIns = GameObject.Instantiate<GameObject>(pObj as GameObject);
-                if(pIns!=null)
-                {
-                    if (onLoaded != null) onLoaded(pIns);
-                }
-            }
             return false;
         }
         //--------------------------------------------------------
         public bool OnDespawnInstance(GameObject pInstance, string name = null)
         {
-            Framework.ED.EditorUtils.Destroy(pInstance);
             return false;
         }
         //--------------------------------------------------------

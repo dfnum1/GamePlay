@@ -147,7 +147,7 @@ namespace Framework.Cutscene.Runtime
                 {
                     db.SetParamHold(true);
                     db.SetActionSpeed(clipData.action, clipData.playSpeed);
-                    if (db.PlayAction(this, m_pAnimationClip, clipData.layer, frameData.subTime))
+                    if (db.PlayAction(this, m_pAnimationClip, clipData.layer, frameData.subTime, clipData.GetBlend(true)))
                     {
                         continue;
                     }

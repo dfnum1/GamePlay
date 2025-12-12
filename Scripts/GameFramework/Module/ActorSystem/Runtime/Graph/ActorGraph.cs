@@ -28,6 +28,7 @@ namespace Framework.ActorSystem.Runtime
         private ActorAction m_pPlayingAction = null;
         private ActorGraphData m_pGraphData = null;
         System.Action<ActorGraphData> m_pOnLoadedCallback = null;
+        System.Action<ActorAction> m_pOnChangeAction = null;
         System.Action<ActorAction> m_pOnStartAction = null;
         System.Action<ActorAction> m_pOnEndAction = null;
         //--------------------------------------------------------
@@ -41,6 +42,11 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pGraphData == null) m_pGraphData = new ActorGraphData();
             return m_pGraphData;
+        }
+        //--------------------------------------------------------
+        public void AddChangeActionCallback(System.Action<ActorAction> onCallback)
+        {
+            m_pOnChangeAction += onCallback;
         }
         //--------------------------------------------------------
         public void AddStartActionCallback(System.Action<ActorAction> onCallback)
@@ -211,6 +217,7 @@ namespace Framework.ActorSystem.Runtime
             if (m_pPlayingAction == pOwner)
                 return;
             m_pPlayingAction = pOwner;
+            if (m_pOnChangeAction != null) m_pOnChangeAction(pOwner);
             if (m_pCutsceneInstance.Create(cutsceneGraph))
             {
                 m_pCutsceneInstance.BindData(m_pOwner);

@@ -144,17 +144,19 @@ namespace Framework.Cutscene.Runtime
             userData = null;
         }
         //------------------------------------------------------
-        public void SetAction(string action, int layer, float time)
+        public void SetAction(string action, int layer, float time,float blendIn = 0.1f)
         {
             SetInt(layer, 0); //动作层
             SetFloat(time, 1); //动作时间
+            SetFloat(blendIn, 2);
             strData = action;          //动作名称
         }
         //------------------------------------------------------
-        public void SetAction(IUserData userData, AnimationClip action, int layer, float time)
+        public void SetAction(IUserData userData, AnimationClip action, int layer, float time, float blendIn = 0.1f)
         {
             SetInt(layer, 0); //动作层
             SetFloat(time, 1); //动作时间
+            SetFloat(blendIn, 2);
             this.userData = userData;
             unityObject = action;          //动作名称
         }
@@ -336,11 +338,11 @@ namespace Framework.Cutscene.Runtime
             return pObj.SetParameter(EParamType.ePlayAction, ms_pParams);
         }
         //------------------------------------------------------
-        public static bool PlayAction(this ICutsceneObject pObj, IUserData pOwner, AnimationClip action, int layer, float time)
+        public static bool PlayAction(this ICutsceneObject pObj, IUserData pOwner, AnimationClip action, int layer, float time, float blendIn=0.1f)
         {
             if (pObj == null) return false;
             ms_pParams.Clear();
-            ms_pParams.SetAction(pOwner, action, layer, time);
+            ms_pParams.SetAction(pOwner, action, layer, time, blendIn);
             return pObj.SetParameter(EParamType.ePlayAction, ms_pParams);
         }
         //------------------------------------------------------

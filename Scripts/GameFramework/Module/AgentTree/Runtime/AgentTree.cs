@@ -39,12 +39,21 @@ namespace Framework.AT.Runtime
         private Dictionary<int, IUserData>          m_OwnerParentClass = null;
 
         private Dictionary<KeyCode, LinkedList<BaseNode>>  m_vKeyListens = null;
+#if UNITY_EDITOR
+        private HashSet<KeyCode>                    m_vEditorEventKeys= new HashSet<KeyCode>(4);
+#endif
         //-----------------------------------------------------
         internal AgentTree()
         {
             m_bEnable = false;
             m_bStarted = false;
             m_bHasCustomTask = false;
+        }
+        //-----------------------------------------------------
+        public Camera GetMainCamera()
+        {
+            if (m_pATManager == null) return Camera.main;
+            return m_pATManager.GetMainCamera();
         }
         //-----------------------------------------------------
         internal void SetATManager(AgentTreeManager pManager)
@@ -169,6 +178,10 @@ namespace Framework.AT.Runtime
                             }
                         }
                     }
+                }
+                if(m_vMouseInputTask!=null && m_vMouseInputTask.Count>0 && m_pATManager!=null)
+                {
+                    m_pATManager.AddMouseInputTask(this);
                 }
             }
 
@@ -355,26 +368,35 @@ namespace Framework.AT.Runtime
 
             return IsKeepUpdate();
         }
+#if UNITY_EDITOR
         //-----------------------------------------------------
-        internal void EditorKeyEvent(Event evt)
+        internal bool EditorKeyEvent(Event evt)
         {
+            bool bDo = false;
             if (m_vKeyListens != null)
             {
                 bool OnEventCheck(KeyCode key)
                 {
-                    return evt.keyCode == key;
+                    return m_vEditorEventKeys.Contains(key);
                 }
 
                 if (evt.type == EventType.KeyDown || evt.type == EventType.KeyUp)
                 {
+                    if (evt.type == EventType.KeyDown) m_vEditorEventKeys.Add(evt.keyCode);
+                    else m_vEditorEventKeys.Remove(evt.keyCode);
                     foreach (var db in m_vKeyListens)
                     {
                         if (evt.keyCode == db.Key)
-                            KeyInputEvent(db.Value, OnEventCheck);
+                        {
+                            if (KeyInputEvent(db.Value, OnEventCheck))
+                                bDo = true;
+                        }
                     }
                 }
             }
+            return bDo;
         }
+#endif
         //-----------------------------------------------------
         bool IsKeepUpdate()
         {
@@ -447,7 +469,7 @@ namespace Framework.AT.Runtime
                     var key = this.GetOutportInt(db, i, -1);
                     if (key <= 0)
                     {
-                        break;
+                        continue;
                     }
                     if(onCheck!=null)
                     {
@@ -473,10 +495,21 @@ namespace Framework.AT.Runtime
             return bDo;
         }
         //------------------------------------------------------
-        public bool MouseInputEvent(int touchId)
+        public bool MouseInputEvent(EATMouseType mouseType, TouchInput.TouchData touchData)
         {
             if (m_vMouseInputTask == null)
                 return false;
+            VariableList argvs = VariableList.Malloc(5);
+            argvs.AddInt((int)mouseType);
+            argvs.AddVec2(touchData.position);
+            argvs.AddVec2(touchData.lastPosition);
+            argvs.AddVec2(touchData.deltaPosition);
+            argvs.AddBool(touchData.isUITouched);
+            foreach (var db in m_vMouseInputTask)
+            {
+                ExecuteNode(db, argvs, false);
+            }
+            argvs.Release();
             return false;
         }
         //-----------------------------------------------------
@@ -514,6 +547,17 @@ namespace Framework.AT.Runtime
                 case (short)EActionType.eCrossVariable:
                 case (short)EActionType.eDistanceVariable:
                 case (short)EActionType.eLerp:
+                case (short)EActionType.eSlerp:
+                case (short)EActionType.eQuaternionToEuler:
+                case (short)EActionType.eEulerToQuaternion:
+                case (short)EActionType.eMatrixToTRS:
+                case (short)EActionType.eTRSToMatrix:
+                case (short)EActionType.eMatrixMultiplyPoint:
+                case (short)EActionType.eMatrixMultiplyPoint3x4:
+                case (short)EActionType.eMatrixMultiplyVector:
+                case (short)EActionType.eScreenToWorldPosition:
+                case (short)EActionType.eWorldToScreenPosition:
+                case (short)EActionType.eCheckWorldPosInView:
                     return VectorOpExecutor.OnExecutor(this, pNode);
                 case (short)EActionType.eCondition: return ConditionExecutor.OnExecute(this, pNode);
             }
@@ -585,6 +629,9 @@ namespace Framework.AT.Runtime
             m_pStartTask = null;
             m_pCurrentExcuting = null;
             m_bHasCustomTask = false;
+#if UNITY_EDITOR
+            m_vEditorEventKeys.Clear();
+#endif
         }
         //-----------------------------------------------------
         internal void Destroy()

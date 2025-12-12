@@ -18,7 +18,14 @@ namespace Framework.Cutscene.Runtime
         eStopCutscene = 6,
         ePauseCutscene = 7,
         eResumeCutscene = 8,
+        eSetTimeCutscene = 9,
         eCutsomBegin = 1000,
+    }
+    //-----------------------------------------------------
+    public enum EEventFlag
+    {
+        [Display("关闭时还未触发过的时将强制触发")]eStopFireIfNoTrigger = 1<<0,
+        [Display("设置时间小于触发时间将重置触发状态")] eLessTimeReTrigger = 1<<1,
     }
     //-----------------------------------------------------
     [System.Serializable]
@@ -26,7 +33,7 @@ namespace Framework.Cutscene.Runtime
     {
         [DefaultValue("")] public string name; //剪辑名称
         [DefaultValue(0),UnEdit] public float time; //开始时间
-        [DefaultValue(false),Display("关闭时未触发则强启")]public bool stopFireIfNoTrigger;
+        [DefaultValue(0),Display("标志"), DisplayEnumBit(typeof(EEventFlag)),DisplayLabelWidth(250)]public ushort flags;
 #if UNITY_EDITOR
         [System.NonSerialized] public System.Object ownerObject;
         [System.NonSerialized] public CutsceneTrack ownerTrackObject;
@@ -35,7 +42,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public interface IBaseEvent : IDataer
     {
-        bool StopFireIfNoTrigger();
+        ushort GetEventFlags();
     }
   //  public abstract class ABaseEvent
   //  {

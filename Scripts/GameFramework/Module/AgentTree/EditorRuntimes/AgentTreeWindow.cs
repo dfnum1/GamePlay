@@ -134,15 +134,23 @@ namespace Framework.AT.Editor
         public override void SaveChanges()
         {
             base.SaveChanges();
-            if (m_pAT != null) m_pAT.Create(m_pATData);
+            if (m_pAT != null)
+            {
+                bool bEnable = m_pAT.IsEnable();
+                bool bStated = m_pAT.IsStarted();
+                m_pAT.Create(m_pATData);
+                if(bEnable) m_pAT.Enable(bEnable);
+                if (bStated) m_pAT.Start();
+            }
             if (m_onSave != null)
                 m_onSave(m_pATData);
         }
         //--------------------------------------------------------
-        internal void OnGraphViewEvent(Event evt)
+        internal bool OnGraphViewEvent(Event evt)
         {
             if (m_pAT != null)
-                m_pAT.EditorKeyEvent(evt);
+                return m_pAT.EditorKeyEvent(evt);
+            return false;
         }
         //--------------------------------------------------------
         protected override void OnInnerGUI()
@@ -151,6 +159,16 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         protected override void OnInnerEvent(Event evt)
         {
+            if(m_pAT!=null)
+            {
+                if(evt.type == EventType.KeyUp || evt.type == EventType.KeyDown)
+                {
+                    if (m_pAT.EditorKeyEvent(evt))
+                    {
+                        evt.Use();
+                    }
+                }
+            }
         }
         //-----------------------------------------------------
         void OnNodeExecute(AgentTree pAT, BaseNode pNode)

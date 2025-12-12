@@ -189,13 +189,24 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(56344714,"获取最终角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
+#endif
+		static bool AT_GetFinalEulerAngle(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportVec3(pNode, 0, pPointerThis.GetFinalEulerAngle());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-1061891926,"设置角度",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vEulerAngle",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bImmediately",false, null,typeof(System.Boolean))]
 #endif
-		static bool AT_SetEulerAngle(Actor pPointerThis,UnityEngine.Vector3 vEulerAngle)
+		static bool AT_SetEulerAngle(Actor pPointerThis,UnityEngine.Vector3 vEulerAngle,System.Boolean bImmediately)
 		{
-			pPointerThis.SetEulerAngle(vEulerAngle);
+			pPointerThis.SetEulerAngle(vEulerAngle,bImmediately);
 			return true;
 		}
 #if UNITY_EDITOR
@@ -206,6 +217,48 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_GetMatrix(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportMatrix(pNode, 0, pPointerThis.GetMatrix());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-181775319,"移动到目标点",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"toPos",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"speed",false, null,typeof(System.Single))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
+#endif
+		static bool AT_RunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.RunTo(toPos,speed));
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-29192949,"导航移动到目标哦点",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"toPos",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"speed",false, null,typeof(System.Single))]
+#endif
+		static bool AT_NavRunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed)
+		{
+			pPointerThis.NavRunTo(toPos,speed);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1665969306,"停止路径移动",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+#endif
+		static bool AT_StopRunAlongPathPoint(Actor pPointerThis)
+		{
+			pPointerThis.StopRunAlongPathPoint();
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-234109610,"是否路径移动",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
+#endif
+		static bool AT_IsRunAlongPathPlaying(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportBool(pNode, 0, pPointerThis.IsRunAlongPathPlaying());
 			return true;
 		}
 #if UNITY_EDITOR
@@ -233,10 +286,12 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunction(327632054,"设置方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"vDirection",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"turnTime",false, null,typeof(System.Single))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"replaceTurnTime",false, null,typeof(System.Boolean))]
 #endif
-		static bool AT_SetDirection(Actor pPointerThis,UnityEngine.Vector3 vDirection)
+		static bool AT_SetDirection(Actor pPointerThis,UnityEngine.Vector3 vDirection,System.Single turnTime,System.Boolean replaceTurnTime)
 		{
-			pPointerThis.SetDirection(vDirection);
+			pPointerThis.SetDirection(vDirection,turnTime,replaceTurnTime);
 			return true;
 		}
 #if UNITY_EDITOR
@@ -250,6 +305,16 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-266746549,"获取最终方向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
+#endif
+		static bool AT_GetFinalDirection(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportVec3(pNode, 0, pPointerThis.GetFinalDirection());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-2003762858,"获取Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
@@ -260,13 +325,25 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(1387341846,"获取最终Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
+#endif
+		static bool AT_GetFinalUp(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportVec3(pNode, 0, pPointerThis.GetFinalUp());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(502345748,"设置Up朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"up",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"turnTime",false, null,typeof(System.Single))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"replaceTurnTime",false, null,typeof(System.Boolean))]
 #endif
-		static bool AT_SetUp(Actor pPointerThis,UnityEngine.Vector3 up)
+		static bool AT_SetUp(Actor pPointerThis,UnityEngine.Vector3 up,System.Single turnTime,System.Boolean replaceTurnTime)
 		{
-			pPointerThis.SetUp(up);
+			pPointerThis.SetUp(up,turnTime,replaceTurnTime);
 			return true;
 		}
 #if UNITY_EDITOR
@@ -277,6 +354,16 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_GetRight(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportVec3(pNode, 0, pPointerThis.GetRight());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(775185944,"获取最终Right朝向",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3), "pReturn", null,typeof(UnityEngine.Vector3))]
+#endif
+		static bool AT_GetFinalRight(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportVec3(pNode, 0, pPointerThis.GetFinalRight());
 			return true;
 		}
 #if UNITY_EDITOR
@@ -922,12 +1009,19 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetEulerAngle((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
+			case 56344714://GetFinalEulerAngle
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetFinalEulerAngle((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case -1061891926://SetEulerAngle
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
+				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetEulerAngle((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetEulerAngle((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportBool(pNode,2));
 			}
 			case -1374303795://GetMatrix
 			{
@@ -935,6 +1029,34 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetMatrix((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -181775319://RunTo
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 2) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_RunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2), pAgentTree, pNode);
+			}
+			case -29192949://NavRunTo
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 2) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_NavRunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2));
+			}
+			case -1665969306://StopRunAlongPathPoint
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_StopRunAlongPathPoint((Actor)pUserClass.pPointer);
+			}
+			case -234109610://IsRunAlongPathPlaying
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_IsRunAlongPathPlaying((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 809655427://GetBound
 			{
@@ -953,9 +1075,9 @@ namespace Framework.ActorSystem.Runtime
 			case 327632054://SetDirection
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
+				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetDirection((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetDirection((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2),pAgentTree.GetInportBool(pNode,3));
 			}
 			case 479826485://GetDirection
 			{
@@ -964,6 +1086,13 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetDirection((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
+			case -266746549://GetFinalDirection
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetFinalDirection((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case -2003762858://GetUp
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
@@ -971,12 +1100,19 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetUp((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
+			case 1387341846://GetFinalUp
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetFinalUp((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case 502345748://SetUp
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 1) return true;
+				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SetUp((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1));
+				return AT_SetUp((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2),pAgentTree.GetInportBool(pNode,3));
 			}
 			case 562451489://GetRight
 			{
@@ -984,6 +1120,13 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_GetRight((Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case 775185944://GetFinalRight
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetFinalRight((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 2030699697://GetScale
 			{

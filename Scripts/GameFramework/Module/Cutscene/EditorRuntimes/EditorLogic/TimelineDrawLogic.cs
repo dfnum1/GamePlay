@@ -116,6 +116,7 @@ namespace Framework.Cutscene.Editor
         float m_fPlayTime = 0.0f;
         float m_fAccumoulator = 0;
         CutsceneInstance m_pCutscene = null;
+        bool m_bSelfRepaintDo = true;
         TimeArea.TimeFormat m_TimeFromat = TimeArea.TimeFormat.Seconds;
 
         List<ICutsceneObject> m_vCacheObjects = new List<ICutsceneObject>();
@@ -200,6 +201,11 @@ namespace Framework.Cutscene.Editor
             //    position.y += m_TimelineRect.position.y;
             position.y += m_TimeArea.rect.y + TimeRulerAreaHeight;
             return position;
+        }
+        //--------------------------------------------------------
+        public void SetSelfRepaint(bool bSelfRepaint)
+        {
+            m_bSelfRepaintDo = bSelfRepaint;
         }
         //--------------------------------------------------------
         protected override void OnEnable()
@@ -1074,7 +1080,8 @@ namespace Framework.Cutscene.Editor
                         m_pCutscene.Evaluate(m_fPlayTime);
                     }
                     //    m_fPlayTime += GetInvFrame() * Time.timeScale;
-                    this.GetOwner<EditorWindowBase>().ForceRepaint();
+                    if(m_bSelfRepaintDo)
+                        this.GetOwner<EditorWindowBase>().ForceRepaint();
                 }
                 else
                     m_pCutscene.Evaluate(m_fPlayTime);

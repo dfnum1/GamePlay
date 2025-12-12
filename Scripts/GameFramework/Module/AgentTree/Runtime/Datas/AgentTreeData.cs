@@ -149,6 +149,7 @@ namespace Framework.AT.Runtime
             varGuids = new VaribaleSerizlizeGuidData();
             if (m_vVariables != null)
                 varGuids.Save(m_vVariables);
+            Init(true);
             if (toJson) return JsonUtility.ToJson(this, true);
             return null;
         }

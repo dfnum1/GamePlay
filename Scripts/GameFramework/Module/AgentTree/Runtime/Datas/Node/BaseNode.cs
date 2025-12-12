@@ -12,22 +12,22 @@ namespace Framework.AT.Runtime
     //-----------------------------------------------------
     public enum EOpType : byte
     {
-        [InspectorName("加")] eAdd,
-        [InspectorName("减")] eSub,
-        [InspectorName("乘")] eMul,
-        [InspectorName("除")] eDiv,
+        [Display("加")] eAdd,
+        [Display("减")] eSub,
+        [Display("乘")] eMul,
+        [Display("除")] eDiv,
     }
     //-----------------------------------------------------
     public enum ECompareOpType : byte
     {
-        [InspectorName("==")]eEqual,//等于
-        [InspectorName("!=")] eNotEqual,//不等于
-        [InspectorName(">")] eGreaterThan,//大于
-        [InspectorName(">=")] eGreaterThanOrEqual,//大于等于
-        [InspectorName("<")] eLessThan,//小于
-        [InspectorName("<=")] eLessThanOrEqual,//小于等于
-        [InspectorName("异或")] eXor,//异或
-        [InspectorName("包含")] eContains,//包含
+        [Display("==")]eEqual,//等于
+        [Display("!=")] eNotEqual,//不等于
+        [Display(">")] eGreaterThan,//大于
+        [Display(">=")] eGreaterThanOrEqual,//大于等于
+        [Display("<")] eLessThan,//小于
+        [Display("<=")] eLessThanOrEqual,//小于等于
+        [Display("异或")] eXor,//异或
+        [Display("包含")] eContains,//包含
     }
     //-----------------------------------------------------
     [System.Serializable]

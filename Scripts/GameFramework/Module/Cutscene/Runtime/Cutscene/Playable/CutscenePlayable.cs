@@ -216,6 +216,17 @@ namespace Framework.Cutscene.Runtime
             }
             if (time > m_fDuration) time = m_fDuration;
             if (time < 0.0f) time = 0.0f;
+            if(m_fPlayTime != time)
+            {
+                if (m_vTracks != null)
+                {
+                    for (int i = 0; i < m_vTracks.Count; ++i)
+                    {
+                        CutsceneTrack track = m_vTracks[i];
+                        track.CheckLessTimeTrigger(time);
+                    }
+                }
+            }
             m_fPlayTime = time;
             if(time >= m_fDuration)
             {

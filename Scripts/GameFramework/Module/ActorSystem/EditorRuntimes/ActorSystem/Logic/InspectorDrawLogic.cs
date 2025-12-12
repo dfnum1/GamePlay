@@ -6,7 +6,6 @@
 ร่    ส๖:	
 *********************************************************************/
 using UnityEngine;
-using UnityEditor;
 using Framework.ED;
 
 namespace Framework.ActorSystem.Editor

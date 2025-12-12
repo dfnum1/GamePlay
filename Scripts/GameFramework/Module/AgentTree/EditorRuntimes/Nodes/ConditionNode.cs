@@ -56,6 +56,7 @@ namespace Framework.AT.Editor
                     m_vArgvPorts[2].nodePort.pVariable = val2;
 
                     ClearPortVarEle(m_vArgvPorts[2]);
+                    m_vArgvPorts[2].byAttri = port.byAttri;
                     InnerDrawPortValue(m_vArgvPorts[2], 2);
                 }
             }

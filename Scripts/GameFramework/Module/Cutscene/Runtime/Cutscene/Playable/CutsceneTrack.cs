@@ -48,6 +48,11 @@ namespace Framework.Cutscene.Runtime
             public bool bTriggered;
             public IBaseEvent eventData;
             public ACutsceneDriver pDriver;
+
+            public bool HasFlag(EEventFlag flag)
+            {
+                return (eventData.GetEventFlags() & (ushort)flag) != 0;
+            }
         }
         //-----------------------------------------------------
         private string m_strName = null;
@@ -412,6 +417,20 @@ namespace Framework.Cutscene.Runtime
                         OnEventTrigger(clipData.eventData);
                     if (m_pOwner != null)
                         m_pOwner.BindEventTrackData(m_pOwnerGroup, clipData.eventData);
+                }
+            }
+        }
+        //-----------------------------------------------------
+        internal void CheckLessTimeTrigger(float time)
+        {
+            if (m_vEvents == null) return;
+            for (int i = 0; i < m_vEvents.Count; ++i)
+            {
+                var clipData = m_vEvents[i];
+                if (clipData.bTriggered && clipData.HasFlag(EEventFlag.eLessTimeReTrigger) && time < clipData.eventData.GetTime())
+                {
+                    clipData.bTriggered = false;
+                    m_vEvents[i] = clipData;
                 }
             }
         }
@@ -799,7 +818,7 @@ namespace Framework.Cutscene.Runtime
                 for (int i = 0; i < m_vEvents.Count; ++i)
                 {
                     var clipData = m_vEvents[i];
-                    if(!clipData.bTriggered && clipData.eventData.StopFireIfNoTrigger())
+                    if(!clipData.bTriggered && clipData.HasFlag(EEventFlag.eStopFireIfNoTrigger))
                     {
                         if (clipData.pDriver == null || !clipData.pDriver.OnEventTrigger(this, clipData.eventData))
                             OnEventTrigger(clipData.eventData);

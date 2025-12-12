@@ -5,6 +5,7 @@
 描    述:	编辑器逻辑基础抽象类，所有编辑器的具体逻辑功能由多个Logic组成
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.Core;
 using Framework.ED;
 using System.Reflection;
 using UnityEngine;
@@ -83,6 +84,11 @@ namespace Framework.ED
         public bool IsActive()
         {
             return m_bActive;
+        }
+        //--------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            return m_pEditorOwner.GetEditorGame();
         }
         //--------------------------------------------------------
         public EditorWindowBase GetOwner()

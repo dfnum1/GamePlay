@@ -127,7 +127,7 @@ namespace Framework.AT.Runtime
                 string baseName = typeName;
                 string append = "";
                 int tryCount = 0;
-                while (hash >= 0 && hash <= 50000 && tryCount < 1000)
+                while (hash >= -50000 && hash <= 50000 && tryCount < 1000)
                 {
                     char ch = (char)('a' + (tryCount % 26));
                     append += ch;

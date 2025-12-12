@@ -7,7 +7,11 @@
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
+using Framework.AT.Runtime;
+using Framework.Core;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
@@ -18,13 +22,19 @@ namespace Framework.ActorSystem.Runtime
 {
     public class ActorTransformLogic : AActorAgent
     {
-        protected FVector3  m_PositionOffset = FVector3.zero;
-        protected FVector3  m_Speed = FVector3.zero;
-        protected FFloat    m_fGravity = 0.0f;
-        protected bool      m_bUseGravity = true;
-        protected FFloat    m_fFraction = 0.0f;
+        protected FVector3          m_PositionOffset = FVector3.zero;
+        protected FVector3          m_Speed = FVector3.zero;
+        protected FFloat            m_fGravity = 0.0f;
+        protected bool              m_bUseGravity = true;
+        protected FFloat            m_fFraction = 0.0f;
+
+        protected bool              m_bTurning = false;
+        protected FVector2          m_fTurningDelta = FVector2.zero;
+        FQuaternion                 m_OriginRotation;
+        FQuaternion                 m_TargetRotation;
+        FQuaternion                 m_CurRotation;
         //--------------------------------------------------------
-        public void Reset()
+        protected override void OnInit()
         {
             m_fFraction = 0;
             m_bUseGravity = true;
@@ -32,6 +42,170 @@ namespace Framework.ActorSystem.Runtime
 
             m_PositionOffset = FVector3.zero;
             m_Speed = FVector3.zero;
+
+            m_fTurningDelta = FVector2.zero;
+            m_bTurning = false;
+            m_OriginRotation = FQuaternion.identity;
+            m_TargetRotation = FQuaternion.identity;
+            m_CurRotation = FQuaternion.identity;
+        }
+        //------------------------------------------------------
+        void SetEulerAngleImmediately(FVector3 vEulerAngle)
+        {
+            m_bTurning = false;
+            m_TargetRotation.eulerAngles = vEulerAngle;
+            m_OriginRotation.eulerAngles = vEulerAngle;
+            m_CurRotation = m_OriginRotation;
+        }
+        //------------------------------------------------------
+        public void SetEulerAngle(FVector3 vEulerAngle, bool bImmediately=false)
+        {
+            if(bImmediately)
+            {
+                SetEulerAngleImmediately(vEulerAngle);
+                return;
+            }
+            bool bFacing = m_pActor.IsFlag(EActorFlag.Facing2D);
+            if (bFacing)
+            {
+                SetDirection(BaseUtil.EulersAngleToDirection(vEulerAngle));
+                return;
+            }
+            m_bTurning = GetTurnTime() > 0;
+            if (m_bTurning)
+            {
+                m_OriginRotation = m_CurRotation;
+                m_TargetRotation.eulerAngles = vEulerAngle;
+                m_fTurningDelta.x = 0.0f;
+                m_fTurningDelta.y = GetTurnTime();
+            }
+            else
+            {
+                m_TargetRotation.eulerAngles = vEulerAngle;
+                m_OriginRotation.eulerAngles = vEulerAngle;
+                m_CurRotation = m_OriginRotation;
+            }
+        }
+        //------------------------------------------------------
+        public void SetDirectionImmediately(FVector3 vDir)
+        {
+            m_bTurning = false;
+            BaseUtil.CU_GetQuaternionFromDirection(vDir, m_pActor.GetUp(), ref m_TargetRotation);
+            m_OriginRotation = m_TargetRotation;
+            m_CurRotation = m_OriginRotation;
+        }
+        //------------------------------------------------------
+        public void SetDirection(FVector3 vDir)
+        {
+            SetDirection(vDir, 0);
+        }
+        //------------------------------------------------------
+        public void SetDirection(FVector3 vDir, FFloat turnTime, bool replaceTurnTime = true)
+        {
+            if (vDir.sqrMagnitude <= 0) return;
+            if(turnTime <=0)
+            {
+                SetDirectionImmediately(vDir);
+                return;
+            }
+
+            bool bFacing = m_pActor.IsFlag(EActorFlag.Facing2D);
+            if (bFacing)
+            {
+#if USE_FIXEDMATH
+                FFloat dotVal = FMath.Dot(vDir, FVector3.right);
+#else
+                FFloat dotVal = Vector3.Dot(vDir, FVector3.right);
+#endif
+                if (dotVal <= 0)
+                    vDir = FVector3.back;
+                else
+                    vDir = FVector3.forward;
+            }
+
+            if (vDir.sqrMagnitude > 0) vDir = vDir.normalized;
+            if (GetFinalDirection() == vDir) return;
+
+            m_bTurning = GetTurnTime() > 0 || turnTime > 0;
+            BaseUtil.CU_GetQuaternionFromDirection(vDir, GetFinalUp(), ref m_TargetRotation);
+            if (m_bTurning || turnTime > 0)
+            {
+                m_OriginRotation = m_CurRotation;
+                if (replaceTurnTime || m_fTurningDelta.y <= 0)
+                {
+                    m_fTurningDelta.x = 0;
+                    if (turnTime > 0) m_fTurningDelta.y = turnTime;
+                    else m_fTurningDelta.y = GetTurnTime();
+                }
+
+                m_bTurning = true;
+            }
+            else
+            {
+                BaseUtil.CU_GetQuaternionFromDirection(vDir, GetFinalUp(), ref m_TargetRotation);
+                m_OriginRotation = m_TargetRotation;
+                m_CurRotation = m_OriginRotation;
+            }
+        }
+        //------------------------------------------------------
+        public void SetUp(FVector3 vUp)
+        {
+            if (vUp.sqrMagnitude <= 0) return;
+            if (vUp.sqrMagnitude > 0) vUp = vUp.normalized;
+            SetUp(vUp,0);
+        }
+        //------------------------------------------------------
+        public void SetUp(FVector3 vUp, FFloat turnTime, bool replaceTurnTime = true)
+        {
+            if (vUp.sqrMagnitude <= 0) return;
+            if (vUp.sqrMagnitude > 0) vUp = vUp.normalized;
+
+            if (GetFinalUp() == vUp) return;
+
+            m_bTurning = GetTurnTime() > 0 || turnTime > 0;
+            BaseUtil.CU_GetQuaternionFromDirection(GetFinalDirection(), vUp, ref m_TargetRotation);
+            if (m_bTurning || turnTime > 0)
+            {
+                m_OriginRotation = m_CurRotation;
+                if (replaceTurnTime || m_fTurningDelta.y <=0)
+                {
+                    m_fTurningDelta.x = 0;
+                    if (turnTime > 0) m_fTurningDelta.y = turnTime;
+                    else m_fTurningDelta.y = GetTurnTime();
+                }
+                m_bTurning = true;
+            }
+            else
+            {
+                BaseUtil.CU_GetQuaternionFromDirection(GetFinalDirection(), vUp, ref m_TargetRotation);
+                m_OriginRotation = m_TargetRotation;
+                m_CurRotation = m_OriginRotation;
+            }
+        }
+        //------------------------------------------------------
+        public FVector3 GetFinalDirection()
+        {
+            return m_TargetRotation * Vector3.forward;
+        }
+        //------------------------------------------------------
+        public FVector3 GetFinalEulerAngle()
+        {
+            return m_TargetRotation.eulerAngles;
+        }
+        //------------------------------------------------------
+        public FVector3 GetFinalRight()
+        {
+            return m_TargetRotation * FVector3.right;
+        }
+        //------------------------------------------------------
+        public FVector3 GetFinalUp()
+        {
+            return m_TargetRotation * Vector3.up;
+        }
+        //------------------------------------------------------
+        public FFloat GetTurnTime()
+        {
+            return 0.1f;
         }
         //------------------------------------------------------
         public bool HasSpeedXZ()
@@ -99,11 +273,33 @@ namespace Framework.ActorSystem.Runtime
         {
             return m_pActor.GetActorParameter().GetSpeed();
         }
-        //--------------------------------------------------------
+        //-------------------------------------------------
         protected override void OnUpdate(float fDelta)
         {
             if (m_pActor.IsKilled())
                 return;
+
+            if (m_bTurning)
+            {
+                m_fTurningDelta.x += fDelta;
+                if (m_fTurningDelta.y > 0 && m_fTurningDelta.x < m_fTurningDelta.y)
+                {
+#if USE_FIXEDMATH
+                    FFloat fFactor = FMath.Clamp01(m_fTurningDelta.x / m_fTurningDelta.y);
+#else
+                    FFloat fFactor = Mathf.Clamp01(m_fTurningDelta.x / m_fTurningDelta.y);
+#endif
+                    m_CurRotation = FQuaternion.Lerp(m_OriginRotation, m_TargetRotation, fFactor);
+                }
+                else
+                {
+                    m_fTurningDelta = FVector2.zero;
+                    m_bTurning = false;
+                    m_OriginRotation = m_TargetRotation;
+                    m_CurRotation = m_TargetRotation;
+                }
+            }
+
             if (!m_pActor.IsFlag(EActorFlag.Logic))
                 return;
 

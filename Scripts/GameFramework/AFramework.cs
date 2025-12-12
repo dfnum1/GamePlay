@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	框架基类
 *********************************************************************/
+using Framework.ActorSystem.Editor;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
@@ -11,6 +12,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Framework.Core
 {
@@ -365,7 +367,9 @@ namespace Framework.Core
         //------------------------------------------------------
         public virtual bool OnLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
         {
-            return false;
+            var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.Object>(name);
+            if (onLoaded != null) onLoaded(obj);
+            return obj!=null;
         }
         //------------------------------------------------------
         public virtual bool OnUnloadAsset(UnityEngine.Object pAsset)
@@ -375,12 +379,16 @@ namespace Framework.Core
         //------------------------------------------------------
         public virtual bool OnSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
         {
-            return false;
+            var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.GameObject>(name);
+            if (onLoaded != null && obj) onLoaded(GameObject.Instantiate(obj));
+
+            return obj!=null;
         }
         //------------------------------------------------------
         public virtual bool OnDespawnInstance(GameObject pInstance, string name = null)
         {
-            return false;
+            Framework.ED.EditorUtils.Destroy(pInstance);
+            return true;
         }
         //------------------------------------------------------
         public virtual void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)
@@ -440,6 +448,11 @@ namespace Framework.Core
         public bool OnATExecutedNode(AgentTree pAgentTree, BaseNode pNode)
         {
             return false;
+        }
+        //------------------------------------------------------
+        public virtual void OnSimpleFindPath(Actor pActor, Vector3 toPos, float fSpeed, System.Action<List<Vector3>, float> onCallback)
+        {
+            Debug.LogWarning("业务层没有实现基于寻路的路径移动，请联系程序实现业务");
         }
         #endregion
     }

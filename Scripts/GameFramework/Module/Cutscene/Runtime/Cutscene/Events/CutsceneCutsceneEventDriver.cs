@@ -64,38 +64,18 @@ namespace Framework.Cutscene.Runtime
                 case (ushort)EEventType.eStopCutscene:
                 case (ushort)EEventType.ePauseCutscene:
                 case (ushort)EEventType.eResumeCutscene:
+                case (ushort)EEventType.eSetTimeCutscene:
                     {
                         if (string.IsNullOrEmpty(cutsceneName))
                         {
-                            var bindData = pTrack.GetBindOutputDatas();
-                            if (bindData != null)
-                            {
-                                foreach (var db in bindData)
-                                {
-                                    if (db is BindTrackData)
-                                    {
-                                        var trackData = (BindTrackData)db;
-                                        var objs = trackData.outputDatas.GetObjIds();
-                                        if (objs != null)
-                                        {
-                                            foreach (var obj in objs)
-                                            {
-                                                if (obj.userType == OBJ_LABLE_TYPE)
-                                                {
-                                                    int runtimeId = obj.id;
-                                                    if(pCutsceneEvent.GetIdType() == (ushort)EEventType.eStopCutscene)
-                                                        pTrack.GetCutscene().GetCutsceneManager().StopCutscene(runtimeId);
-                                                    else if (pCutsceneEvent.GetIdType() == (ushort)EEventType.ePauseCutscene)
-                                                        pTrack.GetCutscene().GetCutsceneManager().PauseCutscene(runtimeId);
-                                                    else
-                                                        pTrack.GetCutscene().GetCutsceneManager().ResumeCutscene(runtimeId);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            if (pCutsceneEvent.GetIdType() == (ushort)EEventType.eStopCutscene)
+                                Getcutscne().Stop();
+                            else if (pCutsceneEvent.GetIdType() == (ushort)EEventType.ePauseCutscene)
+                                Getcutscne().Pause();
+                            else if (pCutsceneEvent.GetIdType() == (ushort)EEventType.eSetTimeCutscene)
+                                Getcutscne().SetTime(((CutsceneSetTimeCutsceneEvent)pCutsceneEvent).setTime);
+                            else
+                                Getcutscne().Resume();
                         }
                         else
                         {
@@ -106,6 +86,8 @@ namespace Framework.Cutscene.Runtime
                                     cutsceneInstance.Stop();
                                 else if (pCutsceneEvent.GetIdType() == (ushort)EEventType.ePauseCutscene)
                                     cutsceneInstance.Pause();
+                                else if (pCutsceneEvent.GetIdType() == (ushort)EEventType.eSetTimeCutscene)
+                                    cutsceneInstance.SetTime(((CutsceneSetTimeCutsceneEvent)pCutsceneEvent).setTime);
                                 else
                                     cutsceneInstance.Resume();
                             }

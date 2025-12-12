@@ -370,16 +370,53 @@ namespace Framework.ActorSystem.Runtime
             return m_Transform.GetEulerAngle();
         }
         //--------------------------------------------------------
-        [ATMethod("设置角度")]
-        public void SetEulerAngle(FVector3 vEulerAngle)
+        [ATMethod("获取最终角度")]
+        public FVector3 GetFinalEulerAngle()
         {
-            m_Transform.SetEulerAngle(vEulerAngle);
+            return GetAgent<ActorTransformLogic>(true).GetFinalEulerAngle();
+        }
+        //--------------------------------------------------------
+        [ATMethod("设置角度")]
+        public void SetEulerAngle(FVector3 vEulerAngle,bool bImmediately=false)
+        {
+            GetAgent<ActorTransformLogic>(true).SetEulerAngle(vEulerAngle, bImmediately);
         }
         //--------------------------------------------------------
         [ATMethod("获取矩阵")]
         public Matrix4x4 GetMatrix()
         {
             return m_Transform.GetMatrix();
+        }
+        //-------------------------------------------------
+        [ATMethod("移动到目标点")]
+        public FFloat RunTo(FVector3 toPos, FFloat speed = 0)
+        {
+            return GetAgent<RunAlongPathAgnet>(true).RunTo(toPos, speed);
+        }
+        //-------------------------------------------------
+        [ATMethod("导航移动到目标哦点")]
+        public void NavRunTo(FVector3 toPos, FFloat speed = 0)
+        {
+            GetAgent<RunAlongPathAgnet>(true).NavRunTo(toPos, speed);
+        }
+        //-------------------------------------------------
+        public FFloat RunAlongPathPoint(List<FVector3> vPoints, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        {
+            return GetAgent<RunAlongPathAgnet>(true).RunAlongPathPoint(vPoints, speed, bEnsureSucceed, bUpdateDirection);
+        }
+        //------------------------------------------------------
+        [ATMethod("停止路径移动")]
+        public void StopRunAlongPathPoint()
+        {
+            GetAgent<RunAlongPathAgnet>(true).StopRunAlongPathPoint();
+        }
+        //-------------------------------------------------
+        [ATMethod("是否路径移动")]
+        public bool IsRunAlongPathPlaying()
+        {
+            var agent = GetAgent<RunAlongPathAgnet>();
+            if (agent == null) return false;
+            return agent.IsRunAlongPathPlaying();
         }
         //-------------------------------------------------
         public WorldBoundBox GetBounds()
@@ -400,10 +437,10 @@ namespace Framework.ActorSystem.Runtime
         }
         //--------------------------------------------------------
         [ATMethod("设置方向")]
-        public void SetDirection(FVector3 vDirection)
+        public void SetDirection(FVector3 vDirection, FFloat turnTime = -1f, bool replaceTurnTime = false)
         {
             if ((int)(vDirection.sqrMagnitude * 100) <= 0) return;
-            m_Transform.SetDirection(vDirection);
+            GetAgent<ActorTransformLogic>(true).SetDirection(vDirection, turnTime, replaceTurnTime);
         }
         //-------------------------------------------------
         [ATMethod("获取方向")]
@@ -412,22 +449,40 @@ namespace Framework.ActorSystem.Runtime
             return m_Transform.GetDirection();
         }
         //-------------------------------------------------
+        [ATMethod("获取最终方向")]
+        public FVector3 GetFinalDirection()
+        {
+            return GetAgent<ActorTransformLogic>(true).GetFinalDirection();
+        }
+        //-------------------------------------------------
         [ATMethod("获取Up朝向")]
         public FVector3 GetUp()
         {
             return m_Transform.GetUp();
         }
         //-------------------------------------------------
-        [ATMethod("设置Up朝向")]
-        public virtual void SetUp(FVector3 up)
+        [ATMethod("获取最终Up朝向")]
+        public FVector3 GetFinalUp()
         {
-            m_Transform.SetUp(up);
+            return GetAgent<ActorTransformLogic>(true).GetFinalUp();
+        }
+        //-------------------------------------------------
+        [ATMethod("设置Up朝向")]
+        public virtual void SetUp(FVector3 up, FFloat turnTime = -1.0f, bool replaceTurnTime = false)
+        {
+            GetAgent<ActorTransformLogic>(true).SetUp(up, turnTime, replaceTurnTime);
         }
         //-------------------------------------------------
         [ATMethod("获取Right朝向")]
         public FVector3 GetRight()
         {
             return m_Transform.GetRight();
+        }
+        //-------------------------------------------------
+        [ATMethod("获取最终Right朝向")]
+        public FVector3 GetFinalRight()
+        {
+            return GetAgent<ActorTransformLogic>(true).GetFinalRight();
         }
         //-------------------------------------------------
         [ATMethod("获取缩放")]
@@ -1121,7 +1176,7 @@ namespace Framework.ActorSystem.Runtime
                             ActorGraphicAgent pAgent = GetAgent<ActorGraphicAgent>();
                             if (null == pAgent)
                                 return false;
-                            pAgent.PlayAnimation(paramData.userData, animationClip, paramData.ToInt(0));
+                            pAgent.PlayAnimation(paramData.userData, animationClip, paramData.ToInt(0), paramData.ToFloat(2));
                             pAgent.SetActionTime(paramData.userData, paramData.ToFloat(1));
                         }
                         else

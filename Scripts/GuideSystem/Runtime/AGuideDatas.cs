@@ -115,6 +115,11 @@ namespace Framework.Guide
             return false;
         }
         //------------------------------------------------------
+        private void OnValidate()
+        {
+            Init(true);
+        }
+        //------------------------------------------------------
         public GuideGroup New()
         {
             if (m_vDatas == null) m_vDatas = new Dictionary<int, GuideGroup>();

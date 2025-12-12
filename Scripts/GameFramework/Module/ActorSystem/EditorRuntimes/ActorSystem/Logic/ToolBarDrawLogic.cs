@@ -20,6 +20,7 @@ namespace Framework.ActorSystem.Editor
         {
             try
             {
+                ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
                 {
@@ -27,20 +28,31 @@ namespace Framework.ActorSystem.Editor
                 }
                 if (GUILayout.Button("技能编辑器", new GUILayoutOption[] { GUILayout.Width(80) }))
                 {
-                    ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
                     editor.OpenSkillEditor();
                 }
                 if (GUILayout.Button("动画调试", new GUILayoutOption[] { GUILayout.Width(80) }))
                 {
                     GraphPlayableUtil.DebugPlayable(GetActor());
                 }
-                if (GUILayout.Button("显示树空间", new GUILayoutOption[] { GUILayout.Width(80) }))
+                using(new GUIColorScope(editor.IsShowSpatialActorDebug()?Color.red:Color.white))
                 {
-                    ActionEditorWindow editor = GetOwner<ActionEditorWindow>();
-                    editor.ShowSpatialActorDebug();
+                    if (GUILayout.Button("显示树空间", new GUILayoutOption[] { GUILayout.Width(80) }))
+                    {
+                        editor.ShowSpatialActorDebug();
+                    }
                 }
+  
                 GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) });
                 GUILayout.EndHorizontal();
+
+                var rect = GetRect();
+                if(editor!=null)
+                {
+                    GUILayout.BeginArea(new Rect(rect.xMax - 100, rect.y, 100, rect.height));
+                    editor.DebugAT(GUILayout.Toggle(editor.IsDebugAT(), "开启蓝图调试", new GUILayoutOption[] { GUILayout.Width(100) }));
+                    GUILayout.EndArea();
+                }
+
             }
             catch
             {

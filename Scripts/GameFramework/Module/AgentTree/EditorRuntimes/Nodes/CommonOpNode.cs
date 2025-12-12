@@ -62,6 +62,7 @@ namespace Framework.AT.Editor
                     var port2 = m_vArgvPorts[2].bindPort;
                     // 需要重新赋值回去（struct）
                     m_vArgvPorts[2].bindPort.portColor = port.bindPort.portColor;
+                    m_vArgvPorts[2].byAttri = port.byAttri;
                     ClearPortVarEle(m_vArgvPorts[2]);
                     InnerDrawPortValue(m_vArgvPorts[2], 2);
                 }
@@ -71,6 +72,7 @@ namespace Framework.AT.Editor
                     var port2 = m_vReturnPorts[0].bindPort;
                     // 需要重新赋值回去（struct）
                     m_vReturnPorts[0].bindPort.portColor = port.bindPort.portColor;
+                    m_vReturnPorts[0].byAttri = port.byAttri;
                     ClearPortVarEle(m_vReturnPorts[0]);
                     InnerDrawPortValue(m_vReturnPorts[0], 2);
                 }

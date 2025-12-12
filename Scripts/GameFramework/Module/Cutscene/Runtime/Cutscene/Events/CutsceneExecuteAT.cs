@@ -48,9 +48,9 @@ namespace Framework.Cutscene.Runtime
             return baseProp.time;
         }
         //-----------------------------------------------------
-        public bool StopFireIfNoTrigger()
+        public ushort GetEventFlags()
         {
-            return baseProp.stopFireIfNoTrigger;
+            return baseProp.flags;
         }
 #if UNITY_EDITOR
         //-----------------------------------------------------

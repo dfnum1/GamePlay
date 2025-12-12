@@ -306,6 +306,22 @@ namespace Framework.Cutscene.Runtime
             return false;
         }
         //-----------------------------------------------------
+        public bool SetPlayTimeCutscene(int cutsceneGuid, float time)
+        {
+            if (m_vCutscenes == null || m_vCutscenes.Count <= 0)
+                return false;
+            if (m_vCutscenes.TryGetValue(cutsceneGuid, out var cutscene))
+            {
+                cutscene.SetTime(time);
+                return true;
+            }
+            else
+            {
+                Debug.LogError("CutsceneManager: Cutscene with GUID " + cutsceneGuid + " not found.");
+            }
+            return false;
+        }
+        //-----------------------------------------------------
         public bool ResumeCutscene(string name)
         {
             if (m_vCutscenes == null || m_vCutscenes.Count <= 0 || string.IsNullOrEmpty(name))

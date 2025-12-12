@@ -335,8 +335,9 @@ namespace Framework.AT.Runtime
         public bool hasInput;
         public bool hasOutput;
         public bool bShow;
+        public bool allowMuti;
 #endif
-        public ATActionAttribute(string name, bool isTask = false, bool hasInput = true, bool hasOutput = true, bool bShow = true)
+        public ATActionAttribute(string name, bool isTask = false, bool hasInput = true, bool hasOutput = true, bool bShow = true, bool allowMuti= true)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -345,9 +346,10 @@ namespace Framework.AT.Runtime
             this.hasInput = hasInput;
             this.hasOutput = hasOutput;
             this.bShow = bShow;
+            this.allowMuti = allowMuti;
 #endif
         }
-        public ATActionAttribute(string name, string tips, bool isTask = false, bool hasInput = true, bool hasOutput = true, bool bShow = true)
+        public ATActionAttribute(string name, string tips, bool isTask = false, bool hasInput = true, bool hasOutput = true, bool bShow = true, bool allowMuti = true)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -356,6 +358,7 @@ namespace Framework.AT.Runtime
             this.hasInput = hasInput;
             this.hasOutput = hasOutput;
             this.bShow = bShow;
+            this.allowMuti = allowMuti;
 #endif
         }
     }

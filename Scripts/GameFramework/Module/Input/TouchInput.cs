@@ -33,6 +33,7 @@ namespace Framework.Core
             public Vector2 deltaPosition;
             public bool isUITouched;
 
+            public static TouchData DEF = new TouchData() { touchID = -1, status = EState.None };
             public void Clear()
             {
                 touchID = -1; status = EState.None;

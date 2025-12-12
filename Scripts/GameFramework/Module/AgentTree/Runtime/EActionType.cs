@@ -4,28 +4,30 @@
 作    者:	HappLI
 描    述:	内置的行为类型
 *********************************************************************/
+using Framework.DrawProps;
 using UnityEngine;
 
 namespace Framework.AT.Runtime
 {
     public enum EATMouseType
     {
-        Begin,
-        Move,
-        Wheel,
-        End,
+        [Display("无")] None,
+        [Display("按下")]Begin,
+        [Display("移动")] Move,
+        [Display("滚动")] Wheel,
+        [Display("弹起")] End,
     }
     //-----------------------------------------------------
     [ATType("任务")]
     public enum ETaskType
     {
-        [ATAction("开始", true, false, true), ATIcon("AT/at_enter_start")]
+        [ATAction("开始", true, false, true,allowMuti:false), ATIcon("AT/at_enter_start")]
         eStart = 1,//任务开始
 
-        [ATAction("Tick", true, false, true), ATIcon("AT/at_enter_tick")]
+        [ATAction("Tick", true, false, true, allowMuti: false), ATIcon("AT/at_enter_tick")]
         eTick = 2,
 
-        [ATAction("退出", true, false, true), ATIcon("AT/at_enter_exit")]
+        [ATAction("退出", true, false, true, allowMuti: false), ATIcon("AT/at_enter_exit")]
         eExit = 3,
 
         [ATAction("键盘输入", true, false, true), ATIcon("AT/at_key_input")]
@@ -104,44 +106,61 @@ namespace Framework.AT.Runtime
         [ATAction("四元素转欧拉角")]
         [Argv("欧拉角", typeof(VariableQuaternion), true)]
         [Return("四元素", typeof(VariableVec3))]
-        QuaternionToEuler,
+        eQuaternionToEuler,
 
         [ATAction("欧拉角转四元素")]
         [Argv("欧拉角", typeof(VariableVec3), true)]
         [Return("四元素", typeof(VariableQuaternion))]
-        EulerToQuaternion,
+        eEulerToQuaternion,
 
         [ATAction("矩阵转TRS")]
         [Argv("欧拉角", typeof(VariableMatrix), true)]
         [Return("位置", typeof(VariableVec3))]
         [Return("欧拉角", typeof(VariableVec3))]
         [Return("缩放", typeof(VariableVec3))]
-        MatrixToTRS,
+        eMatrixToTRS,
 
         [ATAction("TRS转矩阵")]
         [Argv("位置", typeof(VariableVec3),true)]
         [Argv("欧拉角", typeof(VariableVec3), true)]
         [Argv("缩放", typeof(VariableVec3), true)]
         [Return("欧拉角", typeof(VariableMatrix))]
-        TRSToMatrix,
+        eTRSToMatrix,
 
         [ATAction("MultiplyPoint")]
         [Argv("矩阵", typeof(VariableMatrix), true)]
         [Argv("坐标位置", typeof(VariableVec3), true)]
         [Return("矩阵下的空间坐标", typeof(VariableVec3))]
-        MatrixMultiplyPoint,
+        eMatrixMultiplyPoint,
 
         [ATAction("MultiplyPoint3x4")]
         [Argv("矩阵", typeof(VariableMatrix), true)]
         [Argv("坐标位置", typeof(VariableVec3), true)]
         [Return("矩阵下的空间坐标", typeof(VariableVec3))]
-        MatrixMultiplyPoint3x4,
+        eMatrixMultiplyPoint3x4,
 
         [ATAction("MultiplyVector")]
         [Argv("矩阵", typeof(VariableMatrix), true)]
         [Argv("坐标位置", typeof(VariableVec3), true)]
         [Return("矩阵下的空间坐标", typeof(VariableVec3))]
-        MatrixMultiplyVector,
+        eMatrixMultiplyVector,
+
+        [ATAction("屏幕坐标转世界坐标")]
+        [Argv("屏幕坐标", typeof(VariableVec2), true)]
+        [Argv("地表高度", typeof(VariableFloat), true)]
+        [Return("世界坐标", typeof(VariableVec3))]
+        eScreenToWorldPosition,
+
+        [ATAction("世界坐标转屏幕坐标")]
+        [Argv("世界坐标", typeof(VariableVec3), true)]
+        [Return("屏幕坐标", typeof(VariableVec2))]
+        eWorldToScreenPosition,
+
+        [ATAction("检测世界坐标点是否在屏幕中")]
+        [Argv("屏幕坐标", typeof(VariableVec3), true)]
+        [Argv("阀值", typeof(VariableFloat), true)]
+        [Return("是否在视野", typeof(VariableBool))]
+        eCheckWorldPosInView,
 
         [ATAction("新建变量", false, false, false)]
         [Argv("变量", typeof(IVariable), true)]

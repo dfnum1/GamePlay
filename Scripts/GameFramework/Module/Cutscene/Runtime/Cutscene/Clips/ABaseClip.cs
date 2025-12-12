@@ -5,6 +5,7 @@
 描    述:	基础剪辑clip,与ABaseEvent 的区别在于，Clip拥有持续时长
 *********************************************************************/
 using Framework.DrawProps;
+using UnityEngine;
 namespace Framework.Cutscene.Runtime
 {
 	public enum EClipType : ushort
@@ -59,8 +60,8 @@ namespace Framework.Cutscene.Runtime
         [DefaultValue(5), UnEdit, Display("持续时间")] public float duration; //持续时间
         [DefaultValue(EClipEdgeType.None), Display("结束类型")] public EClipEdgeType endEdgeType; //结束边缘类型
         [DefaultValue(1),StateByField("endEdgeType", "Repeat"), Display("重复次数")] public ushort repeatCnt; //重复次数   
-        [DefaultValue(0), UnEdit] public float blendIn;
-        [DefaultValue(0), UnEdit] public float blendOut;
+        [DefaultValue(0),Range(0,1)] public float blendIn;
+        [DefaultValue(0), UnEdit, Range(0, 1)] public float blendOut;
 
         public float GetBlend(bool bIn)
         {

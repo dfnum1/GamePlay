@@ -32,6 +32,7 @@ namespace Framework.ED
             System.Object prevData;
             FieldInfo field;
             OnFieldDirtyDelegate onDirty;
+            float lastLabelWidth;
             public FieldScope(System.Object data, FieldInfo field, bool bEnable, OnFieldDirtyDelegate onDirty)
             {
                 this.data = data;
@@ -41,9 +42,17 @@ namespace Framework.ED
                 this.onDirty = onDirty;
                 EditorGUI.BeginDisabledGroup(!bEnable);
                 EditorGUI.BeginChangeCheck();
+                lastLabelWidth = EditorGUIUtility.labelWidth;
+                if (field.IsDefined(typeof(DisplayLabelWidthAttribute)))
+                {
+                    float labelWidth = field.GetCustomAttribute<DisplayLabelWidthAttribute>().labelWidth;
+                    if (labelWidth >= 0)
+                        EditorGUIUtility.labelWidth = labelWidth;
+                }
             }
             public void Dispose()
             {
+                EditorGUIUtility.labelWidth = lastLabelWidth;
                 if (EditorGUI.EndChangeCheck())
                 {
                     if (ms_UndoHandler != null)

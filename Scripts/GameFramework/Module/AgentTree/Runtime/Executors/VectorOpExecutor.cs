@@ -249,7 +249,7 @@ namespace Framework.AT.Runtime
                         }
                     }
                     break;
-                case EActionType.QuaternionToEuler:
+                case EActionType.eQuaternionToEuler:
                     {
                         if(varType1 == EVariableType.eQuaternion && outputType == EVariableType.eVec3)
                         {
@@ -261,7 +261,7 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Quaternion");
                         return true;
                     }
-                case EActionType.EulerToQuaternion:
+                case EActionType.eEulerToQuaternion:
                     {
                         if (varType1 == EVariableType.eVec3 && outputType == EVariableType.eQuaternion)
                         {
@@ -273,11 +273,11 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Quaternion");
                         return true;
                     }
-                case EActionType.MatrixToTRS:
+                case EActionType.eMatrixToTRS:
                     {
                         if(inportCnt < 3)
                         {
-                            Debug.LogError("MatrixToTRS need 3 Vec3 outports!");
+                            Debug.LogError("eMatrixToTRS need 3 Vec3 outports!");
                             return true;
                         }
                         if (varType1 == EVariableType.eMatrix && outputType == EVariableType.eVec3 && outputType == pAgent.GetOutportVarType(pNode, 1) && outputType == pAgent.GetOutportVarType(pNode, 2))
@@ -293,16 +293,16 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Matrix");
                         return true;
                     }
-                case EActionType.TRSToMatrix:
+                case EActionType.eTRSToMatrix:
                     {
                         if (inportCnt < 3)
                         {
-                            Debug.LogError("MatrixToTRS need 3 Vec3 outports!");
+                            Debug.LogError("eMatrixToTRS need 3 Vec3 outports!");
                             return true;
                         }
                         if(inportCnt<3)
                         {
-                            Debug.LogError("TRSToMatrix need 3 Vec3 inports!");
+                            Debug.LogError("eTRSToMatrix need 3 Vec3 inports!");
                             return true;
                         }
                         if (varType1 == EVariableType.eVec3 && varType1 == pAgent.GetInportVarType(pNode, 1) && varType1 == pAgent.GetInportVarType(pNode, 2) &&
@@ -316,11 +316,11 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Matrix");
                         return true;
                     }
-                case EActionType.MatrixMultiplyPoint:
+                case EActionType.eMatrixMultiplyPoint:
                     {
                         if (inportCnt < 2)
                         {
-                            Debug.LogError("MatrixMultiplyPoint need inports[matrix vec3]!");
+                            Debug.LogError("eMatrixMultiplyPoint need inports[matrix vec3]!");
                             return true;
                         }
                         if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
@@ -335,11 +335,11 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Matrix");
                         return true;
                     }
-                case EActionType.MatrixMultiplyPoint3x4:
+                case EActionType.eMatrixMultiplyPoint3x4:
                     {
                         if (inportCnt < 2)
                         {
-                            Debug.LogError("MatrixMultiplyPoint3x4 need inports[matrix vec3]!");
+                            Debug.LogError("eMatrixMultiplyPoint3x4 need inports[matrix vec3]!");
                             return true;
                         }
                         if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
@@ -354,11 +354,11 @@ namespace Framework.AT.Runtime
                             Debug.LogError("Lerp only supports Matrix");
                         return true;
                     }
-                case EActionType.MatrixMultiplyVector:
+                case EActionType.eMatrixMultiplyVector:
                     {
                         if (inportCnt < 2)
                         {
-                            Debug.LogError("MatrixMultiplyVector need inports[matrix vec3]!");
+                            Debug.LogError("eMatrixMultiplyVector need inports[matrix vec3]!");
                             return true;
                         }
                         if (varType1 == EVariableType.eMatrix && EVariableType.eVec3 == pAgent.GetInportVarType(pNode, 1) &&
@@ -371,6 +371,75 @@ namespace Framework.AT.Runtime
                         }
                         else
                             Debug.LogError("Lerp only supports Matrix");
+                        return true;
+                    }
+                case EActionType.eScreenToWorldPosition:
+                    {
+                        if(inportCnt<2)
+                        {
+                            Debug.LogError("eScreenToWorldPosition need inports[vec3 float]!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eVec2 && EVariableType.eFloat == pAgent.GetInportVarType(pNode, 1) &&
+                            outputType == EVariableType.eVec3)
+                        {
+                            var a = pAgent.GetInportVec2(pNode, 0);
+                            Camera mainCamera = pAgent.GetMainCamera();
+                            if (mainCamera == null)
+                            {
+                                Debug.LogError("Main camera is null!");
+                                return true;
+                            }
+                            Vector3 worldPos = BaseUtil.RayHitPos(mainCamera.ScreenPointToRay(a),pAgent.GetInportFloat(pNode, 1,0));
+                            pAgent.SetOutportVec3(pNode,0, worldPos);
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports vec3");
+                        return true;
+                    }
+                case EActionType.eWorldToScreenPosition:
+                    {
+                        if (varType1 == EVariableType.eVec3 &&
+                            outputType == EVariableType.eVec2)
+                        {
+                            var a = pAgent.GetInportVec3(pNode, 0);
+                            Camera mainCamera = pAgent.GetMainCamera();
+                            if (mainCamera == null)
+                            {
+                                Debug.LogError("Main camera is null!");
+                                return true;
+                            }
+                            pAgent.SetOutportVec2(pNode, 0, mainCamera.WorldToScreenPoint(a));
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports vec3");
+                        return true;
+                    }
+                case EActionType.eCheckWorldPosInView:
+                    {
+                        if (inportCnt < 2)
+                        {
+                            Debug.LogError("eMatrixMultiplyVector need inports[vec3 float]!");
+                            return true;
+                        }
+                        if (varType1 == EVariableType.eVec3 && EVariableType.eFloat == pAgent.GetInportVarType(pNode, 1) &&
+                            outputType == EVariableType.eBool)
+                        {
+                            var a = pAgent.GetInportVec3(pNode, 0);
+                            Camera mainCamera = pAgent.GetMainCamera();
+                            if (mainCamera == null)
+                            {
+                                Debug.LogError("Main camera is null!");
+                                return true;
+                            }
+                            bool bInview = BaseUtil.PositionInView(mainCamera.cullingMatrix, a, 1 + pAgent.GetInportFloat(pNode, 1));
+                            pAgent.SetOutportBool(pNode, 0, bInview);
+                            return true;
+                        }
+                        else
+                            Debug.LogError("Lerp only supports inports[vec3 float] outpots[bool]");
                         return true;
                     }
                 default:

@@ -41,6 +41,20 @@ this.displayName = displayName;
         }
     }
     //------------------------------------------------------
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
+    public class DisplayLabelWidthAttribute : UnityEngine.PropertyAttribute
+    {
+#if UNITY_EDITOR
+        public float labelWidth;
+#endif
+        public DisplayLabelWidthAttribute(float labelWidth)
+        {
+#if UNITY_EDITOR
+            this.labelWidth = labelWidth;
+#endif
+        }
+    }
+    //------------------------------------------------------
 #if UNITY_EDITOR
 
     [CustomPropertyDrawer(typeof(DisplayAttribute))]

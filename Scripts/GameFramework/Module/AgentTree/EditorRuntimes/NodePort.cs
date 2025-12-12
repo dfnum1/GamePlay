@@ -23,6 +23,7 @@ namespace Framework.AT.Editor
         public UnityEngine.UIElements.VisualElement fieldRoot;
         public GraphNode grapNode;
         public ArgvAttribute attri;
+        public ArgvAttribute byAttri;
 
         public UnityEngine.UIElements.VisualElement fieldElement;
         public UnityEngine.UIElements.VisualElement enumPopFieldElement;

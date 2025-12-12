@@ -106,18 +106,7 @@ namespace Framework.AT.Runtime
                     }
                 case EVariableType.eBool:
                     {
-                        float a = pAgent.GetInportFloat(pNode, 0);
-                        float b = pAgent.GetInportFloat(pNode, 2);
-                        float result = 0f;
-                        switch (opType)
-                        {
-                            case EOpType.eAdd: result = a + b; break;
-                            case EOpType.eSub: result = a - b; break;
-                            case EOpType.eMul: result = a * b; break;
-                            case EOpType.eDiv: result = Mathf.Approximately(b, 0f) ? 0f : a / b; break;
-                            default: Debug.LogError($"Unsupported {opType}  for float"); return false;
-                        }
-                        pAgent.SetOutportFloat(pNode, 0, result);
+                        Debug.LogError($"Unsupported {opType}  for bool"); return false;
                         return true;
                     }
                 case EVariableType.eVec2:
