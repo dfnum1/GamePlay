@@ -570,7 +570,12 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public void OnPreviewDraw(int controllerId, Camera camera, Event evt)
         {
-            GetEditorGame().GetModule<AgentTreeManager>()?.SetMainCamera(camera);
+            AgentTreeManager mgr = GetEditorGame().GetModule<AgentTreeManager>();
+            if(mgr!=null)
+            {
+                mgr.SetMainCamera(camera);
+                mgr.SetNegScreenY(true);
+            }
             if (m_vCutsceneLogics != null)
             {
                 foreach (var logic in m_vCutsceneLogics)

@@ -24,6 +24,10 @@ namespace Framework.ActorSystem.Runtime
         {
             return(uint)((int)type << 16 | actionTag);
         }
+        public bool IsSelf(EActionStateType type, uint tag)
+        {
+            return this.type == type && this.actionTag == tag;
+        }
 #if USE_CUTSCENE
         public virtual Framework.Cutscene.Runtime.CutsceneGraph GetPlayCutscene()
         {

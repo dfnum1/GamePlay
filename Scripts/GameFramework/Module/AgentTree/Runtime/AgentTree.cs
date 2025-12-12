@@ -56,6 +56,12 @@ namespace Framework.AT.Runtime
             return m_pATManager.GetMainCamera();
         }
         //-----------------------------------------------------
+        public bool GetNegScreenY()
+        {
+            if (m_pATManager == null) return false;
+            return m_pATManager.GetNegScreenY();
+        }
+        //-----------------------------------------------------
         internal void SetATManager(AgentTreeManager pManager)
         {
             m_pATManager = pManager;

@@ -390,6 +390,8 @@ namespace Framework.AT.Runtime
                                 Debug.LogError("Main camera is null!");
                                 return true;
                             }
+                            if (pAgent.GetNegScreenY())
+                                a.y = mainCamera.pixelHeight - a.y;
                             Vector3 worldPos = BaseUtil.RayHitPos(mainCamera.ScreenPointToRay(a),pAgent.GetInportFloat(pNode, 1,0));
                             pAgent.SetOutportVec3(pNode,0, worldPos);
                             return true;
@@ -410,7 +412,9 @@ namespace Framework.AT.Runtime
                                 Debug.LogError("Main camera is null!");
                                 return true;
                             }
-                            pAgent.SetOutportVec2(pNode, 0, mainCamera.WorldToScreenPoint(a));
+                            Vector2 screenPos = mainCamera.WorldToScreenPoint(a);
+                            if(pAgent.GetNegScreenY()) screenPos.y = mainCamera.pixelHeight - screenPos.y;
+                            pAgent.SetOutportVec2(pNode, 0, screenPos);
                             return true;
                         }
                         else

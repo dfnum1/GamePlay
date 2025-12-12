@@ -71,6 +71,26 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         protected virtual void OnFlagDirty(EActorFlag flag, bool IsUsed) { }
         //--------------------------------------------------------
+        internal void DoActionEndState(ActorAction pState)
+        {
+            OnActionEndState(pState);
+        }
+        //--------------------------------------------------------
+        internal void DoActionStartState(ActorAction pState)
+        {
+            DoActionStartState(pState);
+        }
+        //--------------------------------------------------------
+        protected virtual void OnActionEndState(ActorAction pState)
+        {
+
+        }
+        //--------------------------------------------------------
+        protected virtual void OnActionStartState(ActorAction pState)
+        {
+
+        }
+        //--------------------------------------------------------
         public void Update(float fDelta)
         {
             OnUpdate(fDelta);

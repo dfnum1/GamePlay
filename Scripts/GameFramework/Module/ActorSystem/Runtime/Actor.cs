@@ -9,6 +9,7 @@ using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
+using TagLib.Id3v2;
 using UnityEngine;
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -912,6 +913,15 @@ namespace Framework.ActorSystem.Runtime
             pAgent.SetIdleType(eType, tag);
         }
         //--------------------------------------------------------
+        [ATMethod("设置移动动作")]
+        public void SetRunType(EActionStateType eType, uint tag = 0)
+        {
+            RunAlongPathAgnet pAgent = GetAgent<RunAlongPathAgnet>();
+            if (null == pAgent)
+                return;
+            pAgent.SetRunActionType(eType, tag);
+        }
+        //--------------------------------------------------------
         [ATMethod("删除动作")]
         public void RemoveActionState(EActionStateType eType, uint nTag = 0)
         {
@@ -925,12 +935,22 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pSkillSystem != null)
                 m_pSkillSystem.OnActionEndState(pState);
+            if (m_vAgents != null)
+            {
+                for (int i = 0; i < m_vAgents.Count; ++i)
+                    m_vAgents[i].DoActionEndState(pState);
+            }
         }
         //--------------------------------------------------------
         void OnActionStartState(ActorAction pState)
         {
             if (m_pSkillSystem != null)
                 m_pSkillSystem.OnActionStartState(pState);
+            if (m_vAgents != null)
+            {
+                for (int i = 0; i < m_vAgents.Count; ++i)
+                    m_vAgents[i].DoActionStartState(pState);
+            }
         }
         //--------------------------------------------------------
         public void SetAttrs(byte[] attiTypes, FFloat[] values)

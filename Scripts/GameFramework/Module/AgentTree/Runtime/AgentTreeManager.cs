@@ -21,6 +21,7 @@ namespace Framework.AT.Runtime
         LinkedList<IAgentTreeCallback>  m_vCallback = null;
         private HashSet<AgentTree>      m_vMouseInputEventTask = null;
         private Camera                  m_pMainCamera = null;
+        private bool                    m_bNegScreenY = false;
         //-----------------------------------------------------
         public AgentTreeManager()
         {
@@ -43,6 +44,16 @@ namespace Framework.AT.Runtime
         {
             if (m_pMainCamera == null) m_pMainCamera = Camera.main;
             return m_pMainCamera;
+        }
+        //-----------------------------------------------------
+        public void SetNegScreenY(bool bNeg)
+        {
+            m_bNegScreenY = bNeg;
+        }
+        //-----------------------------------------------------
+        public bool GetNegScreenY()
+        {
+            return m_bNegScreenY;
         }
         //-----------------------------------------------------
         public AgentTree CreateAgentTree(AgentTreeData atData)

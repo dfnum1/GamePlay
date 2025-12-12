@@ -1,17 +1,15 @@
 ﻿/********************************************************************
 生成日期:	5:11:2020  20:36
-类    名: 	ActorTransformLogic
+类    名: 	RunAlongPathAgnet
 作    者:	HappLI
 描    述:	移动逻辑
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
-using Framework.AT.Runtime;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
@@ -57,8 +55,36 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         public void SetRunActionType(EActionStateType eType, uint tag =0)
         {
-            m_eRunActionStateType = eType;
-            m_nRunActionStateTag = tag;
+            if(m_eRunActionStateType!=eType || m_nRunActionStateTag!= tag)
+            {
+                m_eRunActionStateType = eType;
+                m_nRunActionStateTag = tag;
+                if(m_bRunningAlongPathPlay)
+                {
+                    PlayRunAction();
+
+                }
+            }
+        }
+        //-------------------------------------------------
+        void PlayRunAction()
+        {
+            if (!m_bRunningAlongPathPlay || !m_bRunningAlongPathPoint)
+                return;
+            if (m_pActor != null)
+            {
+                var curAction = m_pActor.GetCurrentPlayActionState();
+                var action = m_pActor.GetAction(m_eRunActionStateType, m_nRunActionStateTag);
+                if(action!=null &&(curAction ==null || action.priority >= curAction.priority))
+                    m_pActor.StartActionState(action);
+            }
+        }
+        //-------------------------------------------------
+        protected override void OnActionEndState(ActorAction pState)
+        {
+            if (pState.IsSelf(m_eRunActionStateType, m_nRunActionStateTag))
+                return;
+            PlayRunAction();
         }
         //-------------------------------------------------
         public FFloat RunTo(FVector3 toPos, FFloat fSpeed = 0)
@@ -108,6 +134,10 @@ namespace Framework.ActorSystem.Runtime
 
                 m_fRunAlongPathPointTime = fPathLength / m_fRunAlongPathPointSpeed;
                 OnRunAlongPathPoint(m_pPathPointTrack);
+                if (m_bRunningAlongPathPlay)
+                {
+                    PlayRunAction();
+                }
             }
             else
             {
@@ -139,6 +169,10 @@ namespace Framework.ActorSystem.Runtime
                 m_pPathPointTrack.AddKeyPoint(fTime, toPos);
                 m_fRunAlongPathPointTime = fTime;
                 OnRunAlongPathPoint(m_pPathPointTrack);
+                if (m_bRunningAlongPathPlay)
+                {
+                    PlayRunAction();
+                }
             }
             else
             {
@@ -169,6 +203,7 @@ namespace Framework.ActorSystem.Runtime
                 m_LocalRunAlongPoisiotn = FVector3.zero;
                 m_pPathPointTrack.Clear();
                 m_pActor.SetSpeedXZ(FVector3.zero);
+                m_pActor.StopActionState(m_eRunActionStateType, m_nRunActionStateTag);
             }
         }
         //-------------------------------------------------
@@ -176,12 +211,14 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_bRunningAlongPathPoint)
                 m_bRunningAlongPathPlay = false;
+            if (m_bRunningAlongPathPoint && m_pActor != null) m_pActor.StopActionState(m_eRunActionStateType, m_nRunActionStateTag);
         }
         //-------------------------------------------------
         public void ResumeRunAlongPathPoint()
         {
             if (m_bRunningAlongPathPoint)
                 m_bRunningAlongPathPlay = true;
+            PlayRunAction();
         }
         //-------------------------------------------------
         protected virtual void OnStopAlongPathPoint()
