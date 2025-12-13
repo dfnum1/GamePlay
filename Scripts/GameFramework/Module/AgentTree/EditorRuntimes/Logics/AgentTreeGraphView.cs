@@ -28,9 +28,14 @@ namespace Framework.AT.Editor
         Dictionary<short, GraphNode> m_vGuidNodes = new Dictionary<short, GraphNode>();
         Dictionary<short, IVariable> m_vVariables = new Dictionary<short, IVariable>();
         Dictionary<long, ArvgPort> m_vPorts = new Dictionary<long, ArvgPort>();
+
+        bool m_bIniting = false;
+        private UndoRedoSystem m_undoRedoSystem;
+        private bool m_isPerformingUndoRedo = false;
         public AgentTreeGraphView(AEditorLogic pOwner)
         {
             m_pOwnerEditorLogic = pOwner;
+            m_undoRedoSystem = new UndoRedoSystem(this);
             // 允许对Graph进行Zoom in/out
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
             // 允许拖拽Content
@@ -43,6 +48,14 @@ namespace Framework.AT.Editor
             // 添加右键菜单
             this.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
             {
+                evt.menu.InsertAction(0, "撤销", (a) =>
+                {
+                    Undo();
+                }, DropdownMenuAction.AlwaysEnabled);
+                evt.menu.InsertAction(1, "重做", (a) =>
+                {
+                    Redo();
+                }, DropdownMenuAction.AlwaysEnabled);
                 evt.menu.InsertAction(2, "保存", (a) =>
                 {
                     m_pOwnerEditorLogic.GetOwner().SaveChanges();
@@ -76,6 +89,16 @@ namespace Framework.AT.Editor
                     if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.S)
                     {
                         m_pOwnerEditorLogic.GetOwner().SaveChanges();
+                        evt.StopPropagation();
+                    }
+                    else if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.Z)
+                    {
+                        Undo();
+                        evt.StopPropagation();
+                    }
+                    else if ((evt.ctrlKey || evt.commandKey) && evt.keyCode == KeyCode.Y)
+                    {
+                        Redo();
                         evt.StopPropagation();
                     }
                 }
@@ -218,6 +241,8 @@ namespace Framework.AT.Editor
             if (inputPort != null && inputPort.source != null && inputPort.source is ArvgPort)
             {
                 ArvgPort arvPort = inputPort.source as ArvgPort;
+                RegisterUndo(arvPort.grapNode, UndoRedoOperationType.NodeEdge);
+
                 arvPort.fieldRoot.SetEnabled(false);
                 if(arvPort.enumPopFieldElement!=null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
@@ -241,6 +266,9 @@ namespace Framework.AT.Editor
             if (inputPort != null && inputPort.source != null && inputPort.source is ArvgPort)
             {
                 ArvgPort arvPort = inputPort.source as ArvgPort;
+
+                RegisterUndo(arvPort.grapNode, UndoRedoOperationType.NodeEdge);
+
                 if (arvPort.nodePort.dummyPorts != null && outputPort.source is ArvgPort)
                 {
                     var outPort = (ArvgPort)outputPort.source;
@@ -360,6 +388,13 @@ namespace Framework.AT.Editor
            // return cutsceneInstance.GetAgentTree();
         }
         //-----------------------------------------------------
+        public bool IsPlaying()
+        {
+            var pAT = GetCurrentRuntimeAgentTree();
+            if (pAT == null) return false;
+            return pAT.IsStarted();
+        }
+        //-----------------------------------------------------
         public IVariable GetRuntimeVariable(ArvgPort port)
         {
             var agentTree = GetCurrentRuntimeAgentTree();
@@ -392,6 +427,14 @@ namespace Framework.AT.Editor
             //var agentTree = cutscene.GetAgentTree();
             //if (agentTree != null)
             //    agentTree.RegisterCallback(this);
+            if(m_pAgentTreeData!=null && m_undoRedoSystem.HasChanges())
+            {
+                if(EditorUtility.DisplayDialog("提示", "当前有更改，是否需要保存当前后，再加载呢", "保存", "直接加载"))
+                {
+                    Save(m_pAgentTreeData);
+                }
+            }
+            m_bIniting = true;
             m_pObject = pOwner;
             m_pAgentTreeData = pAgentTree;
             m_vVariables = pAgentTree.GetVariableGUIDs();
@@ -417,6 +460,7 @@ namespace Framework.AT.Editor
                 }
             }
             CreateLinkLine();
+            m_bIniting = false;
         }
         //--------------------------------------------------------
         public GraphNode AddNode(BaseNode pNode)
@@ -441,6 +485,7 @@ namespace Framework.AT.Editor
             graphNode.UpdatePosition();
             m_vNodes.Add(pNode, graphNode);
             m_vGuidNodes[pNode.guid] = graphNode;
+            RegisterUndo(graphNode, UndoRedoOperationType.NodeAdd);
             return graphNode;
         }
         //--------------------------------------------------------
@@ -475,10 +520,11 @@ namespace Framework.AT.Editor
             return null;
         }
         //--------------------------------------------------------
-        public void RemoveNode(AT.Runtime.BaseNode pNode)
+        public void RemoveNode(AT.Runtime.BaseNode pNode, bool bUndo = true)
         {
             if(m_vNodes.TryGetValue(pNode, out var graphNode))
             {
+                if(bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
                 graphNode.Release();
                 this.RemoveElement(graphNode);
                 m_vNodes.Remove(pNode);
@@ -502,6 +548,44 @@ namespace Framework.AT.Editor
               
             UpdatePortsVariableDefault();
             Save(m_pAgentTreeData);
+        }
+        //-----------------------------------------------------
+        internal void RegisterUndo(GraphNode pNode, UndoRedoOperationType type)
+        {
+            if (m_bIniting) return;
+            m_undoRedoSystem.RegisterUndo(pNode, type);
+        }
+        //-----------------------------------------------------
+        public void Undo()
+        {
+            if (m_isPerformingUndoRedo) return;
+            
+             m_undoRedoSystem.Undo();
+            
+            m_isPerformingUndoRedo = true;
+            try
+            {
+            }
+            finally
+            {
+                m_isPerformingUndoRedo = false;
+            }
+        }
+        //-----------------------------------------------------
+        public void Redo()
+        {
+            if (m_isPerformingUndoRedo) return;
+            
+            m_undoRedoSystem.Redo();
+            
+            m_isPerformingUndoRedo = true;
+            try
+            {
+            }
+            finally
+            {
+                m_isPerformingUndoRedo = false;
+            }
         }
         //-----------------------------------------------------
         public void Save(AgentTreeData pData)

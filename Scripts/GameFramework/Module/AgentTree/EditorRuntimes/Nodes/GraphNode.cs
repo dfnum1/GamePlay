@@ -40,6 +40,8 @@ namespace Framework.AT.Editor
 
         private HashSet<ArvgPort> m_vChangePorts = new HashSet<ArvgPort>();
 
+        private bool m_bChangePos = false;
+
         protected AgentTreeGraphView m_pGraphView;
         public GraphNode(AgentTreeGraphView pAgent, AT.Runtime.BaseNode pNode, bool bUpdatePos = true)
         {
@@ -84,6 +86,19 @@ namespace Framework.AT.Editor
                         this.titleContainer.style.backgroundColor = attri.colorAttr.color;
                 }
             }
+
+            this.RegisterCallback<MouseUpEvent>(evt =>
+            {
+                if(m_bChangePos)
+                {
+                    m_pGraphView.RegisterUndo(this, UndoRedoOperationType.Position);
+                    m_bChangePos = false;
+                }
+            });
+            this.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                m_bChangePos = true;
+            });
         }
         //------------------------------------------------------
         public void UpdateTitle()
@@ -388,10 +403,12 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        public void Save()
+        public void Save(BaseNode pDummy = null)
         {
-            bindNode.posX = (int)(this.GetPosition().x*100);
-            bindNode.posY = (int)(this.GetPosition().y*100);
+            BaseNode saveNode = pDummy;
+            if (saveNode == null) saveNode = bindNode;
+            saveNode.posX = (int)(this.GetPosition().x*100);
+            saveNode.posY = (int)(this.GetPosition().y*100);
             List<short> nextActions = new List<short>();
             if(m_pLinkOut!=null)
             {
@@ -408,7 +425,7 @@ namespace Framework.AT.Editor
                     }
                 }
             }
-            bindNode.nextActions = nextActions.ToArray();
+            saveNode.nextActions = nextActions.ToArray();
 
             foreach(var db in m_vOtherLinks)
             {
@@ -447,7 +464,7 @@ namespace Framework.AT.Editor
                     db.RefreshDummyPorts();
                 }
 
-                var inputVars = bindNode.GetInports(false);
+                var inputVars = saveNode.GetInports(false);
                 if(inputVars!=null)
                 {
                     for (int i = 0; i < m_vArgvPorts.Count && i < inputVars.Length; ++i)
@@ -461,7 +478,7 @@ namespace Framework.AT.Editor
             }
             if (m_vReturnPorts != null)
             {
-                var portVars = bindNode.GetOutports(false);
+                var portVars = saveNode.GetOutports(false);
                 if (portVars != null)
                 {
                     for (int i = 0; i < m_vReturnPorts.Count && i < portVars.Length; ++i)
@@ -530,6 +547,11 @@ namespace Framework.AT.Editor
         public bool CanChangeValue(ArvgPort port)
         {
             return port.attri.canEdit;// && !m_pGraphView.isDebugPort;
+        }
+        //------------------------------------------------------
+        protected virtual void OnArgvPortChanging(ArvgPort port)
+        {
+            m_pGraphView.RegisterUndo(this, UndoRedoOperationType.NodeChange);
         }
         //------------------------------------------------------
         protected virtual void OnArgvPortChanged(ArvgPort port)
@@ -865,6 +887,7 @@ namespace Framework.AT.Editor
 
                         popup.RegisterValueChangedCallback(evt =>
                         {
+                            OnArgvPortChanging(port);
                             port.eEnumType = evt.newValue;
                             for (int i = 0; i < m_vArgvPorts.Count; ++i)
                             {
@@ -889,6 +912,7 @@ namespace Framework.AT.Editor
                         varTypeField.SetEnabled( !hasDummy && port.fieldRoot.enabledSelf );
                         varTypeField.RegisterValueChangedCallback(evt =>
                         {
+                            OnArgvPortChanging(port);
                             // 更新变量值
                             if ((AT.Runtime.EVariableType)evt.newValue != Runtime.EVariableType.eNone)
                             {
@@ -928,6 +952,7 @@ namespace Framework.AT.Editor
                     v => {
                         if (CanChangeValue(port))
                         {
+                            OnArgvPortChanging(port);
                             intVar.value = v;
                             OnArgvPortChanged(port);
                             m_pGraphView.UpdateVariable(intVar);
@@ -1114,6 +1139,7 @@ namespace Framework.AT.Editor
                 {
                     if (CanChangeValue(port))
                     {
+                        OnArgvPortChanging(port);
                         rayVar.value.origin = evt.newValue;
                         OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(rayVar);
@@ -1123,6 +1149,7 @@ namespace Framework.AT.Editor
                 {
                     if (CanChangeValue(port))
                     {
+                        OnArgvPortChanging(port);
                         rayVar.value.direction = evt.newValue;
                         OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(rayVar);
@@ -1165,6 +1192,7 @@ namespace Framework.AT.Editor
                 {
                     if (CanChangeValue(port))
                     {
+                        OnArgvPortChanging(port);
                         boundsVar.value.center = evt.newValue;
                         OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(boundsVar);
@@ -1174,6 +1202,7 @@ namespace Framework.AT.Editor
                 {
                     if (CanChangeValue(port))
                     {
+                        OnArgvPortChanging(port);
                         boundsVar.value.size = evt.newValue;
                         OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(boundsVar);
@@ -1228,6 +1257,7 @@ namespace Framework.AT.Editor
                     {
                         if (CanChangeValue(port))
                         {
+                            OnArgvPortChanging(port);
                             var mat = matrixVar.value;
                             SetRow(ref mat, rowIdx, evt.newValue);
                             matrixVar.value = mat;
@@ -1258,6 +1288,7 @@ namespace Framework.AT.Editor
                     v => {
                         if (CanChangeValue(port))
                         {
+                            OnArgvPortChanging(port);
                             userVar.value = ATRtti.GetClassTypeId(v);
                             OnArgvPortChanged(port);
                             m_pGraphView.UpdateVariable(userVar);
@@ -1460,6 +1491,7 @@ namespace Framework.AT.Editor
             {
                 if (CanChangeValue(port))
                 {
+                    OnArgvPortChanging(port);
                     // 赋值
                     setValue(field, evt.newValue);
                     var valueField = portVariable.GetType().GetField("value", System.Reflection.BindingFlags.Public| System.Reflection.BindingFlags.Instance| System.Reflection.BindingFlags.NonPublic);

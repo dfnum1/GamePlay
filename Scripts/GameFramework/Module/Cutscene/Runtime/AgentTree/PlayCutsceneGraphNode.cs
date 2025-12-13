@@ -101,6 +101,7 @@ namespace Framework.Cutscene.Editor
                         {
                             if (CanChangeValue(port))
                             {
+                                OnArgvPortChanging(port);
                                 // 更新变量值
                                 intVar.value = m_vCutsceneIds[selectedIndex];
                                 OnArgvPortChanged(port);
