@@ -27,6 +27,7 @@ namespace Framework.AT.Editor
 
         public ATActionAttribute actionAttr;
         public ATIconAttribute iconAttr;
+        public ATColorAttribute colorAttr;
         public List<ArgvAttribute> argvs = new List<ArgvAttribute>();
         public List<ArgvAttribute> returns = new List<ArgvAttribute>();
         public Dictionary<ArgvAttribute, LinkAttribute> linkAttributes = new Dictionary<ArgvAttribute, LinkAttribute>();
@@ -204,6 +205,7 @@ namespace Framework.AT.Editor
                             if (classAT.classType == null)
                                 continue;
                             var iconAttr = tp.GetCustomAttribute<ATIconAttribute>(false);
+                            var colorAttr = tp.GetCustomAttribute<ATColorAttribute>(false);
                             ATExportAttribute atExport = classAT.classType.GetCustomAttribute<ATExportAttribute>(false);
                             if(atExport!=null)
                             {
@@ -225,6 +227,10 @@ namespace Framework.AT.Editor
                                     attr.actionAttr = atTypeAttr.ToAction();
                                     if (method.IsDefined(typeof(ATIconAttribute))) attr.iconAttr = method.GetCustomAttribute<ATIconAttribute>();
                                     else attr.iconAttr = iconAttr;
+
+                                    if (method.IsDefined(typeof(ATColorAttribute))) attr.colorAttr = method.GetCustomAttribute<ATColorAttribute>();
+                                    else attr.colorAttr = colorAttr;
+
                                     attr.cutsceneCusomtType = 0;
                                     attr.isCutsceneCustomEvent = false;
                                     attr.actionType = atTypeAttr.guid;
@@ -314,6 +320,7 @@ namespace Framework.AT.Editor
                                 attr.isCutsceneCustomEvent = false;
                                 attr.actionAttr = actionAttr;
                                 attr.iconAttr = fi.GetCustomAttribute<ATIconAttribute>();
+                                attr.colorAttr = fi.GetCustomAttribute<ATColorAttribute>();
                                 attr.actionType = flagValue;
                                 attr.displayName = strName;
                                 attr.strQueueName = strName + v.ToString() + ED.EditorUtils.PinYin(strName);

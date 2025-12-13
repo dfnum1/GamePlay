@@ -10,11 +10,29 @@ using UnityEditor.Experimental.GraphView;
 
 namespace Framework.AT.Editor
 {
-    [NodeBind(EActionType.eNewVariable)]
+    [NodeBind(EActionType.eMemberVariable)]
     public class NewVariableNode : GraphNode
     {
         public NewVariableNode(AgentTreeGraphView pAgent, BaseNode pNode, bool bUpdatePos = true) : base(pAgent, pNode, bUpdatePos)
         {
+        }
+        //------------------------------------------------------
+        protected override void OnReBuildPortContain(ArvgPort dirtPort)
+        {
+            this.outputContainer.Clear();
+            if (m_vArgvPorts.Count != m_vReturnPorts.Count)
+                return;
+            for (int i = 0; i < m_vReturnPorts.Count; ++i)
+            {
+                var port = m_vReturnPorts[i];
+                if (port.bindPort == null)
+                    continue;
+                port.bindPort.portColor = m_vArgvPorts[i].bindPort.portColor;
+                port.bindPort.source = port;
+                port.bindPort.style.marginRight = 4;
+                m_vArgvPorts[i].bindPort.Remove(port.bindPort);
+                m_vArgvPorts[i].bindPort.Add(port.bindPort);
+            }
         }
         //------------------------------------------------------
         protected override void BuildReturnPort()

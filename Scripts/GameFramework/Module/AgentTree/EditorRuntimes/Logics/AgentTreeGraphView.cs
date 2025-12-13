@@ -57,6 +57,20 @@ namespace Framework.AT.Editor
                             OnLocationNodeFunction(node);
                         });
                     }
+                    if(node.GetAttri().actionType == (int)EActionType.eMemberVariable)
+                    {
+                        evt.menu.InsertAction(3, "设置变量名", (a) =>
+                        {
+                            ReNodeName(node, "设置变量名");
+                        });
+                    }
+                    else
+                    {
+                        evt.menu.InsertAction(3, "设置备注名", (a) =>
+                        {
+                            ReNodeName(node, "设置备注名");
+                        });
+                    }
                 }
             }));
 
@@ -120,6 +134,19 @@ namespace Framework.AT.Editor
                 }
             }
             return change;
+        }
+        //-----------------------------------------------------
+        void ReNodeName(GraphNode node, string title)
+        {
+            if (node.bindNode.name == null)
+                node.bindNode.name = "";
+            PopValueInput.Show(title, node, node.bindNode.name, (data, value) =>
+            {
+                node.bindNode.name = "";
+                if (value == null) return;
+                node.bindNode.name = value.ToString();
+                node.UpdateTitle();
+            });
         }
         //-----------------------------------------------------
         void OnLocationNodeFunction(GraphNode pNode)

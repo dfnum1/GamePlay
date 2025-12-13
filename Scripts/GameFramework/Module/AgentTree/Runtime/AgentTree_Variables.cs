@@ -170,7 +170,7 @@ namespace Framework.AT.Runtime
                     if (dummy.pNode == null)
                         continue;
 
-                    if (dummy.pNode.type == (int)EActionType.eNewVariable)
+                    if (dummy.pNode.type == (int)EActionType.eMemberVariable)
                     {
                         isExecuted = true;
                         bForceUsed = true;
@@ -196,7 +196,7 @@ namespace Framework.AT.Runtime
                 }
                 if(dummy.IsValid())
                 {
-                    if(dummy.pNode.type == (int)EActionType.eNewVariable)
+                    if(dummy.pNode.type == (int)EActionType.eMemberVariable)
                     {
                         // if new variable node, get inports
                         var tempPorts = dummy.pNode.GetInports();
@@ -554,7 +554,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -583,7 +583,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -612,7 +612,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -641,7 +641,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -693,7 +693,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if(dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if(dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -722,7 +722,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -751,7 +751,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -780,7 +780,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -809,7 +809,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -838,7 +838,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -867,7 +867,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -896,7 +896,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -925,7 +925,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -954,7 +954,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -983,7 +983,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1012,7 +1012,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1041,7 +1041,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1070,7 +1070,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1099,7 +1099,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1128,7 +1128,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1157,7 +1157,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1186,7 +1186,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1215,7 +1215,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1244,7 +1244,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }
@@ -1273,7 +1273,7 @@ namespace Framework.AT.Runtime
             if (dummyPort.IsValid())
             {
                 NodePort[] ports = null;
-                if (dummyPort.pNode.type == (int)EActionType.eNewVariable)
+                if (dummyPort.pNode.type == (int)EActionType.eMemberVariable)
                 {
                     ports = dummyPort.pNode.GetInports();
                 }

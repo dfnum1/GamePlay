@@ -5,6 +5,7 @@
 描    述:	变量
 *********************************************************************/
 using System;
+
 namespace Framework.AT.Runtime
 {
     //-----------------------------------------------------
@@ -32,6 +33,19 @@ namespace Framework.AT.Runtime
         {
 #if UNITY_EDITOR
             this.name = name;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    public class ATColorAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public UnityEngine.Color color;
+#endif
+        public ATColorAttribute(string color)
+        {
+#if UNITY_EDITOR
+            UnityEngine.ColorUtility.TryParseHtmlString(color, out this.color);
 #endif
         }
     }

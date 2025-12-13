@@ -54,7 +54,7 @@ namespace Framework.AT.Runtime
     {
         [DrawProps.Disable]eActionBegin = 101,
 
-        [ATAction("变量获取", false, false, false, false)]
+        [ATAction("变量获取", false, false, false, false), ATColor("#00cc99ff")]
         [Return("GUID",typeof(int))]
         eGetVariable = eActionBegin+1,//获取变量
 
@@ -163,10 +163,10 @@ namespace Framework.AT.Runtime
         [Return("是否在视野", typeof(VariableBool))]
         eCheckWorldPosInView,
 
-        [ATAction("新建变量", false, false, false)]
+        [ATAction("成员变量", false, false, false),ATColor("#cccc00ff")]
         [Argv("变量", typeof(IVariable), true)]
         [Return("输出", typeof(IVariable))]
-        eNewVariable = 998,//新建变量
+        eMemberVariable = 998,//新建变量
 
         [DrawProps.Disable]
         eCutsceneCustomEvent = 999,//Cutscene自定义事件

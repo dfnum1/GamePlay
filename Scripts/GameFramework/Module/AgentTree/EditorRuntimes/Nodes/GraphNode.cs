@@ -49,11 +49,7 @@ namespace Framework.AT.Editor
             m_pGraphView = pAgent;
             bindNode = pNode;
             var attri = GetAttri();
-            if (GetAttri() != null)
-            {
-                this.title = attri.displayName;
-            }
-            else this.title = "Unknown Node";
+            UpdateTitle();
 
             OnInit();
 
@@ -78,6 +74,25 @@ namespace Framework.AT.Editor
 
            // this.title += "[" + bindNode.guid + "]";
            this.tooltip= "GUID: " + bindNode.guid;
+
+            this.titleContainer.style.fontSize = 50;
+            this.titleContainer.style.unityFontStyleAndWeight = FontStyle.Bold;
+            if (attri.colorAttr!=null)
+                this.titleContainer.style.backgroundColor = attri.colorAttr.color;
+        }
+        //------------------------------------------------------
+        public void UpdateTitle()
+        {
+            var attri = GetAttri();
+            if (attri != null)
+            {
+                this.title = attri.displayName;
+            }
+            else this.title = "Unknown Node";
+            if (bindNode!=null && !string.IsNullOrEmpty(bindNode.name))
+            {
+                this.title += "[" + bindNode.name + "]";
+            }
         }
         //------------------------------------------------------
         protected void AddIcon()
@@ -114,12 +129,13 @@ namespace Framework.AT.Editor
         //------------------------------------------------------
         public void UpdatePosition()
         {
-            this.SetPosition(new Rect(bindNode.posX * 0.01f, bindNode.posY * 0.01f, GetWidth(), GetHeight()));
+            var rect = this.GetPosition();
+            this.SetPosition(new Rect(bindNode.posX * 0.01f, bindNode.posY * 0.01f, rect.width, rect.height));
         }
         //------------------------------------------------------
         public void UpdateSize()
         {
-            this.style.width = GetWidth();
+        //    this.style.width = GetWidth();
          //   this.style.height = GetHeight();
 
             // 让子容器自适应
@@ -278,93 +294,6 @@ namespace Framework.AT.Editor
             return null;
         }
         //------------------------------------------------------
-        public virtual float GetWidth()
-        {
-            // 标题宽度
-            float titleWidth = 0f;
-            var style = EditorStyles.boldLabel;
-            if (bindNode != null && !string.IsNullOrEmpty(this.title))
-                titleWidth = style.CalcSize(new GUIContent(this.title)).x;
-
-            // 属性（端口）名称最大宽度
-            float portWidth = 0f;
-            var portStyle = EditorStyles.label;
-            foreach (var port in m_vArgvPorts)
-            {
-                if (port != null && port.attri != null && !string.IsNullOrEmpty(port.attri.name))
-                {
-                    float w = portStyle.CalcSize(new GUIContent(port.attri.name)).x + 65;
-                    if(port.GetVariable()!=null)
-                    {
-                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableRay) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableBounds))
-                        {
-                            w += 150;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableQuaternion))
-                        {
-                            w += 210;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix))
-                        {
-                            w += 310;
-                        }
-                        else w += 70;
-                    }
-                    if (w > portWidth) portWidth = w;
-                }
-            }
-            foreach (var port in m_vReturnPorts)
-            {
-                if (port != null && port.attri != null && !string.IsNullOrEmpty(port.attri.name))
-                {
-                    float w = portStyle.CalcSize(new GUIContent(port.attri.name)).x + 65;
-                    if(port.GetVariable()!=null)
-                    {
-                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableRay) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableBounds))
-                        {
-                            w += 150;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4) ||
-                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableQuaternion))
-                        {
-                            w += 210;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix))
-                        {
-                            w += 310;
-                        }
-                        else w += 70;
-                    }
-
-                    if (w > portWidth) portWidth = w;
-                }
-            }
-
-            // 预留端口和padding空间
-            float minWidth = 120f;
-            float totalWidth = Mathf.Max(titleWidth + 40, portWidth + 80, minWidth);
-            return totalWidth;
-        }
-        //------------------------------------------------------
-        public virtual float GetHeight()
-        {
-            // 标题高度
-            float titleHeight = 50f;
-            // 每个端口高度
-            float portHeight = 22f;
-            int portCount = Mathf.Max(m_vArgvPorts.Count, m_vReturnPorts.Count)+ m_nExternPortCount;
-            // 至少有标题高度
-            float totalHeight = titleHeight + portCount * portHeight + 10f;
-            // 最小高度
-            return Mathf.Max(totalHeight, 50f);
-        }
-        //------------------------------------------------------
         public void OnNotifyExcuted()
         {
             if(m_vArgvPorts!=null)
@@ -420,6 +349,7 @@ namespace Framework.AT.Editor
                 {
                     OnArgvPortVarTypeChanged(port);
                     ReBuildPortContain(port);
+                    OnReBuildPortContain(port);
                 }
                 UpdateSize();
                 m_vChangePorts.Clear();
@@ -611,7 +541,6 @@ namespace Framework.AT.Editor
             // 需要重新赋值回去（struct）
             port.bindPort.portColor = EditorPreferences.GetTypeColor(val.GetType());
             port.nodePort.pVariable = val;
-            OnReBuildPortContain(port);
         }
         //------------------------------------------------------
         public void ChangeVariableType(ArvgPort port, Runtime.EVariableType newType)
@@ -993,7 +922,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<IntegerField, int>(
                     intVar, port, intVar.value,
-                    () => new IntegerField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new IntegerField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1003,7 +932,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<IntegerField, int>(
                     objIdVar, port, objIdVar.value.id,
-                    () => new IntegerField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new IntegerField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1013,7 +942,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<Toggle, bool>(
                     boolVar, port, boolVar.value,
-                    () => new Toggle { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new Toggle { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1023,7 +952,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<FloatField, float>(
                     floatVar, port, floatVar.value,
-                    () => new FloatField { style = { width = 50, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new FloatField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1073,7 +1002,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<LongField, long>(
                     longVar, port, longVar.value,
-                    () => new LongField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new LongField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1083,7 +1012,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<DoubleField, double>(
                     doubleVar, port, doubleVar.value,
-                    () => new DoubleField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new DoubleField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1093,7 +1022,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<ColorField, Color>(
                     colorVar, port, colorVar.value,
-                    () => new ColorField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new ColorField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1103,7 +1032,7 @@ namespace Framework.AT.Editor
             {
                 DrawField<RectField, Rect>(
                     rectVar, port, rectVar.value,
-                    () => new RectField { style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
+                    () => new RectField { style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight } },
                     (f, v) => f.value = v,
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
@@ -1130,12 +1059,12 @@ namespace Framework.AT.Editor
                 var originField = new Vector3Field("Origin")
                 {
                     value = rayVar.value.origin,
-                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
                 };
                 var dirField = new Vector3Field("Dir")
                 {
                     value = rayVar.value.direction,
-                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
                 };
 
                 originField.SetEnabled(port.attri.canEdit);
@@ -1167,7 +1096,7 @@ namespace Framework.AT.Editor
                         m_pGraphView.UpdateVariable(rayVar);
                     }
                 });
-
+                container.style.minHeight = 48;
                 container.Add(originField);
                 container.Add(dirField);
                 port.fieldRoot.Add(container);
@@ -1177,17 +1106,17 @@ namespace Framework.AT.Editor
             {
                 m_nExternPortCount += 1;
                 // Bounds没有内置UI控件，使用两个Vector3Field分别编辑center和size
-                var container = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+                var container = new VisualElement { style = { flexDirection = FlexDirection.Column } };
 
                 var centerField = new Vector3Field("Center")
                 {
                     value = boundsVar.value.center,
-                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                 };
                 var sizeField = new Vector3Field("Size")
                 {
                     value = boundsVar.value.size,
-                    style = { width = 140, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                 };
 
                 centerField.SetEnabled(port.attri.canEdit);
@@ -1218,7 +1147,8 @@ namespace Framework.AT.Editor
                         m_pGraphView.UpdateVariable(boundsVar);
                     }
                 });
-
+                container.style.minHeight = 48;
+                container.style.maxWidth = 150;
                 container.Add(centerField);
                 container.Add(sizeField);
                 port.fieldRoot.Add(container);
@@ -1258,7 +1188,7 @@ namespace Framework.AT.Editor
                     fields[i] = new Vector4Field($"Row {i}")
                     {
                         value = GetRow(matrixVar.value, i),
-                        style = { width = 340, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                        style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
                     };
                     fields[i].SetEnabled(port.attri.canEdit);
                     int rowIdx = i;
@@ -1485,8 +1415,7 @@ namespace Framework.AT.Editor
         {
             var field = fieldFactory();
             setValue(field, value);
-            field.style.width = 120;
-            field.style.marginLeft = 4;
+
             field.userData = port;
             field.SetEnabled(port.attri.canEdit);
 

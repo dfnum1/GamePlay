@@ -21,11 +21,6 @@ namespace Framework.AT.Editor
         public TrackBindCutsceneGraphNode(AgentTreeGraphView pAgent, BaseNode pNode, bool bUpdatePos = true) : base(pAgent, pNode, bUpdatePos)
         {
         }
-        //------------------------------------------------------
-        public override float GetWidth()
-        {
-            return base.GetWidth()+100;
-        }
         //-----------------------------------------------------
         void RefreshCutscenePopupList()
         {

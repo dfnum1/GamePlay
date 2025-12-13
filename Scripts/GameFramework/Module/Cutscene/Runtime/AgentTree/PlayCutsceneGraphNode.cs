@@ -22,11 +22,6 @@ namespace Framework.Cutscene.Editor
         public PlayCutsceneGraphNode(AgentTreeGraphView pAgent, BaseNode pNode, bool bUpdatePos = true) : base(pAgent, pNode, bUpdatePos)
         {
         }
-        //------------------------------------------------------
-        public override float GetWidth()
-        {
-            return base.GetWidth()+100;
-        }
         //-----------------------------------------------------
         void RefreshCutscenePopupList()
         {

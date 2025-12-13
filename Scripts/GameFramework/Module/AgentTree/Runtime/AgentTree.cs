@@ -546,7 +546,7 @@ namespace Framework.AT.Runtime
                 return true;
             switch (pNode.type)
             {
-                case (short)EActionType.eNewVariable:
+                case (short)EActionType.eMemberVariable:
                 case (short)EActionType.eGetVariable: return true;
                 case (short)EActionType.eOpVariable:
                     return VarOpExecutor.OnExecute(this, pNode);

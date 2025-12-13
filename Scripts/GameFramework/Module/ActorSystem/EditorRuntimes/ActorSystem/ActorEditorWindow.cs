@@ -123,7 +123,7 @@ namespace Framework.ActorSystem.Editor
             GetActorManager().RegisterCallback(this);
             RefreshProjectileDatas();
 
-            this.minSize = new Vector2(400, 300);
+            this.minSize = new Vector2(1024, 768);
             this.wantsMouseMove = true;
             this.wantsMouseEnterLeaveWindow = true;
             this.autoRepaintOnSceneChange = true;

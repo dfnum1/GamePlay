@@ -73,6 +73,7 @@ namespace Framework.AT.Runtime
 
         [System.NonSerialized]BaseNode[] m_vNextNodes;
 #if UNITY_EDITOR
+        [SerializeField] internal string name = null;
         [SerializeField] internal float posX;
         [SerializeField] internal float posY;
 #endif
