@@ -51,9 +51,44 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        protected override void OnArgvPortVarTypeChanged(ArvgPort port)
+        protected override void CreateInports()
         {
-            base.OnArgvPortVarTypeChanged(port);
+            base.CreateInports();
+            if (2 < m_vArgvPorts.Count)
+            {
+                m_vArgvPorts[2].curDummyAttri = m_vArgvPorts[0].curDummyAttri;
+            }
+        }
+        //------------------------------------------------------
+        protected override void BuildArvPort()
+        {
+            base.BuildArvPort();
+            if (2 < m_vArgvPorts.Count)
+            {
+                m_vArgvPorts[2].bindPort.portColor = m_vArgvPorts[0].bindPort.portColor;
+            }
+        }
+        //------------------------------------------------------
+        protected override void CreateOutports()
+        {
+            base.CreateOutports();
+            if (0 < m_vReturnPorts.Count && m_vArgvPorts.Count>0)
+            {
+                m_vReturnPorts[0].curDummyAttri = m_vArgvPorts[0].curDummyAttri;
+            }
+        }
+        //------------------------------------------------------
+        protected override void BuildReturnPort()
+        {
+            base.BuildReturnPort();
+            if (0 < m_vReturnPorts.Count && m_vArgvPorts.Count > 0)
+            {
+                m_vReturnPorts[0].bindPort.portColor = m_vArgvPorts[0].bindPort.portColor;
+            }
+        }
+        //------------------------------------------------------
+        protected override void OnReBuildPortContain(ArvgPort port)
+        {
             if(port.slotIndex == 0)
             {
                 if (2 < m_vArgvPorts.Count)
@@ -62,7 +97,7 @@ namespace Framework.AT.Editor
                     var port2 = m_vArgvPorts[2].bindPort;
                     // 需要重新赋值回去（struct）
                     m_vArgvPorts[2].bindPort.portColor = port.bindPort.portColor;
-                    m_vArgvPorts[2].byAttri = port.byAttri;
+                    m_vArgvPorts[2].curDummyAttri = port.curDummyAttri;
                     ClearPortVarEle(m_vArgvPorts[2]);
                     InnerDrawPortValue(m_vArgvPorts[2], 2);
                 }
@@ -72,7 +107,7 @@ namespace Framework.AT.Editor
                     var port2 = m_vReturnPorts[0].bindPort;
                     // 需要重新赋值回去（struct）
                     m_vReturnPorts[0].bindPort.portColor = port.bindPort.portColor;
-                    m_vReturnPorts[0].byAttri = port.byAttri;
+                    m_vReturnPorts[0].curDummyAttri = port.curDummyAttri;
                     ClearPortVarEle(m_vReturnPorts[0]);
                     InnerDrawPortValue(m_vReturnPorts[0], 2);
                 }

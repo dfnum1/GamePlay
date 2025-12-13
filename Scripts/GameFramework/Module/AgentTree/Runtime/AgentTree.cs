@@ -507,6 +507,7 @@ namespace Framework.AT.Runtime
                 return false;
             VariableList argvs = VariableList.Malloc(5);
             argvs.AddInt((int)mouseType);
+            argvs.AddInt((int)touchData.touchID);
             argvs.AddVec2(touchData.position);
             argvs.AddVec2(touchData.lastPosition);
             argvs.AddVec2(touchData.deltaPosition);

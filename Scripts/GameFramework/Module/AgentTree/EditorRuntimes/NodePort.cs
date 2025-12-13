@@ -6,6 +6,7 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 
 namespace Framework.AT.Editor
@@ -23,7 +24,7 @@ namespace Framework.AT.Editor
         public UnityEngine.UIElements.VisualElement fieldRoot;
         public GraphNode grapNode;
         public ArgvAttribute attri;
-        public ArgvAttribute byAttri;
+        public ArgvAttribute curDummyAttri;
 
         public UnityEngine.UIElements.VisualElement fieldElement;
         public UnityEngine.UIElements.VisualElement enumPopFieldElement;
@@ -50,15 +51,87 @@ namespace Framework.AT.Editor
         {
             if (nodePort.dummyPorts == null || index<0 || index >= nodePort.dummyPorts.Length) return 0;
             var port = nodePort.dummyPorts[index];
-            return port.guid * 10000000 + port.slotIndex*10000 + port.type;
+            return (long)(port.guid) * 10000000 + (long)(port.slotIndex)*10000 + port.type;
         }
         public long GetKey()
         {
-            return grapNode.bindNode.guid * 10000000 + slotIndex * 10000 + (long)(isInput ? 0 : 1);
+            return (long)(grapNode.bindNode.guid) * 10000000 + (long)(slotIndex) * 10000 + (long)(isInput ? 0 : 1);
         }
         public string GetName()
         {
             return attri.name;
+        }
+
+        public void AddDummyPort(ArvgPort port)
+        {
+            if (port.isInput)
+                return;
+
+            int index = port.grapNode.IndexOfOutport(port);
+            List<DummyPort> vDummys = (nodePort.dummyPorts!=null)?new List<DummyPort>(nodePort.dummyPorts):new List<DummyPort>();
+            for (int i = 0; i < vDummys.Count;)
+            {
+                if (vDummys[i].guid == port.grapNode.bindNode.guid && vDummys[i].slotIndex == index)
+                {
+                    return;
+                }
+            }
+
+            AT.Runtime.DummyPort dummy = new AT.Runtime.DummyPort();
+            dummy.guid = port.grapNode.bindNode.guid;
+            dummy.type = (byte)(port.isInput ? 0 : 1);
+            dummy.slotIndex = (byte)port.slotIndex;
+            vDummys.Add(dummy);
+            if (vDummys.Count > 0) nodePort.dummyPorts = vDummys.ToArray();
+            else nodePort.dummyPorts = null;
+        }
+        public void RemoveDummyPort(ArvgPort port)
+        {
+            if (nodePort.dummyPorts == null) return;
+            int index = port.grapNode.IndexOfOutport(port);
+            List<DummyPort> vDummys =  new List<DummyPort>(nodePort.dummyPorts);
+            for (int i = 0; i < vDummys.Count;)
+            {
+                if (vDummys[i].guid == port.grapNode.bindNode.guid && vDummys[i].slotIndex == index)
+                {
+                    vDummys.RemoveAt(i);
+                    continue;
+                }
+                ++i;
+            }
+            if (vDummys.Count > 0) nodePort.dummyPorts = vDummys.ToArray();
+            else nodePort.dummyPorts = null;
+        }
+
+        public void RefreshDummyPorts()
+        {
+            if(!isInput)
+            {
+                return;
+            }
+            var connections = bindPort.connections;
+            nodePort.dummyPorts = null;
+            if (connections != null)
+            {
+                List<AT.Runtime.DummyPort> vLinkPorts = new List<AT.Runtime.DummyPort>();
+                foreach (var conent in connections)
+                {
+                    if (conent.output.source is ArvgPort)
+                    {
+                        var output = (ArvgPort)conent.output.source;
+                        var nodePorts = grapNode.bindNode.GetInports(false);
+                        if (nodePorts != null && slotIndex >= 0 && slotIndex < nodePorts.Length)
+                        {
+                            AT.Runtime.DummyPort dummy = new AT.Runtime.DummyPort();
+                            dummy.guid = output.grapNode.bindNode.guid;
+                            dummy.type = (byte)(output.isInput ? 0 : 1);
+                            dummy.slotIndex = (byte)output.slotIndex;
+                            vLinkPorts.Add(dummy);
+                        }
+                    }
+                }
+                if (vLinkPorts.Count > 0) nodePort.dummyPorts = vLinkPorts.ToArray();
+            }
         }
     }
     /*

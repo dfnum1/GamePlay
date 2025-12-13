@@ -39,12 +39,28 @@ namespace Framework.AT.Editor
         public override void AddTitlePorts(bool hasIn, bool hasOut)
         {
             base.AddTitlePorts(hasIn, hasOut);
-
         }
         //------------------------------------------------------
-        protected override void OnArgvPortVarTypeChanged(ArvgPort port)
+        protected override void CreateInports()
         {
-            base.OnArgvPortVarTypeChanged(port);
+            base.CreateInports();
+            if (2 < m_vArgvPorts.Count)
+            {
+                m_vArgvPorts[2].curDummyAttri = m_vArgvPorts[0].curDummyAttri;
+            }
+        }
+        //------------------------------------------------------
+        protected override void BuildArvPort()
+        {
+            base.BuildArvPort();
+            if (2 < m_vArgvPorts.Count)
+            {
+                m_vArgvPorts[2].bindPort.portColor = m_vArgvPorts[0].bindPort.portColor;
+            }
+        }
+        //------------------------------------------------------
+        protected override void OnReBuildPortContain(ArvgPort port)
+        {
             if(port.slotIndex == 0)
             {
                 if (2 < m_vArgvPorts.Count)
@@ -56,7 +72,7 @@ namespace Framework.AT.Editor
                     m_vArgvPorts[2].nodePort.pVariable = val2;
 
                     ClearPortVarEle(m_vArgvPorts[2]);
-                    m_vArgvPorts[2].byAttri = port.byAttri;
+                    m_vArgvPorts[2].curDummyAttri = port.curDummyAttri;
                     InnerDrawPortValue(m_vArgvPorts[2], 2);
                 }
             }

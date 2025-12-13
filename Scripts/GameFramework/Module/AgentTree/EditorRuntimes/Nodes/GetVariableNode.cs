@@ -67,6 +67,7 @@ namespace Framework.AT.Editor
                     port.grapNode = this;
                     port.nodePort = nodePort;
                     port.attri = attr.returns[i];
+                    port.curDummyAttri = GetDummyLinkPortAttri(port);
                     port.isInput = false;
                     port.slotIndex = i;
                     m_vReturnPorts.Add(port);

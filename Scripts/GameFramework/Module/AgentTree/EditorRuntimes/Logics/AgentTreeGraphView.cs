@@ -21,7 +21,6 @@ namespace Framework.AT.Editor
 {
     public class AgentTreeGraphView : GraphView
     {
-        bool m_bLastPlaying = false;
         System.Object m_pObject;
         AgentTreeData m_pAgentTreeData = null;
         AEditorLogic m_pOwnerEditorLogic;
@@ -123,17 +122,6 @@ namespace Framework.AT.Editor
             return change;
         }
         //-----------------------------------------------------
-        public bool isPlaying
-        {
-            get
-            {
-                var agentTree = GetCurrentRuntimeAgentTree();
-                if (agentTree != null)
-                    return agentTree.IsEnable();
-                return false;
-            }
-        }
-        //-----------------------------------------------------
         void OnLocationNodeFunction(GraphNode pNode)
         {
             var attri = pNode.GetAttri();
@@ -216,9 +204,12 @@ namespace Framework.AT.Editor
                 arvPort.fieldRoot.SetEnabled(false);
                 if(arvPort.enumPopFieldElement!=null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
-                if(arvPort.attri.argvType == typeof(IVariable))
+
+                if(outputPort.source is ArvgPort)
+                    arvPort.AddDummyPort(outputPort.source as ArvgPort);
+
+                if (arvPort.attri.argvType == typeof(IVariable))
                 {
-                    arvPort.byAttri = (outputPort.source as ArvgPort).attri;
                     //! 重建arvPort.fieldRoot 下的节点
                     arvPort.grapNode.ReBuildPortContain(arvPort);
                 }
@@ -230,12 +221,18 @@ namespace Framework.AT.Editor
         {
             var outputPort = edge.output;
             var inputPort = edge.input;
-            if (inputPort != null && inputPort.connections.Count() <= 1 && inputPort.source != null && inputPort.source is ArvgPort)
+            if (inputPort != null && inputPort.source != null && inputPort.source is ArvgPort)
             {
                 ArvgPort arvPort = inputPort.source as ArvgPort;
+                if (arvPort.nodePort.dummyPorts != null && outputPort.source is ArvgPort)
+                {
+                    var outPort = (ArvgPort)outputPort.source;
+                    arvPort.RemoveDummyPort(outPort);
+                }
                 arvPort.fieldRoot.SetEnabled(arvPort.attri.canEdit);
                 if (arvPort.enumPopFieldElement != null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
+                arvPort.grapNode.ReBuildPortContain(arvPort);
             }
         }
         //-----------------------------------------------------
@@ -340,17 +337,11 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public AgentTree GetCurrentRuntimeAgentTree()
         {
-           // var cutsceneInstance = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetCutsceneInstance();
+            return m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetAT();
            // if (cutsceneInstance == null)
                 return null;
            // return cutsceneInstance.GetAgentTree();
         }
-        /*
-        //-----------------------------------------------------
-        public CutsceneInstance GetCurrentCutscene()
-        {
-            return m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetCutsceneInstance();
-        }*/
         //-----------------------------------------------------
         public IVariable GetRuntimeVariable(ArvgPort port)
         {
@@ -491,47 +482,10 @@ namespace Framework.AT.Editor
         {
             if (m_pAgentTreeData == null)
                 return;
-            if(isPlaying)
-            {
-                UpdatePortsVariableDefault();
-            }
-
+              
+            UpdatePortsVariableDefault();
             Save(m_pAgentTreeData);
-            //! 裁剪没用到的变量
-
-            if (isPlaying)
-            {
-                var agentTree = GetCurrentRuntimeAgentTree();
-                if (agentTree != null)
-                {
-                    foreach (var db in m_vNodes)
-                    {
-                        if (agentTree.IsExecuted(db.Value.bindNode.guid))
-                        {
-                            db.Value.OnNotifyExcuted();
-                        }
-                    }
-                }
-            }
-     //       if (m_pObject)
-     //       {
-     //           m_pObject.GetCutsceneGraph().agentTree = m_pAgentTreeData;
-     //       }
         }
-        /*
-        //-----------------------------------------------------
-        public void OnEnableCutscene(CutsceneInstance pCutscene, bool bEnable)
-        {
-            if (pCutscene.GetAgentTree() == null)
-                return;
-            if (bEnable)
-            {
-                if (pCutscene.GetAgentTree().GetData() == m_pAgentTreeData)
-                    pCutscene.GetAgentTree().RegisterCallback(this);
-            }
-            else
-                pCutscene.GetAgentTree().UnregisterCallback(this);
-        }*/
         //-----------------------------------------------------
         public void Save(AgentTreeData pData)
         {
@@ -711,7 +665,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         void CreateLinkLine()
         {
-            foreach(var db in m_vNodes)
+            foreach (var db in m_vNodes)
             {
                 var graphNode = db.Value;
                 var linkOutPort = graphNode.GetLink(false);
@@ -821,25 +775,6 @@ namespace Framework.AT.Editor
             {
                 db.Value.Update(fTime);
             }
-            if(m_bLastPlaying != isPlaying)
-            {
-                UpdatePortsVariableDefault();
-                if(isPlaying)
-                {
-                    var agentTree = GetCurrentRuntimeAgentTree();
-                    if(agentTree!=null)
-                    {
-                        foreach(var db in m_vNodes)
-                        {
-                            if(agentTree.IsExecuted(db.Value.bindNode.guid))
-                            {
-                                db.Value.OnNotifyExcuted();
-                            }
-                        }
-                    }
-                }
-                m_bLastPlaying = isPlaying;
-            }
         }
         //-----------------------------------------------------
         public void CreateActionNode(object val)
@@ -897,8 +832,8 @@ namespace Framework.AT.Editor
         public void UpdateVariable(IVariable variable)
         {
             // 如果行为树已经启用，则不允许添加新的变量
-            if (isPlaying || m_bLastPlaying)
-                return;
+            //if (isPlaying || m_bLastPlaying)
+            //    return;
             m_vVariables[variable.GetGuid()] = variable;
         }
         //-----------------------------------------------------

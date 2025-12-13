@@ -14,7 +14,6 @@ namespace Framework.AT.Editor
 {
     public class AgentTreeGraphContoller
     {
-        float m_fGridRecodAlpha = 0.5f;
         VisualElement m_pRoot;
          AEditorLogic m_pOwnerEditorLogic;
         AgentTreeGraphView m_pGraphView;
@@ -70,17 +69,13 @@ namespace Framework.AT.Editor
 
 
             Color color = GUI.color;
-            if (m_pGraphView.isPlaying)
-                m_fGridRecodAlpha += 0.01f;
 
             // Draw tiled background
-            if (m_pGraphView.isPlaying) GUI.color = Color.Lerp(Color.white, new Color(0.8f,0.8f,0.8f,1.0f), Mathf.Sin(m_fGridRecodAlpha));
-            else GUI.color = Color.white;
+            GUI.color = Color.white;
             GUI.DrawTextureWithTexCoords(rect, gridTex, new Rect(tileOffset, tileAmount));
 
             // Draw tiled background
-            if (m_pGraphView.isPlaying) GUI.color = Color.Lerp(Color.white, new Color(1, 0, 0, 1f), Mathf.Sin(m_fGridRecodAlpha));
-            else GUI.color = Color.white;
+            GUI.color = Color.white;
             GUI.DrawTextureWithTexCoords(rect, crossTex, new Rect(tileOffset + new Vector2(0.5f, 0.5f), tileAmount));
             GUI.color = color;
         }

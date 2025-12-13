@@ -618,6 +618,7 @@ namespace Framework.ActorSystem.Editor
                     if (actorAT != null && actorAT.GetAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.touchID = evt.button;
                         touch.position = evt.mousePosition;
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;
@@ -634,6 +635,7 @@ namespace Framework.ActorSystem.Editor
                     if (actorAT != null && actorAT.GetAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.touchID = evt.button;
                         touch.position = evt.mousePosition;
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;
@@ -650,6 +652,7 @@ namespace Framework.ActorSystem.Editor
                     if (actorAT != null && actorAT.GetAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
+                        touch.touchID = evt.button;
                         touch.position = evt.mousePosition;
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;

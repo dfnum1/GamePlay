@@ -54,7 +54,7 @@ namespace Framework.AT.Editor
                 }
             }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
-            window.titleContent = new GUIContent("行为树");
+            window.titleContent = new GUIContent("蓝图脚本");
             window.m_pATData = atData;
             window.m_pAT = pAT;
             window.m_onSave = OnSave;
@@ -70,6 +70,11 @@ namespace Framework.AT.Editor
         public void SetAT(AgentTree AT)
         {
             m_pAT = AT;
+        }
+        //-----------------------------------------------------
+        public AgentTree GetAT()
+        {
+            return m_pAT;
         }
         //--------------------------------------------------------
         protected override void OnInnerEnable()

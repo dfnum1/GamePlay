@@ -78,7 +78,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         internal void DoActionStartState(ActorAction pState)
         {
-            DoActionStartState(pState);
+            OnActionStartState(pState);
         }
         //--------------------------------------------------------
         protected virtual void OnActionEndState(ActorAction pState)

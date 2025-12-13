@@ -41,6 +41,8 @@ namespace Framework.AT.Editor
         private double m_flashEndTime = 0;
         private int m_nExternPortCount = 0;
 
+        private HashSet<ArvgPort> m_vChangePorts = new HashSet<ArvgPort>();
+
         protected AgentTreeGraphView m_pGraphView;
         public GraphNode(AgentTreeGraphView pAgent, AT.Runtime.BaseNode pNode, bool bUpdatePos = true)
         {
@@ -64,7 +66,7 @@ namespace Framework.AT.Editor
             CheckPorts();
             BuildPorts();
 
-            if(bUpdatePos) UpdatePosition();
+            UpdatePosition();
 
             //! refresh
             bool expandLock = this.expanded;
@@ -206,6 +208,7 @@ namespace Framework.AT.Editor
 
             m_vArgvPorts.Clear();
             m_vReturnPorts.Clear();
+            m_vChangePorts.Clear();
         }
         //------------------------------------------------------
         public LinkPort GetLink(bool isInput)
@@ -219,6 +222,11 @@ namespace Framework.AT.Editor
             if (m_vArgvPorts == null || index < 0 || index >= m_vArgvPorts.Count)
                 return m_vArgvPorts[index];
             return null;
+        }
+        //------------------------------------------------------
+        public int IndexOfInport(ArvgPort port)
+        {
+            return m_vArgvPorts.IndexOf(port);
         }
         //------------------------------------------------------
         public List<ArvgPort> GetArvgs()
@@ -243,6 +251,11 @@ namespace Framework.AT.Editor
             if (m_vReturnPorts == null || index < 0 || index >= m_vReturnPorts.Count)
                 return m_vReturnPorts[index];
             return null;
+        }
+        //------------------------------------------------------
+        public int IndexOfOutport(ArvgPort port)
+        {
+            return m_vReturnPorts.IndexOf(port);
         }
         //-----------------------------------------------------
         public List<ArvgPort> GetReturns()
@@ -283,22 +296,23 @@ namespace Framework.AT.Editor
                     float w = portStyle.CalcSize(new GUIContent(port.attri.name)).x + 65;
                     if(port.GetVariable()!=null)
                     {
-                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableString))
-                        {
-                            w += 70;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec2))
-                        {
-                            w += 70;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3))
+                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableRay) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableBounds))
                         {
                             w += 150;
                         }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4))
+                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableQuaternion))
                         {
                             w += 210;
                         }
+                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix))
+                        {
+                            w += 310;
+                        }
+                        else w += 70;
                     }
                     if (w > portWidth) portWidth = w;
                 }
@@ -310,22 +324,22 @@ namespace Framework.AT.Editor
                     float w = portStyle.CalcSize(new GUIContent(port.attri.name)).x + 65;
                     if(port.GetVariable()!=null)
                     {
-                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableString))
-                        {
-                            w += 70;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec2))
-                        {
-                            w += 70;
-                        }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3))
+                        if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec3) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableRay) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableBounds))
                         {
                             w += 150;
                         }
-                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4))
+                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableVec4) ||
+                            port.GetVariable().GetType() == typeof(AT.Runtime.VariableQuaternion))
                         {
                             w += 210;
                         }
+                        else if (port.GetVariable().GetType() == typeof(AT.Runtime.VariableMatrix))
+                        {
+                            w += 310;
+                        }
+                        else w += 70;
                     }
 
                     if (w > portWidth) portWidth = w;
@@ -400,6 +414,16 @@ namespace Framework.AT.Editor
         //------------------------------------------------------
         public void Update(float deltaTime)
         {
+            if(m_vChangePorts.Count>0)
+            {
+                foreach(var port in m_vChangePorts)
+                {
+                    OnArgvPortVarTypeChanged(port);
+                    ReBuildPortContain(port);
+                }
+                UpdateSize();
+                m_vChangePorts.Clear();
+            }
             if (m_isFlashing && m_flashEndTime > 0)
             {
                 m_flashEndTime -= deltaTime;
@@ -467,29 +491,7 @@ namespace Framework.AT.Editor
             {
                 foreach(var db in m_vArgvPorts)
                 {
-                    var connections = db.bindPort.connections;
-                    db.nodePort.dummyPorts = null;
-                    if (connections != null)
-                    {
-                        List<AT.Runtime.DummyPort> vLinkPorts = new List<AT.Runtime.DummyPort>();
-                        foreach (var conent in connections)
-                        {
-                            if (conent.output.source is ArvgPort)
-                            {
-                                var output = (ArvgPort)conent.output.source;
-                                var nodePorts = db.grapNode.bindNode.GetInports(false);
-                                if(nodePorts!=null && db.slotIndex>=0 && db.slotIndex < nodePorts.Length)
-                                {
-                                    AT.Runtime.DummyPort dummy = new AT.Runtime.DummyPort();
-                                    dummy.guid = output.grapNode.bindNode.guid;
-                                    dummy.type = (byte)(output.isInput?0:1);
-                                    dummy.slotIndex = (byte)output.slotIndex;
-                                    vLinkPorts.Add(dummy);
-                                }
-                            }
-                        }
-                        if (vLinkPorts.Count > 0) db.nodePort.dummyPorts = vLinkPorts.ToArray();
-                    }
+                    db.RefreshDummyPorts();
                 }
 
                 var inputVars = bindNode.GetInports(false);
@@ -599,20 +601,17 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        protected virtual void OnArgvPortVarTypeChanged(ArvgPort port)
+        protected void OnArgvPortVarTypeChanged(ArvgPort port)
         {
             if (port == null || port.bindPort == null)
                 return;
 
+            port.curDummyAttri = GetDummyLinkPortAttri(port);
             var val = m_pGraphView.ChangeVariable(port.GetVariableGuid(), port.eEnumType);
             // 需要重新赋值回去（struct）
             port.bindPort.portColor = EditorPreferences.GetTypeColor(val.GetType());
             port.nodePort.pVariable = val;
-
-            ClearPortVarEle(port);
-
-
-            InnerDrawPortValue(port, 2);
+            OnReBuildPortContain(port);
         }
         //------------------------------------------------------
         public void ChangeVariableType(ArvgPort port, Runtime.EVariableType newType)
@@ -621,8 +620,38 @@ namespace Framework.AT.Editor
             port.nodePort.pVariable = val2;
         }
         //------------------------------------------------------
+        protected ArgvAttribute GetDummyLinkPortAttri(ArvgPort port)
+        {
+            return GetDummyLinkPortAttri(port.nodePort);
+        }
+        //------------------------------------------------------
+        protected ArgvAttribute GetDummyLinkPortAttri(NodePort port)
+        {
+            if (port.dummyPorts != null && port.dummyPorts.Length > 0)
+            {
+                for (int i = 0; i < port.dummyPorts.Length; ++i)
+                {
+                    var dummyNode = m_pGraphView.GetNode(port.dummyPorts[i].guid);
+                    if (dummyNode == null)
+                    {
+                        continue;
+                    }
+                    List<ArgvAttribute> slotAttrs = null;
+                    if (port.dummyPorts[i].type == 0) slotAttrs = dummyNode.GetAttri().argvs;
+                    else slotAttrs = dummyNode.GetAttri().returns;
+
+                    if (slotAttrs != null && port.dummyPorts[i].slotIndex < slotAttrs.Count)
+                    {
+                        return slotAttrs[port.dummyPorts[i].slotIndex];
+                    }
+                }
+            }
+            return null;
+        }
+        //------------------------------------------------------
         public void CheckPorts()
         {
+            m_vChangePorts.Clear();
             foreach (var db in m_vArgvPorts)
                 m_pGraphView.DelPort(db);
 
@@ -665,6 +694,7 @@ namespace Framework.AT.Editor
                         port.grapNode = this;
                         port.nodePort = nodePort;
                         port.attri = attr.argvs[i];
+                        port.curDummyAttri = GetDummyLinkPortAttri(port);
                         port.isInput = true;
                         port.slotIndex = i;
                         m_vArgvPorts.Add(port);
@@ -701,6 +731,7 @@ namespace Framework.AT.Editor
                     port.grapNode = this;
                     port.nodePort = nodePort;
                     port.attri = attr.returns[i];
+                    port.curDummyAttri = GetDummyLinkPortAttri(nodePort);
                     port.isInput = false;
                     port.slotIndex = i;
                     m_vReturnPorts.Add(port);
@@ -813,36 +844,29 @@ namespace Framework.AT.Editor
         //------------------------------------------------------
         public void ReBuildPortContain(ArvgPort port)
         {
+            var dummyAttr = GetDummyLinkPortAttri(port);
+            bool bDirty = (port.curDummyAttri != dummyAttr);
+            port.curDummyAttri = dummyAttr;
             ClearPortVarEle(port);
             DrawPortValue(port);
-            if(port.byAttri!=null&& port.attri.argvType != port.byAttri.argvType)
-                OnArgvPortVarTypeChanged(port);
+
+            if (bDirty)
+                OnReBuildPortContain(port);
         }
+        //------------------------------------------------------
+        protected virtual void OnReBuildPortContain(ArvgPort port) { }
         //------------------------------------------------------
         protected virtual void DrawPortValue(ArvgPort port)
         {
             ArgvAttribute attri = port.attri;
-            if (port.byAttri != null) attri = port.byAttri;
+            if (port.curDummyAttri != null) attri = port.curDummyAttri;
+            bool hasDummy = (port.nodePort.dummyPorts != null && port.nodePort.dummyPorts.Length > 0);
             if (port.fieldRoot!=null)
             {
-                if ((port.nodePort.dummyPorts != null && port.nodePort.dummyPorts.Length > 0) || !port.attri.canEdit ||
-                    (port.bindPort.connections != null && port.bindPort.connections.Count() > 0))
+                if (hasDummy || !port.attri.canEdit)
                     port.fieldRoot.SetEnabled(false);
                 else
                     port.fieldRoot.SetEnabled(true);
-            }
-
-            if(port.nodePort.dummyPorts!=null && port.nodePort.dummyPorts.Length>0)
-            {
-                var dummyNode = m_pGraphView.GetNode(port.nodePort.dummyPorts[0].guid);
-                if (dummyNode != null)
-                {
-                    var dummyArv = dummyNode.GetArvg(port.nodePort.dummyPorts[0].slotIndex);
-                    if(dummyArv!=null)
-                    {
-                        attri = dummyArv.attri;
-                    }
-                }
             }
 
             if (attri.argvType == typeof(AT.Runtime.IVariable))
@@ -874,7 +898,7 @@ namespace Framework.AT.Editor
                         popup.style.marginLeft = 4;
                         popup.style.unityTextAlign = TextAnchor.MiddleRight;
 
-                        popup.SetEnabled((port.bindPort.connections == null || port.bindPort.connections.Count() <= 0) && port.fieldRoot.enabledSelf);
+                        popup.SetEnabled(!hasDummy && port.fieldRoot.enabledSelf);
 
                         port.enumPopFieldElement = popup;
 
@@ -885,8 +909,7 @@ namespace Framework.AT.Editor
                             {
                                 m_vArgvPorts[i].eEnumType = port.eEnumType;
                             }
-                            OnArgvPortVarTypeChanged(port);
-                            UpdateSize();
+                            m_vArgvPorts.Add(port);
                         });
 
                         port.bindPort.Add(popup);
@@ -902,15 +925,14 @@ namespace Framework.AT.Editor
                             unityTextAlign = TextAnchor.MiddleRight
                         }
                         };
-                        varTypeField.SetEnabled( (port.bindPort.connections == null || port.bindPort.connections.Count()<=0) && port.fieldRoot.enabledSelf );
+                        varTypeField.SetEnabled( !hasDummy && port.fieldRoot.enabledSelf );
                         varTypeField.RegisterValueChangedCallback(evt =>
                         {
                             // 更新变量值
                             if ((AT.Runtime.EVariableType)evt.newValue != Runtime.EVariableType.eNone)
                             {
                                 port.eEnumType = (AT.Runtime.EVariableType)evt.newValue;
-                                OnArgvPortVarTypeChanged(port);
-                                UpdateSize();
+                                m_vChangePorts.Add(port);
                             }
                         });
                         port.enumPopFieldElement = varTypeField;
@@ -925,7 +947,7 @@ namespace Framework.AT.Editor
         protected virtual void InnerDrawPortValue(ArvgPort port, int insertIndex = -1)
         {
             ArgvAttribute attri = port.attri;
-            if (port.byAttri != null) attri = port.byAttri;
+            if (port.curDummyAttri != null) attri = port.curDummyAttri;
             if (port.fieldElement!=null)
             {
                 port.fieldRoot.Remove(port.fieldElement);

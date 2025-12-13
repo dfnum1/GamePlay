@@ -39,8 +39,9 @@ namespace Framework.AT.Runtime
 
         [ATAction("鼠标输入", true, false, true), ATIcon("AT/at_mouse_input")]
         [Argv("状态", typeof(EATMouseType), false)]
-        [Argv("当前点击坐标", typeof(Vector2), false)]
-        [Argv("上次点击坐标", typeof(Vector2), false)]
+        [Argv("输入Id", typeof(int), false)]
+        [Argv("当前屏幕坐标", typeof(Vector2), false)]
+        [Argv("上次屏幕坐标", typeof(Vector2), false)]
         [Argv("差值坐标", typeof(Vector2), false)]
         [Argv("是否点击UI",typeof(bool), false)]
         eMouseInput = 5,
