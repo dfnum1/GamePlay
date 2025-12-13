@@ -33,7 +33,10 @@ namespace Framework.AT.Editor
         //--------------------------------------------------------
         public void OnDisable()
         {
-            m_pOwnerEditorLogic.GetOwner().rootVisualElement.Remove(m_pRoot);
+            if (m_pRoot == null)
+                return;
+            if(m_pOwnerEditorLogic.GetOwner().rootVisualElement.Contains(m_pRoot))
+                m_pOwnerEditorLogic.GetOwner().rootVisualElement.Remove(m_pRoot);
         }
         //--------------------------------------------------------
         public void OnGUI(Rect rect)

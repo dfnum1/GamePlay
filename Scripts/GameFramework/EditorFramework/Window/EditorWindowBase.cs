@@ -122,6 +122,24 @@ namespace Framework.ED
         protected virtual void OnStart()
         {
         }
+        //-----------------------------------------------------
+        public void ShowNotification(string content, float duration = 1)
+        {
+            var icon = EditorGUIUtility.IconContent("console.infoicon").image;
+            ShowNotification(new GUIContent(content, icon), duration);
+        }
+        //-----------------------------------------------------
+        public void ShowNotificationError(string content, float duration = 1)
+        {
+            var icon = EditorGUIUtility.IconContent("console.erroricon").image;
+            ShowNotification(new GUIContent(content, icon), duration);
+        }
+        //-----------------------------------------------------
+        public void ShowNotificationWarning(string content, float duration = 1)
+        {
+            var icon = EditorGUIUtility.IconContent("console.warnicon").image;
+            ShowNotification(new GUIContent(content, icon), duration);
+        }
         //--------------------------------------------------------
         protected virtual void OnInnerUpdate() { }
         //--------------------------------------------------------

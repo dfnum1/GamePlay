@@ -7,13 +7,10 @@
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
 using Framework.Core;
-using Framework.Cutscene.Editor;
 using Framework.DrawProps;
 using Framework.ED;
-using PlasticPipe.PlasticProtocol.Messages;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -77,8 +74,16 @@ namespace Framework.AT.Editor
 
             this.titleContainer.style.fontSize = 50;
             this.titleContainer.style.unityFontStyleAndWeight = FontStyle.Bold;
-            if (attri.colorAttr!=null)
-                this.titleContainer.style.backgroundColor = attri.colorAttr.color;
+            if (attri.colorAttr != null)
+            {
+                if (attri.colorAttr.color.a > 0)
+                {
+                    if(attri.colorAttr.node)
+                        this.style.backgroundColor = attri.colorAttr.color;
+                    else
+                        this.titleContainer.style.backgroundColor = attri.colorAttr.color;
+                }
+            }
         }
         //------------------------------------------------------
         public void UpdateTitle()
@@ -120,6 +125,23 @@ namespace Framework.AT.Editor
                     this.titleContainer.Insert(0, img);
                 }
             }
+        }
+        //------------------------------------------------------
+        protected void AddPortIcon(ArvgPort port, Texture icon)
+        {
+            if (icon == null) return;
+            var img = new Image
+            {
+                image = icon,
+                style =
+                {
+                    width = 20,
+                    height = 20,
+                    marginLeft = 10,
+                    marginTop = 4,
+                }
+            };
+            port.bindPort.Add(img);
         }
         //------------------------------------------------------
         protected virtual void OnInit()
@@ -198,6 +220,7 @@ namespace Framework.AT.Editor
             {
                 if (db.refReturnPort != null)
                 {
+                    AddPortIcon(db.refReturnPort, EditorGUIUtility.IconContent("console.erroricon").image);
                     db.refReturnPort.bindPort.portName = "!ERROR!";
                     var connects = db.refReturnPort.bindPort.connections;
                     if(connects!=null)
@@ -497,9 +520,9 @@ namespace Framework.AT.Editor
         {
             if (bindNode == null) return null;
             int customType = 0;
-            if(bindNode is AT.Runtime.CutsceneEvent)
+            if(bindNode is AT.Runtime.CustomEvent)
             {
-                customType = ((AT.Runtime.CutsceneEvent)bindNode).eventType;
+                customType = ((AT.Runtime.CustomEvent)bindNode).eventType;
             }
             return AgentTreeUtil.GetAttri(bindNode.type, customType);
         }
@@ -684,7 +707,10 @@ namespace Framework.AT.Editor
             {
                 var port = m_vArgvPorts[i];
                 var inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(ArvgPort));
-                inputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                inputPort.tooltip = port.attri.tips;
+                if (inputPort.tooltip == null) inputPort.tooltip = "";
+                if (inputPort.tooltip.Length > 0) inputPort.tooltip += "\r\n";
+                inputPort.tooltip += "端口变量GUID:" + port.GetVariableGuid();
                 if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
                 {
                     inputPort.portName = "";
@@ -721,7 +747,10 @@ namespace Framework.AT.Editor
                     linkPort.graphNode = this;
                     linkPort.argvPort = port;
                     var outputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, UnityEditor.Experimental.GraphView.Port.Capacity.Single, typeof(LinkPort));
-                    outputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                    outputPort.tooltip = linkAgvAttr.tips;
+                    if (outputPort.tooltip == null) outputPort.tooltip = "";
+                    if (outputPort.tooltip.Length > 0) outputPort.tooltip += "\r\n";
+                    outputPort.tooltip += "端口变量GUID:" + port.GetVariableGuid();
                     if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
                     {
                         outputPort.portName = "";
@@ -732,11 +761,11 @@ namespace Framework.AT.Editor
 
                     outputPort.style.marginLeft = 4;
                     outputPort.style.marginTop = (m_vReturnPorts.Count+m_vArgvPorts.Count-1)*16;
-                    outputPort.style.backgroundImage = IconUtils.linkOuter;
+                    outputPort.style.backgroundImage = IconUtils.linkOuter1;
                     outputPort.style.backgroundColor = Color.clear;
                     outputPort.style.width = 16;
                     outputPort.style.height = 16;
-                    outputPort.portColor = EditorPreferences.GetSettings().linkLineColor;
+                    outputPort.portColor = EditorPreferences.GetSettings().linkLine1Color;
                     outputPort.source = linkPort;
                     linkPort.bindPort  = outputPort;
                     m_vOtherLinks[port] = linkPort;
@@ -747,7 +776,10 @@ namespace Framework.AT.Editor
                 else
                 {
                     var inputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(ArvgPort));
-                    inputPort.tooltip = "端口变量GUID:" + port.GetVariableGuid();
+                    inputPort.tooltip = port.attri.tips;
+                    if (inputPort.tooltip == null) inputPort.tooltip = "";
+                    if (inputPort.tooltip.Length > 0) inputPort.tooltip += "\r\n";
+                    inputPort.tooltip += "端口变量GUID:" + port.GetVariableGuid();
                     if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
                     {
                         inputPort.portName = "";

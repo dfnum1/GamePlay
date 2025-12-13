@@ -56,9 +56,9 @@ namespace Framework.Cutscene.Editor
                     }
                 }
                 int cusomtType = 0;
-                if (node.Value is CutsceneEvent)
+                if (node.Value is CustomEvent)
                 {
-                    cusomtType = ((CutsceneEvent)node.Value).eventType;
+                    cusomtType = ((CustomEvent)node.Value).eventType;
                 }
                 var attr = AT.Editor.AgentTreeUtil.GetAttri(node.Value.type, cusomtType);
                 if (attr == null)

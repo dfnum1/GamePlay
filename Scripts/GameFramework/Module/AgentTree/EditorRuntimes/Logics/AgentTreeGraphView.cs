@@ -57,20 +57,10 @@ namespace Framework.AT.Editor
                             OnLocationNodeFunction(node);
                         });
                     }
-                    if(node.GetAttri().actionType == (int)EActionType.eMemberVariable)
+                    evt.menu.InsertAction(3, "设置备注名", (a) =>
                     {
-                        evt.menu.InsertAction(3, "设置变量名", (a) =>
-                        {
-                            ReNodeName(node, "设置变量名");
-                        });
-                    }
-                    else
-                    {
-                        evt.menu.InsertAction(3, "设置备注名", (a) =>
-                        {
-                            ReNodeName(node, "设置备注名");
-                        });
-                    }
+                        ReNodeName(node, "设置备注名");
+                    });
                 }
             }));
 
@@ -272,7 +262,7 @@ namespace Framework.AT.Editor
 
                 if(attri.isCutsceneCustomEvent)
                 {
-                    CutsceneEvent pAction = new CutsceneEvent();
+                    CustomEvent pAction = new CustomEvent();
                     pAction.type = attri.actionType;
                     pAction.eventType = attri.cutsceneCusomtType;
                     pAction.guid = GeneratorGUID();
@@ -435,9 +425,9 @@ namespace Framework.AT.Editor
                 return viewNode;
 
             int customType = 0;
-            if(pNode is CutsceneEvent)
+            if(pNode is CustomEvent)
             {
-                customType = ((CutsceneEvent)pNode).eventType;
+                customType = ((CustomEvent)pNode).eventType;
             }
             GraphNode graphNode = null;
             var attri = AgentTreeUtil.GetAttri(pNode.type, customType);
@@ -518,7 +508,7 @@ namespace Framework.AT.Editor
         {
             List<EnterTask> vTasks = new List<EnterTask>();
             List<AT.Runtime.ActionNode> vActions = new List<AT.Runtime.ActionNode>();
-            List<CutsceneEvent> vCutsceneEvent = new List<CutsceneEvent>();
+            List<CustomEvent> vCutsceneEvent = new List<CustomEvent>();
             foreach (var db in m_vNodes)
             {
                 var graphNode = db.Value;
@@ -529,9 +519,9 @@ namespace Framework.AT.Editor
                 {
                     vTasks.Add(graphNode.bindNode as EnterTask);
                 }
-                else if (graphNode.bindNode is CutsceneEvent)
+                else if (graphNode.bindNode is CustomEvent)
                 {
-                    vCutsceneEvent.Add(graphNode.bindNode as CutsceneEvent);
+                    vCutsceneEvent.Add(graphNode.bindNode as CustomEvent);
                 }
                 else if (graphNode.bindNode is AT.Runtime.ActionNode)
                 {

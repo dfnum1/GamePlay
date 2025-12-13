@@ -54,7 +54,7 @@ namespace Framework.AT.Runtime
     {
         [DrawProps.Disable]eActionBegin = 101,
 
-        [ATAction("变量获取", false, false, false, false), ATColor("#00cc99ff")]
+        [ATAction("变量获取", false, false, false, false), ATColor("#9900ffff", false)]
         [Return("GUID",typeof(int))]
         eGetVariable = eActionBegin+1,//获取变量
 
@@ -62,7 +62,7 @@ namespace Framework.AT.Runtime
         [Argv("参数1", typeof(IVariable), true)]
         [Argv("符号", typeof(ECompareOpType), true)]
         [Argv("参数2", typeof(IVariable), true)]
-        [Link("不成立", false)]
+        [Link("","当条件不满足时", false)]
         eCondition ,//条件
 
         [ATAction("运算")]
@@ -163,8 +163,9 @@ namespace Framework.AT.Runtime
         [Return("是否在视野", typeof(VariableBool))]
         eCheckWorldPosInView,
 
-        [ATAction("成员变量", false, false, false),ATColor("#cccc00ff")]
-        [Argv("变量", typeof(IVariable), true)]
+        [ATAction("成员变量", false, false, false),ATColor("#058980ff"), ATIcon("AT/at_member_var")]
+        [Argv("变量名", "程序可根据此名来设置、获取变量。如果变量为空，则不能通过名称来操作", typeof(string), true)]
+        [Argv("值", typeof(IVariable), true)]
         [Return("输出", typeof(IVariable))]
         eMemberVariable = 998,//新建变量
 

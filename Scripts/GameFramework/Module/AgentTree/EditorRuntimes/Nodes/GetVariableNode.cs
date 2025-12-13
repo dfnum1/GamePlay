@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
 using Framework.Cutscene.Editor;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 
@@ -119,11 +120,13 @@ namespace Framework.AT.Editor
                     }
                     else
                     {
+                        AddPortIcon(port, EditorGUIUtility.IconContent("console.erroricon").image);
                         port.bindPort.portName = "!ERROR!";
                     }
                 }
                 else
                 {
+                    AddPortIcon(port, EditorGUIUtility.IconContent("console.erroricon").image);
                     port.bindPort.portName = "!ERROR!";
                 }
             }

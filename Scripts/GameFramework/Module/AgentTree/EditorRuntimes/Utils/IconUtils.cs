@@ -69,6 +69,9 @@ namespace Framework.AT.Editor
         private static Texture2D _dotOuter;
         public static Texture2D linkOuter { get { return _linkOuter != null ? _linkOuter : _linkOuter = LoadIcon("Node/xnode_link"); } }
         private static Texture2D _linkOuter;
+        public static Texture2D linkOuter1 { get { return _linkOuter1 != null ? _linkOuter1 : _linkOuter1 = LoadIcon("Node/xnode_link"); } }
+        private static Texture2D _linkOuter1;
+
         public static Texture2D nodeBody { get { return _nodeBody != null ? _nodeBody : _nodeBody = LoadIcon("Node/xnode_node"); } }
         private static Texture2D _nodeBody;
         public static Texture2D nodeHighlight { get { return _nodeHighlight != null ? _nodeHighlight : _nodeHighlight = LoadIcon("Node/xnode_node_highlight"); } }

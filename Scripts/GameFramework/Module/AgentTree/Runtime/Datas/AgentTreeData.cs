@@ -19,7 +19,7 @@ namespace Framework.AT.Runtime
     {
         public EnterTask[] tasks;
         public ActionNode[] actions;
-        public CutsceneEvent[] events;
+        public CustomEvent[] events;
         [UnityEngine.SerializeField] VaribaleSerizlizeGuidData varGuids;
         [System.NonSerialized]private Dictionary<short, IVariable> m_vVariables = null;
         [System.NonSerialized] private Dictionary<short, BaseNode> m_vNodes = null;

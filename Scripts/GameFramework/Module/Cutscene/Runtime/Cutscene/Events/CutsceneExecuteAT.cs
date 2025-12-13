@@ -61,7 +61,7 @@ namespace Framework.Cutscene.Runtime
                 if (GUILayout.Button("选择执行节点"))
                 {
                     var provider = ScriptableObject.CreateInstance<Editor.AgentTreeInputPortSearchProvider>();
-                    //   provider.SetFilterType(typeof(EnterTask), typeof(CutsceneEvent));
+                    //   provider.SetFilterType(typeof(EnterTask), typeof(CustomEvent));
                     if (baseProp.ownerObject != null && baseProp.ownerObject is ACutsceneObject)
                     {
                         ACutsceneObject cutsceneObject = baseProp.ownerObject as ACutsceneObject;
@@ -89,9 +89,9 @@ namespace Framework.Cutscene.Runtime
                     if (node != null)
                     {
                         int customType = 0;
-                        if (node is CutsceneEvent)
+                        if (node is CustomEvent)
                         {
-                            customType = ((CutsceneEvent)node).eventType;
+                            customType = ((CustomEvent)node).eventType;
                         }
                         var attri = AT.Editor.AgentTreeUtil.GetAttri(node.type, customType);
 

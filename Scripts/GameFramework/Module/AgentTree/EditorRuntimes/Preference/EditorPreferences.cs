@@ -80,10 +80,15 @@ namespace Framework.AT.Editor
             private Color _linkLineColor = Color.white;
 
             [SerializeField]
+            private Color _linkLine1Color = Color.gray;
+
+            [SerializeField]
             private float _linkLineWidth = 5;
             public Color32 gridBgColor { get { return _gridBgColor; } set { _gridBgColor = value; _gridTexture = null; } }
 
             public Color linkLineColor { get { return _linkLineColor; } set { _linkLineColor = value; } }
+
+            public Color linkLine1Color { get { return _linkLine1Color; } set { _linkLine1Color = value; } }
 
             public float linkLineWidth { get { return _linkLineWidth; } set { _linkLineWidth = value; } }
 

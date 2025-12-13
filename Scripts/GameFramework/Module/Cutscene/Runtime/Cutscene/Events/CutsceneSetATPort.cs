@@ -87,9 +87,9 @@ namespace Framework.Cutscene.Runtime
                     if (node != null)
                     {
                         int customType = 0;
-                        if (node is CutsceneEvent)
+                        if (node is CustomEvent)
                         {
-                            customType = ((CutsceneEvent)node).eventType;
+                            customType = ((CustomEvent)node).eventType;
                         }
                         var attri = AT.Editor.AgentTreeUtil.GetAttri(node.type, customType);
 

@@ -20,35 +20,35 @@ namespace Framework.AT.Editor
         protected override void OnReBuildPortContain(ArvgPort dirtPort)
         {
             this.outputContainer.Clear();
-            if (m_vArgvPorts.Count != m_vReturnPorts.Count)
+            if (m_vArgvPorts.Count != m_vReturnPorts.Count+1)
                 return;
             for (int i = 0; i < m_vReturnPorts.Count; ++i)
             {
                 var port = m_vReturnPorts[i];
                 if (port.bindPort == null)
                     continue;
-                port.bindPort.portColor = m_vArgvPorts[i].bindPort.portColor;
+                port.bindPort.portColor = m_vArgvPorts[i+1].bindPort.portColor;
                 port.bindPort.source = port;
                 port.bindPort.style.marginRight = 4;
-                m_vArgvPorts[i].bindPort.Remove(port.bindPort);
-                m_vArgvPorts[i].bindPort.Add(port.bindPort);
+                m_vArgvPorts[i+1].bindPort.Remove(port.bindPort);
+                m_vArgvPorts[i+1].bindPort.Add(port.bindPort);
             }
         }
         //------------------------------------------------------
         protected override void BuildReturnPort()
         {
             this.outputContainer.Clear();
-            if (m_vArgvPorts.Count != m_vReturnPorts.Count)
+            if (m_vArgvPorts.Count != m_vReturnPorts.Count+1)
                 return;
             for (int i = 0; i < m_vReturnPorts.Count; ++i)
             {
                 var port = m_vReturnPorts[i];
                 var inputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(ArvgPort));
                 inputPort.portName = "";
-                inputPort.portColor = m_vArgvPorts[i].bindPort.portColor;
+                inputPort.portColor = m_vArgvPorts[i+1].bindPort.portColor;
                 inputPort.source = port;
                 inputPort.style.marginRight = 4;
-                m_vArgvPorts[i].bindPort.Add(inputPort);
+                m_vArgvPorts[i+1].bindPort.Add(inputPort);
                 port.bindPort = inputPort;
             }
         }

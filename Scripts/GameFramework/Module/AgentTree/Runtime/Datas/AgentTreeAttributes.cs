@@ -41,11 +41,13 @@ namespace Framework.AT.Runtime
     {
 #if UNITY_EDITOR
         public UnityEngine.Color color;
+        public bool node;
 #endif
-        public ATColorAttribute(string color)
+        public ATColorAttribute(string color, bool node = false)
         {
 #if UNITY_EDITOR
             UnityEngine.ColorUtility.TryParseHtmlString(color, out this.color);
+            this.node = node;
 #endif
         }
     }
