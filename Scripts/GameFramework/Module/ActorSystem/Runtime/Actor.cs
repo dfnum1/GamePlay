@@ -9,7 +9,6 @@ using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
-using TagLib.Id3v2;
 using UnityEngine;
 #if USE_FIXEDMATH
 using ExternEngine;

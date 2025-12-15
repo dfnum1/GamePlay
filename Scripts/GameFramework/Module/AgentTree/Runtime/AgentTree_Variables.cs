@@ -188,14 +188,14 @@ namespace Framework.AT.Runtime
                 }
                 if (dummy.pNode!=null && dummy.pNode.type == (int)EActionType.eGetVariable)
                 {
-                    NodePort[] outports = dummy.pNode.GetOutports(false);
+                    NodePort[] outports = dummy.pNode.GetOutports();
                     if(outports!=null && outports.Length>0)
                     {
                         var varGuid = outports[0].varGuid;
                         var node = m_pData.GetVarOwnerNode(varGuid);
                         if (node != null)
                         {
-                            outports = node.GetOutports(false);
+                            outports = node.GetOutports();
                             int outputCnt = node.GetOutportCount();
                             for (int j = 0; j < outputCnt; ++j)
                             {

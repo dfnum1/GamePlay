@@ -5,7 +5,6 @@
 作    者:	HappLI
 描    述:	表现图编辑窗口
 *********************************************************************/
-using Codice.Client.Common;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Editor;
 using Framework.AT.Runtime;
