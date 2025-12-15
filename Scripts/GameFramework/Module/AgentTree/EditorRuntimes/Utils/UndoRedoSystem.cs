@@ -111,7 +111,41 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public void Undo()
         {
+            if (m_vUndoList.Count <= 0)
+                return;
 
+            List<GraphNode> vNodes = new List<GraphNode>();
+            var snapshots = m_vUndoList.Pop();
+            foreach (var db in snapshots)
+            {
+                if(db.type == UndoRedoOperationType.NodeAdd)
+                {
+                    //! To do: 删除节点
+                    m_pGraphView.RemoveNode(db.pDummy.guid, false);
+                }
+                else if(db.type == UndoRedoOperationType.NodeDel)
+                {
+                    //! To do: 添加节点
+                }
+                else if( db.type == UndoRedoOperationType.NodeChange ||
+                    db.type == UndoRedoOperationType.NodeEdge)
+                {
+                    //! To do: 节点变更
+                    //! To do: 节点连线变更
+                }
+                else if(db.type == UndoRedoOperationType.Position)
+                {
+                    //! To do: 节点位置变更
+                    var node = m_pGraphView.GetNode(db.pDummy.guid);
+                    if (node != null)
+                    {
+                        node.bindNode.posX = db.pDummy.posX;
+                        node.bindNode.posY = db.pDummy.posY;
+                        node.UpdatePosition();
+                    }
+                }
+            }
+            m_vRedoList.Push(snapshots);
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Framework.AT.Editor
                 if (this.selection != null && this.selection.Count == 1 && this.selection.First() is GraphNode)
                 {
                     var node = this.selection.First() as GraphNode;
-                    if(!node.GetAttri().isCutsceneCustomEvent && node.GetAttri().functionClassType!=null)
+                    if (!node.GetAttri().isCutsceneCustomEvent && node.GetAttri().functionClassType != null)
                     {
                         evt.menu.InsertAction(3, "函数定位", (a) =>
                         {
@@ -80,7 +80,7 @@ namespace Framework.AT.Editor
             this.RegisterCallback<KeyDownEvent>(evt =>
             {
                 var window = m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>();
-                if (window!=null && window.OnGraphViewEvent(evt.imguiEvent))
+                if (window != null && window.OnGraphViewEvent(evt.imguiEvent))
                 {
                     evt.StopPropagation(); // 阻止事件继续传递
                 }
@@ -176,7 +176,7 @@ namespace Framework.AT.Editor
 
             string[] guids = AssetDatabase.FindAssets($"{type.Name} t:Script");
             string filePath = null;
-            if(guids.Length==1)
+            if (guids.Length == 1)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[0]);
             }
@@ -244,10 +244,10 @@ namespace Framework.AT.Editor
                 RegisterUndo(arvPort.grapNode, UndoRedoOperationType.NodeEdge);
 
                 arvPort.fieldRoot.SetEnabled(false);
-                if(arvPort.enumPopFieldElement!=null)
+                if (arvPort.enumPopFieldElement != null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
 
-                if(outputPort.source is ArvgPort)
+                if (outputPort.source is ArvgPort)
                     arvPort.AddDummyPort(outputPort.source as ArvgPort);
 
                 if (arvPort.attri.argvType == typeof(IVariable))
@@ -288,7 +288,7 @@ namespace Framework.AT.Editor
             {
                 AgentTreeAttri attri = searchTreeEntry.userData as AgentTreeAttri;
 
-                if(attri.isCutsceneCustomEvent)
+                if (attri.isCutsceneCustomEvent)
                 {
                     CustomEvent pAction = new CustomEvent();
                     pAction.type = attri.actionType;
@@ -299,7 +299,7 @@ namespace Framework.AT.Editor
                 }
                 else if (attri.actionAttr.isTask)
                 {
-                    if(!attri.actionAttr.allowMuti && HasTaskNode((ETaskType)attri.actionType))
+                    if (!attri.actionAttr.allowMuti && HasTaskNode((ETaskType)attri.actionType))
                     {
                         m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent("Task node already exists in the tree."), 2.0f);
                         return false;
@@ -327,7 +327,7 @@ namespace Framework.AT.Editor
             else if (searchTreeEntry.userData is ArvgPort)
             {
                 ArvgPort arcgPort = searchTreeEntry.userData as ArvgPort;
-                if(!arcgPort.isInput)
+                if (!arcgPort.isInput)
                 {
                     AT.Runtime.ActionNode pAction = new AT.Runtime.ActionNode();
                     pAction.type = (int)EActionType.eGetVariable;
@@ -346,8 +346,8 @@ namespace Framework.AT.Editor
             if (m_pOwnerEditorLogic.GetOwner() != null)
                 windowPos -= m_pOwnerEditorLogic.GetOwner().position.position;
             Vector2 graphPos = this.contentViewContainer.WorldToLocal(windowPos);
-            newNode.posX = (int)((graphPos.x)*100);
-            newNode.posY = (int)((graphPos.y)*100);
+            newNode.posX = (int)((graphPos.x) * 100);
+            newNode.posY = (int)((graphPos.y) * 100);
             var viewNode = AddNode(newNode);
 
             return true;
@@ -363,7 +363,7 @@ namespace Framework.AT.Editor
             return m_pAgentTreeData;
         }
         //-----------------------------------------------------
-        public void ShowNotification(string content, float duration =1)
+        public void ShowNotification(string content, float duration = 1)
         {
             m_pOwnerEditorLogic.GetOwner().ShowNotification(new GUIContent(content), duration);
         }
@@ -383,9 +383,9 @@ namespace Framework.AT.Editor
         public AgentTree GetCurrentRuntimeAgentTree()
         {
             return m_pOwnerEditorLogic.GetOwner<AgentTreeWindow>().GetAT();
-           // if (cutsceneInstance == null)
-                return null;
-           // return cutsceneInstance.GetAgentTree();
+            // if (cutsceneInstance == null)
+            return null;
+            // return cutsceneInstance.GetAgentTree();
         }
         //-----------------------------------------------------
         public bool IsPlaying()
@@ -400,15 +400,15 @@ namespace Framework.AT.Editor
             var agentTree = GetCurrentRuntimeAgentTree();
             if (agentTree == null) return null;
             var returnVal = agentTree.GetVariable(port.GetVariableGuid(), true);
-            if(returnVal ==  null && port.nodePort.dummyPorts!=null && port.nodePort.dummyPorts.Length>0)
+            if (returnVal == null && port.nodePort.dummyPorts != null && port.nodePort.dummyPorts.Length > 0)
             {
-               var dummyPort =  agentTree.GetDummyPort(port.grapNode.bindNode, port.slotIndex, port.isInput);
-                if(dummyPort.IsValid())
+                var dummyPort = agentTree.GetDummyPort(port.grapNode.bindNode, port.slotIndex, port.isInput);
+                if (dummyPort.IsValid())
                 {
                     NodePort[] ports = null;
                     if (dummyPort.type == 0) ports = dummyPort.pNode.GetInports();
                     else ports = dummyPort.pNode.GetOutports();
-                    if(ports!=null)
+                    if (ports != null)
                         returnVal = agentTree.GetVariable(ports[dummyPort.slotIndex].varGuid, true);
                 }
             }
@@ -427,9 +427,9 @@ namespace Framework.AT.Editor
             //var agentTree = cutscene.GetAgentTree();
             //if (agentTree != null)
             //    agentTree.RegisterCallback(this);
-            if(m_pAgentTreeData!=null && m_undoRedoSystem.HasChanges())
+            if (m_pAgentTreeData != null && m_undoRedoSystem.HasChanges())
             {
-                if(EditorUtility.DisplayDialog("提示", "当前有更改，是否需要保存当前后，再加载呢", "保存", "直接加载"))
+                if (EditorUtility.DisplayDialog("提示", "当前有更改，是否需要保存当前后，再加载呢", "保存", "直接加载"))
                 {
                     Save(m_pAgentTreeData);
                 }
@@ -438,9 +438,9 @@ namespace Framework.AT.Editor
             m_pObject = pOwner;
             m_pAgentTreeData = pAgentTree;
             m_vVariables = pAgentTree.GetVariableGUIDs();
-            if (pAgentTree.tasks!=null)
+            if (pAgentTree.tasks != null)
             {
-                for(int i =0; i < pAgentTree.tasks.Length; ++i)
+                for (int i = 0; i < pAgentTree.tasks.Length; ++i)
                 {
                     AddNode(pAgentTree.tasks[i]);
                 }
@@ -469,13 +469,13 @@ namespace Framework.AT.Editor
                 return viewNode;
 
             int customType = 0;
-            if(pNode is CustomEvent)
+            if (pNode is CustomEvent)
             {
                 customType = ((CustomEvent)pNode).eventType;
             }
             GraphNode graphNode = null;
             var attri = AgentTreeUtil.GetAttri(pNode.type, customType);
-            if(attri!=null && attri.graphNodeType!=null)
+            if (attri != null && attri.graphNodeType != null)
             {
                 graphNode = (GraphNode)Activator.CreateInstance(attri.graphNodeType, this, pNode, true);
             }
@@ -502,7 +502,7 @@ namespace Framework.AT.Editor
         {
             foreach (var db in m_vNodes)
             {
-                if(db.Value.bindNode is EnterTask)
+                if (db.Value.bindNode is EnterTask)
                 {
                     if (((EnterTask)db.Value.bindNode).type == (int)type)
                         return true;
@@ -522,13 +522,25 @@ namespace Framework.AT.Editor
         //--------------------------------------------------------
         public void RemoveNode(AT.Runtime.BaseNode pNode, bool bUndo = true)
         {
-            if(m_vNodes.TryGetValue(pNode, out var graphNode))
+            if (m_vNodes.TryGetValue(pNode, out var graphNode))
             {
-                if(bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                if (bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
                 graphNode.Release();
                 this.RemoveElement(graphNode);
                 m_vNodes.Remove(pNode);
                 m_vGuidNodes.Remove(pNode.guid);
+            }
+        }
+        //--------------------------------------------------------
+        public void RemoveNode(short guid, bool bUndo = true)
+        {
+            if (m_vGuidNodes.TryGetValue(guid, out var graphNode))
+            {
+                if (bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                graphNode.Release();
+                this.RemoveElement(graphNode);
+                m_vNodes.Remove(graphNode.bindNode);
+                m_vGuidNodes.Remove(guid);
             }
         }
         //--------------------------------------------------------
@@ -545,7 +557,7 @@ namespace Framework.AT.Editor
         {
             if (m_pAgentTreeData == null)
                 return;
-              
+
             UpdatePortsVariableDefault();
             Save(m_pAgentTreeData);
         }
@@ -559,9 +571,9 @@ namespace Framework.AT.Editor
         public void Undo()
         {
             if (m_isPerformingUndoRedo) return;
-            
-             m_undoRedoSystem.Undo();
-            
+
+            m_undoRedoSystem.Undo();
+
             m_isPerformingUndoRedo = true;
             try
             {
@@ -575,9 +587,9 @@ namespace Framework.AT.Editor
         public void Redo()
         {
             if (m_isPerformingUndoRedo) return;
-            
+
             m_undoRedoSystem.Redo();
-            
+
             m_isPerformingUndoRedo = true;
             try
             {
@@ -725,7 +737,7 @@ namespace Framework.AT.Editor
                     if (port.source.GetType() != startAnchor.source.GetType())
                         continue;
 
-                    if(port.source is ArvgPort)
+                    if (port.source is ArvgPort)
                     {
                         var srcPort = (ArvgPort)port.source;
                         var starPort = (ArvgPort)startAnchor.source;
@@ -741,11 +753,11 @@ namespace Framework.AT.Editor
                         if (srcPort.GetVariable().GetType() != starPort.GetVariable().GetType())
                             continue;
 
-                        if(srcPort.GetVariable() is VariableUserData)
+                        if (srcPort.GetVariable() is VariableUserData)
                         {
                             VariableUserData userDataSrc = (VariableUserData)srcPort.GetVariable();
                             VariableUserData userDataStar = (VariableUserData)starPort.GetVariable();
-                            if(userDataSrc.value != userDataStar.value)
+                            if (userDataSrc.value != userDataStar.value)
                             {
                                 if (!ATRtti.IsSubOfTypeId(userDataStar.value, userDataSrc.value))
                                     continue;
@@ -766,13 +778,15 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         void CreateLinkLine()
         {
+            UpdateNodeLinks(m_vNodes.Values.ToList());
+            return;
             foreach (var db in m_vNodes)
             {
                 var graphNode = db.Value;
                 var linkOutPort = graphNode.GetLink(false);
-                if (linkOutPort!=null && graphNode.bindNode.nextActions != null)
+                if (linkOutPort != null && graphNode.bindNode.nextActions != null)
                 {
-                    for(int i =0; i < graphNode.bindNode.nextActions.Length; ++i)
+                    for (int i = 0; i < graphNode.bindNode.nextActions.Length; ++i)
                     {
                         GraphNode linkNode = GetNode(graphNode.bindNode.nextActions[i]);
                         if (linkNode == null)
@@ -781,7 +795,7 @@ namespace Framework.AT.Editor
                             continue;
 
                         var linkInPort = linkNode.GetLink(true);
-                        if(linkInPort!=null)
+                        if (linkInPort != null)
                         {
                             var edge = new Edge
                             {
@@ -798,19 +812,19 @@ namespace Framework.AT.Editor
                 }
 
                 var otherLinks = graphNode.GetOtherLinks();
-                foreach(var othLink in otherLinks)
+                foreach (var othLink in otherLinks)
                 {
                     var pVar = othLink.Key.GetVariable();
-                    if(pVar is VariableInt)
+                    if (pVar is VariableInt)
                     {
                         VariableInt pStr = (VariableInt)pVar;
                         //if(!string.IsNullOrEmpty(pStr.value))
                         {
-                         //   string[] splits = pStr.value.Split(new char[] { ';', '|' });
-                          //  for(int i =0; i < splits.Length; ++i)
+                            //   string[] splits = pStr.value.Split(new char[] { ';', '|' });
+                            //  for(int i =0; i < splits.Length; ++i)
                             {
                                 short guidTemp = (short)pStr.value;
-                         //       if (short.TryParse(splits[i], out var guidTemp))
+                                //       if (short.TryParse(splits[i], out var guidTemp))
                                 {
                                     GraphNode linkNode = GetNode(guidTemp);
                                     if (linkNode == null)
@@ -839,13 +853,108 @@ namespace Framework.AT.Editor
                 }
 
                 var inports = graphNode.GetArvgs();
-                if(inports!=null)
+                if (inports != null)
                 {
-                    for(int i =0;i < inports.Count; ++i)
+                    for (int i = 0; i < inports.Count; ++i)
                     {
                         int dummyCnt = inports[i].GetDummyCnt();
-                        for(int j =0; j < dummyCnt; ++j)
-                        {         
+                        for (int j = 0; j < dummyCnt; ++j)
+                        {
+                            long linkKey = inports[i].GetLinkPortKey(j);
+                            var linkInPort = GetPort(linkKey);
+                            if (linkInPort != null && linkInPort.grapNode != graphNode)
+                            {
+                                var edge = new Edge
+                                {
+                                    output = linkInPort.bindPort,
+                                    input = inports[i].bindPort
+                                };
+                                edge.edgeControl.capRadius = EditorPreferences.GetSettings().linkLineWidth;
+                                linkInPort.bindPort.Connect(edge);
+                                inports[i].bindPort.Connect(edge);
+                                AddElement(edge);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------
+        public void UpdateNodeLinks(List<GraphNode> vNodes)
+        {
+            foreach (var db in vNodes)
+            {
+                var graphNode = db;
+                var linkOutPort = graphNode.GetLink(false);
+                if (linkOutPort != null && graphNode.bindNode.nextActions != null)
+                {
+                    for (int i = 0; i < graphNode.bindNode.nextActions.Length; ++i)
+                    {
+                        GraphNode linkNode = GetNode(graphNode.bindNode.nextActions[i]);
+                        if (linkNode == null)
+                            continue;
+                        if (linkNode == graphNode)
+                            continue;
+
+                        var linkInPort = linkNode.GetLink(true);
+                        if (linkInPort != null)
+                        {
+                            var edge = new Edge
+                            {
+                                output = linkOutPort.bindPort,
+                                input = linkInPort.bindPort
+                            };
+                            edge.edgeControl.inputColor = edge.edgeControl.outputColor = EditorPreferences.GetSettings().linkLineColor;
+                            edge.edgeControl.capRadius = EditorPreferences.GetSettings().linkLineWidth;
+                            linkOutPort.bindPort.Connect(edge);
+                            linkInPort.bindPort.Connect(edge);
+                            AddElement(edge);
+                        }
+                    }
+                }
+
+                var otherLinks = graphNode.GetOtherLinks();
+                foreach (var othLink in otherLinks)
+                {
+                    var pVar = othLink.Key.GetVariable();
+                    if (pVar is VariableInt)
+                    {
+                        VariableInt pStr = (VariableInt)pVar;
+
+                        short guidTemp = (short)pStr.value;
+                        {
+                            GraphNode linkNode = GetNode(guidTemp);
+                            if (linkNode == null)
+                                continue;
+                            if (linkNode == graphNode)
+                                continue;
+
+                            var linkInPort = linkNode.GetLink(true);
+                            if (linkInPort != null)
+                            {
+                                var edge = new Edge
+                                {
+                                    output = othLink.Value.bindPort,
+                                    input = linkInPort.bindPort
+                                };
+                                edge.edgeControl.inputColor = edge.edgeControl.outputColor = EditorPreferences.GetSettings().linkLineColor;
+                                edge.edgeControl.capRadius = EditorPreferences.GetSettings().linkLineWidth;
+                                othLink.Value.bindPort.Connect(edge);
+                                linkInPort.bindPort.Connect(edge);
+                                AddElement(edge);
+                            }
+                        }
+                    }
+                }
+
+                var inports = graphNode.GetArvgs();
+                if (inports != null)
+                {
+                    for (int i = 0; i < inports.Count; ++i)
+                    {
+                        int dummyCnt = inports[i].GetDummyCnt();
+                        for (int j = 0; j < dummyCnt; ++j)
+                        {
                             long linkKey = inports[i].GetLinkPortKey(j);
                             var linkInPort = GetPort(linkKey);
                             if (linkInPort != null && linkInPort.grapNode != graphNode)
@@ -892,7 +1001,7 @@ namespace Framework.AT.Editor
         {
             short guid = 1;
             int maxStack = 1000000;
-            while(m_vGuidNodes.ContainsKey(guid))
+            while (m_vGuidNodes.ContainsKey(guid))
             {
                 guid++;
                 maxStack--;
@@ -904,7 +1013,7 @@ namespace Framework.AT.Editor
         public List<ArvgPort> GetArvgPorts()
         {
             List<ArvgPort> vPorts = new List<ArvgPort>();
-            foreach(var db in m_vNodes)
+            foreach (var db in m_vNodes)
             {
                 var ports = db.Value.GetArvgs();
                 if (ports != null)
@@ -917,9 +1026,9 @@ namespace Framework.AT.Editor
             return vPorts;
         }
         //-----------------------------------------------------
-        public IVariable CreateVariable(ArgvAttribute pAttr,short guid = 0)
+        public IVariable CreateVariable(ArgvAttribute pAttr, short guid = 0)
         {
-            if(guid!=0)
+            if (guid != 0)
             {
                 if (m_vVariables.TryGetValue(guid, out var pExistVar))
                     return pExistVar;
@@ -957,10 +1066,10 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public void UpdatePortVariableDefault(ArvgPort port)
         {
-            if(!port.attri.canEdit)
+            if (!port.attri.canEdit)
             {
                 var portVar = GetVariable(port.GetVariableGuid());
-                if(portVar!=null)
+                if (portVar != null)
                 {
                     portVar = VariableUtil.CreateVariable(port.attri, port.GetVariableGuid());
                     m_vVariables[port.GetVariableGuid()] = portVar;
@@ -996,9 +1105,9 @@ namespace Framework.AT.Editor
             foreach (var db in m_vNodes)
             {
                 var argvPorts = db.Value.GetArvgs();
-                if (argvPorts!=null)
+                if (argvPorts != null)
                 {
-                    foreach(var sub in argvPorts)
+                    foreach (var sub in argvPorts)
                     {
                         if (sub.GetVariableGuid() == guid)
                             return db.Value;

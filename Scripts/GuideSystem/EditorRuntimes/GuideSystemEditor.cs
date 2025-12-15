@@ -427,7 +427,7 @@ namespace Framework.Guide.Editor
 
                 if (m_bOpenGuideSearcher)
                 {
-                    m_pDataSearcher.Open(new Rect(0,20, 350, position.height));
+                    m_pDataSearcher.Open(new Rect(0,20, 450, position.height));
                     m_bOpenSearch = false;
                     m_bOpenGuideSearcher = false;
                 }
@@ -921,9 +921,10 @@ namespace Framework.Guide.Editor
                     case EControllType.Save:
                         {
                             m_pLogic.Save();
+                            m_pGuideCsv.Init(true);
                             GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
                             GuideSystem.getInstance().RefreshTriggers();
-                        m_pLogic.SyncCurGroup();
+                            m_pLogic.SyncCurGroup();
                         }
                         break;
                     case EControllType.OpenCreateSearch:

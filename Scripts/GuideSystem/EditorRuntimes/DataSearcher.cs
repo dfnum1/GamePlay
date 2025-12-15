@@ -26,11 +26,12 @@ namespace Framework.Guide.Editor
             AssetTree.ItemData itemData = item.data as AssetTree.ItemData;
             ItemEvent guideItem = itemData as ItemEvent;
             GuideSystemEditor.DataParam dataParam = (GuideSystemEditor.DataParam)guideItem.param;
-            item.displayName = dataParam.Data.Name + "[Id=" + dataParam.Data.Guid + "]";
-            if (dataParam.Data.Tag >= 0 && dataParam.Data.Tag < ushort.MaxValue)
+            item.displayName = "";
+            if (dataParam.Data.Tag > 0 && dataParam.Data.Tag < ushort.MaxValue)
             {
                 item.displayName += "[Tag=" + dataParam.Data.Tag + "]";
             }
+            item.displayName += dataParam.Data.Name + "[Id=" + dataParam.Data.Guid + "]";
 
             GUIContent content = new GUIContent(item.displayName, "存储文件:" + dataParam.Data.strFile);
             GUI.Label(new Rect(cellRect.x, cellRect.y, cellRect.width - 40, cellRect.height), content);
@@ -63,6 +64,10 @@ namespace Framework.Guide.Editor
             {
                 if(!string.IsNullOrEmpty(dataParam.Data.strFile))
                     EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(dataParam.Data.strFile));
+            }
+            if (dataParam.Data.Tag > 0 && dataParam.Data.Tag < ushort.MaxValue && GuideSystem.getInstance().IsTrigged(dataParam.Data.Tag))
+            {
+                GUI.DrawTexture(new Rect(cellRect.xMax - 135, cellRect.y, cellRect.height, cellRect.height), GuideEditorResources.LoadTexture("complete.png"));
             }
             return true;
         }
