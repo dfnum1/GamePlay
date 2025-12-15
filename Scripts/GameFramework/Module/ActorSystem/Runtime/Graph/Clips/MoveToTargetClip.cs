@@ -22,6 +22,7 @@ namespace Framework.ActorSystem.Runtime
         [Display("面朝目标")] public bool faceTo = true;
         [Display("目标朝向偏移")] public bool           bDirOffset = true;
         [Display("地表高度")]     public bool       bTerrainHeight = false;
+        [Display("实时更新目标位置")] public bool           bUpdateTarget = false;
         [Display("位置偏移")] public Vector3        posOffset; //跟随偏移量
         [Display("角度偏移")] public Vector3        rotOffset; //跟随角度偏移量
         [Display("速度曲线")] public AnimationCurve speedCurve;
@@ -118,9 +119,12 @@ namespace Framework.ActorSystem.Runtime
     {
         Vector3 m_ActorPosition = Vector3.zero;
         Actor m_pSelf = null;
+        bool m_bTargetPosInited = false;
+        Vector3 m_TargetPosition = Vector3.zero;
         //-----------------------------------------------------
         public override void OnDestroy()
         {
+            m_bTargetPosInited = false;
             m_pSelf = null;
         }
         //-----------------------------------------------------
@@ -141,13 +145,15 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public override bool OnClipEnter(CutsceneTrack pTrack, FrameData clip)
         {
+            m_bTargetPosInited = false;
             CheckSelf(pTrack);
             return true;
         }
         //-----------------------------------------------------
         public override bool OnClipLeave(CutsceneTrack pTrack, FrameData clip)
         {
-            if(m_pSelf!=null)
+            m_bTargetPosInited = false;
+            if (m_pSelf!=null)
             {
                 if(clip.CanRestore())
                     m_pSelf.SetPosition(m_ActorPosition);
@@ -169,25 +175,36 @@ namespace Framework.ActorSystem.Runtime
 
             System.Collections.Generic.List<Actor> lockTargets = m_pSelf.GetSkillSystem().GetLockTargets();
             if (lockTargets == null || lockTargets.Count<=0) return true;
-            Vector3 targetPos = lockTargets[0].GetPosition();
-            if(moveTo.bTerrainHeight)
+
+            if(moveTo.bUpdateTarget || !m_bTargetPosInited)
             {
-                targetPos.y = m_pSelf.GetActorManager().GetTerrainHeight();
-                if(Physics.Raycast(targetPos, Vector3.down, out var hit, 5, m_pSelf.GetActorManager().GetTerrainLayerMask()))
+                Vector3 targetPos = lockTargets[0].GetPosition();
+                if (moveTo.bTerrainHeight)
                 {
-                    targetPos.y = hit.point.y;
+                    targetPos.y = m_pSelf.GetActorManager().GetTerrainHeight();
+                    if (Physics.Raycast(targetPos, Vector3.down, out var hit, 5, m_pSelf.GetActorManager().GetTerrainLayerMask()))
+                    {
+                        targetPos.y = hit.point.y;
+                    }
+                }
+                if (moveTo.bDirOffset)
+                {
+                    targetPos += lockTargets[0].GetDirection() * moveTo.posOffset.z;
+                    targetPos += lockTargets[0].GetUp() * moveTo.posOffset.y;
+                    targetPos += lockTargets[0].GetRight() * moveTo.posOffset.x;
+                }
+
+                if (!m_bTargetPosInited)
+                {
+                    m_TargetPosition = targetPos;
+                    m_bTargetPosInited = true;
                 }
             }
-            if (moveTo.bDirOffset)
-            {
-                targetPos += lockTargets[0].GetDirection()* moveTo.posOffset.z;
-                targetPos += lockTargets[0].GetUp() * moveTo.posOffset.y;
-                targetPos += lockTargets[0].GetRight() * moveTo.posOffset.x;
-            }
-            m_pSelf.SetPosition(Vector3.Lerp(m_ActorPosition, targetPos, normalTime));
+
+            m_pSelf.SetPosition(Vector3.Lerp(m_ActorPosition, m_TargetPosition, normalTime));
             if (moveTo.faceTo)
             {
-                Vector3 diff = targetPos - m_ActorPosition;
+                Vector3 diff = m_TargetPosition - m_ActorPosition;
                 diff.y = 0;
                 m_pSelf.SetDirection(diff);
             }

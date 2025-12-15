@@ -728,7 +728,6 @@ namespace Framework.ActorSystem.Editor
                     if (m_pTarget != null)
                     {
                         m_pActor.GetSkillSystem().AddLockTarget(m_pTarget, true);
-                        m_pActor.GetSkillSystem().DoSkill(m_pDummySkill);
                     }
                 }
             }
