@@ -224,11 +224,13 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"toPos",false, null,typeof(UnityEngine.Vector3))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"speed",false, null,typeof(System.Single))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bEnsureSucceed",false, null,typeof(System.Boolean))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bUpdateDirection",false, null,typeof(System.Boolean))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(System.Single))]
 #endif
-		static bool AT_RunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed,AgentTree pAgentTree, BaseNode pNode)
+		static bool AT_RunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed,System.Boolean bEnsureSucceed,System.Boolean bUpdateDirection,AgentTree pAgentTree, BaseNode pNode)
 		{
-			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.RunTo(toPos,speed));
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.RunTo(toPos,speed,bEnsureSucceed,bUpdateDirection));
 			return true;
 		}
 #if UNITY_EDITOR
@@ -236,10 +238,12 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"toPos",false, null,typeof(UnityEngine.Vector3))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"speed",false, null,typeof(System.Single))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bEnsureSucceed",false, null,typeof(System.Boolean))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bUpdateDirection",false, null,typeof(System.Boolean))]
 #endif
-		static bool AT_NavRunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed)
+		static bool AT_NavRunTo(Actor pPointerThis,UnityEngine.Vector3 toPos,System.Single speed,System.Boolean bEnsureSucceed,System.Boolean bUpdateDirection)
 		{
-			pPointerThis.NavRunTo(toPos,speed);
+			pPointerThis.NavRunTo(toPos,speed,bEnsureSucceed,bUpdateDirection);
 			return true;
 		}
 #if UNITY_EDITOR
@@ -677,6 +681,17 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-151935711,"设置移动动作",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"tag",false, null,typeof(System.UInt32))]
+#endif
+		static bool AT_SetRunType(Actor pPointerThis,Framework.ActorSystem.Runtime.EActionStateType eType,System.UInt32 tag)
+		{
+			pPointerThis.SetRunType(eType,tag);
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(207081506,"删除动作",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"eType",false, null,typeof(Framework.ActorSystem.Runtime.EActionStateType))]
@@ -1033,16 +1048,16 @@ namespace Framework.ActorSystem.Runtime
 			case -181775319://RunTo
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 2) return true;
+				if(pNode.GetInportCount() <= 4) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_RunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2), pAgentTree, pNode);
+				return AT_RunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2),pAgentTree.GetInportBool(pNode,3),pAgentTree.GetInportBool(pNode,4), pAgentTree, pNode);
 			}
 			case -29192949://NavRunTo
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 2) return true;
+				if(pNode.GetInportCount() <= 4) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_NavRunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2));
+				return AT_NavRunTo((Actor)pUserClass.pPointer,pAgentTree.GetInportVec3(pNode,1),pAgentTree.GetInportFloat(pNode,2),pAgentTree.GetInportBool(pNode,3),pAgentTree.GetInportBool(pNode,4));
 			}
 			case -1665969306://StopRunAlongPathPoint
 			{
@@ -1337,6 +1352,13 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_SetIdleType((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+			}
+			case -151935711://SetRunType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 2) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_SetRunType((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
 			case 207081506://RemoveActionState
 			{

@@ -56,6 +56,7 @@ namespace Framework.ActorSystem.Runtime
             m_TargetRotation.eulerAngles = vEulerAngle;
             m_OriginRotation.eulerAngles = vEulerAngle;
             m_CurRotation = m_OriginRotation;
+            m_pActor.SetTransformEulerAngle(vEulerAngle);
         }
         //------------------------------------------------------
         public void SetEulerAngle(FVector3 vEulerAngle, bool bImmediately=false)
@@ -84,6 +85,7 @@ namespace Framework.ActorSystem.Runtime
                 m_TargetRotation.eulerAngles = vEulerAngle;
                 m_OriginRotation.eulerAngles = vEulerAngle;
                 m_CurRotation = m_OriginRotation;
+                m_pActor.SetTransformEulerAngle(vEulerAngle);
             }
         }
         //------------------------------------------------------
@@ -93,6 +95,7 @@ namespace Framework.ActorSystem.Runtime
             BaseUtil.CU_GetQuaternionFromDirection(vDir, m_pActor.GetUp(), ref m_TargetRotation);
             m_OriginRotation = m_TargetRotation;
             m_CurRotation = m_OriginRotation;
+            m_pActor.SetTransformEulerAngle(m_OriginRotation.eulerAngles);
         }
         //------------------------------------------------------
         public void SetDirection(FVector3 vDir)
@@ -145,6 +148,7 @@ namespace Framework.ActorSystem.Runtime
                 BaseUtil.CU_GetQuaternionFromDirection(vDir, GetFinalUp(), ref m_TargetRotation);
                 m_OriginRotation = m_TargetRotation;
                 m_CurRotation = m_OriginRotation;
+                m_pActor.SetTransformEulerAngle(m_CurRotation.eulerAngles);
             }
         }
         //------------------------------------------------------
@@ -180,6 +184,7 @@ namespace Framework.ActorSystem.Runtime
                 BaseUtil.CU_GetQuaternionFromDirection(GetFinalDirection(), vUp, ref m_TargetRotation);
                 m_OriginRotation = m_TargetRotation;
                 m_CurRotation = m_OriginRotation;
+                m_pActor.SetTransformEulerAngle(m_OriginRotation.eulerAngles);
             }
         }
         //------------------------------------------------------
@@ -298,6 +303,7 @@ namespace Framework.ActorSystem.Runtime
                     m_OriginRotation = m_TargetRotation;
                     m_CurRotation = m_TargetRotation;
                 }
+                m_pActor.SetTransformEulerAngle(m_CurRotation.eulerAngles);
             }
 
             if (!m_pActor.IsFlag(EActorFlag.Logic))

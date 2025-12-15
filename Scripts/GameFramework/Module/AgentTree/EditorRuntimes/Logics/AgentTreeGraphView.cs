@@ -997,7 +997,7 @@ namespace Framework.AT.Editor
             m_pOwnerEditorLogic.Repaint();
         }
         //------------------------------------------------------
-        short GeneratorGUID()
+        internal short GeneratorGUID()
         {
             short guid = 1;
             int maxStack = 1000000;
@@ -1104,6 +1104,8 @@ namespace Framework.AT.Editor
         {
             foreach (var db in m_vNodes)
             {
+                if (db.Value.bindNode.type == (ushort)EActionType.eGetVariable)
+                    continue;
                 var argvPorts = db.Value.GetArvgs();
                 if (argvPorts != null)
                 {

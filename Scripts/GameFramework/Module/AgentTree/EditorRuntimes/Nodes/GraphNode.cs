@@ -403,7 +403,7 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        public void Save(BaseNode pDummy = null)
+        public virtual void Save(BaseNode pDummy = null)
         {
             BaseNode saveNode = pDummy;
             if (saveNode == null) saveNode = bindNode;
@@ -821,6 +821,24 @@ namespace Framework.AT.Editor
                     m_vReturnPorts[i].fieldRoot = fieldRoot;
                     m_vReturnPorts[i].bindPort = inputPort;
                     DrawPortValue(port);
+
+                    inputPort.AddManipulator(new ContextualMenuManipulator(evt =>
+                    {
+                        evt.menu.AppendAction("变量引用", action =>
+                        {
+                            AT.Runtime.ActionNode pAction = new AT.Runtime.ActionNode();
+                            pAction.type = (int)EActionType.eGetVariable;
+                            pAction.guid = m_pGraphView.GeneratorGUID();
+                            var nodePorts = pAction.GetOutports(true, 1);
+                            nodePorts[0].varGuid = (inputPort.source as ArvgPort).GetVariableGuid();
+                            pAction.nextActions = null;
+
+                            var windowPos = inputPort.GetPosition();
+                            pAction.posX = (int)((windowPos.x+50) * 100);
+                            pAction.posY = (int)((windowPos.y) * 100);
+                            m_pGraphView.AddNode(pAction);
+                        });
+                    }));
                 }
             }
         }

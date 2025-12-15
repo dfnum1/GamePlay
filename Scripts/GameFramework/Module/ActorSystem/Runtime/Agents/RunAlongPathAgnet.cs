@@ -87,12 +87,12 @@ namespace Framework.ActorSystem.Runtime
             PlayRunAction();
         }
         //-------------------------------------------------
-        public FFloat RunTo(FVector3 toPos, FFloat fSpeed = 0)
+        public FFloat RunTo(FVector3 toPos, FFloat fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
-            return RunAlongPathPoint(m_pActor.GetPosition(), toPos, fSpeed);
+            return RunAlongPathPoint(m_pActor.GetPosition(), toPos, fSpeed,bEnsureSucceed,bUpdateDirection);
         }
         //-------------------------------------------------
-        public void NavRunTo(FVector3 toPos, FFloat fSpeed = 0)
+        public void NavRunTo(FVector3 toPos, FFloat fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             if (m_pActor.GetFramework() == null)
                 return;

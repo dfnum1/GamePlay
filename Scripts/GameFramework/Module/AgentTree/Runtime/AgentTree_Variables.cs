@@ -186,6 +186,33 @@ namespace Framework.AT.Runtime
                         latest = dummy;
                     }
                 }
+                if (dummy.pNode!=null && dummy.pNode.type == (int)EActionType.eGetVariable)
+                {
+                    NodePort[] outports = dummy.pNode.GetOutports(false);
+                    if(outports!=null && outports.Length>0)
+                    {
+                        var varGuid = outports[0].varGuid;
+                        var node = m_pData.GetVarOwnerNode(varGuid);
+                        if (node != null)
+                        {
+                            outports = node.GetOutports(false);
+                            int outputCnt = node.GetOutportCount();
+                            for (int j = 0; j < outputCnt; ++j)
+                            {
+                                if (outports[j].varGuid == varGuid)
+                                {
+                                    latest.pNode = node;
+                                    latest.type = 1; // outport
+                                    latest.guid = node.guid;
+                                    latest.slotIndex = (byte)j;
+                                    break;
+                                }
+                            }
+                            node = m_pData.GetNode(node.guid);
+                        }
+                    }
+
+                }
             }
             if (latest.guid!=0)
             {

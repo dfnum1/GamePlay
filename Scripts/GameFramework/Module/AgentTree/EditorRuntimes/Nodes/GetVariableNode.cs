@@ -36,6 +36,14 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
+        public override void Save(BaseNode pDummy = null)
+        {
+            BaseNode saveNode = pDummy;
+            if (saveNode == null) saveNode = bindNode;
+            saveNode.posX = (int)(this.GetPosition().x * 100);
+            saveNode.posY = (int)(this.GetPosition().y * 100);
+        }
+        //------------------------------------------------------
         protected override void CreateOutports()
         {
             var attr = GetAttri();

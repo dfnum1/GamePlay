@@ -45,6 +45,7 @@ namespace Framework.AT.Runtime
                 for (int i = 0; i < argvs.Length; ++i)
                 {
                     argvs[i].pVariable = pTree.GetVariable(argvs[i].varGuid);
+                    pTree.SetVarOwner(argvs[i].varGuid, this);
                 }
             }
         }

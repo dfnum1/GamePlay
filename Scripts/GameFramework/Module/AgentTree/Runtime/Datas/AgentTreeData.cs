@@ -23,6 +23,7 @@ namespace Framework.AT.Runtime
         [UnityEngine.SerializeField] VaribaleSerizlizeGuidData varGuids;
         [System.NonSerialized]private Dictionary<short, IVariable> m_vVariables = null;
         [System.NonSerialized] private Dictionary<short, BaseNode> m_vNodes = null;
+        [System.NonSerialized] private Dictionary<short, BaseNode> m_vVarOwnerNodes = null;
         [System.NonSerialized] private bool m_bInited = false;
         //-----------------------------------------------------
         public IVariable GetVariable(short guid)
@@ -31,6 +32,24 @@ namespace Framework.AT.Runtime
             IVariable variable = null;
             m_vVariables.TryGetValue(guid, out variable);
             return variable;
+        }
+        //-----------------------------------------------------
+        internal void SetVarOwner(short varGuid, BaseNode pNode)
+        {
+            if (pNode.type == (short)EActionType.eGetVariable)
+                return;
+            if (m_vVarOwnerNodes == null)
+                m_vVarOwnerNodes = new Dictionary<short, BaseNode>(32);
+            m_vVarOwnerNodes[varGuid] = pNode;
+        }
+        //-----------------------------------------------------
+        public BaseNode GetVarOwnerNode(short varGuid)
+        {
+            if (m_vVarOwnerNodes == null)
+                return null;
+            if (m_vVarOwnerNodes.TryGetValue(varGuid, out var pNode))
+                return pNode;
+            return null;
         }
         //-----------------------------------------------------
         internal BaseNode GetNode(short guid)
@@ -74,9 +93,10 @@ namespace Framework.AT.Runtime
             int nodeCnt = GetNodeCnt();
             if (nodeCnt > 0)
             {
-                if (m_vNodes == null)
-                    m_vNodes = new Dictionary<short, BaseNode>(nodeCnt);
+                if (m_vVarOwnerNodes == null) m_vVarOwnerNodes = new Dictionary<short, BaseNode>(nodeCnt);
+                if (m_vNodes == null)  m_vNodes = new Dictionary<short, BaseNode>(nodeCnt);
                 m_vNodes.Clear();
+                m_vVarOwnerNodes.Clear();
                 if (tasks != null)
                 {
                     for (int i = 0; i < tasks.Length; ++i)
@@ -96,6 +116,7 @@ namespace Framework.AT.Runtime
             else
             {
                 if (m_vNodes != null) m_vNodes.Clear();
+                if (m_vVarOwnerNodes != null) m_vVarOwnerNodes.Clear();
             }
             if (m_vNodes != null)
             {

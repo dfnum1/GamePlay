@@ -610,7 +610,7 @@ namespace Framework.ActorSystem.Editor
 #endif
             }
 
-            if(m_bDebugAT && m_pActor!=null)
+            if(m_bDebugAT && m_pActor!=null && m_PreviewRect.Contains(evt.mousePosition) )
             {
                 if (evt.type == EventType.MouseDown)
                 {

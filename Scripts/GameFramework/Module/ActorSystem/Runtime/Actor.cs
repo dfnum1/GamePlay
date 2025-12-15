@@ -390,15 +390,15 @@ namespace Framework.ActorSystem.Runtime
         }
         //-------------------------------------------------
         [ATMethod("移动到目标点")]
-        public FFloat RunTo(FVector3 toPos, FFloat speed = 0)
+        public FFloat RunTo(FVector3 toPos, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
-            return GetAgent<RunAlongPathAgnet>(true).RunTo(toPos, speed);
+            return GetAgent<RunAlongPathAgnet>(true).RunTo(toPos, speed, bEnsureSucceed, bUpdateDirection);
         }
         //-------------------------------------------------
         [ATMethod("导航移动到目标哦点")]
-        public void NavRunTo(FVector3 toPos, FFloat speed = 0)
+        public void NavRunTo(FVector3 toPos, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
-            GetAgent<RunAlongPathAgnet>(true).NavRunTo(toPos, speed);
+            GetAgent<RunAlongPathAgnet>(true).NavRunTo(toPos, speed, bEnsureSucceed, bUpdateDirection);
         }
         //-------------------------------------------------
         public FFloat RunAlongPathPoint(List<FVector3> vPoints, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
@@ -502,6 +502,11 @@ namespace Framework.ActorSystem.Runtime
         public void SetTransfrom(FVector3 vPosition, FVector3 vEulerAngle, FVector3 vScale)
         {
             m_Transform.SetTransform(vPosition, vEulerAngle, vScale);
+        }
+        //--------------------------------------------------------
+        internal void SetTransformEulerAngle(FVector3 vEulerAngle)
+        {
+            m_Transform.SetEulerAngle(vEulerAngle);
         }
         //------------------------------------------------------
         [ATMethod("是否拥有标志")]

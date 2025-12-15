@@ -52,6 +52,7 @@ namespace Framework.AT.Runtime
                 for(int i =0; i < inPorts.Length; ++i)
                 {
                     inPorts[i].pVariable = pTree.GetVariable(inPorts[i].varGuid);
+                    pTree.SetVarOwner(inPorts[i].varGuid, this);
                 }
             }
             if (outPorts != null)
@@ -59,6 +60,7 @@ namespace Framework.AT.Runtime
                 for (int i = 0; i < outPorts.Length; ++i)
                 {
                     outPorts[i].pVariable = pTree.GetVariable(outPorts[i].varGuid);
+                    pTree.SetVarOwner(outPorts[i].varGuid, this);
                 }
             }
         }
