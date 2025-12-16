@@ -289,7 +289,10 @@ namespace Framework.AT.Editor
 
             string functionName = "AT_" + info.memberName;
 
+            string paramOutAttrs = "";
+            string outParamSetPorts = "";
 
+            int paramOutIndex = hasReturn?1:0;
             string functionCall = "";
             string functionAttributes = $"\t\t[ATFunction({info.guid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
             string functionHead = "\t\tstatic bool " + functionName + "(";
@@ -304,15 +307,38 @@ namespace Framework.AT.Editor
                         paramName = info.attr.argvNames[i];
                     var paramType = ConvertTypeToATType(parm.ParameterType);
 
-                    functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
+                    if (parm.IsIn || parm.ParameterType.IsByRef) callArgv += "ref ";
+                    else if (parm.IsOut) callArgv += "out var ";
                     callArgv += $"{parm.Name}";
+
+                    if(!parm.IsOut)
+                    {
+                        if (!functionHead.EndsWith("(")) functionHead += ",";
+                        functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
+                        if (i < method.GetParameters().Length - 1)
+                        {
+                            callArgv += ",";
+                        }
+                    }
                     if (i < method.GetParameters().Length - 1)
                     {
-                        functionHead += ",";
                         callArgv += ",";
                     }
 
-                    functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                    if(parm.IsOut || parm.IsIn || parm.ParameterType.IsByRef)
+                    {
+                        paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+
+                        string castLabel = "";
+                        if (parm.ParameterType.IsEnum)
+                        {
+                            castLabel = "(int)";
+                        }
+                        outParamSetPorts += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(parm.ParameterType)}(pNode, {paramOutIndex}, {castLabel}{parm.Name});";
+                        paramOutIndex++;
+                    }
+                    if (!parm.IsOut)
+                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
                 }
                 functionCall += $"\t\t\t";
                 if (hasReturn)
@@ -323,7 +349,7 @@ namespace Framework.AT.Editor
                         castLabel = "(int)";
                     }
 
-                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(retType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{method.Name}({callArgv}));";
+                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, {0}, {castLabel}{GetTypeName(export.type)}.{method.Name}({callArgv}));";
                 }
                 else
                     functionCall += $"{GetTypeName(export.type)}.{method.Name}({callArgv});";
@@ -341,13 +367,32 @@ namespace Framework.AT.Editor
                     if (info.attr.argvNames != null && i < info.attr.argvNames.Length)
                         paramName = info.attr.argvNames[i];
                     var paramType = ConvertTypeToATType(parm.ParameterType);
-                    functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
+
+                    if (parm.IsIn || parm.ParameterType.IsByRef) callArgv += "ref ";
+                    else if (parm.IsOut) callArgv += "out var ";
                     callArgv += $"{parm.Name}";
+
+                    if (parm.IsOut || parm.IsIn || parm.ParameterType.IsByRef)
+                    {
+                        paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(parm.ParameterType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+
+                        string castLabel = "";
+                        if (parm.ParameterType.IsEnum)
+                        {
+                            castLabel = "(int)";
+                        }
+                        outParamSetPorts += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(parm.ParameterType)}(pNode, {paramOutIndex}, {castLabel}{parm.Name});";
+                        paramOutIndex++;
+                    }
+                    if(!parm.IsOut)
+                    {
+                        functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
+                        functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
+                    }
                     if (i < method.GetParameters().Length - 1)
                     {
                         callArgv += ",";
                     }
-                    functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
                 }
                 functionCall += $"\t\t\t";
                 if (hasReturn)
@@ -357,20 +402,33 @@ namespace Framework.AT.Editor
                     {
                         castLabel = "(int)";
                     }
-                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, 0, {castLabel}pPointerThis.{method.Name}({callArgv}));";
+                    functionCall += $"pAgentTree.{ConvertTypeToATSetOutPortFunction(method.ReturnType)}(pNode, {0}, {castLabel}pPointerThis.{method.Name}({callArgv}));";
                 }
                 else
                     functionCall += $"pPointerThis.{method.Name}({callArgv});";
             }
+            if (hasReturn || paramOutAttrs.Length > 0)
+            {
+                if (!functionHead.EndsWith("(")) functionHead += ",";
+                functionHead += $"AgentTree pAgentTree, BaseNode pNode";
+            }
             if (hasReturn)
             {
-                functionHead += $",AgentTree pAgentTree, BaseNode pNode";
                 functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
             }
-
+            if (paramOutAttrs.Length>0)
+            {
+                functionAttributes += paramOutAttrs;
+            }
             functionHead += ")";
             if (functionAttributes.EndsWith("\r\n"))
                 functionAttributes = functionAttributes.Substring(0, functionAttributes.Length - "\r\n".Length);
+
+            if(outParamSetPorts.Length>0)
+            {
+                functionCall += $"\r\n";
+                functionCall += outParamSetPorts;
+            }
 
             methodCode.AppendLine("#if UNITY_EDITOR");
             methodCode.AppendLine(functionAttributes);
@@ -412,9 +470,12 @@ namespace Framework.AT.Editor
             {
                 code.Append($"\t\t\t\treturn {functionName}(");
             }
+            int paramIndex = 0;
             for (int i = 0; i < method.GetParameters().Length; ++i)
             {
                 var parm = method.GetParameters()[i];
+                if (parm.IsOut)
+                    continue;
                 var paramType = ConvertTypeToATType(parm.ParameterType);
                 string castLabel = "";
                 if (parm.ParameterType.IsEnum) castLabel = "(" + GetTypeName(parm.ParameterType) + ")";
@@ -424,9 +485,9 @@ namespace Framework.AT.Editor
                     code.Append(",");
                     bAddDot = true;
                 }
-
-                code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(parm.ParameterType)}(pNode,{i + 1})");
+                code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(parm.ParameterType)}(pNode,{paramIndex})");
                 if (i < method.GetParameters().Length - 1) code.Append(",");
+                paramIndex++;
             }
             if (hasReturn)
             {
@@ -435,7 +496,7 @@ namespace Framework.AT.Editor
                     code.Append(",");
                     bAddDot = true;
                 }
-                if (method.GetParameters().Length > 0) code.Append($", ");
+                if (paramIndex > 0) code.Append($", ");
                 code.Append($"pAgentTree, pNode");
             }
 
@@ -798,7 +859,9 @@ namespace Framework.AT.Editor
         static string GetTypeName(System.Type type)
         {
             type = GetParameterType(type);
-            return type.FullName.Replace("+", ".");
+            string name = type.FullName.Replace("+", ".");
+            if (name.EndsWith("&")) name = name.Substring(0, name.Length - 1);
+            return name;
         }
         //-----------------------------------------------------
         static bool IsUserDataType(System.Type type)
