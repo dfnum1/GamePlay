@@ -1069,6 +1069,8 @@ namespace Framework.AT.Editor
             {
                 port.fieldRoot.Remove(port.fieldElement);
             }
+            port.fieldRoot.style.minHeight = 0;
+            port.bindPort.style.marginTop = 0;
 
             short varGuid = port.GetVariableGuid();
             var portVariable = m_pGraphView.GetVariable(varGuid);
@@ -1226,6 +1228,7 @@ namespace Framework.AT.Editor
                     f => f.value,
                     (f, cb) => f.RegisterValueChangedCallback(cb)
                 );
+                port.bindPort.style.marginTop = 5;
             }
             else if (portVariable is AT.Runtime.VariableQuaternion drawVar)
             {
@@ -1243,17 +1246,17 @@ namespace Framework.AT.Editor
             {
                 m_nExternPortCount += 1;
                 // Ray没有内置UI控件，使用两个Vector3Field分别编辑origin和direction
-                var container = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+                var container = new VisualElement { style = { flexDirection = FlexDirection.Column } };
 
-                var originField = new Vector3Field("Origin")
+                var originField = new Vector3Field()
                 {
                     value = rayVar.value.origin,
-                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 150, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                 };
-                var dirField = new Vector3Field("Dir")
+                var dirField = new Vector3Field()
                 {
                     value = rayVar.value.direction,
-                    style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                    style = { width = 150, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                 };
 
                 originField.SetEnabled(port.attri.canEdit);
@@ -1287,11 +1290,14 @@ namespace Framework.AT.Editor
                         m_pGraphView.UpdateVariable(rayVar);
                     }
                 });
-                container.style.minHeight = 48;
                 container.Add(originField);
                 container.Add(dirField);
+
                 port.fieldRoot.Add(container);
                 port.fieldElement = container;
+                port.bindPort.style.marginTop = 10;
+                port.fieldRoot.style.minHeight = 50;
+                port.bindPort.tooltip += "\r\n射线起始位置和射线方向";
             }
             else if (portVariable is AT.Runtime.VariableBounds boundsVar)
             {
@@ -1299,12 +1305,12 @@ namespace Framework.AT.Editor
                 // Bounds没有内置UI控件，使用两个Vector3Field分别编辑center和size
                 var container = new VisualElement { style = { flexDirection = FlexDirection.Column } };
 
-                var centerField = new Vector3Field("Center")
+                var centerField = new Vector3Field()
                 {
                     value = boundsVar.value.center,
                     style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                 };
-                var sizeField = new Vector3Field("Size")
+                var sizeField = new Vector3Field()
                 {
                     value = boundsVar.value.size,
                     style = { width = 120, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
@@ -1340,12 +1346,14 @@ namespace Framework.AT.Editor
                         m_pGraphView.UpdateVariable(boundsVar);
                     }
                 });
-                container.style.minHeight = 48;
-                container.style.maxWidth = 150;
                 container.Add(centerField);
                 container.Add(sizeField);
                 port.fieldRoot.Add(container);
                 port.fieldElement = container;
+                port.bindPort.style.marginTop = 10;
+                port.fieldRoot.style.minHeight = 50;
+                port.bindPort.tooltip += "\r\n包围盒中心点和包围盒大小";
+
             }
             else if (portVariable is AT.Runtime.VariableMatrix matrixVar)
             {
@@ -1378,10 +1386,10 @@ namespace Framework.AT.Editor
                 var fields = new Vector4Field[4];
                 for (int i = 0; i < 4; ++i)
                 {
-                    fields[i] = new Vector4Field($"Row {i}")
+                    fields[i] = new Vector4Field()
                     {
                         value = GetRow(matrixVar.value, i),
-                        style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleRight }
+                        style = { width = 260, marginLeft = 4, unityTextAlign = TextAnchor.MiddleLeft }
                     };
                     fields[i].SetEnabled(port.attri.canEdit);
                     int rowIdx = i;
@@ -1410,6 +1418,8 @@ namespace Framework.AT.Editor
 
                 port.fieldRoot.Add(container);
                 port.fieldElement = container;
+                port.bindPort.style.marginTop = 50;
+                port.fieldRoot.style.minHeight = 120;
             }
             else if (portVariable is AT.Runtime.VariableUserData)
             {

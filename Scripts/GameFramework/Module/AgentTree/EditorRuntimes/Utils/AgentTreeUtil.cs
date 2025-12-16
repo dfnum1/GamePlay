@@ -6,12 +6,10 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
-using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 using UnityEngine;
 
