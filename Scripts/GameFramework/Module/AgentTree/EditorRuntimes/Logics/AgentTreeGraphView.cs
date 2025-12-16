@@ -6,16 +6,15 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
-using Framework.Cutscene.Editor;
 using Framework.ED;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.VFX;
 
 namespace Framework.AT.Editor
 {
@@ -30,6 +29,7 @@ namespace Framework.AT.Editor
         Dictionary<long, ArvgPort> m_vPorts = new Dictionary<long, ArvgPort>();
 
         bool m_bIniting = false;
+        bool m_bRegisterUndo = true;
         private UndoRedoSystem m_undoRedoSystem;
         private bool m_isPerformingUndoRedo = false;
         public AgentTreeGraphView(AEditorLogic pOwner)
@@ -121,6 +121,39 @@ namespace Framework.AT.Editor
                 SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), menuWindowProvider);
             };
             this.graphViewChanged += OnGraphViewChanged;
+
+            this.viewTransformChanged += OnViewTransformChanged;
+
+            this.RegisterCallback<MouseDownEvent>(OnMouseDownEvent);
+            this.RegisterCallback<MouseUpEvent>(OnMouseUpEvent);
+        }
+        //-----------------------------------------------------
+        void OnMouseDownEvent(MouseDownEvent evt)
+        {
+            if (evt.button == 0)
+            {
+                foreach (var node in this.selection)
+                {
+                    if (node is Framework.AT.Editor.GraphNode graphNode)
+                    {
+                        graphNode.OnDragMouseDown();
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------
+        void OnMouseUpEvent(MouseUpEvent evt)
+        {
+            if (evt.button == 0)
+            {
+                foreach (var node in this.selection)
+                {
+                    if (node is Framework.AT.Editor.GraphNode graphNode)
+                    {
+                        graphNode.OnDragMouseUp();
+                    }
+                }
+            }
         }
         //-----------------------------------------------------
         private GraphViewChange OnGraphViewChanged(GraphViewChange change)
@@ -147,6 +180,11 @@ namespace Framework.AT.Editor
                 }
             }
             return change;
+        }
+        //-----------------------------------------------------
+        private void OnViewTransformChanged(GraphView graphView)
+        {
+
         }
         //-----------------------------------------------------
         void ReNodeName(GraphNode node, string title)
@@ -257,6 +295,11 @@ namespace Framework.AT.Editor
                 }
 
             }
+            else if(inputPort !=null && inputPort.source!=null && inputPort.source is LinkPort)
+            {
+                LinkPort arvPort = inputPort.source as LinkPort;
+                RegisterUndo(arvPort.graphNode, UndoRedoOperationType.NodeEdge);
+            }
         }
         //-----------------------------------------------------
         void OnEdgeDisconnected(Edge edge)
@@ -278,6 +321,11 @@ namespace Framework.AT.Editor
                 if (arvPort.enumPopFieldElement != null)
                     arvPort.enumPopFieldElement.SetEnabled(arvPort.fieldRoot.enabledSelf);
                 arvPort.grapNode.ReBuildPortContain(arvPort);
+            }
+            else if (inputPort != null && inputPort.source != null && inputPort.source is LinkPort)
+            {
+                LinkPort arvPort = inputPort.source as LinkPort;
+                RegisterUndo(arvPort.graphNode, UndoRedoOperationType.NodeEdge);
             }
         }
         //-----------------------------------------------------
@@ -463,7 +511,71 @@ namespace Framework.AT.Editor
             m_bIniting = false;
         }
         //--------------------------------------------------------
-        public GraphNode AddNode(BaseNode pNode)
+        internal void RefreshATDatas(AgentTreeData pData)
+        {
+            m_bIniting = true;
+            Dictionary<int, GraphNode> vNodes = new Dictionary<int, GraphNode>();
+            foreach(var db in m_vGuidNodes)
+            {
+                vNodes[db.Key] = db.Value;
+            }
+            m_vGuidNodes.Clear();
+            m_vNodes.Clear();
+            m_vVariables = pData.GetVariableGUIDs();
+            if (pData.tasks != null)
+            {
+                for (int i = 0; i < pData.tasks.Length; ++i)
+                {
+                    if (vNodes.TryGetValue(pData.tasks[i].guid, out var graphNode))
+                    {
+                        m_vNodes.Add(pData.tasks[i], graphNode);
+                        m_vGuidNodes[pData.tasks[i].guid] = graphNode;
+                    }
+                    else
+                        AddNode(pData.tasks[i]);
+                    vNodes.Remove(pData.tasks[i].guid);
+                }
+            }
+            if (pData.actions != null)
+            {
+                for (int i = 0; i < pData.actions.Length; ++i)
+                {
+                    if (vNodes.TryGetValue(pData.actions[i].guid, out var graphNode))
+                    {
+                        m_vNodes.Add(pData.actions[i], graphNode);
+                        m_vGuidNodes[pData.actions[i].guid] = graphNode;
+                    }
+                    else
+                        AddNode(pData.actions[i]);
+                    vNodes.Remove(pData.actions[i].guid);
+                }
+            }
+            if (pData.events != null)
+            {
+                for (int i = 0; i < pData.events.Length; ++i)
+                {
+                    if (vNodes.TryGetValue(pData.events[i].guid, out var graphNode))
+                    {
+                        m_vNodes.Add(pData.events[i], graphNode);
+                        m_vGuidNodes[pData.events[i].guid] = graphNode;
+                    }
+                    else
+                        AddNode(pData.events[i]);
+                    vNodes.Remove(pData.events[i].guid);
+                }
+            }
+
+            //remove old nodes
+            foreach (var db in vNodes)
+            {
+                db.Value.Release();
+                this.RemoveElement(db.Value);
+            }
+            CreateLinkLine();
+            m_bIniting = false;
+        }
+        //--------------------------------------------------------
+        public GraphNode AddNode(BaseNode pNode, bool bUndo =true)
         {
             if (m_vNodes.TryGetValue(pNode, out var viewNode))
                 return viewNode;
@@ -481,11 +593,16 @@ namespace Framework.AT.Editor
             }
             else
                 graphNode = new GraphNode(this, pNode);
+
+            if (bUndo)
+            {
+                RegisterUndo(graphNode, UndoRedoOperationType.NodeAdd);
+            }
+
             AddElement(graphNode);
             graphNode.UpdatePosition();
             m_vNodes.Add(pNode, graphNode);
             m_vGuidNodes[pNode.guid] = graphNode;
-            RegisterUndo(graphNode, UndoRedoOperationType.NodeAdd);
             return graphNode;
         }
         //--------------------------------------------------------
@@ -524,7 +641,10 @@ namespace Framework.AT.Editor
         {
             if (m_vNodes.TryGetValue(pNode, out var graphNode))
             {
-                if (bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                if (bUndo)
+                {
+                    RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                }
                 graphNode.Release();
                 this.RemoveElement(graphNode);
                 m_vNodes.Remove(pNode);
@@ -536,7 +656,10 @@ namespace Framework.AT.Editor
         {
             if (m_vGuidNodes.TryGetValue(guid, out var graphNode))
             {
-                if (bUndo) RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                if (bUndo)
+                {
+                    RegisterUndo(graphNode, UndoRedoOperationType.NodeDel);
+                }
                 graphNode.Release();
                 this.RemoveElement(graphNode);
                 m_vNodes.Remove(graphNode.bindNode);
@@ -565,7 +688,8 @@ namespace Framework.AT.Editor
         internal void RegisterUndo(GraphNode pNode, UndoRedoOperationType type)
         {
             if (m_bIniting) return;
-            m_undoRedoSystem.RegisterUndo(pNode, type);
+            m_bRegisterUndo = true;
+          //  m_undoRedoSystem.RegisterUndo(pNode, type);
         }
         //-----------------------------------------------------
         public void Undo()
@@ -600,36 +724,42 @@ namespace Framework.AT.Editor
             }
         }
         //-----------------------------------------------------
-        public void Save(AgentTreeData pData)
+        public void Save(AgentTreeData pData, bool bReInit = true)
         {
-            List<EnterTask> vTasks = new List<EnterTask>();
-            List<AT.Runtime.ActionNode> vActions = new List<AT.Runtime.ActionNode>();
-            List<CustomEvent> vCutsceneEvent = new List<CustomEvent>();
+            Dictionary<System.Type, List<BaseNode>> vNodes = new Dictionary<Type, List<BaseNode>>();
             foreach (var db in m_vNodes)
             {
                 var graphNode = db.Value;
 
                 graphNode.Save();
+                if(!vNodes.TryGetValue(graphNode.bindNode.GetType(), out var vList))
+                {
+                    vList = new List<BaseNode>();
+                    vNodes[graphNode.bindNode.GetType()] = vList;
+                }
+                vList.Add(graphNode.bindNode);
+            }
 
-                if (graphNode.bindNode is EnterTask)
+            var fields = pData.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            for(int i =0; i < fields.Length; ++i)
+            {
+                if (fields[i].FieldType.IsArray)
                 {
-                    vTasks.Add(graphNode.bindNode as EnterTask);
-                }
-                else if (graphNode.bindNode is CustomEvent)
-                {
-                    vCutsceneEvent.Add(graphNode.bindNode as CustomEvent);
-                }
-                else if (graphNode.bindNode is AT.Runtime.ActionNode)
-                {
-                    vActions.Add(graphNode.bindNode as AT.Runtime.ActionNode);
+                    System.Type dataType = fields[i].FieldType.GetElementType();
+                    vNodes.TryGetValue(dataType, out var vList);
+                    if (vList == null || vList.Count <= 0)
+                        fields[i].SetValue(pData, null);
+                    else
+                    {
+                        Array arr = Array.CreateInstance(dataType, vList.Count);
+                        for (int j = 0; j < vList.Count; ++j)
+                        {
+                            arr.SetValue(vList[j], j);
+                        }
+                        fields[i].SetValue(pData, arr);
+                    }
                 }
             }
-            if (vTasks.Count > 0) pData.tasks = vTasks.ToArray();
-            else pData.tasks = null;
-            if (vActions.Count > 0) pData.actions = vActions.ToArray();
-            else pData.actions = null;
-            if (vCutsceneEvent.Count > 0) pData.events = vCutsceneEvent.ToArray();
-            else pData.events = null;
             CollectAllNodeVariables();
             var guidVars = pData.GetVariableGUIDs();
             if (guidVars != m_vVariables)
@@ -637,6 +767,7 @@ namespace Framework.AT.Editor
                 pData.SetVariables(m_vVariables);
             }
             pData.Serialize(false);
+            if(bReInit) pData.Init(true);
         }
         //-----------------------------------------------------
         public void CollectAllNodeVariables()
@@ -885,8 +1016,9 @@ namespace Framework.AT.Editor
             foreach (var db in vNodes)
             {
                 var graphNode = db;
+                graphNode.ClearLinks();
                 var linkOutPort = graphNode.GetLink(false);
-                if (linkOutPort != null && graphNode.bindNode.nextActions != null)
+                if (linkOutPort != null && graphNode.bindNode.nextActions != null && graphNode.bindNode.nextActions.Length>0)
                 {
                     for (int i = 0; i < graphNode.bindNode.nextActions.Length; ++i)
                     {
@@ -912,7 +1044,6 @@ namespace Framework.AT.Editor
                         }
                     }
                 }
-
                 var otherLinks = graphNode.GetOtherLinks();
                 foreach (var othLink in otherLinks)
                 {
@@ -984,6 +1115,11 @@ namespace Framework.AT.Editor
             foreach (var db in m_vNodes)
             {
                 db.Value.Update(fTime);
+            }
+            if(m_bRegisterUndo)
+            {
+                m_undoRedoSystem.RegisterUndo(null, UndoRedoOperationType.All);
+                m_bRegisterUndo = false;
             }
         }
         //-----------------------------------------------------

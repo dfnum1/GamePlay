@@ -40,7 +40,9 @@ namespace Framework.AT.Editor
 
         private HashSet<ArvgPort> m_vChangePorts = new HashSet<ArvgPort>();
 
-        private bool m_bChangePos = false;
+        private Vector2 m_dragStartPos;
+        private bool m_isDragging = false;
+        private bool m_bUndoRegister = false;
 
         protected AgentTreeGraphView m_pGraphView;
         public GraphNode(AgentTreeGraphView pAgent, AT.Runtime.BaseNode pNode, bool bUpdatePos = true)
@@ -87,17 +89,13 @@ namespace Framework.AT.Editor
                 }
             }
 
-            this.RegisterCallback<MouseUpEvent>(evt =>
+            this.RegisterCallback<MouseDownEvent>(evt =>
             {
-                if(m_bChangePos)
+                // 只响应左键
+                if (evt.button == 0)
                 {
-                    m_pGraphView.RegisterUndo(this, UndoRedoOperationType.Position);
-                    m_bChangePos = false;
+                    OnDragMouseDown();
                 }
-            });
-            this.RegisterCallback<GeometryChangedEvent>(evt =>
-            {
-                m_bChangePos = true;
             });
         }
         //------------------------------------------------------
@@ -164,6 +162,28 @@ namespace Framework.AT.Editor
 
         }
         //------------------------------------------------------
+        public void OnDragMouseDown()
+        {
+            m_dragStartPos = this.GetPosition().position;
+            m_isDragging = true;
+            m_bUndoRegister = false;
+        }
+        //------------------------------------------------------
+        public void OnDragMouseUp()
+        {
+            if (m_isDragging)
+            {
+                m_isDragging = false;
+                Vector2 endPos = this.GetPosition().position;
+                if ((endPos - m_dragStartPos).sqrMagnitude > 0.1f)
+                {
+                    m_bUndoRegister = true;
+                    m_pGraphView.RegisterUndo(this, UndoRedoOperationType.Position);
+                    m_bUndoRegister = false;
+                }
+            }
+        }
+        //------------------------------------------------------
         public void UpdatePosition()
         {
             var rect = this.GetPosition();
@@ -187,12 +207,45 @@ namespace Framework.AT.Editor
             this.titleContainer.MarkDirtyRepaint();
         }
         //------------------------------------------------------
-        public void Release()
+        public void ClearLinks()
         {
-            if(m_pLinkIn!=null)
+            ClearLinkIn();
+            ClearLinkOut();
+            ClearOtherLink(); 
+            foreach (var db in m_vArgvPorts)
+            {
+                var connections = db.bindPort.connections;
+                if (connections != null)
+                {
+                    foreach (var con in connections)
+                    {
+                        m_pGraphView.RemoveElement(con);
+                    }
+                }
+            }
+
+            foreach (var db in m_vReturnPorts)
+            {
+                if (db.bindPort != null)
+                {
+                    var connects = db.bindPort.connections;
+                    if (connects != null)
+                    {
+                        foreach (var edge in connects)
+                        {
+                            m_pGraphView.RemoveElement(edge);
+                        }
+                    }
+                }
+            }
+        }
+        //------------------------------------------------------
+        public void ClearLinkIn()
+        {
+            if (m_pLinkIn != null)
             {
                 var connections = m_pLinkIn.bindPort.connections;
-                if(connections!=null)
+                if (connections != null)
                 {
                     foreach (var db in connections)
                     {
@@ -201,6 +254,10 @@ namespace Framework.AT.Editor
                 }
                 m_pLinkIn.bindPort.Clear();
             }
+        }
+        //------------------------------------------------------
+        public void ClearLinkOut()
+        {
             if (m_pLinkOut != null)
             {
                 var connections = m_pLinkOut.bindPort.connections;
@@ -213,7 +270,11 @@ namespace Framework.AT.Editor
                 }
                 m_pLinkOut.bindPort.Clear();
             }
-            foreach(var db in m_vOtherLinks)
+        }
+        //------------------------------------------------------
+        public void ClearOtherLink()
+        {
+            foreach (var db in m_vOtherLinks)
             {
                 var connections = db.Value.bindPort.connections;
                 if (connections != null)
@@ -225,6 +286,13 @@ namespace Framework.AT.Editor
                 }
                 db.Value.bindPort.Clear();
             }
+        }
+        //------------------------------------------------------
+        public void Release()
+        {
+            ClearLinkIn();
+            ClearOtherLink();
+
             foreach (var db in m_vArgvPorts)
             {
                 m_pGraphView.DelPort(db);
@@ -407,8 +475,16 @@ namespace Framework.AT.Editor
         {
             BaseNode saveNode = pDummy;
             if (saveNode == null) saveNode = bindNode;
-            saveNode.posX = (int)(this.GetPosition().x*100);
-            saveNode.posY = (int)(this.GetPosition().y*100);
+            if(m_bUndoRegister)
+            {
+                saveNode.posX = (int)(this.m_dragStartPos.x * 100);
+                saveNode.posY = (int)(this.m_dragStartPos.y * 100);
+            }
+            else
+            {
+                saveNode.posX = (int)(this.GetPosition().x * 100);
+                saveNode.posY = (int)(this.GetPosition().y * 100);
+            }
             List<short> nextActions = new List<short>();
             if(m_pLinkOut!=null)
             {
@@ -833,9 +909,10 @@ namespace Framework.AT.Editor
                             nodePorts[0].varGuid = (inputPort.source as ArvgPort).GetVariableGuid();
                             pAction.nextActions = null;
 
-                            var windowPos = inputPort.GetPosition();
-                            pAction.posX = (int)((windowPos.x+50) * 100);
-                            pAction.posY = (int)((windowPos.y) * 100);
+                            var windowPos = inputPort.GetPosition() ;
+                            var nodePos = this.GetPosition().position;
+                            pAction.posX = (int)((windowPos.x + nodePos.x+ 300) * 100);
+                            pAction.posY = (int)((windowPos.y + nodePos.y) * 100);
                             m_pGraphView.AddNode(pAction);
                         });
                     }));
