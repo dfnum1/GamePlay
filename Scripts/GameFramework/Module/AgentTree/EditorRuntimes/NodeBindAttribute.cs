@@ -26,5 +26,15 @@ namespace Framework.AT.Editor
             this.customType = customType;
         }
     }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+    public class EditorBindNodeAttribute : System.Attribute
+    {
+        public System.Type nodeType;
+        public EditorBindNodeAttribute(System.Type nodeType)
+        {
+            this.nodeType = nodeType;
+        }
+    }
 }
 #endif

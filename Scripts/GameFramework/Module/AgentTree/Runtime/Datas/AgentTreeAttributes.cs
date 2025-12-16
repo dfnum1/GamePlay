@@ -71,6 +71,22 @@ namespace Framework.AT.Runtime
     }
     //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    public class ATNodeAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string nodeName;
+        public string icon;
+#endif
+        public ATNodeAttribute(string nodeName = null, string icon = null)
+        {
+#if UNITY_EDITOR
+            this.nodeName = nodeName;
+            this.icon = icon;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
     public class ATInteralExportAttribute : ATExportAttribute
     {
         public ATInteralExportAttribute(string nodeName = null, int guid = 0, string icon = null) : base(nodeName, guid, icon)

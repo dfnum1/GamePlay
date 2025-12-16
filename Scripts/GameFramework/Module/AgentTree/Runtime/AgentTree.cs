@@ -276,6 +276,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public bool ExecuteNode(BaseNode pNode, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
         {
+            if (!m_bEnable) return false;
             if (pNode == null) return false;
             if (m_vExecuting == null) m_vExecuting = new LinkedList<BaseNode>();
             if (vArgvs != null)
@@ -378,6 +379,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         internal bool EditorKeyEvent(Event evt)
         {
+            if (!m_bEnable) return false;
             bool bDo = false;
             if (m_vKeyListens != null)
             {
@@ -420,7 +422,7 @@ namespace Framework.AT.Runtime
             {
                 executedAny = false;
                 var node = vList.First;
-                while (node != null)
+                while (node != null && m_bEnable)
                 {
                     executeCount++;
                     var next = node.Next;
@@ -453,7 +455,7 @@ namespace Framework.AT.Runtime
                     }
                     node = next;
                 }
-            } while (executedAny && vList.Count > 0 && executeCount<1000);
+            } while (executedAny && vList.Count > 0 && executeCount<1000 && m_bEnable);
             if(executeCount>=1000)
             {
                 UnityEngine.Debug.LogWarning("有死循环的风险！！！");
@@ -462,7 +464,7 @@ namespace Framework.AT.Runtime
         //------------------------------------------------------
         bool KeyInputEvent(LinkedList<BaseNode> vNodes, OnKeyEventDelegate onCheck = null)
         {
-            if (vNodes == null)
+            if (!m_bEnable || vNodes == null)
                 return false;
             bool bDo = false;
             foreach (var db in vNodes)
@@ -503,7 +505,7 @@ namespace Framework.AT.Runtime
         //------------------------------------------------------
         public bool MouseInputEvent(EATMouseType mouseType, TouchInput.TouchData touchData)
         {
-            if (m_vMouseInputTask == null)
+            if (!m_bEnable || m_vMouseInputTask == null)
                 return false;
             VariableList argvs = VariableList.Malloc(5);
             argvs.AddInt((int)mouseType);
@@ -544,6 +546,10 @@ namespace Framework.AT.Runtime
 #endif
             if (pNode.IsTask())
                 return true;
+            if(pNode is ParallelCondition)
+            {
+                return ParallelConditionExecutor.OnExecutor(this, pNode);
+            }
             switch (pNode.type)
             {
                 case (short)EActionType.eMemberVariable:

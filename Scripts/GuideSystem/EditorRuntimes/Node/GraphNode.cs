@@ -257,7 +257,7 @@ namespace Framework.Guide.Editor
             if (displayType == typeof(Color))
             {
                 int val = (int)pValue;
-                if (val == 0) val = -939524096;//0xC8000000
+        //        if (val == 0) val = -939524096;//0xC8000000
                 Color col = new Color(
                 ((val & 0x00ff0000) >> 16) / 255f,
                 ((val & 0x0000ff00) >> 8) / 255f,

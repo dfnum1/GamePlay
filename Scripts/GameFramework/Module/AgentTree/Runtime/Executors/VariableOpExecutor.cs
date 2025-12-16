@@ -9,6 +9,7 @@ namespace Framework.AT.Runtime
 {
     internal class VarOpExecutor
     {
+        //------------------------------------------------------
         public static bool OnExecute(AgentTree pAgent, BaseNode pNode)
         {
             int inportCnt = pNode.GetInportCount();

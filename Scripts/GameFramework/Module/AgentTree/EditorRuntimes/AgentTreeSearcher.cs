@@ -30,31 +30,31 @@ namespace Framework.AT.Editor
             
             BuildSearchMenuFromTree(AgentTreeUtil.GetMenuRoot(), _entries, 0);
 
-            if (ownerGraphView != null)
-            {
-                SearchTreeGroupEntry callBack = new SearchTreeGroupEntry(new GUIContent("节点返回值"))
-                {
-                    level = 1
-                };
-                _entries.Add(callBack);
-                var ports = ownerGraphView.GetArvgPorts();
-                foreach (var db in ports)
-                {
-                    if (db.isInput)
-                        continue;
-                    SearchTreeGroupEntry nodeGp = new SearchTreeGroupEntry(new GUIContent(db.grapNode.title))
-                    {
-                        level = 2
-                    };
-                    _entries.Add(nodeGp);
-                    string name = db.GetName();
-                    _entries.Add(new SearchTreeEntry(new GUIContent(name))
-                    {
-                        level = 3,
-                        userData = db
-                    });
-                }
-            }
+            //if (ownerGraphView != null)
+            //{
+            //    SearchTreeGroupEntry callBack = new SearchTreeGroupEntry(new GUIContent("节点返回值"))
+            //    {
+            //        level = 1
+            //    };
+            //    _entries.Add(callBack);
+            //    var ports = ownerGraphView.GetArvgPorts();
+            //    foreach (var db in ports)
+            //    {
+            //        if (db.isInput)
+            //            continue;
+            //        SearchTreeGroupEntry nodeGp = new SearchTreeGroupEntry(new GUIContent(db.grapNode.title))
+            //        {
+            //            level = 2
+            //        };
+            //        _entries.Add(nodeGp);
+            //        string name = db.GetName();
+            //        _entries.Add(new SearchTreeEntry(new GUIContent(name))
+            //        {
+            //            level = 3,
+            //            userData = db
+            //        });
+            //    }
+            //}
             return _entries;
         }
         

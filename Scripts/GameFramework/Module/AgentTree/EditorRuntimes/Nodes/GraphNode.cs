@@ -38,7 +38,7 @@ namespace Framework.AT.Editor
         private double m_flashEndTime = 0;
         private int m_nExternPortCount = 0;
 
-        private HashSet<ArvgPort> m_vChangePorts = new HashSet<ArvgPort>();
+        protected HashSet<ArvgPort> m_vChangePorts = new HashSet<ArvgPort>();
 
         private Vector2 m_dragStartPos;
         private bool m_isDragging = false;
@@ -97,6 +97,13 @@ namespace Framework.AT.Editor
                     OnDragMouseDown();
                 }
             });
+
+            OnStart();
+        }
+        //------------------------------------------------------
+        protected virtual void OnStart()
+        {
+
         }
         //------------------------------------------------------
         public void UpdateTitle()
@@ -652,7 +659,7 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        protected void OnArgvPortVarTypeChanged(ArvgPort port)
+        protected virtual void OnArgvPortVarTypeChanged(ArvgPort port)
         {
             if (port == null || port.bindPort == null)
                 return;
@@ -699,7 +706,7 @@ namespace Framework.AT.Editor
                         attri = AgentTreeUtil.GetAttri(dummyNode);
                     }
                     else
-                        AgentTreeUtil.GetAttri(dummyNode);
+                        attri = AgentTreeUtil.GetAttri(dummyNode);
                     if (attri == null)
                         continue;
                     List<ArgvAttribute> slotAttrs = null;
@@ -815,7 +822,7 @@ namespace Framework.AT.Editor
                 bindNode.GetOutports(true, 0);
         }
         //------------------------------------------------------
-        void BuildPorts()
+        protected void BuildPorts()
         {
             BuildArvPort();
             BuildReturnPort();
@@ -972,15 +979,22 @@ namespace Framework.AT.Editor
 
             if (attri.argvType == typeof(AT.Runtime.IVariable))
             {
+                short varGuid = port.GetVariableGuid();
+                var portVariable = m_pGraphView.GetVariable(varGuid);
+                if(portVariable!=null)
+                {
+                    port.eEnumType = portVariable.GetVariableType();
+                }
+
                 InnerDrawPortValue(port);
                 bool bDrawEnumPopVarType = true;
                 if(port.slotIndex>0)
                 {
-                    // 如果是输入端口的第一个参数，且类型是变量类型，则不显示枚举类型选择
-                    if (port.isInput && m_vArgvPorts[0].attri.argvType == typeof(AT.Runtime.IVariable))
-                    {
-                        bDrawEnumPopVarType = false;
-                    }
+                    //// 如果是输入端口的第一个参数，且类型是变量类型，则不显示枚举类型选择
+                    //if (port.isInput && m_vArgvPorts[0].attri.argvType == typeof(AT.Runtime.IVariable))
+                    //{
+                    //    bDrawEnumPopVarType = false;
+                    //}
                 }
                 if(bDrawEnumPopVarType && port.isInput)
                 {
@@ -995,7 +1009,7 @@ namespace Framework.AT.Editor
                             t => EditorUtils.GetEnumDisplayName(t),
                             t => EditorUtils.GetEnumDisplayName(t)
                         );
-                        popup.style.width = 50;
+                        popup.style.width = 80;
                         popup.style.marginLeft = 4;
                         popup.style.unityTextAlign = TextAnchor.MiddleRight;
 
@@ -1018,17 +1032,17 @@ namespace Framework.AT.Editor
                     }
                     else
                     {
-                        var varTypeField = new EnumField(port.eEnumType)
-                        {
-                            style =
-                        {
-                            width = 50,
-                            marginLeft = 4,
-                            unityTextAlign = TextAnchor.MiddleRight
-                        }
-                        };
-                        varTypeField.SetEnabled( !hasDummy && port.fieldRoot.enabledSelf );
-                        varTypeField.RegisterValueChangedCallback(evt =>
+                        var popup = new PopupField<AT.Runtime.EVariableType>(
+                            AgentTreeUtil.GetPopEnumTypes(),
+                            port.eEnumType,
+                            t => EditorUtils.GetEnumDisplayName(t),
+                            t => EditorUtils.GetEnumDisplayName(t)
+                        );
+                        popup.style.width = 80;
+                        popup.style.marginLeft = 4;
+                        popup.style.unityTextAlign = TextAnchor.MiddleRight;
+                        popup.SetEnabled( !hasDummy && port.fieldRoot.enabledSelf );
+                        popup.RegisterValueChangedCallback(evt =>
                         {
                             OnArgvPortChanging(port);
                             // 更新变量值
@@ -1038,8 +1052,8 @@ namespace Framework.AT.Editor
                                 m_vChangePorts.Add(port);
                             }
                         });
-                        port.enumPopFieldElement = varTypeField;
-                        port.bindPort.Add(varTypeField);
+                        port.enumPopFieldElement = popup;
+                        port.bindPort.Add(popup);
                     }
                 }
                 return;
@@ -1080,7 +1094,7 @@ namespace Framework.AT.Editor
                 );
 
                 // 设置运行时变量的值
-                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
                 {
                     int idx = popup.choices.IndexOf(
@@ -1246,7 +1260,7 @@ namespace Framework.AT.Editor
                 dirField.SetEnabled(port.attri.canEdit);
 
                 // 设置运行时值
-                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar is AT.Runtime.VariableRay runtimeRay)
                 {
                     originField.value = runtimeRay.value.origin;
@@ -1299,7 +1313,7 @@ namespace Framework.AT.Editor
                 centerField.SetEnabled(port.attri.canEdit);
                 sizeField.SetEnabled(port.attri.canEdit);
 
-                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar is AT.Runtime.VariableBounds runtimeBounds)
                 {
                     centerField.value = runtimeBounds.value.center;
@@ -1387,7 +1401,7 @@ namespace Framework.AT.Editor
                 }
 
                 // 设置运行时值
-                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar is AT.Runtime.VariableMatrix runtimeMatrix)
                 {
                     for (int i = 0; i < 4; ++i)
@@ -1416,7 +1430,7 @@ namespace Framework.AT.Editor
                 );
 
                 // 设置运行时变量的值
-                var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
                 if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
                 {
                     var popupField = popup.Q<PopupField<string>>();
@@ -1601,7 +1615,7 @@ namespace Framework.AT.Editor
             field.SetEnabled(port.attri.canEdit);
 
             // 设置运行时值
-            var runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+            var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
             if (runtimeVar != null && runtimeVar is TValue runtimeValue)
                 setValue(field, runtimeValue);
 
@@ -1625,15 +1639,15 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         protected virtual void UpdatePortRuntimeValue(ArvgPort port)
         {
-            RefreshPortValue(port, false);
+            RefreshPortValue(port, false,true);
         }
         //-----------------------------------------------------
         public virtual void SetPortDefalueValue(ArvgPort port)
         {
-            RefreshPortValue(port, true);
+            RefreshPortValue(port, true,false);
         }
         //-----------------------------------------------------
-        protected virtual void RefreshPortValue(ArvgPort port, bool bSetDefault)
+        protected virtual void RefreshPortValue(ArvgPort port, bool bSetDefault, bool bRuntime)
         {
             if (port.fieldElement == null)
                 return;
@@ -1652,7 +1666,9 @@ namespace Framework.AT.Editor
                     if (port.fieldElement is EnumField)
                     {
                         if(bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                        var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                        IVariable runtimeVar = null;
+                        if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                        if(runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                         if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
                         {
                             EnumField enumField = (EnumField)port.fieldElement;
@@ -1665,7 +1681,9 @@ namespace Framework.AT.Editor
                     if (port.fieldElement is IntegerField)
                     {
                         if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                        var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                        IVariable runtimeVar = null;
+                        if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                        if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                         if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt)
                         {
                             IntegerField eleField = (IntegerField)port.fieldElement;
@@ -1679,7 +1697,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is IntegerField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableObjId)
                     {
                         IntegerField eleField = (IntegerField)port.fieldElement;
@@ -1692,7 +1712,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is Toggle)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableBool)
                     {
                         Toggle eleField = (Toggle)port.fieldElement;
@@ -1705,7 +1727,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is FloatField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableFloat)
                     {
                         FloatField eleField = (FloatField)port.fieldElement;
@@ -1718,7 +1742,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is TextField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableString)
                     {
                         TextField eleField = (TextField)port.fieldElement;
@@ -1731,7 +1757,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is Vector2Field)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec2)
                     {
                         Vector2Field eleField = (Vector2Field)port.fieldElement;
@@ -1744,7 +1772,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is Vector3Field)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec3)
                     {
                         Vector3Field eleField = (Vector3Field)port.fieldElement;
@@ -1757,7 +1787,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is Vector4Field)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableVec4)
                     {
                         Vector4Field eleField = (Vector4Field)port.fieldElement;
@@ -1770,7 +1802,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is LongField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableLong)
                     {
                         LongField eleField = (LongField)port.fieldElement;
@@ -1783,7 +1817,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is DoubleField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableDouble)
                     {
                         DoubleField eleField = (DoubleField)port.fieldElement;
@@ -1796,7 +1832,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is ColorField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar != null && runtimeVar is AT.Runtime.VariableColor)
                     {
                         ColorField eleField = (ColorField)port.fieldElement;
@@ -1810,7 +1848,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is VisualElement container && container.childCount == 2)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar is AT.Runtime.VariableRay runtimeRay)
                     {
                         if (container[0] is Vector3Field originField)
@@ -1826,7 +1866,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is VisualElement container && container.childCount == 2)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar is AT.Runtime.VariableBounds runtimeBounds)
                     {
                         if (container[0] is Vector3Field centerField)
@@ -1842,7 +1884,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is VisualElement container && container.childCount == 4)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar is AT.Runtime.VariableMatrix runtimeMatrix)
                     {
                         // 辅助方法：获取Matrix4x4的某一行
@@ -1871,7 +1915,9 @@ namespace Framework.AT.Editor
                 if (port.fieldElement is RectField rectField)
                 {
                     if (bSetDefault) m_pGraphView.UpdatePortVariableDefault(port);
-                    var runtimeVar = m_pGraphView.GetVariable(varGuid);
+                    IVariable runtimeVar = null;
+                    if (bRuntime) runtimeVar = m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar == null) runtimeVar = m_pGraphView.GetVariable(varGuid);
                     if (runtimeVar is AT.Runtime.VariableRect runtimeRect)
                     {
                         rectField.value = runtimeRect.value;

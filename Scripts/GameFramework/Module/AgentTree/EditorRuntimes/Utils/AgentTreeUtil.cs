@@ -6,10 +6,12 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,6 +37,7 @@ namespace Framework.AT.Editor
         public List<string> popArgvs = new List<string>();
         public List<string> popReturns = new List<string>();
 
+        public System.Type nodeType;
         public ATTypeAttribute atTypeAttr;
         public ATFunctionAttribute functionAttr;
         public System.Type functionClassType;
@@ -59,10 +62,12 @@ namespace Framework.AT.Editor
     }
     public static class AgentTreeUtil
     {
+        private static List<ECompareOpType> ms_vPopCompareOpTypes = new List<ECompareOpType>();
         private static List<EVariableType> ms_vPopEnumTypes = new List<EVariableType>();
         private static List<string> ms_vPopEnumTypeNames = new List<string>();
         private static Dictionary<long, AgentTreeAttri> ms_Attrs = null;
         private static List<AgentTreeAttri> ms_vLists = new List<AgentTreeAttri>();
+        private static Dictionary<System.Type, System.Type> ms_vEditorNodeTypes = new Dictionary<Type, Type>();
         private static List<string> ms_vPops = new List<string>();
         static string ms_installPath = null;
         static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
@@ -107,9 +112,23 @@ namespace Framework.AT.Editor
         {
             if (bForce || ms_Attrs == null)
             {
+                ms_vEditorNodeTypes.Clear();
                 ms_vInitCall.Clear();
                 ms_vPopEnumTypeNames.Clear();
                 ms_vPopEnumTypes.Clear();
+                ms_vPopCompareOpTypes.Clear();
+
+                foreach (Enum v in Enum.GetValues(typeof(AT.Runtime.ECompareOpType)))
+                {
+                    string strName = Enum.GetName(typeof(ECompareOpType), v);
+                    FieldInfo fi = typeof(AT.Runtime.ECompareOpType).GetField(strName);
+                    if (fi.IsDefined(typeof(Framework.DrawProps.DisableAttribute)))
+                    {
+                        continue;
+                    }
+                    ms_vPopCompareOpTypes.Add((ECompareOpType)v);
+                }
+
                 foreach (Enum v in Enum.GetValues(typeof(EVariableType)))
                 {
                     string strName = Enum.GetName(typeof(EVariableType), v);
@@ -156,6 +175,10 @@ namespace Framework.AT.Editor
                     {
                         Type tp = types[i];
                         if (tp == null) continue;
+                        if (tp.IsDefined(typeof(EditorBindNodeAttribute), false))
+                        {
+                            ms_vEditorNodeTypes[tp.GetCustomAttribute<EditorBindNodeAttribute>().nodeType] =tp;
+                        }
                         if (tp.IsDefined(typeof(NodeBindAttribute), false))
                         {
                             NodeBindAttribute[] atTypeAttrs = (NodeBindAttribute[])tp.GetCustomAttributes<NodeBindAttribute>();
@@ -173,6 +196,36 @@ namespace Framework.AT.Editor
                                 var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
                                 if (initCall != null)
                                     ms_vInitCall.Add(initCall);
+                            }
+                        }
+                        if (tp.IsDefined(typeof(ATNodeAttribute), false))
+                        {
+                            var atNodeAttr = tp.GetCustomAttribute<ATNodeAttribute>();
+                            AgentTreeAttri attr = new AgentTreeAttri();
+                            attr.functionClassType = tp;
+                            ATActionAttribute atAction = new ATActionAttribute(atNodeAttr.nodeName, false);
+                            attr.actionAttr = atAction;
+                            if (tp.IsDefined(typeof(ATIconAttribute))) attr.iconAttr = tp.GetCustomAttribute<ATIconAttribute>();
+                            else attr.iconAttr = new ATIconAttribute(atNodeAttr.icon);
+                            if (tp.IsDefined(typeof(ATColorAttribute))) attr.colorAttr = tp.GetCustomAttribute<ATColorAttribute>();
+
+                            attr.cutsceneCusomtType = 0;
+                            attr.isCutsceneCustomEvent = false;
+                            attr.actionType = ATRtti.BuildHashCode(tp);
+                            attr.nodeType = tp;
+                            attr.displayName = atNodeAttr.nodeName;
+                            attr.strQueueName = atNodeAttr.nodeName + tp.Name.ToString() + ED.EditorUtils.PinYin(atNodeAttr.nodeName);
+                            attr.strMenuName = atNodeAttr.nodeName;
+                            long key = ((long)attr.actionType) << 32 | (long)attr.cutsceneCusomtType;
+                            if (ms_Attrs.TryGetValue(key, out var attrD))
+                            {
+                                Debug.LogError(tp.Name + " 存在重复定义:" + tp.FullName.ToString());
+                            }
+                            else
+                            {
+                                ms_Attrs.Add(key, attr);
+                                ms_vLists.Add(attr);
+                                ms_vPops.Add(attr.displayName);
                             }
                         }
                     }
@@ -500,6 +553,20 @@ namespace Framework.AT.Editor
             }
         }
         //-----------------------------------------------------
+        internal static Type GetEditorNodeType(BaseNode pNode)
+        {
+            Init();
+            int customType = 0;
+            if (pNode is CustomEvent)
+            {
+                customType = ((CustomEvent)pNode).eventType;
+            }
+            var attri = AgentTreeUtil.GetAttri(pNode.type, customType);
+            if (attri != null && attri.graphNodeType != null) return attri.graphNodeType;
+            ms_vEditorNodeTypes.TryGetValue(pNode.GetType(), out var editorType);
+            return editorType;
+        }
+        //-----------------------------------------------------
         public static List<string> GetPops()
         {
             Init();
@@ -538,8 +605,15 @@ namespace Framework.AT.Editor
             return AgentTreeUtil.GetAttri(bindNode.type, customType);
         }
         //-----------------------------------------------------
+        public static List<ECompareOpType> GetPopCompareOpTypes()
+        {
+            Init();
+            return ms_vPopCompareOpTypes;
+        }
+        //-----------------------------------------------------
         public static List<EVariableType> GetPopEnumTypes()
         {
+            Init();
             return ms_vPopEnumTypes;
         }
         //-----------------------------------------------------

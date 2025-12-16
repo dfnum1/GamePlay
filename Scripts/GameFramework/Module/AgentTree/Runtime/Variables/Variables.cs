@@ -22,6 +22,10 @@ namespace Framework.AT.Runtime
             this.id = id;
         }
         public static ObjId DEF => new ObjId { id = 0, userType =0 };
+        public bool IsEqual(ObjId other)
+        {
+            return this.userType == other.userType && this.id == other.id;
+        }
     }
     public enum EVariableType : byte
     {
@@ -398,6 +402,11 @@ namespace Framework.AT.Runtime
         public short GetGuid() { return guid; }
 
         public static VariableUserData DEF = new VariableUserData() { guid =0, value =0, pPointer = null };
+        //-----------------------------------------------------
+        public bool IsEqual(VariableUserData other)
+        {
+            return this.value == other.value && this.pPointer == other.pPointer;
+        }
     }
     //-----------------------------------------------------
     [System.Serializable]

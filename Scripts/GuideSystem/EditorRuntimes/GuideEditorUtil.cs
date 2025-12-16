@@ -129,7 +129,9 @@ namespace Framework.Guide.Editor
                     continue;
                 object defValue = nodeAttr.argvs[i].attr.defaultValue;
                 if (defValue == null) continue;
-                if(nodeAttr.argvs[i].attr.displayType == typeof(UnityEngine.Vector2))
+                if (nodeAttr.argvs[i].attr.displayType == null)
+                    nodeAttr.argvs[i].attr.displayType = typeof(int);
+                if (nodeAttr.argvs[i].attr.displayType == typeof(UnityEngine.Vector2))
                 {
                     var splits = defValue.ToString().Split(new char[] { ',', '|' });
                     if(splits.Length>1)

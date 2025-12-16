@@ -6,8 +6,8 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Editor;
-#endif
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Framework.AT.Runtime

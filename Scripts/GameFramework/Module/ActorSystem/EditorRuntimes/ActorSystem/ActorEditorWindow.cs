@@ -565,6 +565,12 @@ namespace Framework.ActorSystem.Editor
         public void DebugAT(bool bDebug)
         {
             m_bDebugAT = bDebug;
+            var actorAT = m_pActor.GetAgent<ActorAgentTree>();
+            if (actorAT != null && actorAT.GetAT() != null)
+            {
+                actorAT.GetAT().Enable(bDebug);
+                if (bDebug) actorAT.GetAT().Start();
+            }
         }
         //--------------------------------------------------------
         public void OnPreviewDraw(int controllerId, Camera camera, Event evt)

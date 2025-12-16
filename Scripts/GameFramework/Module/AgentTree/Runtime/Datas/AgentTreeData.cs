@@ -20,6 +20,7 @@ namespace Framework.AT.Runtime
         public EnterTask[] tasks;
         public ActionNode[] actions;
         public CustomEvent[] events;
+        public ParallelCondition[] parallelConditions;
         [UnityEngine.SerializeField] VaribaleSerizlizeGuidData varGuids;
         [System.NonSerialized]private Dictionary<short, IVariable> m_vVariables = null;
         [System.NonSerialized] private Dictionary<short, BaseNode> m_vNodes = null;
@@ -70,6 +71,7 @@ namespace Framework.AT.Runtime
             if (tasks != null) nodeCnt += tasks.Length;
             if (actions != null) nodeCnt += actions.Length;
             if (events != null) nodeCnt += events.Length;
+            if (parallelConditions != null) nodeCnt += parallelConditions.Length;
             return nodeCnt;
         }
         //-----------------------------------------------------
@@ -111,6 +113,11 @@ namespace Framework.AT.Runtime
                 {
                     for (int i = 0; i < events.Length; ++i)
                         m_vNodes[events[i].guid] = events[i];
+                }
+                if (parallelConditions != null)
+                {
+                    for (int i = 0; i < parallelConditions.Length; ++i)
+                        m_vNodes[parallelConditions[i].guid] = parallelConditions[i];
                 }
             }
             else
