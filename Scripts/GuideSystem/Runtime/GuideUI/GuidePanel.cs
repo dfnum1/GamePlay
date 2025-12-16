@@ -668,10 +668,10 @@ namespace Framework.Guide
                     //! destroyed widget, so relinsten widget
                     m_bListenGuideWidget = true;
                     m_nListenLastFrame = Time.frameCount;
-                    if (m_bMaskSelfWidget)
-                    {
-                        m_Serialize.BgMask?.gameObject.SetActive(false);
-                    }
+                   // if (m_bMaskSelfWidget)
+                   // {
+                   //     m_Serialize.BgMask?.gameObject.SetActive(false);
+                   // }
                     if (GuideSystem.getInstance().bNoForceDoing)
                     {
                         GuideSystem.getInstance().OverGuide(false);
@@ -1257,7 +1257,7 @@ namespace Framework.Guide
             }
             else
             {
-                if (m_bMaskSelfWidget) SetMaskActive(false);
+            //    if (m_bMaskSelfWidget) SetMaskActive(false);
             }
         }
         //------------------------------------------------------
