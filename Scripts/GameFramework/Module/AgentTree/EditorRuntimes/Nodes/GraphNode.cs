@@ -178,7 +178,7 @@ namespace Framework.AT.Editor
                 if ((endPos - m_dragStartPos).sqrMagnitude > 0.1f)
                 {
                     m_bUndoRegister = true;
-                    m_pGraphView.RegisterUndo(this, UndoRedoOperationType.Position);
+                    m_pGraphView.RegisterUndo(this, UndoRedoOperationType.Position,true);
                     m_bUndoRegister = false;
                 }
             }
@@ -207,11 +207,11 @@ namespace Framework.AT.Editor
             this.titleContainer.MarkDirtyRepaint();
         }
         //------------------------------------------------------
-        public void ClearLinks()
+        public void ClearLinks(bool bClear = true)
         {
-            ClearLinkIn();
-            ClearLinkOut();
-            ClearOtherLink(); 
+            ClearLinkIn(bClear);
+            ClearLinkOut(bClear);
+            ClearOtherLink(bClear); 
             foreach (var db in m_vArgvPorts)
             {
                 var connections = db.bindPort.connections;
@@ -240,7 +240,7 @@ namespace Framework.AT.Editor
             }
         }
         //------------------------------------------------------
-        public void ClearLinkIn()
+        public void ClearLinkIn(bool bClear = true)
         {
             if (m_pLinkIn != null)
             {
@@ -252,11 +252,11 @@ namespace Framework.AT.Editor
                         m_pGraphView.RemoveElement(db);
                     }
                 }
-                m_pLinkIn.bindPort.Clear();
+                if(bClear) m_pLinkIn.bindPort.Clear();
             }
         }
         //------------------------------------------------------
-        public void ClearLinkOut()
+        public void ClearLinkOut(bool bClear = true)
         {
             if (m_pLinkOut != null)
             {
@@ -268,11 +268,11 @@ namespace Framework.AT.Editor
                         m_pGraphView.RemoveElement(db);
                     }
                 }
-                m_pLinkOut.bindPort.Clear();
+                if (bClear) m_pLinkOut.bindPort.Clear();
             }
         }
         //------------------------------------------------------
-        public void ClearOtherLink()
+        public void ClearOtherLink(bool bClear = true)
         {
             foreach (var db in m_vOtherLinks)
             {
@@ -284,7 +284,7 @@ namespace Framework.AT.Editor
                         m_pGraphView.RemoveElement(con);
                     }
                 }
-                db.Value.bindPort.Clear();
+                if (bClear) db.Value.bindPort.Clear();
             }
         }
         //------------------------------------------------------
@@ -675,20 +675,43 @@ namespace Framework.AT.Editor
             return GetDummyLinkPortAttri(port.nodePort);
         }
         //------------------------------------------------------
-        protected ArgvAttribute GetDummyLinkPortAttri(NodePort port)
+        protected virtual ArgvAttribute GetDummyLinkPortAttri(NodePort port)
         {
             if (port.dummyPorts != null && port.dummyPorts.Length > 0)
             {
                 for (int i = 0; i < port.dummyPorts.Length; ++i)
                 {
-                    var dummyNode = m_pGraphView.GetNode(port.dummyPorts[i].guid);
+                    var dummyNode = m_pGraphView.GetBaseNode(port.dummyPorts[i].guid);
                     if (dummyNode == null)
                     {
                         continue;
                     }
+                    AgentTreeAttri attri = null;
+                    if (dummyNode != null && dummyNode.type == (int)EActionType.eGetVariable)
+                    {
+                        var ports = dummyNode.GetOutports(false);
+                        if(ports!=null && ports.Length>0)
+                        {
+                            var castDummyNode = m_pGraphView.GetVarOwnerBaseNode(ports[0].varGuid);
+                            if (castDummyNode != null)
+                                dummyNode = castDummyNode;
+                        }
+                        attri = AgentTreeUtil.GetAttri(dummyNode);
+                    }
+                    else
+                        AgentTreeUtil.GetAttri(dummyNode);
+                    if (attri == null)
+                        continue;
                     List<ArgvAttribute> slotAttrs = null;
-                    if (port.dummyPorts[i].type == 0) slotAttrs = dummyNode.GetAttri().argvs;
-                    else slotAttrs = dummyNode.GetAttri().returns;
+                    if (port.dummyPorts[i].type == 0)
+                    {
+                        slotAttrs = attri.argvs;
+                    }
+                    else
+                    {
+                        slotAttrs = attri.returns;
+                    }
+
 
                     if (slotAttrs != null && port.dummyPorts[i].slotIndex < slotAttrs.Count)
                     {

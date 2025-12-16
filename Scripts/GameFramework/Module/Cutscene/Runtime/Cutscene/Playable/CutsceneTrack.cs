@@ -461,11 +461,11 @@ namespace Framework.Cutscene.Runtime
                     if (!eventData.bTriggered)
                     {
                         eventData.bTriggered = true;
+                        m_vEvents[i] = eventData;
                         if (eventData.pDriver == null || !eventData.pDriver.OnEventTrigger(this, eventData.eventData))
                             OnEventTrigger(eventData.eventData);
                         if (m_pOwner != null)
                             m_pOwner.BindEventTrackData(m_pOwnerGroup, eventData.eventData);
-                        m_vEvents[i] = eventData;
                     }
                 }
             }

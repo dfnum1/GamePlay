@@ -69,7 +69,7 @@ namespace Framework.AT.Editor
 
             int index = port.grapNode.IndexOfOutport(port);
             List<DummyPort> vDummys = (nodePort.dummyPorts!=null)?new List<DummyPort>(nodePort.dummyPorts):new List<DummyPort>();
-            for (int i = 0; i < vDummys.Count;)
+            for (int i = 0; i < vDummys.Count;++i)
             {
                 if (vDummys[i].guid == port.grapNode.bindNode.guid && vDummys[i].slotIndex == index)
                 {

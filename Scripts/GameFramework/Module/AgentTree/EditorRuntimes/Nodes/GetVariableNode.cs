@@ -77,6 +77,17 @@ namespace Framework.AT.Editor
                     port.nodePort = nodePort;
                     port.attri = attr.returns[i];
                     port.curDummyAttri = GetDummyLinkPortAttri(port);
+
+                    var dummyNode = m_pGraphView.GetVariableOwnerNode(port.GetVariableGuid());
+                    if (dummyNode != null)
+                    {
+                        var returnPort = dummyNode.GetReturn(port.GetVariableGuid());
+                        if (returnPort != null)
+                        {
+                            port.curDummyAttri = returnPort.attri;
+                        }
+                    }
+
                     port.isInput = false;
                     port.slotIndex = i;
                     m_vReturnPorts.Add(port);
@@ -103,7 +114,16 @@ namespace Framework.AT.Editor
                 fieldRoot.style.flexDirection = FlexDirection.Row;
                 inputPort.Add(fieldRoot);
 
-
+                port.curDummyAttri = null;
+                var graphNode = m_pGraphView.GetVariableOwnerNode(port.GetVariableGuid());
+                if (graphNode != null)
+                {
+                    var returnPort = graphNode.GetReturn(port.GetVariableGuid());
+                    if (returnPort != null)
+                    {
+                        port.curDummyAttri = returnPort.attri;
+                    }
+                }
                 this.inputContainer.Add(inputPort);
                 m_vReturnPorts[i].fieldRoot = fieldRoot;
                 m_vReturnPorts[i].bindPort = inputPort;

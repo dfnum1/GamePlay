@@ -528,6 +528,8 @@ namespace Framework.AT.Editor
                 {
                     if (vNodes.TryGetValue(pData.tasks[i].guid, out var graphNode))
                     {
+                        graphNode.bindNode = pData.tasks[i];
+                        graphNode.UpdatePosition();
                         m_vNodes.Add(pData.tasks[i], graphNode);
                         m_vGuidNodes[pData.tasks[i].guid] = graphNode;
                     }
@@ -542,6 +544,8 @@ namespace Framework.AT.Editor
                 {
                     if (vNodes.TryGetValue(pData.actions[i].guid, out var graphNode))
                     {
+                        graphNode.bindNode = pData.actions[i];
+                        graphNode.UpdatePosition();
                         m_vNodes.Add(pData.actions[i], graphNode);
                         m_vGuidNodes[pData.actions[i].guid] = graphNode;
                     }
@@ -556,6 +560,8 @@ namespace Framework.AT.Editor
                 {
                     if (vNodes.TryGetValue(pData.events[i].guid, out var graphNode))
                     {
+                        graphNode.bindNode = pData.events[i];
+                        graphNode.UpdatePosition();
                         m_vNodes.Add(pData.events[i], graphNode);
                         m_vGuidNodes[pData.events[i].guid] = graphNode;
                     }
@@ -637,6 +643,16 @@ namespace Framework.AT.Editor
             return null;
         }
         //--------------------------------------------------------
+        public BaseNode GetBaseNode(short guid)
+        {
+            return m_pAgentTreeData.GetNode(guid);
+        }
+        //--------------------------------------------------------
+        public BaseNode GetVarOwnerBaseNode(short guid)
+        {
+            return m_pAgentTreeData.GetVarOwnerNode(guid);
+        }
+        //--------------------------------------------------------
         public void RemoveNode(AT.Runtime.BaseNode pNode, bool bUndo = true)
         {
             if (m_vNodes.TryGetValue(pNode, out var graphNode))
@@ -685,9 +701,19 @@ namespace Framework.AT.Editor
             Save(m_pAgentTreeData);
         }
         //-----------------------------------------------------
-        internal void RegisterUndo(GraphNode pNode, UndoRedoOperationType type)
+        internal void RegisterUndo(GraphNode pNode, UndoRedoOperationType type,bool bImme=false)
         {
-            if (m_bIniting) return;
+            if (m_bIniting)
+            {
+                m_bRegisterUndo = false;
+                return;
+            }
+            if(bImme)
+            {
+                m_undoRedoSystem.RegisterUndo(pNode, type);
+                m_bRegisterUndo = false;
+                return;
+            }
             m_bRegisterUndo = true;
           //  m_undoRedoSystem.RegisterUndo(pNode, type);
         }
@@ -1016,7 +1042,12 @@ namespace Framework.AT.Editor
             foreach (var db in vNodes)
             {
                 var graphNode = db;
-                graphNode.ClearLinks();
+                graphNode.ClearLinks(false);
+            }
+
+            foreach (var db in vNodes)
+            {
+                var graphNode = db;
                 var linkOutPort = graphNode.GetLink(false);
                 if (linkOutPort != null && graphNode.bindNode.nextActions != null && graphNode.bindNode.nextActions.Length>0)
                 {

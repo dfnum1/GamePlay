@@ -527,6 +527,17 @@ namespace Framework.AT.Editor
             return null;
         }
         //-----------------------------------------------------
+        internal static AgentTreeAttri GetAttri(BaseNode bindNode)
+        {
+            if (bindNode == null) return null;
+            int customType = 0;
+            if (bindNode is AT.Runtime.CustomEvent)
+            {
+                customType = ((AT.Runtime.CustomEvent)bindNode).eventType;
+            }
+            return AgentTreeUtil.GetAttri(bindNode.type, customType);
+        }
+        //-----------------------------------------------------
         public static List<EVariableType> GetPopEnumTypes()
         {
             return ms_vPopEnumTypes;
