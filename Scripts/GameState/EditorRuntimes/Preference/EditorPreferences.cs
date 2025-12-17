@@ -294,7 +294,7 @@ namespace Framework.War.Editor
 
         static void RepaintAll()
         {
-            var editors = Resources.FindObjectsOfTypeAll<WarWorldEditor>();
+            var editors = Resources.FindObjectsOfTypeAll<BattleWorldEditor>();
             if (editors != null)
             {
                 for (int i = 0; i < editors.Length; ++i)

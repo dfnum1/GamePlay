@@ -12,8 +12,8 @@ using UnityEditor;
 
 namespace Framework.War.Editor
 {
-    [EditorBinder(typeof(WarWorldEditor), "InspectorRect")]
-    public class InspectorDrawLogic : AWarWorldLogic
+    [EditorBinder(typeof(BattleWorldEditor), "InspectorRect")]
+    public class InspectorDrawLogic : ABattleLogic
     {
         Vector2 m_Scoller;
         //--------------------------------------------------------
@@ -36,7 +36,7 @@ namespace Framework.War.Editor
         //--------------------------------------------------------
         protected override void OnGUI()
         {
-            var window = GetOwner<WarWorldEditor>();
+            var window = GetOwner<BattleWorldEditor>();
             Rect rect = GetRect();
             GUILayout.BeginArea(new Rect(rect.x, rect.y + 20, rect.width, rect.height - 20));
 

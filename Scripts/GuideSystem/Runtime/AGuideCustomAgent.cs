@@ -17,6 +17,7 @@ namespace Framework.Guide
             public EBitGuiType bBit = EBitGuiType.None;
             public EArgvFalg Flag = EArgvFalg.All;
             public bool canEdit = true;
+            public string defaultValule = "";
         }
         [System.Serializable]
         public class AgentUnit

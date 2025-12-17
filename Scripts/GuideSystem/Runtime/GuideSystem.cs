@@ -639,11 +639,6 @@ namespace Framework.Guide
                     OnEvent(m_pDoingNode.GetBeginEvents());
                     OnNodeCall(m_pDoingNode);
                 }
-                else
-                {
-                    if(!m_pDoingNode.IsOption() && m_GuidePanel!=null)
-                        m_GuidePanel.SetMaskActive(true);
-                }
                 return true;
             }
             return false;
@@ -762,7 +757,6 @@ namespace Framework.Guide
                 if (m_fDeltaDelta <= 0)
                 {
                     m_fDeltaDelta = 0;
-                    if (m_GuidePanel != null) m_GuidePanel.SetMaskActive(false);
                     if (m_pDoingNode!=null)
                     {
                         OnEvent(m_pDoingNode.GetBeginEvents());
@@ -790,7 +784,7 @@ namespace Framework.Guide
                     m_fAutoNextDelta -= fFrame;
                     if (m_fAutoNextDelta <= 0)
                     {
-                        if(m_pDoingNode != null)
+                        if (m_pDoingNode != null)
                         {
                             int loopTrack = 0;
                             ExcudeNode pNode = m_pDoingNode.GetAutoExcudeNode();
@@ -799,11 +793,15 @@ namespace Framework.Guide
                                 OnEvent(pNode.GetBeginEvents());
                                 OnNodeCall(pNode);
                                 OnEvent(pNode.GetEndEvents());
+                                AddTracking(pNode);
                                 SeqNode pNext = CheckNext(pNode);
                                 if (pNext is ExcudeNode)
+                                {
                                     pNode = pNext as ExcudeNode;
+                                }
                                 else
                                     pNode = null;
+                                if (pNext != null) SetDoingNod(pNext);
                                 loopTrack++;
                             }
                         }
@@ -879,11 +877,6 @@ namespace Framework.Guide
                     OnEvent(m_pDoingNode.GetBeginEvents());
                     OnNodeCall(m_pDoingNode);
                 }
-                else
-                {
-                    if (!m_pDoingNode.IsOption() && m_GuidePanel != null)
-                        m_GuidePanel.SetMaskActive(true);
-                }
             }
         }
 
@@ -907,7 +900,7 @@ namespace Framework.Guide
             if (pNode is Framework.Guide.StepNode)
             {
                 if (m_GuidePanel != null)
-                    m_GuidePanel.ResetData();
+                    m_GuidePanel.ClearWidget();
                 if (GuideStepHandler.OnGuideNodeAutoNext(pNode as Framework.Guide.StepNode))
                     return;
             }
@@ -1071,7 +1064,7 @@ namespace Framework.Guide
             if (pNode is Framework.Guide.StepNode)
             {
                 if (m_GuidePanel != null)
-                    m_GuidePanel.ResetData();
+                    m_GuidePanel.ClearWidget();
                 GuideStepHandler.OnGuideExecuteNode(pNode as Framework.Guide.StepNode);
             }
             if (pNode is Framework.Guide.ExcudeNode)

@@ -60,6 +60,7 @@ namespace Framework.Guide
         private bool m_bMaskSelfWidget = false;
         private int m_nListIndex = -1;
         private int m_nListenLastFrame = 0;
+        private int m_nRaytestListenLastFrame = 0;
         private Vector3 m_FingerOffset = Vector3.zero;
         private EFingerType m_fingerType = EFingerType.None;
         private bool m_bClickZoom = false;
@@ -314,6 +315,7 @@ namespace Framework.Guide
             m_pGuideWidget = null;
             m_pGuideTriggerListen = null;
             m_ListenGuideGuid = 0;
+            m_nRaytestListenLastFrame = 0;
             m_ListenGuideGuidTag = null;
             m_bListenGuideWidget = false;
             m_bConvertUIPos = false;
@@ -330,6 +332,11 @@ namespace Framework.Guide
             m_ClickZoomPosition = Vector3.zero;
             m_ClickAngle = Vector3.zero;
             m_bClick3DPosition = false;
+            if (m_Serialize && m_Serialize.uiPenetrate)
+            {
+                m_Serialize.uiPenetrate.gameObject.SetActive(false);
+                m_Serialize.uiPenetrate.EnablePenetrate(false, m_ListenGuideGuid, m_nListIndex, m_ListenGuideGuidTag);
+            }
         }
         //------------------------------------------------------
         public Transform TargetContainer
@@ -643,25 +650,30 @@ namespace Framework.Guide
                 if(m_pOriGuideWidget!=null)
                 {
                     bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest);
-                    if (!bListenWidgetInView)
+                    if (Time.frameCount- m_nRaytestListenLastFrame>=5)
                     {
-                        if (m_bMaskSelfWidget)
+                        m_nRaytestListenLastFrame = Time.frameCount;
+                        if (!bListenWidgetInView)
                         {
-                            m_Serialize.BgMask?.gameObject.SetActive(false);
-                        }
+                            if (m_bMaskSelfWidget)
+                            {
+                                if(m_bRayTest) m_Serialize.BgMask?.gameObject.SetActive(false);
+                            }
 
-                        if(GuideSystem.getInstance().bNoForceDoing)
+                            if (GuideSystem.getInstance().bNoForceDoing)
+                            {
+                                GuideSystem.getInstance().OverGuide(false);
+                            }
+                        }
+                        else
                         {
-                            GuideSystem.getInstance().OverGuide(false);
+                            if (m_bMaskSelfWidget)
+                            {
+                                m_Serialize.BgMask?.gameObject.SetActive(true);
+                            }
                         }
                     }
-                    else
-                    {
-                        if (m_bMaskSelfWidget)
-                        {
-                            m_Serialize.BgMask?.gameObject.SetActive(true);
-                        }
-                    }
+ 
                 }
                 else
                 {
@@ -691,8 +703,10 @@ namespace Framework.Guide
 
                         var widgetRect = m_pOriGuideWidget? m_pOriGuideWidget: m_pGuideWidget;
                         m_Serialize.uiPenetrate.TriggerGo = widgetRect?.gameObject;
+                        m_Serialize.uiPenetrate.EnablePenetrate(!IsMaskActive(), m_ListenGuideGuid, m_nListIndex, m_ListenGuideGuidTag);
+                        m_Serialize.uiPenetrate.gameObject.SetActive(!IsMaskActive());
 
-                        if(widgetRect!=null && widgetRect is RectTransform)
+                        if (widgetRect!=null && widgetRect is RectTransform && m_Serialize.uiPenetrate.isActiveAndEnabled)
                         {
                             RectTransform rectTransform = widgetRect as RectTransform;
                             RectTransform rect = m_Serialize.uiPenetrate.transform as RectTransform;
@@ -826,6 +840,11 @@ namespace Framework.Guide
             if (BgMask) BgMask.SetActive(isActive);
         }
         //-------------------------------------------
+        public bool IsMaskActive()
+        {
+            return BgMask && BgMask.gameObject.activeSelf;
+        }
+        //-------------------------------------------
         public void SetMaskColor(Color color)
         {
             if (m_Serialize && m_Serialize.BgMask)
@@ -879,7 +898,7 @@ namespace Framework.Guide
             {
                 if (AvatarTipLabel != null)
                 {
-                    m_DialogCoroutine = TargetContainer.GetComponent<Image>().StartCoroutine(LabelTransition(content, speed));
+                    m_DialogCoroutine = this.m_Serialize?.StartCoroutine(LabelTransition(content, speed));
                 }
             }
             else
@@ -1169,12 +1188,12 @@ namespace Framework.Guide
             if(IsEditorPreview)
                 m_nListenLastFrame = 0;
 #endif
-            if (m_nListenLastFrame > 0 && Time.frameCount - m_nListenLastFrame < 20)
+            if (m_nListenLastFrame > 0 && Time.frameCount - m_nListenLastFrame < 5)
                 return;
             m_nListenLastFrame = Time.frameCount;
 
             AGuideGuid widget = GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag);
-            if (widget && IsCheckInViewAdnCanHit(widget.transform, m_bRayTest))
+            if (widget && IsCheckInViewAdnCanHit(widget.transform, false))
             {
                 if (m_bMaskSelfWidget) SetMaskActive(true);
                 //检测组件状态,如果强制引导,并且没有跳过步骤,则默认显示
@@ -1780,8 +1799,25 @@ namespace Framework.Guide
                         int checkIndex = 0;
                         if(this.BgMask!=null && this.BgMask.gameObject.activeInHierarchy)
                         {
-                            if (m_RayTestResults[0].gameObject == this.BgMask)
-                                checkIndex = 1;
+                            foreach (var db in m_RayTestResults)
+                            {
+                                if (db.gameObject == this.BgMask)
+                                {
+                                    m_RayTestResults.Remove(db);
+                                    break;
+                                }
+                            }
+                        }
+                        if(m_Serialize.uiPenetrate)
+                        {
+                            foreach(var db in m_RayTestResults)
+                            {
+                                if(db.gameObject == m_Serialize.uiPenetrate.gameObject)
+                                {
+                                    m_RayTestResults.Remove(db);
+                                    break;
+                                }
+                            }
                         }
 
                         if(checkIndex < m_RayTestResults.Count)

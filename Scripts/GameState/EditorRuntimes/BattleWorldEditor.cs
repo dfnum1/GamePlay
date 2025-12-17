@@ -12,7 +12,7 @@ using Color = UnityEngine.Color;
 
 namespace Framework.War.Editor
 {
-    public class WarWorldEditor : EditorWindowBase
+    public class BattleWorldEditor : EditorWindowBase
     {
         private const float EDGE_SNAP_OFFSET = 1;
         enum EDragEdge
@@ -55,7 +55,7 @@ namespace Framework.War.Editor
                 EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
                 return;
             }
-            WarWorldEditor window = EditorWindow.GetWindow<WarWorldEditor>();
+            BattleWorldEditor window = EditorWindow.GetWindow<BattleWorldEditor>();
             window.titleContent = new GUIContent("战争世界编辑器");
         }
         //--------------------------------------------------------

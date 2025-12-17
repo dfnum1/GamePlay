@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Framework.War.Editor
 {
-    [EditorBinder(typeof(WarWorldEditor), "PreviewRect")]
+    [EditorBinder(typeof(BattleWorldEditor), "PreviewRect")]
     public class PreviewLogic : AEditorLogic
     {
         TargetPreview m_Preview;
@@ -57,7 +57,7 @@ namespace Framework.War.Editor
         //--------------------------------------------------------
         protected override void OnGUI()
         {
-            var window = GetOwner<WarWorldEditor>();
+            var window = GetOwner<BattleWorldEditor>();
             if (m_Preview != null && window.PreviewRect.width > 0 && window.PreviewRect.height > 0)
             {
                 if (m_PreviewStyle == null) m_PreviewStyle = new GUIStyle(EditorStyles.textField);

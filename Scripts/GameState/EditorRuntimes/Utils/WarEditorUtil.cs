@@ -10,7 +10,7 @@ namespace Framework.War.Editor
         {
             if (string.IsNullOrEmpty(ms_installPath))
             {
-                var scripts = UnityEditor.AssetDatabase.FindAssets("t:Script WarWorldEditor");
+                var scripts = UnityEditor.AssetDatabase.FindAssets("t:Script BattleWorldEditor");
                 if (scripts.Length > 0)
                 {
                     ms_installPath = System.IO.Path.GetDirectoryName(UnityEditor.AssetDatabase.GUIDToAssetPath(scripts[0])).Replace("\\", "/");

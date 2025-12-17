@@ -42,6 +42,12 @@ namespace Framework.Guide
                         guidePanel.bDoing = true;
                     }
                     return true;
+                case GuideExcudeType.ResetGuidePanel:
+                    {
+                        guidePanel.ResetData();
+                        guidePanel.bDoing = true;
+                    }
+                    return true;
                 default:
                     return false;
             }

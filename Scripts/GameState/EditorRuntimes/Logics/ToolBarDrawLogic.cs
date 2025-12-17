@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Framework.War.Editor
 {
-    [EditorBinder(typeof(WarWorldEditor), "ToolBarRect")]
+    [EditorBinder(typeof(BattleWorldEditor), "ToolBarRect")]
     public class ToolBarDrawLogic : AEditorLogic
     {
         //--------------------------------------------------------

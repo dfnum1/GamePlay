@@ -292,7 +292,7 @@ namespace Framework.Guide.Editor
                             }
                             GUILayout.EndHorizontal();
                             if (m_bExpandInput)
-                                m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs);
+                                m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs,true);
                         }
                     }
                     EditorGUILayout.EndScrollView();
@@ -329,7 +329,7 @@ namespace Framework.Guide.Editor
                             m_bExpandInput = true;
                         }
                         GUILayout.EndHorizontal();
-                        if (m_bExpandInput) m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs);
+                        if (m_bExpandInput) m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs,true);
                     }
                     GUILayout.Space(5);
                     {
@@ -379,7 +379,7 @@ namespace Framework.Guide.Editor
                             m_bExpandInput = true;
                         }
                         GUILayout.EndHorizontal();
-                        if (m_bExpandInput) m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs);
+                        if (m_bExpandInput) m_pSelect.unit.inputs = DrawAgentUnitParams(m_pSelect.unit, m_pSelect.unit.inputs,true);
                     }
                     GUILayout.Space(5);
                     {
@@ -492,7 +492,7 @@ namespace Framework.Guide.Editor
             }
         }
         //--------------------------------------------------------
-        AGuideCustomAgent.AgentArgv[] DrawAgentUnitParams(AGuideCustomAgent.AgentUnit unit, AGuideCustomAgent.AgentArgv[] vParams)
+        AGuideCustomAgent.AgentArgv[] DrawAgentUnitParams(AGuideCustomAgent.AgentUnit unit, AGuideCustomAgent.AgentArgv[] vParams, bool bShowDefault = false)
         {
             if (vParams == null)
                 return vParams;
@@ -502,11 +502,13 @@ namespace Framework.Guide.Editor
             float editColWidth = 70;
             float displayWidth = 100;
             float headWidth = (width - controlWidth- editColWidth- displayWidth) / 3;
+            if (bShowDefault) headWidth = (width - controlWidth - editColWidth - displayWidth) / 4;
             GUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("参数名", GUILayout.Width(headWidth));          
             GUILayout.Label("Port定义", GUILayout.Width(headWidth));
             GUILayout.Label("显示规则", GUILayout.Width(displayWidth));
+            if(bShowDefault) GUILayout.Label("默认值", GUILayout.Width(displayWidth));
             GUILayout.Label(new GUIContent("位标志","当显示规则为枚举时，才有位标志编辑"), GUILayout.Width(headWidth));
             EditorGUILayout.EndHorizontal();
 
@@ -524,6 +526,10 @@ namespace Framework.Guide.Editor
                 else
                 {
                     vParams[i].displayType = null;
+                }
+                if(bShowDefault)
+                {
+                    vParams[i].defaultValule = EditorGUILayout.TextField(vParams[i].defaultValule, new GUILayoutOption[] { GUILayout.Width(headWidth) });
                 }
                 bool isEnum = false;
                 if(vParams[i].displayType!=null && GuideSystemEditor.DisplayTypes.TryGetValue(vParams[i].displayType, out var attrType))

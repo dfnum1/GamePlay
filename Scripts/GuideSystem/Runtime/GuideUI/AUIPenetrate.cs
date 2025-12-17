@@ -17,7 +17,7 @@ namespace Framework.Guide
             get { return m_TriggerGo; }
             set
             {
-                if(m_TriggerGo != value)
+                if (m_TriggerGo != value)
                 {
                     m_Listener = null;
                     m_TriggerGo = value;
@@ -27,37 +27,30 @@ namespace Framework.Guide
         }
         AEventTriggerListener m_Listener;
 
+        private bool m_bPenetrate = false;
+        private int m_PenetrateGUID = 0;
+        private int m_nListIndex = -1;
+        private string m_PenetrateTag = null;
         public string SearchListenName;
-
+        //------------------------------------------------------
+        public void EnablePenetrate(bool bPenetrate, int target = 0, int listIndex = -1, string targetTag = null)
+        {
+            m_bPenetrate = bPenetrate;
+            m_PenetrateGUID = target;
+            m_PenetrateTag = targetTag;
+            m_nListIndex = listIndex;
+        }
+        //------------------------------------------------------
+        bool OnUIWidgetTrigger(BaseEventData eventData, EUIWidgetTriggerType eventType)
+        {
+            if (m_bPenetrate && m_PenetrateGUID != 0 && eventType != EUIWidgetTriggerType.None)
+                Guide.GuideSystem.getInstance().OnUIWidgetTrigger(m_PenetrateGUID, m_nListIndex, m_PenetrateTag, eventType);
+            return false;
+        }
         //------------------------------------------------------
         void CheckTargetListen()
         {
-            if (m_Listener ==null && m_TriggerGo != null)
-            {
-                m_Listener = m_TriggerGo.GetComponent<AEventTriggerListener>();
-                if (m_Listener == null)
-                {
-                    //加上名字判断
-                    
-                    if (string.IsNullOrWhiteSpace(SearchListenName))
-                    {
-                        m_Listener = m_TriggerGo.GetComponentInChildren<AEventTriggerListener>();
-                    }
-                    else
-                    {
-                        var listeners = m_TriggerGo.GetComponentsInChildren<AEventTriggerListener>();
-                        foreach (var item in listeners)
-                        {
-                            if (item.name.Equals(SearchListenName))
-                            {
-                                m_Listener = item;
-                                break;
-                            }
-                        }
-                    }
-                    
-                }
-            }
+            return;
         }
         //------------------------------------------------------
         private bool bCommonListener()
@@ -72,10 +65,13 @@ namespace Framework.Guide
                 bool bCommon = bCommonListener();
                 if (ExecuteEvents.Execute<IBeginDragHandler>(m_Listener.gameObject, eventData, ExecuteEvents.beginDragHandler))
                     return;
-                if (bCommon)  return;
+                if (bCommon) return;
             }
             if (TriggerGo)
+            {
                 ExecuteEvents.Execute<IBeginDragHandler>(TriggerGo, eventData, ExecuteEvents.beginDragHandler);
+            }
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.BeginDrag);
         }
         //------------------------------------------------------
         public override void OnDrag(PointerEventData eventData)
@@ -89,6 +85,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IDragHandler>(TriggerGo, eventData, ExecuteEvents.dragHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Drag);
         }
         //------------------------------------------------------
         public override void OnEndDrag(PointerEventData eventData)
@@ -98,17 +95,18 @@ namespace Framework.Guide
                 bool bCommon = bCommonListener();
                 if (ExecuteEvents.Execute<IEndDragHandler>(m_Listener.gameObject, eventData, ExecuteEvents.endDragHandler))
                     return;
-                    if (bCommon) return;
+                if (bCommon) return;
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IEndDragHandler>(TriggerGo, eventData, ExecuteEvents.endDragHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.EndDrag);
         }
         //------------------------------------------------------
         public override void OnPointerClick(PointerEventData eventData)
         {
-            bool bActive = TriggerGo?TriggerGo.activeSelf:false;
+            bool bActive = TriggerGo ? TriggerGo.activeSelf : false;
             if (!bActive && TriggerGo) TriggerGo.SetActive(true);
-            if (m_Listener!=null)
+            if (m_Listener != null)
             {
                 bool bCommon = bCommonListener();
 
@@ -128,6 +126,7 @@ namespace Framework.Guide
                 TriggerGo.SetActive(bActive);
                 ExecuteEvents.Execute<IPointerClickHandler>(TriggerGo, eventData, ExecuteEvents.pointerClickHandler);
             }
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Click);
         }
         //------------------------------------------------------
         public override void OnPointerDown(PointerEventData eventData)
@@ -143,6 +142,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IPointerDownHandler>(TriggerGo, eventData, ExecuteEvents.pointerDownHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Down);
         }
         //------------------------------------------------------
         public override void OnPointerUp(PointerEventData eventData)
@@ -157,6 +157,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IPointerUpHandler>(TriggerGo, eventData, ExecuteEvents.pointerUpHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Up);
         }
         //------------------------------------------------------
         public override void OnPointerExit(PointerEventData eventData)
@@ -170,6 +171,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IPointerExitHandler>(TriggerGo, eventData, ExecuteEvents.pointerExitHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Exit);
         }
         //------------------------------------------------------
         public override void OnPointerEnter(PointerEventData eventData)
@@ -183,6 +185,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IPointerEnterHandler>(TriggerGo, eventData, ExecuteEvents.pointerEnterHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Enter);
         }
         //------------------------------------------------------
         public override void OnDrop(PointerEventData eventData)
@@ -196,6 +199,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IDropHandler>(TriggerGo, eventData, ExecuteEvents.dropHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Drop);
         }
         //------------------------------------------------------
         public override void OnScroll(PointerEventData eventData)
@@ -209,6 +213,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IScrollHandler>(TriggerGo, eventData, ExecuteEvents.scrollHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Scroll);
         }
         //------------------------------------------------------
         public override void OnMove(AxisEventData eventData)
@@ -222,6 +227,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IMoveHandler>(TriggerGo, eventData, ExecuteEvents.moveHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Move);
         }
         //------------------------------------------------------
         public override void OnSubmit(BaseEventData eventData)
@@ -235,6 +241,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<ISubmitHandler>(TriggerGo, eventData, ExecuteEvents.submitHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Submit);
         }
         //------------------------------------------------------
         public override void OnCancel(BaseEventData eventData)
@@ -248,6 +255,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<ICancelHandler>(TriggerGo, eventData, ExecuteEvents.cancelHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Cancel);
         }
         //------------------------------------------------------
         public override void OnSelect(BaseEventData eventData)
@@ -261,6 +269,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<ISelectHandler>(TriggerGo, eventData, ExecuteEvents.selectHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Select);
         }
         //------------------------------------------------------
         public override void OnUpdateSelected(BaseEventData eventData)
@@ -274,6 +283,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IUpdateSelectedHandler>(TriggerGo, eventData, ExecuteEvents.updateSelectedHandler);
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.UpdateSelect);
         }
         //------------------------------------------------------
         public override void OnDeselect(BaseEventData eventData)
@@ -287,7 +297,7 @@ namespace Framework.Guide
             }
             if (TriggerGo)
                 ExecuteEvents.Execute<IDeselectHandler>(TriggerGo, eventData, ExecuteEvents.deselectHandler);
-
+            OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Deselect);
         }
     }
 }

@@ -12,8 +12,8 @@ using UnityEngine;
 
 namespace Framework.War.Editor
 {
-    [EditorBinder(typeof(WarWorldEditor), "AssetRect", -1)]
-    public class AssetDrawLogic : AWarWorldLogic
+    [EditorBinder(typeof(BattleWorldEditor), "AssetRect", -1)]
+    public class AssetDrawLogic : ABattleLogic
     {
         public enum ETab
         {

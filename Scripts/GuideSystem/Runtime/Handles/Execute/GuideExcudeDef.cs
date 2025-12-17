@@ -61,6 +61,9 @@ namespace Framework.Guide
         [GuideArgv("层级", "order", "值越大，代表渲染上层", null, EArgvFalg.All,defaultValue:30000)]
         SetGuideOger = 4,
 
+        [GuideExcude("清理引导界面", true)]
+        ResetGuidePanel = 5,
+
         [GuideDisable]
         CustomBegin = GuideStepType.CustomBegin+1000,
         [GuideDisable]

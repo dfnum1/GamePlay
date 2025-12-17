@@ -1,6 +1,6 @@
 /********************************************************************
 生成日期:	11:07:2025
-类    名: 	AWarWorldLogic
+类    名: 	ABattleLogic
 作    者:	HappLI
 描    述:	战争世界逻辑基础类
 *********************************************************************/
@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace Framework.War.Editor
 {
-    public class AWarWorldLogic : AEditorLogic
+    public class ABattleLogic : AEditorLogic
     {
     }
 }

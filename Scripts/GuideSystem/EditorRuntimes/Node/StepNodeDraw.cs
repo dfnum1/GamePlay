@@ -63,6 +63,14 @@ namespace Framework.Guide.Editor
 
                 pNode.fDeltaSignTime = EditorGUILayout.FloatField("交互延时(s)", pNode.fDeltaSignTime);
             }
+            else
+            {
+                float labelWidthBack = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = 80;
+                pNode.bAutoSignCheck = true;
+                pNode.bAutoSignCheck = EditorGUILayout.Toggle(new GUIContent("自动检测信号", ""), pNode.bAutoSignCheck);
+                EditorGUIUtility.labelWidth = labelWidthBack;
+            }
 
             
 

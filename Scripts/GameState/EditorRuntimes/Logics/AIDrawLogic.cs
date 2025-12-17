@@ -12,8 +12,8 @@ using UnityEngine.UIElements;
 
 namespace Framework.War.Editor
 {
-    [EditorBinder(typeof(WarWorldEditor), "TimelineRect", 100)]
-    public class AIDrawLogic : AWarWorldLogic
+    [EditorBinder(typeof(BattleWorldEditor), "TimelineRect", 100)]
+    public class AIDrawLogic : ABattleLogic
     {
         VisualElement m_pRoot;
         AILogicDrawView m_pGraphView;
