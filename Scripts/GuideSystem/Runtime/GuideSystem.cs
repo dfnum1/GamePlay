@@ -682,16 +682,13 @@ namespace Framework.Guide
             {
                 SeqNode seq = pNode as SeqNode;
 
-                if(!IsExecuted)
+                //! if excude node, trigger events
+                ExcudeNode excude = pNode as ExcudeNode;
+                if (excude != null && (!IsExecuted || excude.bRepeatableTrigger))
                 {
-                    //! if excude node, trigger events
-                    ExcudeNode excude = pNode as ExcudeNode;
-                    if (excude != null)
-                    {
-                        OnEvent(excude.GetBeginEvents());
-                        OnNodeCall(excude);
-                        OnEvent(excude.GetEndEvents());
-                    }
+                    OnEvent(excude.GetBeginEvents());
+                    OnNodeCall(excude);
+                    OnEvent(excude.GetEndEvents());
                 }
 
 
@@ -790,10 +787,10 @@ namespace Framework.Guide
                             ExcudeNode pNode = m_pDoingNode.GetAutoExcudeNode();
                             while (pNode != null && loopTrack < 100)
                             {
-                                OnEvent(pNode.GetBeginEvents());
-                                OnNodeCall(pNode);
-                                OnEvent(pNode.GetEndEvents());
-                                AddTracking(pNode);
+                                //OnEvent(pNode.GetBeginEvents());
+                                //OnNodeCall(pNode);
+                                //OnEvent(pNode.GetEndEvents());
+                                //AddTracking(pNode);
                                 SeqNode pNext = CheckNext(pNode);
                                 if (pNext is ExcudeNode)
                                 {
