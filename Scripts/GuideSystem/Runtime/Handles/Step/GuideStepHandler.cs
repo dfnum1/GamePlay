@@ -171,6 +171,7 @@ namespace Framework.Guide
                 case GuideStepType.WaitGameobjectCanClick:
                     return WaitGameobjectCanClick(pNode);
                 case GuideStepType.Delay:
+                    guidePanel.ClearData();
                     return true;
                 default:
                     break;

@@ -14,7 +14,7 @@ namespace Framework.Guide
     public struct CallbackParam
     {
         /// <summary>
-        /// 点击的UI控件上面挂载的 AGuideGuid 组件上的 guid
+        /// 点击的UI控件上面挂载的 GuideGuid 组件上的 guid
         /// </summary>
         public int widgetGuid;
         public string widgetTag;
@@ -574,7 +574,7 @@ namespace Framework.Guide
             if (pTrigger != null)
             {
                 int nTrackingCnt = m_vTracking.Count;
-               // m_vTracking.Clear();
+              //  m_vTracking.Clear();
                 AddTracking(pTrigger);
                 pTrigger.FillArgv(pArgvs);
                 SeqNode pNext = null;
@@ -591,9 +591,9 @@ namespace Framework.Guide
                     pNext = CheckStart(pTrigger);
                 if (pNext == null)
                 {
-                    if (nTrackingCnt < m_vTracking.Count)
+                    if(nTrackingCnt <m_vTracking.Count)
                     {
-                        for (int i = m_vTracking.Count - 1; i >= nTrackingCnt; --i)
+                        for(int i = m_vTracking.Count -1; i >= nTrackingCnt; --i)
                         {
                             OnNodeExit(m_vTracking[i]);
                         }
@@ -620,6 +620,7 @@ namespace Framework.Guide
                         nTrackingCnt--;
                     }
                 }
+
                 m_pDoingTriggerNode = pTrigger;
                 SetDoingNod(pNext);
                 AddTracking(m_pDoingNode);
@@ -776,40 +777,7 @@ namespace Framework.Guide
 
             if (m_pDoingNode != null)
             {
-                if (m_pDoingNode.GetAutoNextTime() > 0)
-                {
-                    m_fAutoNextDelta -= fFrame;
-                    if (m_fAutoNextDelta <= 0)
-                    {
-                        if (m_pDoingNode != null)
-                        {
-                            int loopTrack = 0;
-                            ExcudeNode pNode = m_pDoingNode.GetAutoExcudeNode();
-                            while (pNode != null && loopTrack < 100)
-                            {
-                                //OnEvent(pNode.GetBeginEvents());
-                                //OnNodeCall(pNode);
-                                //OnEvent(pNode.GetEndEvents());
-                                //AddTracking(pNode);
-                                SeqNode pNext = CheckNext(pNode);
-                                if (pNext is ExcudeNode)
-                                {
-                                    pNode = pNext as ExcudeNode;
-                                }
-                                else
-                                    pNode = null;
-                                if (pNext != null) SetDoingNod(pNext);
-                                loopTrack++;
-                            }
-                        }
-                        DoNext();
-                    }
-                }
-                else if (m_pDoingNode.IsAutoNext())
-                {
-                    DoNext();
-                }
-                else if(m_pDoingNode !=null )
+                BaseNode pCurDoding = m_pDoingNode;
                 {
                     if(m_pDoingNode.IsAutoSignCheck() && OnNodeSign(m_pDoingNode))
                     {
@@ -826,6 +794,27 @@ namespace Framework.Guide
                         }
                         else
                             DoNext();
+                    }
+                }
+
+                if (m_pDoingNode != null && pCurDoding == m_pDoingNode)
+                {
+                    if (m_pDoingNode.GetAutoNextTime() > 0)
+                    {
+                        m_fAutoNextDelta -= fFrame;
+                        if (m_fAutoNextDelta <= 0)
+                        {
+                            if (m_pDoingNode != null)
+                            {
+                                ExcudeNode pNode = m_pDoingNode.GetAutoExcudeNode();
+                                if (pNode != null) GotoNode(pNode);
+                                else DoNext();
+                            }
+                        }
+                    }
+                    else if (m_pDoingNode.IsAutoNext())
+                    {
+                        DoNext();
                     }
                 }
             }
@@ -876,7 +865,6 @@ namespace Framework.Guide
                 }
             }
         }
-
         //------------------------------------------------------
         private void SetDoingNod(SeqNode pNext)
         {
