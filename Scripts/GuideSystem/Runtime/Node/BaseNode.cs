@@ -98,7 +98,7 @@ namespace Framework.Guide
         public int[] Ops = null;
         public int nextGuid = 0;
         public bool bFireCheck = false;
-        public bool bRepeatableTrigger = false;
+        public bool bCanRepeatTrigger = false;
 
         public override List<ArgvPort> GetArgvPorts()
         {

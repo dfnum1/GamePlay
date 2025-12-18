@@ -684,7 +684,7 @@ namespace Framework.Guide
 
                 //! if excude node, trigger events
                 ExcudeNode excude = pNode as ExcudeNode;
-                if (excude != null && (!IsExecuted || excude.bRepeatableTrigger))
+                if (excude != null && (!IsExecuted || excude.bCanRepeatTrigger))
                 {
                     OnEvent(excude.GetBeginEvents());
                     OnNodeCall(excude);

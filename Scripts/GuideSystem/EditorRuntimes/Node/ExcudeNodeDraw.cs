@@ -46,7 +46,11 @@ namespace Framework.Guide.Editor
                 return;
 
             pNode.bFireCheck = EditorGUILayout.Toggle(new GUIContent("触发检测","勾选后，可将本次触发器的触发条件前置判断，如果满足，则触发该引导"), pNode.bFireCheck);
-            pNode.bRepeatableTrigger = EditorGUILayout.Toggle(new GUIContent("可重复触发", "勾选后，如果该触发器已经出发过，再次调用到该节点时，可重复触发"), pNode.bRepeatableTrigger);
+
+            using (new Framework.ED.GUILabelWidthScope(80))
+            {
+                pNode.bCanRepeatTrigger = EditorGUILayout.Toggle(new GUIContent("可重复触发", "勾选后，如果该触发器已经出发过，再次调用到该节点时，可重复触发"), pNode.bCanRepeatTrigger);
+            }
 
 
             for (int i = 0; i < pNode._Ports.Count; ++i)
