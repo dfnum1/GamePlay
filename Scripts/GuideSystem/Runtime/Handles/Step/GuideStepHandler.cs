@@ -440,9 +440,9 @@ namespace Framework.Guide
             float x = pNode._Ports[3].fillValue * 0.001f;
             float y = pNode._Ports[4].fillValue * 0.001f;
             float z = pNode._Ports[5].fillValue * 0.001f;
-            float radius = pNode._Ports[6].fillValue*0.001f* guidePanel.GetUGUIScaler();
             if (is3D)
             {
+                float radius = pNode._Ports[6].fillValue * 0.001f;
                 var mainCam = Camera.main;
                 if (mainCam == null)
                     return false;
@@ -456,6 +456,7 @@ namespace Framework.Guide
             }
             else
             {
+                float radius = pNode._Ports[6].fillValue * 0.001f * guidePanel.GetUGUIScaler();
                 Vector3 uguiPos = Vector3.zero;
                 if (!guidePanel.ScreenToUIPos(param.mousePos, true, ref uguiPos))
                     return false;

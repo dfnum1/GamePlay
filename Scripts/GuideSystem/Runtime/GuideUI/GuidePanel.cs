@@ -14,6 +14,7 @@ namespace Framework.Guide
 {
     public class GuidePanel
     {
+        const float LISTEN_WIDGET_OVERTIME = 1.0f;
         public static Vector3 INVAILD_POS = new Vector3(-9000, -9000, -9000);
         static Vector3[] ms_contersArray = new Vector3[4];
         Vector3[] ms_contersArray1 = new Vector3[4];
@@ -61,6 +62,7 @@ namespace Framework.Guide
         private int m_nListIndex = -1;
         private int m_nListenLastFrame = 0;
         private int m_nRaytestListenLastFrame = 0;
+        private float m_fListenWidgetCheckTime = 0;
         private Vector3 m_FingerOffset = Vector3.zero;
         private EFingerType m_fingerType = EFingerType.None;
         private bool m_bClickZoom = false;
@@ -323,6 +325,7 @@ namespace Framework.Guide
             m_bRayTest = false;
             m_nListIndex = -1;
             m_nListenLastFrame = 0;
+            m_fListenWidgetCheckTime = 0;
             m_fingerType = EFingerType.None;
             m_FingerOffset = Vector3.zero;
             m_SearchListenName = null;
@@ -644,10 +647,19 @@ namespace Framework.Guide
             if(m_bListenGuideWidget)
             {
                 ListenWidget();
+                if (m_fListenWidgetCheckTime >= LISTEN_WIDGET_OVERTIME && m_pOriGuideWidget == null)
+                {
+                    m_fListenWidgetCheckTime = 0;
+                    if (m_bRayTest)
+                    {
+                        if (m_bMaskSelfWidget) SetMaskActive(false);
+                    }
+                }
             }
             else
             {
-                if(m_pOriGuideWidget!=null)
+                m_fListenWidgetCheckTime = 0;
+                if (m_pOriGuideWidget!=null)
                 {
                     bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest);
                     if (Time.frameCount- m_nRaytestListenLastFrame>=5)
@@ -667,10 +679,7 @@ namespace Framework.Guide
                         }
                         else
                         {
-                            if (m_bMaskSelfWidget)
-                            {
-                                m_Serialize.BgMask?.gameObject.SetActive(true);
-                            }
+                            if (m_bMaskSelfWidget) SetMaskActive(true);
                         }
                     }
  
@@ -1167,6 +1176,7 @@ namespace Framework.Guide
             m_bConvertUIPos = false;
             m_bRayTest = bRayTest;
             m_nListenLastFrame = Time.frameCount;
+            m_fListenWidgetCheckTime = 0;
             m_SearchListenName = searchName;
             m_bMaskSelfWidget = bMaskSelf;
             SetFinger(type, angle, new Vector3(offset.x, offset.y, 0));
@@ -1193,6 +1203,12 @@ namespace Framework.Guide
             m_nListenLastFrame = Time.frameCount;
 
             AGuideGuid widget = GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag);
+            if (widget == null)
+            {
+                m_fListenWidgetCheckTime += Time.unscaledDeltaTime;
+            }
+            else
+                m_fListenWidgetCheckTime = 0;
             if (widget && IsCheckInViewAdnCanHit(widget.transform, false))
             {
                 if (m_bMaskSelfWidget) SetMaskActive(true);
