@@ -258,7 +258,7 @@ namespace Framework.ED
     //------------------------------------------------------
     //!GUIViewportScope
     //------------------------------------------------------
-    struct GUIViewportScope : IDisposable
+    public struct GUIViewportScope : IDisposable
     {
         bool m_open;
         public GUIViewportScope(Rect position)
@@ -288,7 +288,7 @@ namespace Framework.ED
     //------------------------------------------------------
     //!GUIColorScope
     //------------------------------------------------------
-    struct GUIColorScope : IDisposable
+    public struct GUIColorScope : IDisposable
     {
         Color m_backup;
         public GUIColorScope(Color color)
@@ -300,6 +300,23 @@ namespace Framework.ED
         public void Dispose()
         {
             GUI.color = m_backup;
+        }
+    }
+    //------------------------------------------------------
+    //!GUILabelWidthScope
+    //------------------------------------------------------
+    public struct GUILabelWidthScope : IDisposable
+    {
+        float m_backup;
+        public GUILabelWidthScope(float width)
+        {
+            m_backup = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = width;
+        }
+
+        public void Dispose()
+        {
+            EditorGUIUtility.labelWidth = m_backup;
         }
     }
 }
