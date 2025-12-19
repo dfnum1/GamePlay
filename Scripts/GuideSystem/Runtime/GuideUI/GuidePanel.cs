@@ -15,6 +15,7 @@ namespace Framework.Guide
     public class GuidePanel
     {
         const float LISTEN_WIDGET_OVERTIME = 1.0f;
+        const float LISTEN_RAYTEST_OVERTIME = 10.0f;
         public static Vector3 INVAILD_POS = new Vector3(-9000, -9000, -9000);
         static Vector3[] ms_contersArray = new Vector3[4];
         Vector3[] ms_contersArray1 = new Vector3[4];
@@ -662,7 +663,8 @@ namespace Framework.Guide
                 if (m_pOriGuideWidget!=null)
                 {
                     bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest);
-                    if (Time.frameCount- m_nRaytestListenLastFrame>=5)
+                    if(m_nRaytestListenLastFrame<=0) m_nRaytestListenLastFrame = Time.frameCount;
+                    if (Time.frameCount- m_nRaytestListenLastFrame>= LISTEN_RAYTEST_OVERTIME)
                     {
                         m_nRaytestListenLastFrame = Time.frameCount;
                         if (!bListenWidgetInView)
@@ -838,6 +840,25 @@ namespace Framework.Guide
                             m_pClickZoomEditor.transform.localPosition = pos;
 #endif
                         m_Serialize.BgMask?.Set3DTarget((finger as RectTransform).anchoredPosition);
+                        if(m_bMaskSelfWidget)
+                        {
+                            if (m_nRaytestListenLastFrame <= 0) m_nRaytestListenLastFrame = Time.frameCount;
+                            var testResult = IsRayTestEvent(finger);
+                            if (testResult != null && testResult.Count > 0)
+                            {
+                                if (finger) finger.localPosition = INVAILD_POS;
+                                //! forbid hit
+                                if (Time.frameCount - m_nRaytestListenLastFrame >= LISTEN_RAYTEST_OVERTIME)
+                                {
+                                    m_nRaytestListenLastFrame = Time.frameCount;
+                                    SetMaskActive(false);
+                                }
+                            }
+                            else
+                            {
+                                SetMaskActive(true);
+                            }
+                        }
                     }
                 }
             }
@@ -1084,7 +1105,7 @@ namespace Framework.Guide
             finger.rotation = Quaternion.Euler(angle);
         }
         //-------------------------------------------
-        public void ClickZoom(EFingerType type, Vector3 angle, Vector3 pos, bool is3D, float radius)
+        public void ClickZoom(EFingerType type, Vector3 angle, Vector3 pos, bool is3D, float radius, bool bMask)
         {
             m_fingerType = type;
             Transform finger = GetFinger(type);
@@ -1104,7 +1125,9 @@ namespace Framework.Guide
             else pos.z = 0;
                 finger.localPosition = pos;
 
+            m_bMaskSelfWidget = bMask;
             m_bClickZoom = true;
+            m_nRaytestListenLastFrame = 0;
             m_ClickAngle = angle;
             m_bClick3DPosition = is3D;
 
@@ -1177,6 +1200,7 @@ namespace Framework.Guide
             m_bRayTest = bRayTest;
             m_nListenLastFrame = Time.frameCount;
             m_fListenWidgetCheckTime = 0;
+            m_nRaytestListenLastFrame = 0;
             m_SearchListenName = searchName;
             m_bMaskSelfWidget = bMaskSelf;
             SetFinger(type, angle, new Vector3(offset.x, offset.y, 0));
@@ -1783,6 +1807,46 @@ namespace Framework.Guide
             return (worldPosWithRadius - worldPosCenter).magnitude;
         }
         //------------------------------------------------------
+        public List<RaycastResult> IsRayTestEvent(Transform finger)
+        {
+            if (finger == null)
+                return null;
+            RectTransform rectTrans = finger as RectTransform;
+            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(m_pUICamera, rectTrans.TransformPoint(rectTrans.rect.center));
+            if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
+            m_pTestEventData.position = screenPos;
+            if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);
+            m_RayTestResults.Clear();
+            EventSystem.current.RaycastAll(m_pTestEventData, m_RayTestResults);
+
+            if (m_RayTestResults.Count > 0)
+            {
+                if (this.BgMask != null && this.BgMask.gameObject.activeInHierarchy)
+                {
+                    foreach (var db in m_RayTestResults)
+                    {
+                        if (db.gameObject == this.BgMask)
+                        {
+                            m_RayTestResults.Remove(db);
+                            break;
+                        }
+                    }
+                }
+                if (m_Serialize.uiPenetrate)
+                {
+                    foreach (var db in m_RayTestResults)
+                    {
+                        if (db.gameObject == m_Serialize.uiPenetrate.gameObject)
+                        {
+                            m_RayTestResults.Remove(db);
+                            break;
+                        }
+                    }
+                }
+            }
+            return m_RayTestResults;
+        }
+        //------------------------------------------------------
         public bool IsCheckInViewAdnCanHit(Transform pObj, bool bRayTest)
         {
             if (pObj is RectTransform)
@@ -1803,56 +1867,22 @@ namespace Framework.Guide
                     return bInView;
                 if(bInView)
                 {
-                    Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(m_pUICamera, rectTrans.TransformPoint(rectTrans.rect.center));
-                    if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
-                    m_pTestEventData.position = screenPos;
-                    if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);
-                    m_RayTestResults.Clear();
-                    EventSystem.current.RaycastAll(m_pTestEventData, m_RayTestResults);
-
-                    if(m_RayTestResults.Count>0)
+                    var results = IsRayTestEvent(pObj);
+                    if (results!=null && 0 < results.Count)
                     {
-                        int checkIndex = 0;
-                        if(this.BgMask!=null && this.BgMask.gameObject.activeInHierarchy)
+                        var result = results[0];
+                        if (result.gameObject != null)
                         {
-                            foreach (var db in m_RayTestResults)
+                            // 判断是否为目标对象或其子对象
+                            Transform t = result.gameObject.transform;
+                            while (t != null)
                             {
-                                if (db.gameObject == this.BgMask)
-                                {
-                                    m_RayTestResults.Remove(db);
-                                    break;
-                                }
-                            }
-                        }
-                        if(m_Serialize.uiPenetrate)
-                        {
-                            foreach(var db in m_RayTestResults)
-                            {
-                                if(db.gameObject == m_Serialize.uiPenetrate.gameObject)
-                                {
-                                    m_RayTestResults.Remove(db);
-                                    break;
-                                }
-                            }
-                        }
-
-                        if(checkIndex < m_RayTestResults.Count)
-                        {
-                            var result = m_RayTestResults[checkIndex];
-                            if (result.gameObject != null)
-                            {
-                                // 判断是否为目标对象或其子对象
-                                Transform t = result.gameObject.transform;
-                                while (t != null)
-                                {
-                                    if (t == pObj)
-                                        return true;
-                                    t = t.parent;
-                                }
+                                if (t == pObj)
+                                    return true;
+                                t = t.parent;
                             }
                         }
                     }
-   
                 }
                 return false;
             }

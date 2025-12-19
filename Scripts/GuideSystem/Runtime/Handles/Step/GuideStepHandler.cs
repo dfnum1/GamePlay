@@ -410,9 +410,10 @@ namespace Framework.Guide
             float posY = pNode._Ports[4].fillValue * 0.001f;
             float posZ = pNode._Ports[5].fillValue * 0.001f;
             float radius = pNode._Ports[6].fillValue*0.001f;
+            bool bMask = pNode._Ports[7].fillValue != 0;
 
             guidePanel.Show();
-            guidePanel.ClickZoom((EFingerType)touchType, new Vector3(0, 0, angle), new Vector3(posX, posY, posZ), is3D, radius);
+            guidePanel.ClickZoom((EFingerType)touchType, new Vector3(0, 0, angle), new Vector3(posX, posY, posZ), is3D, radius, bMask);
 
             bool bMask = pNode._Ports[7].fillValue != 0;
             EMaskType maskType = (EMaskType)pNode._Ports[8].fillValue;
