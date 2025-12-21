@@ -47,6 +47,15 @@ namespace Framework.AT.Editor
             // GraphView允许进行框选
             this.AddManipulator(new RectangleSelector());
 
+            var miniMap = new MiniMap { anchored = true };
+            miniMap.SetPosition(new Rect(this.layout.width - 210, 10, 200, 140));
+            miniMap.style.overflow = Overflow.Hidden;
+            Add(miniMap);
+            this.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                miniMap.SetPosition(new Rect(this.layout.width - 210, 10, 200, 140));
+            });
+
             // 添加右键菜单
             this.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
             {
