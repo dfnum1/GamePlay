@@ -11,6 +11,7 @@ using UnityEngine;
 using Color = UnityEngine.Color;
 using Framework.Cutscene.Runtime;
 using Framework.AT.Editor;
+using System.IO;
 
 namespace Framework.Cutscene.Editor
 {
@@ -60,7 +61,7 @@ namespace Framework.Cutscene.Editor
                 return;
             }
             CutsceneEditor window = EditorWindow.GetWindow<CutsceneEditor>();
-            window.titleContent = new GUIContent("过场编辑器");
+            window.titleContent = new GUIContent("过场编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("Cutscene/Cutscene.png"));
         }
         //--------------------------------------------------------
         public static void Open(ACutsceneObject pObject)

@@ -76,6 +76,18 @@ namespace Framework.ActorSystem.Runtime
                 Editor.AttrFormulaEditorWindow.Open(target as AActorAttrDatas);
             }
         }
+        //-----------------------------------------------------
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        public static bool OnOpenAsset(int instanceID, int line)
+        {
+            var obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj != null && obj is AActorAttrDatas)
+            {
+                Editor.AttrFormulaEditorWindow.Open(obj as AActorAttrDatas);
+                return true;
+            }
+            return false;
+        }
     }
 #endif
 }

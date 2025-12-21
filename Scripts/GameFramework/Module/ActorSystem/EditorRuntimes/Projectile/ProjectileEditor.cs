@@ -53,7 +53,7 @@ namespace Framework.ProjectileSystem.Editor
         {
             if (Instance == null)
                 EditorWindow.GetWindow<ProjectileEditor>();
-            Instance.titleContent = new GUIContent("飞行道具编辑器");
+            Instance.titleContent = new GUIContent("飞行道具编辑器", AssetUtil.LoadTexture("ActorSystem/Projectile.png"));
             Instance.Focus();
         }
         //-----------------------------------------------------

@@ -30,7 +30,7 @@ namespace Framework.AT.Editor
                 return;
             }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
-            window.titleContent = new GUIContent("蓝图脚本");
+            window.titleContent = new GUIContent("蓝图脚本", EditorResources.LoadTexture("AT/AgentTree.png"));
         }
         //--------------------------------------------------------
         public static AgentTreeWindow Open(AgentTreeData atData, System.Object pObject, AgentTree pAT = null, System.Action<AgentTreeData> OnSave = null)
@@ -52,7 +52,7 @@ namespace Framework.AT.Editor
                 }
             }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
-            window.titleContent = new GUIContent("蓝图脚本");
+            window.titleContent = new GUIContent("蓝图脚本", EditorResources.LoadTexture("AT/AgentTree.png"));
             window.m_pATData = atData;
             window.m_pAT = pAT;
             window.m_onSave = OnSave;

@@ -58,8 +58,10 @@ namespace Framework.ActorSystem.Editor
     {
         static Texture2D s_CustomIcon;
         static Texture2D s_ProjecitleIcon;
+        static Texture2D s_ActorAttriIcon;
         static ActorSystemEngineInit()
         {
+            s_ActorAttriIcon = AssetUtil.LoadTexture("ActorSystem/actor_attris.png");
             s_ProjecitleIcon = AssetUtil.LoadTexture("ActorSystem/Projectile.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
 
@@ -76,6 +78,14 @@ namespace Framework.ActorSystem.Editor
                 {
                     if (EditorGUIUtility.GetIconForObject(obj) != s_ProjecitleIcon)
                         EditorGUIUtility.SetIconForObject(obj, s_ProjecitleIcon);
+                }
+            }
+            else if (obj is AActorAttrDatas)
+            {
+                if (s_ActorAttriIcon != null)
+                {
+                    if (EditorGUIUtility.GetIconForObject(obj) != s_ActorAttriIcon)
+                        EditorGUIUtility.SetIconForObject(obj, s_ActorAttriIcon);
                 }
             }
         }

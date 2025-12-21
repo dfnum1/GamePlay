@@ -415,7 +415,6 @@ namespace Framework.Guide
             guidePanel.Show();
             guidePanel.ClickZoom((EFingerType)touchType, new Vector3(0, 0, angle), new Vector3(posX, posY, posZ), is3D, radius, bMask);
 
-            bool bMask = pNode._Ports[7].fillValue != 0;
             EMaskType maskType = (EMaskType)pNode._Ports[8].fillValue;
             Color maskColor = pNode._Ports[9].ToColor();
             Vector2 maskScale = pNode._Ports[10].ToVec2();

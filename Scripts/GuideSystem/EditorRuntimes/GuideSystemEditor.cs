@@ -172,7 +172,7 @@ namespace Framework.Guide.Editor
             if (Instance != null) return;
             if (Instance == null)
                 Instance = EditorWindow.GetWindow<GuideSystemEditor>();
-            Instance.titleContent = new GUIContent("引导编辑器");
+            Instance.titleContent = new GUIContent("引导编辑器", GuideEditorResources.LoadTexture("GuideSystem/GuideSystem.png"));
             Instance.wantsMouseMove = true;
             Instance.Show();
         }

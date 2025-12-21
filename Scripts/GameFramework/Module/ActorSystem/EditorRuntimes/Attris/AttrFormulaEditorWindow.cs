@@ -8,13 +8,14 @@
 using Framework.ActorSystem.Runtime;
 using Framework.ED;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using static Framework.ActorSystem.Runtime.AActorAttrDatas;
 using static Framework.ActorSystem.Runtime.AActorAttrDatas.AttrFormula;
 namespace Framework.ActorSystem.Editor
 {
-    public class AttrFormulaEditorWindow : EditorWindow
+    public class AttrFormulaEditorWindow : EditorWindowBase
     {
         private AActorAttrDatas m_Data;
         private int m_TabIndex = 0; // 0:属性 1:表达式
@@ -22,17 +23,61 @@ namespace Framework.ActorSystem.Editor
         private int m_SelectedFormulaIndex = -1;
 
         // 滚动位置
+        private List<LambdaParam> m_vInputLambdas = new List<LambdaParam>();
+        private string m_strFormulaInput = "";
         private Vector2 m_LeftScroll;
         private Vector2 m_RightScroll;
+        [MenuItem("Tools/GamePlay/属性编辑器")]
+        public static void Open()
+        {
+            if (EditorApplication.isCompiling)
+            {
+                EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
+                return;
+            }
+            AActorAttrDatas pData = null;
+            string[] guidDatas = AssetDatabase.FindAssets("t:AActorAttrDatas");
+            if (guidDatas != null && guidDatas.Length > 0)
+            {
+                pData = AssetDatabase.LoadAssetAtPath<AActorAttrDatas>(AssetDatabase.GUIDToAssetPath(guidDatas[0]));
+            }
+            if(pData == null)
+            {
+                if(EditorUtility.DisplayDialog("错误", "未找到任何AActorAttrDatas资源，请先创建", "创建", "取消"))
+                {
+                    string savePath = EditorUtility.SaveFilePanelInProject("创建属性数据", "ActorAttrDatas", "asset", "请选择保存路径", Application.dataPath);
+                    if (string.IsNullOrEmpty(savePath))
+                    {
+                        return;
+                    }
+                    AActorAttrDatas projData = Framework.ED.EditorUtils.CreateUnityScriptObject<AActorAttrDatas>();
+                    projData.name = "ActorAttrDatas";
+                    AssetDatabase.CreateAsset(projData, savePath);
+                    EditorUtility.SetDirty(projData);
+                    AssetDatabase.SaveAssetIfDirty(projData);
+                    pData = AssetDatabase.LoadAssetAtPath<AActorAttrDatas>(savePath);
+                }
+                else
+                    return;
+            }
 
+            Open(pData);
+        }
         //-----------------------------------------------------
         public static void Open(AActorAttrDatas attriData)
         {
+            if (EditorApplication.isCompiling)
+            {
+                EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
+                return;
+            }
             var window = GetWindow<AttrFormulaEditorWindow>("属性表达式编辑器");
             window.m_Data = attriData;
+            window.titleContent = new GUIContent("属性表达式编辑器", AssetUtil.LoadTexture("ActorSystem/actor_attris.png"));
+            window.minSize = new Vector2(800, 500);
         }
         //-----------------------------------------------------
-        private void OnGUI()
+        protected override void OnInnerGUI()
         {
             if (m_Data == null)
             {
@@ -132,15 +177,37 @@ namespace Framework.ActorSystem.Editor
             for (int i = 0; i < m_Data.vAttributes.Length; ++i)
             {
                 var attr = m_Data.vAttributes[i];
-                if (GUILayout.Button($"{i}. {attr.name}", (m_SelectedAttrIndex == i) ? EditorStyles.toolbarButton : EditorStyles.label))
+                using (new GUIColorScope(m_SelectedAttrIndex==i?Color.green:Color.white))
                 {
-                    m_SelectedAttrIndex = i;
+                    if (GUILayout.Button($"{attr.name}[{attr.attr}]", EditorStyles.toolbarButton))
+                    {
+                        m_SelectedAttrIndex = i;
+                    }
                 }
+    
             }
             if (GUILayout.Button("添加属性"))
             {
                 var list = new List<AttrInfo>(m_Data.vAttributes);
-                list.Add(new AttrInfo() { name = "新属性", desc = "" });
+                var attr = new AttrInfo() { name = "新属性", desc = "" };
+                byte newAttr = 0;
+                // 自动分配一个未使用的属性类型
+                bool bExist = true;
+                while (bExist)
+                {
+                    bExist = false;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i].attr == newAttr)
+                        {
+                            bExist = true;
+                            newAttr++;
+                            break;
+                        }
+                    }
+                }
+                attr.attr = newAttr;
+                list.Add(attr);
                 m_Data.vAttributes = list.ToArray();
                 m_SelectedAttrIndex = m_Data.vAttributes.Length - 1;
             }
@@ -154,10 +221,14 @@ namespace Framework.ActorSystem.Editor
             for (int i = 0; i < m_Data.vFormulas.Length; ++i)
             {
                 var formula = m_Data.vFormulas[i];
-                if (GUILayout.Button($"{i}. {formula.name}", (m_SelectedFormulaIndex == i) ? EditorStyles.toolbarButton : EditorStyles.label))
+                using (new GUIColorScope(m_SelectedFormulaIndex == i ? Color.green : Color.white))
                 {
-                    m_SelectedFormulaIndex = i;
+                    if (GUILayout.Button($"{formula.name}", EditorStyles.toolbarButton))
+                    {
+                        m_SelectedFormulaIndex = i;
+                    }
                 }
+  
             }
             if (GUILayout.Button("添加表达式"))
             {
@@ -176,7 +247,24 @@ namespace Framework.ActorSystem.Editor
                 return;
             }
             var attr = m_Data.vAttributes[m_SelectedAttrIndex];
-            attr.attr = (byte)EditorGUILayout.IntField("属性类型", attr.attr);
+            byte newAttr = (byte)EditorGUILayout.IntField("属性类型", attr.attr);
+            if (newAttr != attr.attr)
+            {
+                bool bExist = false;
+                for (int i = 0; i < attr.attr; i++)
+                {
+                    if (m_Data.vAttributes[i].attr == newAttr)
+                    {
+                        this.ShowNotificationWarning("属性类型已存在，请选择其他类型");
+                        bExist = true;
+                        break;
+                    }
+                }
+                if (!bExist)
+                {
+                    attr.attr = newAttr;
+                }
+            }
             attr.name = EditorGUILayout.DelayedTextField("属性名", attr.name);
             attr.desc = EditorGUILayout.TextField("描述", attr.desc);
             m_Data.vAttributes[m_SelectedAttrIndex] = attr;
@@ -200,13 +288,29 @@ namespace Framework.ActorSystem.Editor
 
             if (formula.vLambda == null)
                 formula.vLambda = new List<LambdaParam>();
-
-            // 公式文本
-            string formulaText = LambdaListToFormulaText(formula.vLambda);
-            EditorGUILayout.HelpBox("公式: " + formulaText, MessageType.None);
+            EditorGUI.BeginChangeCheck();
+            m_strFormulaInput = EditorGUILayout.TextArea(m_strFormulaInput, GUILayout.Height(120));
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (!string.IsNullOrEmpty(m_strFormulaInput))
+                {
+                    FormulaTextToLambdaList(m_strFormulaInput);
+                }
+            }
+            if (!string.IsNullOrEmpty(m_strFormulaInput))
+            {
+                if (GUILayout.Button("应用输入表达式"))
+                {
+                    formula.vLambda = FormulaTextToLambdaList(m_strFormulaInput);
+                }
+            }
 
             EditorGUILayout.LabelField("表达式内容：");
             DrawLambdaList(formula.vLambda, 0);
+
+            // 公式文本
+            string formulaText = LambdaListToFormulaText(formula.vLambda);
+            EditorGUILayout.HelpBox("公式预览: " + formulaText, MessageType.None);
 
             m_Data.vFormulas[m_SelectedFormulaIndex] = formula;
         }
@@ -234,13 +338,13 @@ namespace Framework.ActorSystem.Editor
                 }
                 else if (lambda.type == EAttrFormulaType.eActorAttr)
                 {
-                    lambda.paramValue0 = EditorGUILayout.IntField("阵营(0自己1敌)", (int)lambda.paramValue0, GUILayout.Width(120));
                     // 属性下拉
                     int attrIndex = 0;
                     string[] attrNames = GetAttrNames(out attrIndex, (int)lambda.paramValue1);
                     using (new GUILabelWidthScope(40))
                     {
-                        attrIndex = EditorGUILayout.Popup("属性", attrIndex, attrNames, GUILayout.Width(180));
+                        lambda.paramValue0 = EditorGUILayout.Popup("阵营", (int)lambda.paramValue0, new string[] { "攻击方", "受击方" }, GUILayout.Width(200));
+                        attrIndex = EditorGUILayout.Popup("属性", attrIndex, attrNames, GUILayout.Width(200));
                     }
                     if (attrIndex >= 0 && attrIndex < m_Data.vAttributes.Length)
                         lambda.paramValue1 = m_Data.vAttributes[attrIndex].attr;
@@ -418,7 +522,7 @@ namespace Framework.ActorSystem.Editor
                         }
                     case EAttrFormulaType.eActorAttr:
                         {
-                            string camp = ((int)lambda.paramValue0 == 0) ? "自己" : "敌人";
+                            string camp = ((int)lambda.paramValue0 == 0) ? "攻击方" : "受击方";
                             string attrName = GetAttrNameById((int)lambda.paramValue1);
                             stack.Push($"{camp}.{attrName}");
                             break;
@@ -430,6 +534,210 @@ namespace Framework.ActorSystem.Editor
                 }
             }
             return stack.Count > 0 ? stack.Pop() : "";
+        }
+        //-----------------------------------------------------
+        private List<LambdaParam> FormulaTextToLambdaList(string formulaText)
+        {
+            m_vInputLambdas.Clear();
+            if (string.IsNullOrWhiteSpace(formulaText))
+                return m_vInputLambdas;
+
+            var tokens = TokenizeFormula(formulaText);
+            int pos = 0;
+            var lambda = ParseExpression(tokens, ref pos);
+            return lambda != null ? new List<LambdaParam> { lambda } : new List<LambdaParam>();
+        }
+        //-----------------------------------------------------
+        // 分词
+        private List<string> TokenizeFormula(string formula)
+        {
+            var tokens = new List<string>();
+            var pattern = @"(\d+(\.\d+)?|[\+\-\*/\^\(\),]|min|max|rand|floor|ceil|abs|攻击方|受击方|[A-Za-z_][A-Za-z0-9_]*|\.)";
+            foreach (Match m in Regex.Matches(formula, pattern))
+            {
+                if (!string.IsNullOrWhiteSpace(m.Value))
+                    tokens.Add(m.Value);
+            }
+            return tokens;
+        }
+        //-----------------------------------------------------
+        // 解析表达式（递归下降，支持优先级）
+        private LambdaParam ParseExpression(List<string> tokens, ref int pos, int minPrecedence = 1)
+        {
+            LambdaParam left = ParsePrimary(tokens, ref pos);
+
+            while (pos < tokens.Count)
+            {
+                string op = tokens[pos];
+                int precedence = GetPrecedence(op);
+                if (precedence < minPrecedence)
+                    break;
+
+                pos++; // consume operator
+                       // 处理右侧表达式
+                LambdaParam right = ParseExpression(tokens, ref pos, precedence + 1);
+
+                left = MakeBinaryLambda(op, left, right);
+            }
+            return left;
+        }
+        //-----------------------------------------------------
+        // 解析基本单元
+        private LambdaParam ParsePrimary(List<string> tokens, ref int pos)
+        {
+            if (pos >= tokens.Count) return null;
+            string token = tokens[pos];
+
+            // 括号
+            if (token == "(")
+            {
+                pos++;
+                var expr = ParseExpression(tokens, ref pos);
+                if (pos < tokens.Count && tokens[pos] == ")") pos++;
+                return new LambdaParam { type = EAttrFormulaType.eBracket, subLambda = new List<LambdaParam> { expr } };
+            }
+
+            // 函数
+            if (IsFunc(token))
+            {
+                string func = token;
+                pos++;
+                if (pos < tokens.Count && tokens[pos] == "(") pos++;
+                var args = new List<LambdaParam>();
+                while (pos < tokens.Count && tokens[pos] != ")")
+                {
+                    args.Add(ParseExpression(tokens, ref pos));
+                    if (pos < tokens.Count && tokens[pos] == ",") pos++;
+                }
+                if (pos < tokens.Count && tokens[pos] == ")") pos++;
+                return MakeFuncLambda(func, args);
+            }
+
+            // 属性（攻击方.属性名 或 受击方.属性名）
+            if (token == "攻击方" || token == "受击方")
+            {
+                int camp = token == "攻击方" ? 0 : 1;
+                pos++;
+                if (pos < tokens.Count && tokens[pos] == ".") pos++;
+                string attrName = (pos < tokens.Count) ? tokens[pos] : "";
+                int attrId = 0;
+                if (m_Data?.vAttributes != null)
+                {
+                    foreach (var attr in m_Data.vAttributes)
+                    {
+                        if (attr.name == attrName)
+                        {
+                            attrId = attr.attr;
+                            break;
+                        }
+                    }
+                }
+                pos++;
+                return new LambdaParam { type = EAttrFormulaType.eActorAttr, paramValue0 = camp, paramValue1 = attrId };
+            }
+
+            // 常量
+            float num;
+            if (float.TryParse(token, out num))
+            {
+                pos++;
+                return new LambdaParam { type = EAttrFormulaType.eNone, paramValue0 = num };
+            }
+
+            // 变量名（属性名，默认攻击方）
+            if (Regex.IsMatch(token, @"^[A-Za-z_][A-Za-z0-9_]*$"))
+            {
+                int attrId = 0;
+                if (m_Data?.vAttributes != null)
+                {
+                    foreach (var attr in m_Data.vAttributes)
+                    {
+                        if (attr.name == token)
+                        {
+                            attrId = attr.attr;
+                            break;
+                        }
+                    }
+                }
+                pos++;
+                return new LambdaParam { type = EAttrFormulaType.eActorAttr, paramValue0 = 0, paramValue1 = attrId };
+            }
+
+            // 兜底
+            pos++;
+            return null;
+        }
+        //-----------------------------------------------------
+        // 运算符优先级
+        private int GetPrecedence(string op)
+        {
+            switch (op)
+            {
+                case "+": case "-": return 1;
+                case "*": case "/": return 2;
+                case "^": return 3;
+                default: return 0;
+            }
+        }
+        //-----------------------------------------------------
+        // 是否函数
+        private bool IsFunc(string token)
+        {
+            return token == "min" || token == "max" || token == "rand" || token == "floor" || token == "ceil" || token == "abs";
+        }
+        //-----------------------------------------------------
+        // 构造二元操作
+        private LambdaParam MakeBinaryLambda(string op, LambdaParam left, LambdaParam right)
+        {
+            var lambda = new LambdaParam();
+            switch (op)
+            {
+                case "+": lambda.type = EAttrFormulaType.eAdd; break;
+                case "-": lambda.type = EAttrFormulaType.eSub; break;
+                case "*": lambda.type = EAttrFormulaType.eMul; break;
+                case "/": lambda.type = EAttrFormulaType.eDiv; break;
+                case "^": lambda.type = EAttrFormulaType.ePower; break;
+            }
+            lambda.isUnary = false;
+            lambda.subLambda = new List<LambdaParam> { left, right };
+            return lambda;
+        }
+        //-----------------------------------------------------
+        // 构造函数型
+        private LambdaParam MakeFuncLambda(string func, List<LambdaParam> args)
+        {
+            var lambda = new LambdaParam();
+            switch (func)
+            {
+                case "min": lambda.type = EAttrFormulaType.eMin; break;
+                case "max": lambda.type = EAttrFormulaType.eMax; break;
+                case "rand": lambda.type = EAttrFormulaType.eRandom; break;
+                case "floor": lambda.type = EAttrFormulaType.eFloor; break;
+                case "ceil": lambda.type = EAttrFormulaType.eCeil; break;
+                case "abs": lambda.type = EAttrFormulaType.eAbs; break;
+            }
+            if (func == "rand" && args.Count >= 2)
+            {
+                lambda.paramValue0 = GetConstValue(args[0]);
+                lambda.paramValue1 = GetConstValue(args[1]);
+            }
+            else if ((func == "min" || func == "max") && args.Count >= 2)
+            {
+                lambda.subLambda = new List<LambdaParam> { args[0], args[1] };
+            }
+            else if ((func == "floor" || func == "ceil" || func == "abs") && args.Count >= 1)
+            {
+                lambda.subLambda = new List<LambdaParam> { args[0] };
+            }
+            return lambda;
+        }
+        //-----------------------------------------------------
+        // 获取常量值
+        private float GetConstValue(LambdaParam param)
+        {
+            if (param != null && param.type == EAttrFormulaType.eNone)
+                return param.paramValue0;
+            return 0f;
         }
         //-----------------------------------------------------
         private string GetAttrNameById(int attrId)
