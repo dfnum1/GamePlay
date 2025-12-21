@@ -362,7 +362,7 @@ namespace Framework.ActorSystem.Editor
                         lambda.type == EAttrFormulaType.eMul ||
                         lambda.type == EAttrFormulaType.eDiv)
                 {
-                    lambda.isUnary = EditorGUILayout.ToggleLeft("一元操作", lambda.isUnary, GUILayout.Width(70));
+                    lambda.isUnary = EditorGUILayout.ToggleLeft("一元操作", lambda.isUnary, GUILayout.Width(67));
                     using (new GUILabelWidthScope(40))
                     {
                         if (lambda.isUnary)
@@ -466,8 +466,8 @@ namespace Framework.ActorSystem.Editor
                             }
                             else
                             {
-                                string b = stack.Count > 0 ? stack.Pop() : "0";
-                                string a = stack.Count > 0 ? stack.Pop() : "0";
+                                string b = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
+                                string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue1.ToString();
                                 stack.Push($"({a} {op} {b})");
                             }
                             break;
@@ -483,8 +483,8 @@ namespace Framework.ActorSystem.Editor
                                 case EAttrFormulaType.eMin: op = "min"; break;
                                 case EAttrFormulaType.eMax: op = "max"; break;
                             }
-                            string b = stack.Count > 0 ? stack.Pop() : "0";
-                            string a = stack.Count > 0 ? stack.Pop() : "0";
+                            string b = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
+                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue1.ToString();
                             if (op == "min" || op == "max")
                                 stack.Push($"{op}({a},{b})");
                             else
@@ -493,19 +493,19 @@ namespace Framework.ActorSystem.Editor
                         }
                     case EAttrFormulaType.eFloor:
                         {
-                            string a = stack.Count > 0 ? stack.Pop() : "0";
+                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
                             stack.Push($"floor({a})");
                             break;
                         }
                     case EAttrFormulaType.eCeil:
                         {
-                            string a = stack.Count > 0 ? stack.Pop() : "0";
+                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
                             stack.Push($"ceil({a})");
                             break;
                         }
                     case EAttrFormulaType.eAbs:
                         {
-                            string a = stack.Count > 0 ? stack.Pop() : "0";
+                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
                             stack.Push($"abs({a})");
                             break;
                         }
