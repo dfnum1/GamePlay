@@ -427,10 +427,22 @@ namespace Framework.Cutscene.Runtime
             for (int i = 0; i < m_vEvents.Count; ++i)
             {
                 var clipData = m_vEvents[i];
-                if (clipData.bTriggered && clipData.HasFlag(EEventFlag.eLessTimeReTrigger) && time < clipData.eventData.GetTime())
+                if (clipData.bTriggered)
                 {
-                    clipData.bTriggered = false;
-                    m_vEvents[i] = clipData;
+                    if(clipData.HasFlag(EEventFlag.eLessTimeReTrigger) && time < clipData.eventData.GetTime())
+                    {
+                        clipData.bTriggered = false;
+                        m_vEvents[i] = clipData;
+                    }
+                }
+                else
+                {
+                    if(clipData.HasFlag(EEventFlag.eOverTimeNoTrigger) && time > clipData.eventData.GetTime())
+                    {
+                        //! 如果没触发，则强制改为已触发状态
+                        clipData.bTriggered = true;
+                        m_vEvents[i] = clipData;
+                    }
                 }
             }
         }

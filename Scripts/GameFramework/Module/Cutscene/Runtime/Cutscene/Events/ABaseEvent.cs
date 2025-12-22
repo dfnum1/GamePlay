@@ -26,6 +26,7 @@ namespace Framework.Cutscene.Runtime
     {
         [Display("关闭时还未触发过的时将强制触发")]eStopFireIfNoTrigger = 1<<0,
         [Display("设置时间小于触发时间将重置触发状态")] eLessTimeReTrigger = 1<<1,
+        [Display("设置时间大于触发时间将不执行")] eOverTimeNoTrigger = 1 << 2,
     }
     //-----------------------------------------------------
     [System.Serializable]
