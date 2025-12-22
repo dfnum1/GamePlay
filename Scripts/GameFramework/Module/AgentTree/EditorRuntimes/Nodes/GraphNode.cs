@@ -1077,6 +1077,25 @@ namespace Framework.AT.Editor
             if (portVariable == null)
                 return;
 
+            if(!string.IsNullOrEmpty(attri.methodDrawer))
+            {
+                var drawElement = AgentTreeUtil.DrawCustomElement(attri.methodDrawer, port, portVariable, (retObj) =>
+                {
+                    if (CanChangeValue(port))
+                    {
+                        OnArgvPortChanging(port);
+                        m_pGraphView.UpdateVariable(portVariable);
+                        OnArgvPortChanged(port);
+                    }
+                },120);
+                if(drawElement!=null)
+                {
+                    port.fieldRoot.Add(drawElement);
+                    port.fieldElement = drawElement;
+                    return;
+                }
+            }
+
             if (portVariable is AT.Runtime.VariableInt && attri.argvType.IsEnum)
             {
                 var intVar = (AT.Runtime.VariableInt)portVariable;

@@ -12,6 +12,7 @@ using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Framework.AT.Editor
 {
@@ -70,6 +71,7 @@ namespace Framework.AT.Editor
         static string ms_installPath = null;
         static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
         static MenuTreeNode ms_SearchMenuRoot = new MenuTreeNode("添加节点");
+        static Dictionary<string, MethodInfo> ms_CustomDrawPorts = new Dictionary<string, MethodInfo>();
 
         public static string BuildInstallPath()
         {
@@ -115,6 +117,7 @@ namespace Framework.AT.Editor
                 ms_vPopEnumTypeNames.Clear();
                 ms_vPopEnumTypes.Clear();
                 ms_vPopCompareOpTypes.Clear();
+                ms_CustomDrawPorts.Clear();
 
                 foreach (Enum v in Enum.GetValues(typeof(AT.Runtime.ECompareOpType)))
                 {
@@ -176,6 +179,36 @@ namespace Framework.AT.Editor
                         if (tp.IsDefined(typeof(EditorBindNodeAttribute), false))
                         {
                             ms_vEditorNodeTypes[tp.GetCustomAttribute<EditorBindNodeAttribute>().nodeType] =tp;
+                        }
+                        if (tp.IsDefined(typeof(ATDrawerAttribute), false))
+                        {
+                            var atDraws = tp.GetCustomAttributes<ATDrawerAttribute>();
+                            foreach(var db in atDraws)
+                            {
+                                string drawMethod = db.name;
+                                if (!string.IsNullOrEmpty(db.drawMethod))
+                                    drawMethod = db.drawMethod;
+                                var method = tp.GetMethod(drawMethod, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                if (method == null)
+                                    continue;
+
+                                var argvs = method.GetParameters();
+                                if (argvs == null || argvs.Length < 3 || argvs.Length>4)
+                                    continue;
+                                if (argvs[0].ParameterType != typeof(ArvgPort))
+                                    continue;
+
+                                if (argvs[1].ParameterType != typeof(IVariable))
+                                    continue;
+                                if (argvs[2].ParameterType != typeof(Action<IVariable>))
+                                    continue;
+                                if(argvs.Length == 4)
+                                {
+                                    if (argvs[3].ParameterType != typeof(int))
+                                        continue;
+                                }
+                                ms_CustomDrawPorts[db.name] = method;
+                            }
                         }
                         if (tp.IsDefined(typeof(NodeBindAttribute), false))
                         {
@@ -680,6 +713,22 @@ namespace Framework.AT.Editor
             {
                 SortMenuTree(child);
             }
+        }
+        //-----------------------------------------------------
+        public static VisualElement DrawCustomElement(string drawMethod, ArvgPort port, IVariable portValue, Action<object> onValueChanged, int width)
+        {
+            Init();
+            if (!ms_CustomDrawPorts.TryGetValue(drawMethod, out var func))
+                return null;
+            int parmasCount = func.GetParameters().Length;
+            object returnEle = null;
+            if (parmasCount == 3)
+                returnEle = func.Invoke(null, new object[] { port, portValue, onValueChanged });
+            else if (parmasCount == 4)
+                returnEle = func.Invoke(null, new object[] { port, portValue, onValueChanged, width });
+            if (returnEle == null || !(returnEle is VisualElement))
+                return null;
+            return (VisualElement)returnEle;
         }
     }
 }

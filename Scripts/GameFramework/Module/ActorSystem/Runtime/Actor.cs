@@ -962,19 +962,19 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SetAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("设置属性"), ATMethodArgv("type", "", "DrawAttributePop")]
+        [ATMethod("设置属性"), ATArgvDrawer("type", "DrawAttributePop")]
         public void SetAttr(byte type, FFloat value)
         {
             GetActorParameter().SetAttr(type, value);
         }
         //--------------------------------------------------------
-        [ATMethod("获取属性"), ATMethodArgv("type", "", "DrawAttributePop")]
+        [ATMethod("获取属性"), ATArgvDrawer("type", "DrawAttributePop")]
         public FFloat GetAttr(byte type, FFloat defVal = 0)
         {
             return GetActorParameter().GetAttr(type, defVal);
         }
         //--------------------------------------------------------
-        [ATMethod("移除属性"), ATMethodArgv("type", "", "DrawAttributePop")]
+        [ATMethod("移除属性"), ATArgvDrawer("type", "DrawAttributePop")]
         public void RemoveAttr(byte type)
         {
             GetActorParameter().RemoveAttr(type);
@@ -985,7 +985,7 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().AppendAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("添加属性"), ATMethodArgv("type", "", "DrawAttributePop")]
+        [ATMethod("添加属性"), ATArgvDrawer("type", "DrawAttributePop")]
         public void AppendAttr(byte type, FFloat value)
         {
             GetActorParameter().AppendAttr(type, value);
@@ -996,7 +996,7 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SubAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("减少属性"), ATMethodArgv("type", "","DrawAttributePop")]
+        [ATMethod("减少属性"), ATArgvDrawer("type","DrawAttributePop")]
         public void SubAttr(byte type, int value, bool bLowerZero = false)
         {
             GetActorParameter().SubAttr(type, value, bLowerZero);

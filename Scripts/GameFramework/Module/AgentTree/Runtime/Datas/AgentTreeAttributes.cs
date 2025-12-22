@@ -4,7 +4,9 @@
 作    者:	HappLI
 描    述:	变量
 *********************************************************************/
+using Framework.AT.Editor;
 using System;
+using UnityEngine;
 
 namespace Framework.AT.Runtime
 {
@@ -174,6 +176,7 @@ namespace Framework.AT.Runtime
         public bool bSeriable = true;
         public bool bShowEdit = true;
         public int ListElementByArgvIndex = -1;
+        public string drawMethod = null;
 
         internal System.Object defaultValue = null;
         internal bool isExternAttrThis = false;
@@ -181,7 +184,7 @@ namespace Framework.AT.Runtime
         internal bool isDelegateCallValid;
         internal System.Collections.Generic.List<ATFunctionArgvAttribute> vDelegateArgvs;
 #endif
-        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName = "", bool bAutoDestroy = false, Type AlignType = null, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true)
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName = "", bool bAutoDestroy = false, Type AlignType = null, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.ArgvType = ArgvType;
@@ -197,10 +200,10 @@ namespace Framework.AT.Runtime
             this.isExternAttrThis = false;
             this.isDelegateCall = false;
             this.isDelegateCallValid = false;
-
+            this.drawMethod = drawMethod;
 #endif
         }
-        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type AlignType, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true)
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type AlignType, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.ArgvType = ArgvType;
@@ -217,12 +220,13 @@ namespace Framework.AT.Runtime
             this.isExternAttrThis = false;
             this.isDelegateCall = false;
             this.isDelegateCallValid = false;
+            this.drawMethod = drawMethod;
 #endif
         }
 #if UNITY_EDITOR
         internal ArgvAttribute ToArgv()
         {
-            return new ArgvAttribute(DisplayName, DisplayType, ArgvType, bShowEdit, defaultValue);
+            return new ArgvAttribute(DisplayName, DisplayType, ArgvType, bShowEdit, defaultValue) { methodDrawer = drawMethod };
         }
 #endif
     }
@@ -241,8 +245,9 @@ namespace Framework.AT.Runtime
         public bool bShowEdit = true;
         public byte bPropertySet = 0; //0=none, 1-get,2-set,3-getset
         public int ListElementByArgvIndex = -1;
+        public string drawMethod = null;
 #endif
-        public ATFunctionReturnAttribute(Type ReturnType, Type AlignType = null, string name = "", bool bAutoDestroy = false, string ToolTips = "", int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, byte bPropertySet = 0)
+        public ATFunctionReturnAttribute(Type ReturnType, Type AlignType = null, string name = "", bool bAutoDestroy = false, string ToolTips = "", int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.ReturnType = ReturnType;
@@ -254,9 +259,10 @@ namespace Framework.AT.Runtime
             this.bSeriable = bSeriable;
             this.bShowEdit = bShowEdit;
             this.bPropertySet = bPropertySet;
+            this.drawMethod = drawMethod;
 #endif
         }
-        public ATFunctionReturnAttribute(Type ReturnType, string name, Type AlignType = null, Type DisplayType = null, string ToolTips = "", int ListElementByArgvIndex = -1, bool lbSeriable = true, bool bShowEdit = true, byte bPropertySet = 0)
+        public ATFunctionReturnAttribute(Type ReturnType, string name, Type AlignType = null, Type DisplayType = null, string ToolTips = "", int ListElementByArgvIndex = -1, bool lbSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.ReturnType = ReturnType;
@@ -269,6 +275,7 @@ namespace Framework.AT.Runtime
             this.bSeriable = lbSeriable;
             this.bShowEdit = bShowEdit;
             this.bPropertySet = bPropertySet;
+            this.drawMethod = drawMethod;
 #endif
         }
 #if UNITY_EDITOR
@@ -303,30 +310,17 @@ namespace Framework.AT.Runtime
     }
     //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class ATMethodArgvAttribute : System.Attribute
+    public class ATArgvDrawerAttribute : System.Attribute
     {
 #if UNITY_EDITOR
         public string argv;
-        public System.Type displayType;
-        public string displayTypeStr;
-        public string drawerTypeStr;
+        public string drawerMethod;
 #endif
-        public ATMethodArgvAttribute(string argv, string displayType, string drawLabel = null)
+        public ATArgvDrawerAttribute(string argv, string drawLabel)
         {
 #if UNITY_EDITOR
             this.argv = argv;
-            this.displayTypeStr = displayType;
-            this.displayType = null;
-            this.drawerTypeStr = drawLabel;
-#endif
-        }
-        public ATMethodArgvAttribute(string argv, System.Type displayType, string drawLabel = null)
-        {
-#if UNITY_EDITOR
-            this.argv = argv;
-            this.displayTypeStr = null;
-            this.displayType = displayType;
-            this.drawerTypeStr = drawLabel;
+            this.drawerMethod = drawLabel;
 #endif
         }
     }
@@ -406,6 +400,8 @@ namespace Framework.AT.Runtime
         public bool canEdit;
         public System.Type displayType;
         public EVariableType[] limitVarTypes;
+
+        public string methodDrawer;
 #endif
         //-----------------------------------------------------
         public ArgvAttribute(string name, System.Type argvType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
@@ -417,6 +413,7 @@ namespace Framework.AT.Runtime
             this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
+            this.methodDrawer = null;
 #endif
         }
         //-----------------------------------------------------
@@ -430,6 +427,7 @@ namespace Framework.AT.Runtime
             this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
+            this.methodDrawer = null;
 #endif
         }
         //-----------------------------------------------------
@@ -442,6 +440,7 @@ namespace Framework.AT.Runtime
             this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
+            this.methodDrawer = null;
 #endif
         }
         //-----------------------------------------------------
@@ -455,6 +454,7 @@ namespace Framework.AT.Runtime
             this.defValue = defValue;
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
+            this.methodDrawer = null;
 #endif
         }
 #if UNITY_EDITOR
@@ -526,24 +526,27 @@ namespace Framework.AT.Runtime
         public string tips;
         public System.Type argvType;
         public System.Type displayType;
+        public string drawMethod;
 #endif
-        public ReturnAttribute(string name, System.Type argvType, System.Type displayType = null)
+        public ReturnAttribute(string name, System.Type argvType, System.Type displayType = null,string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = null;
             this.displayType = displayType;
             this.argvType = argvType;
+            this.drawMethod = drawMethod;
 #endif
         }
         //-----------------------------------------------------
-        public ReturnAttribute(string name, string tips, System.Type argvType, System.Type displayType = null)
+        public ReturnAttribute(string name, string tips, System.Type argvType, System.Type displayType = null, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.tips = tips;
             this.argvType = argvType;
             this.displayType = displayType;
+            this.drawMethod = drawMethod;
 #endif
         }
     }
@@ -587,6 +590,22 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
             this.name = name;
             this.ownerType = ownerType;
+#endif
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class| AttributeTargets.Struct, AllowMultiple = true, Inherited = false)]
+    public class ATDrawerAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string name;
+        public string drawMethod;
+#endif
+        public ATDrawerAttribute(string name,string drawMethod = null)
+        {
+#if UNITY_EDITOR
+            this.name = name;
+            this.drawMethod = drawMethod;
 #endif
         }
     }
