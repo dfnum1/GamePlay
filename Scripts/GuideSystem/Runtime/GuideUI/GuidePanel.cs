@@ -703,7 +703,7 @@ namespace Framework.Guide
             }
 
             ListenTipDockWidget();
-            if (m_fingerType == EFingerType.Click || m_fingerType == EFingerType.Effect)
+            if (m_fingerType == EFingerType.Click || m_fingerType == EFingerType.Effect || m_fingerType == EFingerType.None)
             {
                 if (m_pGuideWidget)
                 {
@@ -1812,7 +1812,22 @@ namespace Framework.Guide
             if (finger == null)
                 return null;
             RectTransform rectTrans = finger as RectTransform;
-            Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(m_pUICamera, rectTrans.TransformPoint(rectTrans.rect.center));
+            Vector3 center = rectTrans.TransformPoint(rectTrans.rect.center);
+            Vector2 screenPos = m_pUICamera.WorldToScreenPoint(center);
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(m_pRootUI, screenPos, m_pUICamera, out var canvasPos);
+            {
+                Vector2 referenceResolution = m_CanvasScaler.referenceResolution;
+                float screenWidth = Screen.width;
+                float screenHeight = Screen.height;
+                float match = m_CanvasScaler.matchWidthOrHeight;
+                float scaleX = screenWidth / referenceResolution.x;
+                float scaleY = screenHeight / referenceResolution.y;
+                float scale = Mathf.Lerp(scaleX, scaleY, match);
+                Vector2 screenCenter = new Vector2(screenWidth, screenHeight) * 0.5f;
+                screenPos = screenCenter + canvasPos * scale;
+            }
+
             if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
             m_pTestEventData.position = screenPos;
             if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);

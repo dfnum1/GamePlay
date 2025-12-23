@@ -981,7 +981,7 @@ namespace Framework.Guide
         public void OnTouchMove(int touchId, Vector2 position, Vector2 deltaPosition)
         {
             if (m_pDoingNode == null || m_fDeltaDelta > 0) return;
-            if (m_nTouchID == touchId)
+      //      if (m_nTouchID == touchId)
             {
                 m_CallbackParam.Clear();
                 m_CallbackParam.touchType = ETouchType.Move;
@@ -999,7 +999,7 @@ namespace Framework.Guide
         public void OnTouchEnd(int touchId, Vector2 position, Vector2 deltaPosition)
         {
             if (m_pDoingNode == null || m_fDeltaDelta > 0) return;
-            if (m_nTouchID == touchId)
+       //     if (m_nTouchID == touchId)
             {
                 m_CallbackParam.Clear();
                 m_CallbackParam.touchType = ETouchType.End;
