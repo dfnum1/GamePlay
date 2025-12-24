@@ -1517,7 +1517,10 @@ namespace Framework.Guide.Editor
                         else if (copyNode is ExcudeNode)
                             vExcudeNodes.Add(copyNode as ExcudeNode);
                         else if (copyNode is GuideOperate)
+                        {
+                            copyNode.Name = copyNode.Guid.ToString();
                             vOperateNodes.Add(copyNode as GuideOperate);
+                        }
 
                         if (copyNode is StepNode)
                             vStepNodes.Add(copyNode as StepNode);

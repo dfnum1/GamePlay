@@ -116,6 +116,9 @@ namespace Framework.Guide.Editor
                     return;
             }
 
+            if (nodeAttr == null)
+                return;
+
             if(nodeAttr.attriDefaults!=null)
             {
                 foreach(var db in nodeAttr.attriDefaults)

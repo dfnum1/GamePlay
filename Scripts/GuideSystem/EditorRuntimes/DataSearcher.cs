@@ -89,11 +89,46 @@ namespace Framework.Guide.Editor
         protected override void OnSearch(string query)
         {
             if (GuideSystem.getInstance().datas == null) return;
+            bool includeNodeFinder = false;
+            string queryName = query;
+            if(query.StartsWith("t:"))
+            {
+                includeNodeFinder = true;
+                query = query.Substring(2);
+            }
             GuideSystemEditor pEditor = GuideSystemEditor.Instance;
             List<GuideGroup> vGuides = new List<GuideGroup>();
             foreach (var db in GuideSystem.getInstance().datas)
             {
-                bool bQuerty = IsQuery(query, db.Value.Guid + db.Value.Name /*+ Framework.ED.EditorUtils.PinYin(db.Value.Name)*/);
+                bool bQuerty= false;
+                if (includeNodeFinder)
+                {
+                    db.Value.Init(false);
+                    var nodes = db.Value.GetAllNodes();
+                    if (nodes == null)
+                        continue;
+                    foreach(var nd in nodes)
+                    {
+                        string name = nd.Value.Name;
+                        if (name == null) name = "";
+                        if (GuideSystemEditor.NodeTypes.TryGetValue(nd.Value.GetEnumType(), out var attrNode))
+                        {
+                            name += attrNode.strQueueName;
+                        }
+                        if (string.IsNullOrEmpty(name))
+                            continue;
+
+                        if (IsQuery(query, name))
+                        {
+                            bQuerty = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    bQuerty = IsQuery(query, db.Value.Guid + db.Value.Name);
+                }
                 if (!bQuerty) continue;
                 vGuides.Add(db.Value);
             }
@@ -105,7 +140,8 @@ namespace Framework.Guide.Editor
                 else if (key0 > key1) return 1;
                 return 0;
             });
-                foreach (var db in vGuides)
+                
+            foreach (var db in vGuides)
             {
                 GuideSystemEditor.DataParam param = new GuideSystemEditor.DataParam();
                 param.Data = db;
@@ -115,7 +151,7 @@ namespace Framework.Guide.Editor
                 item.callback = pEditor.LoadData;
 
                 item.id = db.Guid;
-                item.name = db.Name + "[Id=" + db.Guid + "]" /*+ Framework.ED.EditorUtils.PinYin(db.Name)*/;
+                item.name = db.Name + "[Id=" + db.Guid + "]" + queryName;
                 if(db.Tag>=0 && db.Tag < ushort.MaxValue)
                 {
                     item.name += "[Tag=" + db.Tag + "]";
