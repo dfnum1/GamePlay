@@ -26,6 +26,8 @@ namespace Framework.Guide
             public string name = "";
             public AgentArgv[] inputs;
             public AgentArgv[] outputs;
+
+            public bool autoSign = false;
             public bool IsValid()
             {
                 return !string.IsNullOrEmpty(name) && customType != 0;
