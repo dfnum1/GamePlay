@@ -119,11 +119,15 @@ namespace Framework.Guide.Editor
             if (pNode.GetEnumType() != (int)GuideStepType.Delay)
             {
                 EditorGUIUtility.labelWidth = 120;
-                pNode.bSuccessedListenerBreak = EditorGUILayout.Toggle("信号检测不成立时", pNode.bSuccessedListenerBreak);
+                pNode.bSignFailedListenerBreak = EditorGUILayout.Toggle("信号检测不成立时", pNode.bSignFailedListenerBreak);
                 EditorGUIUtility.labelWidth = labelWidth;
             }
-            if (pNode.bSuccessedListenerBreak)
+            if (pNode.bSignFailedListenerBreak)
             {
+                EditorGUIUtility.labelWidth = 120;
+                pNode.fSignFailedBreakDelayTime = EditorGUILayout.FloatField(new GUIContent("不成立时跳转(s)","在规定时间内信号一直检测不通过，则跳转"), pNode.fSignFailedBreakDelayTime);
+                EditorGUIUtility.labelWidth = labelWidth;
+
                 Rect auto_rect = GUILayoutUtility.GetLastRect();
                 ExternPort externPort = pGraph.GetExternPort(20);
                 if (externPort == null)
@@ -161,7 +165,7 @@ namespace Framework.Guide.Editor
                     externPort.baseNode = pGraph;
                     externPort.direction = EPortIO.LinkOut;
                     externPort.externID = 10;
-               //     externPort.reqNodeType = typeof(ExcudeNode);
+                    externPort.reqNodeType = typeof(ExcudeNode);
                     externPort.portRect = new Vector2(auto_rect.width + 10, auto_rect.y);
                 }
                 else

@@ -311,23 +311,23 @@ namespace Framework.Guide.Editor
                     vSteps.Add(step);
 
                     step.pAutoExcudeNode = null;
-                    step.pSuccessedListenerBreakNode = null;
+                    step.pSignFailedListenerBreakNode = null;
                     if (step.bAutoNext)
                     {
                         ExternPort externPort = db.Value.GetExternPort(10);
                         if (externPort!=null && externPort.vLinks.Count > 0 && externPort.vLinks[0] != null)
                         {
                             //autonext
-                            step.pAutoExcudeNode = db.Value.vExternPorts[0].vLinks[0].bindNode as ExcudeNode;
+                            step.pAutoExcudeNode = externPort.vLinks[0].bindNode as ExcudeNode;
                         }
                     }
-                    if(step.bSuccessedListenerBreak)
+                    if(step.bSignFailedListenerBreak)
                     {
                         ExternPort externBreakPort = db.Value.GetExternPort(20);
-                        if (externBreakPort != null && externBreakPort.vLinks.Count > 0 && externBreakPort.vLinks[0] != null)
+                        if (externBreakPort != null && externBreakPort.vSignFailedLinks.Count > 0 && externBreakPort.vSignFailedLinks[0] != null)
                         {
                             // successed listener break
-                            step.pSuccessedListenerBreakNode = db.Value.vExternPorts[0].vLinks[0].bindNode;
+                            step.pSignFailedListenerBreakNode = externBreakPort.vSignFailedLinks[0].bindNode;
                         }
                     }
 
@@ -753,15 +753,32 @@ namespace Framework.Guide.Editor
                                             {
                                                 if((outPort as ExternPort).reqNodeType ==null || inPort.GetNode().bindNode.GetType() == (outPort as ExternPort).reqNodeType )
                                                 {
-                                                    if ((outPort as ExternPort).vLinks.Contains(inPort.GetNode()))
+                                                    ExternPort externPort = (ExternPort)outPort;
+                                                    if(externPort.externID == 20)
                                                     {
-                                                        (outPort as ExternPort).vLinks.Remove(inPort.GetNode());
+                                                        if ((outPort as ExternPort).vSignFailedLinks.Contains(inPort.GetNode()))
+                                                        {
+                                                            (outPort as ExternPort).vSignFailedLinks.Remove(inPort.GetNode());
+                                                        }
+                                                        else
+                                                        {
+                                                            (outPort as ExternPort).vSignFailedLinks.Clear();
+                                                            (outPort as ExternPort).vSignFailedLinks.Add(inPort.GetNode());
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        (outPort as ExternPort).vLinks.Clear();
-                                                        (outPort as ExternPort).vLinks.Add(inPort.GetNode());
+                                                        if ((outPort as ExternPort).vLinks.Contains(inPort.GetNode()))
+                                                        {
+                                                            (outPort as ExternPort).vLinks.Remove(inPort.GetNode());
+                                                        }
+                                                        else
+                                                        {
+                                                            (outPort as ExternPort).vLinks.Clear();
+                                                            (outPort as ExternPort).vLinks.Add(inPort.GetNode());
+                                                        }
                                                     }
+                           
                                                 }
                                             }
                                             else
@@ -1131,7 +1148,7 @@ namespace Framework.Guide.Editor
                         exterPort.vLinks.Add(excudeNode);
                     }
                     GraphNode breakNode = null;
-                    if (db.pSuccessedListenerBreakNode != null && m_vActioNodes.TryGetValue(db.pSuccessedListenerBreakNode.Guid, out breakNode))
+                    if (db.pSignFailedListenerBreakNode != null && m_vActioNodes.TryGetValue(db.pSignFailedListenerBreakNode.Guid, out breakNode))
                     {
                         ExternPort exterPort = node.GetExternPort(20);
                         if (exterPort == null)
@@ -1140,8 +1157,8 @@ namespace Framework.Guide.Editor
                             exterPort.externID = 20;
                             node.vExternPorts.Add(exterPort);
                         }
-                        exterPort.vLinks.Clear();
-                        exterPort.vLinks.Add(breakNode);
+                        exterPort.vSignFailedLinks.Clear();
+                        exterPort.vSignFailedLinks.Add(breakNode);
                     }
                 }
             }
@@ -1594,14 +1611,14 @@ namespace Framework.Guide.Editor
                         else
                             stepNode.autoExcudeNodeGuid = -1;
 
-                        stepNode.pSuccessedListenerBreakNode = null;
-                        if (vOldNewNodes.ContainsKey(stepNode.nSuccessedBreakSkipTo) && vOldNewNodes[stepNode.nSuccessedBreakSkipTo]!=null)
+                        stepNode.pSignFailedListenerBreakNode = null;
+                        if (vOldNewNodes.ContainsKey(stepNode.nSignFailedBreakSkipTo) && vOldNewNodes[stepNode.nSignFailedBreakSkipTo]!=null)
                         {
-                            stepNode.pSuccessedListenerBreakNode = vOldNewNodes[stepNode.nSuccessedBreakSkipTo];
-                            stepNode.nSuccessedBreakSkipTo = vOldNewNodes[stepNode.nSuccessedBreakSkipTo].Guid;
+                            stepNode.pSignFailedListenerBreakNode = vOldNewNodes[stepNode.nSignFailedBreakSkipTo];
+                            stepNode.nSignFailedBreakSkipTo = vOldNewNodes[stepNode.nSignFailedBreakSkipTo].Guid;
                         }
                         else
-                            stepNode.nSuccessedBreakSkipTo = -1;
+                            stepNode.nSignFailedBreakSkipTo = -1;
                     }
                     if (db.Value is SeqNode)
                     {
@@ -1659,7 +1676,7 @@ namespace Framework.Guide.Editor
                             externPort.vLinks.Add(excudeNode);
                         }
 
-                        if (db.pSuccessedListenerBreakNode != null && m_vActioNodes.TryGetValue(db.pSuccessedListenerBreakNode.Guid, out excudeNode))
+                        if (db.pSignFailedListenerBreakNode != null && m_vActioNodes.TryGetValue(db.pSignFailedListenerBreakNode.Guid, out excudeNode))
                         {
                             ExternPort externPort = node.GetExternPort(20);
                             if (externPort == null)
@@ -1668,8 +1685,8 @@ namespace Framework.Guide.Editor
                                 externPort.externID = 20;
                                 node.vExternPorts.Add(externPort);
                             }
-                            externPort.vLinks.Clear();
-                            externPort.vLinks.Add(excudeNode);
+                            externPort.vSignFailedLinks.Clear();
+                            externPort.vSignFailedLinks.Add(excudeNode);
                         }
                     }
                 }

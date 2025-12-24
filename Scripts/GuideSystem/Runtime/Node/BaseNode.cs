@@ -98,7 +98,7 @@ namespace Framework.Guide
         public int[] Ops = null;
         public int nextGuid = 0;
         public bool bFireCheck = false;
-        public bool bCanRepeatTrigger = false;
+        public bool bCanRepeatTrigger = true;
 
         public override List<ArgvPort> GetArgvPorts()
         {
@@ -114,6 +114,10 @@ namespace Framework.Guide
         }
 
         public virtual float GetAutoNextTime()
+        {
+            return 0;
+        }
+        public virtual float GetFailSignCheckTime()
         {
             return 0;
         }

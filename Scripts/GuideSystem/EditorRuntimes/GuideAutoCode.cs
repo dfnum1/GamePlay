@@ -38,6 +38,15 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void ActiveMask(bool bActive, float r= 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tvar panel = GuideSystem.getInstance().GetGuidePanel();\r\n";
+            code += "\t\t\tif (panel == null) return;\r\n";
+            code += "\t\t\tpanel.SetMaskActive(bActive);\r\n";
+            code += "\t\t\tif(bActive) panel.SetMaskColor(new Color(r,g,b,a));\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
             code += "\t\tpublic static int GetCurrentTriggerIntPort(int index)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tvar trigger = GuideSystem.getInstance().DoingTriggerNode;\r\n";

@@ -116,6 +116,20 @@ namespace Framework.Guide.Editor
                     return;
             }
 
+            if(nodeAttr.attriDefaults!=null)
+            {
+                foreach(var db in nodeAttr.attriDefaults)
+                {
+                    var field = pNode.GetType().GetField(db.Key, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    if (field == null)
+                        continue;
+                    if(field.FieldType == db.Value.GetType())
+                    {
+                        field.SetValue(pNode, db.Value);
+                    }
+                }
+            }
+
             pNode.CheckPorts();
             var ports = pNode.GetArgvPorts();
             if (ports == null)

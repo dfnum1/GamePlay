@@ -94,6 +94,7 @@ namespace Framework.Guide
         /// 延迟交互检测
         /// </summary>
         float m_fDeltaSign = 0;
+        float m_fFailSignCheckDelta = 0;
         int m_nTouchID = -1;
         CallbackParam m_CallbackParam = new CallbackParam();
 
@@ -209,6 +210,7 @@ namespace Framework.Guide
             m_fAutoNextDelta = 0;
             m_fDeltaDelta = 0;
             m_fDeltaSign = 0;
+            m_fFailSignCheckDelta = 0;
             m_CallbackParam.Clear();
 
             m_vGuideFlags.Clear();
@@ -454,6 +456,7 @@ namespace Framework.Guide
             m_fAutoNextDelta = 0;
             m_fDeltaDelta = 0;
             m_fDeltaSign = 0;
+            m_fFailSignCheckDelta = 0;
             m_vTracking.Clear();
             if (bGuideLogEnable)
                 Log("结束当前引导");
@@ -627,6 +630,7 @@ namespace Framework.Guide
                 m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
                 m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
                 m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
+                m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
 
                 OnGuideGroupStatus(pTrigger, true, false);
 
@@ -774,26 +778,29 @@ namespace Framework.Guide
                     m_fDeltaSign = 0;
                 }
             }
+            if(m_fFailSignCheckDelta>0)
+            {
+                m_fFailSignCheckDelta -= fFrame;
+                if (m_fFailSignCheckDelta < 0)
+                    m_fFailSignCheckDelta = 0;
+            }
 
             if (m_pDoingNode != null)
             {
                 BaseNode pCurDoding = m_pDoingNode;
                 {
-                    if(m_pDoingNode.IsAutoSignCheck() && OnNodeSign(m_pDoingNode))
+                    if(m_pDoingNode.IsAutoSignCheck())
                     {
-                        OnNodeSignCompleted();
-                        DoNext();
-                    }
-                    if(m_pDoingNode!=null && m_pDoingNode.IsSuccessedListenerBreak() && !OnGuideSuccssedListener(m_pDoingNode))
-                    {
-                        OnNodeSignCompleted();
-                        StepNode stepNode = m_pDoingNode as StepNode;
-                        if(stepNode!=null && stepNode.pSuccessedListenerBreakNode!=null)
+                        bool bSucceed = OnNodeSign(m_pDoingNode);
+                        if(bSucceed)
                         {
-                            GotoNode(stepNode.pSuccessedListenerBreakNode,true);
+                            OnNodeSignCompleted();
+                            DoNext();
                         }
                         else
-                            DoNext();
+                        {
+                            SignCheckFialGo();
+                        }
                     }
                 }
 
@@ -825,6 +832,22 @@ namespace Framework.Guide
             GotoNode(null);
         }
         //------------------------------------------------------
+        bool SignCheckFialGo()
+        {
+            if (!m_pDoingNode.IsSuccessedListenerBreak() || m_fFailSignCheckDelta > 0 || m_pDoingNode == null)
+                return false;
+            StepNode stepNode = m_pDoingNode as StepNode;
+            if (stepNode == null || stepNode.pSignFailedListenerBreakNode == null)
+                return false;
+            if(stepNode.pSignFailedListenerBreakNode is SeqNode)
+            {
+                DoNode(stepNode.pSignFailedListenerBreakNode as SeqNode);
+            }
+            else
+                GotoNode(stepNode.pSignFailedListenerBreakNode);
+            return true;
+        }
+        //------------------------------------------------------
         void GotoNode(BaseNode pGo, bool bCallAutoNext= false)
         {
             if (m_pDoingNode != null && (m_pDoingNode.IsAutoNext() || m_pDoingNode.GetAutoNextTime() > 0 || bCallAutoNext))
@@ -852,17 +875,23 @@ namespace Framework.Guide
             }
             if (pCurrent == m_pDoingNode)
             {
-                SetDoingNod(pNext);
-                AddTracking(m_pDoingNode);
-                m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
-                m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
-                m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
+                DoNode(pNext);
+            }
+        }
+        //------------------------------------------------------
+        void DoNode(SeqNode pNode)
+        {
+            SetDoingNod(pNode);
+            AddTracking(m_pDoingNode);
+            m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
+            m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
+            m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
+            m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
 
-                if (m_fDeltaDelta <= 0)
-                {
-                    OnEvent(m_pDoingNode.GetBeginEvents());
-                    OnNodeCall(m_pDoingNode);
-                }
+            if (m_fDeltaDelta <= 0)
+            {
+                OnEvent(m_pDoingNode.GetBeginEvents());
+                OnNodeCall(m_pDoingNode);
             }
         }
         //------------------------------------------------------
@@ -926,7 +955,11 @@ namespace Framework.Guide
             {
                 OnNodeSignCompleted();
                 DoNext();
-            }  
+            }
+            else
+            {
+                SignCheckFialGo();
+            }
         }
         //------------------------------------------------------
         public void OnUIWidgetTrigger(int widgetGuid, int listIndex, string widgetTag, EUIWidgetTriggerType type, VariableList pArgvs = null)
@@ -953,9 +986,12 @@ namespace Framework.Guide
             }
             else
             {//如果点击的不是目标UI,才进行非强制引导检测
-                if (pPreNode == m_pDoingNode && type == EUIWidgetTriggerType.Click)
+                if(!SignCheckFialGo())
                 {
-                    OverOptionState();
+                    if (pPreNode == m_pDoingNode && type == EUIWidgetTriggerType.Click)
+                    {
+                        OverOptionState();
+                    }
                 }
             }
         }
@@ -976,6 +1012,8 @@ namespace Framework.Guide
                 OnNodeSignCompleted();
                 DoNext();
             }
+            else
+                SignCheckFialGo();
         }
         //------------------------------------------------------
         public void OnTouchMove(int touchId, Vector2 position, Vector2 deltaPosition)
@@ -993,6 +1031,8 @@ namespace Framework.Guide
                     OnNodeSignCompleted();
                     DoNext();
                 }
+                else
+                    SignCheckFialGo();
             }
         }
         //------------------------------------------------------
@@ -1011,6 +1051,8 @@ namespace Framework.Guide
                     OnNodeSignCompleted();
                     DoNext();
                 }
+                else
+                    SignCheckFialGo();
 
                 m_nTouchID = -1;
             }

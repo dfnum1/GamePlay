@@ -1237,7 +1237,7 @@ namespace Framework.Guide
             {
                 if (m_bMaskSelfWidget) SetMaskActive(true);
                 //检测组件状态,如果强制引导,并且没有跳过步骤,则默认显示
-                if (widget.gameObject.activeInHierarchy == false && m_CurStepNode != null && m_CurStepNode.bOption == false && m_CurStepNode.bSuccessedListenerBreak == false)
+                if (widget.gameObject.activeInHierarchy == false && m_CurStepNode != null && m_CurStepNode.bOption == false && m_CurStepNode.bSignFailedListenerBreak == false)
                 {
                     widget.gameObject.SetActive(true);
                 }

@@ -124,6 +124,8 @@ namespace Framework.Guide.Editor
             public string strName;
             public string strQueueName;
 
+            public Dictionary<string, object> attriDefaults = new Dictionary<string, object>();
+
             public List<ArgvAttr> argvs = new List<ArgvAttr>();
         }
         protected AGuideDatas m_pGuideCsv = null;

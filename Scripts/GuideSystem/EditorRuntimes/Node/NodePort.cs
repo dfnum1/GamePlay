@@ -272,6 +272,7 @@ namespace Framework.Guide.Editor
         public int externID = 1;
 
         public List<GraphNode> vLinks = new List<GraphNode>();
+        public List<GraphNode> vSignFailedLinks = new List<GraphNode>();
 
         public override int GetGUID()
         {
@@ -283,6 +284,7 @@ namespace Framework.Guide.Editor
         
         public override Color GetColor()
         {
+            if (externID == 20) return Color.red;
             return Color.green;
         }
 
@@ -295,6 +297,7 @@ namespace Framework.Guide.Editor
         public override void ClearConnections()
         {
             vLinks.Clear();
+            vSignFailedLinks.Clear();
         }
     }
 }

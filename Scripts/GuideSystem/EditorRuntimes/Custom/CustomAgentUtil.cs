@@ -231,6 +231,10 @@ namespace Framework.Guide.Editor
             {
                 var node = BuildNodeAttr(db, "步骤器");
                 node.previewEditor = false;
+
+                node.attriDefaults = new Dictionary<string, object>();
+                node.attriDefaults["bAutoSignCheck"] = db.autoSign;
+
                 GuideSystemEditor.StepTypes[node.type] = node;
 
                 GuideSystemEditor.ExportTypesPop.Add(node.strShortName);

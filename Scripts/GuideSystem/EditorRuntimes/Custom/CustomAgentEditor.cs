@@ -317,6 +317,7 @@ namespace Framework.Guide.Editor
                 if (m_pSelect != null)
                 {
                     DrawAgentUnit(m_pSelect.unit, m_vSteps, m_vStepTypes, m_vStepNames, (int)GuideStepType.CustomBegin, (int)GuideStepType.CustomEnd);
+                    m_pSelect.unit.autoSign = EditorGUILayout.Toggle("自动信号检测", m_pSelect.unit.autoSign);
                     m_scoll = EditorGUILayout.BeginScrollView(m_scoll, new GUILayoutOption[] { GUILayout.MaxHeight(position.height - 100) });
                     {
                         GUILayout.BeginHorizontal();

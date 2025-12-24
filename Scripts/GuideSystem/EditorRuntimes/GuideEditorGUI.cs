@@ -159,6 +159,20 @@ namespace Framework.Guide.Editor
                         gridPoints.Add(toRect.center);
                         DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
                     }
+
+                    for (int j = 0; j < node.vExternPorts[i].vSignFailedLinks.Count; ++j)
+                    {
+                        GraphNode grapNode = node.vExternPorts[i].vSignFailedLinks[j];
+                        if (!grapNode.bLinkIn) continue;
+                        if (grapNode.GetGUID() == node.GetGUID()) continue;
+                        Rect toRect;
+                        if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
+
+                        List<Vector2> gridPoints = new List<Vector2>();
+                        gridPoints.Add(fromRect.center);
+                        gridPoints.Add(toRect.center);
+                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
+                    }
                 }
             }
             

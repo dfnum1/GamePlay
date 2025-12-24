@@ -36,10 +36,9 @@ namespace Framework.Guide
         /// </summary>
         public bool bAutoSignCheck = false;
 
-        // 执行成功后，检测状态
-        public bool bSuccessedListenerBreak = false;
-        //执行成功后，某种行为导致条件不再成立， 则强制执行下一步，如果该项有值，则跳转到此步骤
-        public int nSuccessedBreakSkipTo = -1;
+        public bool bSignFailedListenerBreak = false;
+        public int nSignFailedBreakSkipTo = -1;
+        public float fSignFailedBreakDelayTime = 0;
         /// <summary>
         /// 自动跳转倒计时
         /// </summary>
@@ -63,7 +62,7 @@ namespace Framework.Guide
         public ExcudeNode pAutoExcudeNode = null;
 
         [System.NonSerialized]
-        public BaseNode pSuccessedListenerBreakNode = null;
+        public BaseNode pSignFailedListenerBreakNode = null;
 
         //-----------------------------------------------------
         public override List<ArgvPort> GetArgvPorts()
@@ -107,6 +106,11 @@ namespace Framework.Guide
             return bAutoNext?fAutoTime:0;
         }
         //-----------------------------------------------------
+        public override float GetFailSignCheckTime()
+        {
+            return bSignFailedListenerBreak?fSignFailedBreakDelayTime:0;
+        }
+        //-----------------------------------------------------
         public override bool IsAutoNext()
         {
             return bAutoNext;
@@ -119,7 +123,7 @@ namespace Framework.Guide
         //-----------------------------------------------------
         public override bool IsSuccessedListenerBreak()
         {
-            return bSuccessedListenerBreak;
+            return bSignFailedListenerBreak;
         }
         //-----------------------------------------------------
         public override bool IsOption()
@@ -178,9 +182,9 @@ namespace Framework.Guide
             else
                 pAutoExcudeNode = null;
 
-            if (nSuccessedBreakSkipTo != 0)
-                pSuccessedListenerBreakNode = pGroup.GetNode<BaseNode>(nSuccessedBreakSkipTo);
-            else pSuccessedListenerBreakNode = null;
+            if (nSignFailedBreakSkipTo != 0)
+                pSignFailedListenerBreakNode = pGroup.GetNode<BaseNode>(nSignFailedBreakSkipTo);
+            else pSignFailedListenerBreakNode = null;
         }
 #if UNITY_EDITOR
         //-----------------------------------------------------
@@ -265,9 +269,9 @@ namespace Framework.Guide
                 autoExcudeNodeGuid = pAutoExcudeNode.Guid;
             else
                 autoExcudeNodeGuid = 0;
-            if (pSuccessedListenerBreakNode != null)
-                nSuccessedBreakSkipTo = pSuccessedListenerBreakNode.Guid;
-            else nSuccessedBreakSkipTo = 0;
+            if (pSignFailedListenerBreakNode != null)
+                nSignFailedBreakSkipTo = pSignFailedListenerBreakNode.Guid;
+            else nSignFailedBreakSkipTo = 0;
         }
 #endif
     }
