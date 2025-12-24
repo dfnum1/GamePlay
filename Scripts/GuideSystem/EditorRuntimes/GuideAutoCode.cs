@@ -103,6 +103,24 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void SetGuideGuid(int guid, GameObject widget)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tif(widget== null) return;\r\n";
+            code += "\t\t\tGuideGuid comp = widget.GetComponent<GuideGuid>();\r\n";
+            code += "\t\t\tif(comp == null) comp = widget.AddComponent<GuideGuid>();\r\n";
+            code += "\t\t\tAddGuideGuid(guid,comp);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void SetGuideGuidStr(string strGuid, GameObject widget)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tif(widget== null) return;\r\n";
+            code += "\t\t\tGuideGuid comp = widget.GetComponent<GuideGuid>();\r\n";
+            code += "\t\t\tif(comp == null) comp = widget.AddComponent<GuideGuid>();\r\n";
+            code += "\t\t\tAddGuideGuidStr(strGuid,comp);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
             code += "\t\tpublic static void ClearCache()\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tif(ms_vPortCaches != null) ms_vPortCaches.Clear();\r\n";
