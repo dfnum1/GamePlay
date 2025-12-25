@@ -876,7 +876,10 @@ namespace Framework.Guide
             }
             if (pNext == pCurrent && pCurrent != null && m_pDoingNode == pCurrent)
             {
-                DoNode(pNext);
+                m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
+                m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
+                m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
+                m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
                 return;
             }
 

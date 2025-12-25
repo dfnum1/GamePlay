@@ -19,16 +19,18 @@ namespace Framework.Guide
         }
         public static bool bGuideGuidLog;
         static Dictionary<int, List<GuideInfo>> ms_vGuids = new Dictionary<int, List<GuideInfo>>(16);
+        static Dictionary<int, int> ms_InstanceGuideGuid = new Dictionary<int, int>(16);
         //------------------------------------------------------
         public static void OnAdd(AGuideGuid guid, bool bCheck = true)
         {
-            if (guid.guid == 0)
+            if (guid ==null || guid.guid == 0)
                 return;
-            if (ms_vGuids.TryGetValue(guid.guid, out var infoList) == false)
+            if (!ms_vGuids.TryGetValue(guid.guid, out var infoList))
             {
                 infoList = new List<GuideInfo>(2);
                 ms_vGuids[guid.guid] = infoList;
             }
+            ms_InstanceGuideGuid[guid.gameObject.GetInstanceID()] = guid.guid;
             string findTag = "";
             bool bFindTag = false;
             for (int i =0; i < infoList.Count; )
@@ -79,7 +81,9 @@ namespace Framework.Guide
         //------------------------------------------------------
         public static void OnRemove(AGuideGuid guid)
         {
-            if (guid == null || guid.guid == 0) return;
+            if (guid == null) return;
+            ms_InstanceGuideGuid.Remove(guid.gameObject.GetInstanceID());
+            if (guid.guid == 0) return;
 
             if (ms_vGuids.TryGetValue(guid.guid, out var infoList))
             {
@@ -116,6 +120,17 @@ namespace Framework.Guide
                 }
             }
             return null;
+        }
+        //------------------------------------------------------
+        public static int GetGuideGuid(GameObject pWidget)
+        {
+            if (pWidget == null) return 0;
+            int instanceID = pWidget.GetInstanceID();
+            if (ms_InstanceGuideGuid.TryGetValue(instanceID, out var guid))
+            {
+                return guid;
+            }
+            return 0;
         }
         //------------------------------------------------------
         public static Transform GetWidget(int guid, string pathTag = null, int listIndex = -1)

@@ -38,6 +38,18 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void ResetGuideUI()\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\t GuideSystem.getInstance().GetGuidePanel()?.ResetData();\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static void ResetGuideUIWidget()\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tGuideSystem.getInstance().GetGuidePanel()?.ClearWidget();\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
             code += "\t\tpublic static void ActiveMask(bool bActive, float r= 0.0f, float g = 0.0f, float b = 0.0f, float a = 0.0f)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tvar panel = GuideSystem.getInstance().GetGuidePanel();\r\n";
@@ -127,6 +139,19 @@ namespace Framework.Guide.Editor
             code += "\t\t\tGuideGuid comp = widget.GetComponent<GuideGuid>();\r\n";
             code += "\t\t\tif(comp == null) comp = widget.AddComponent<GuideGuid>();\r\n";
             code += "\t\t\tAddGuideGuidStr(strGuid,comp);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static int GetGuideGuid(GameObject widget)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\treturn GuideGuidUtl.GetGuideGuid(widget);\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static int StringToGuid(string label)\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tif(string.IsNullOrEmpty(label)) return 0;\r\n";
+            code += "\t\t\treturn Animator.StringToHash(label);\r\n";
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
