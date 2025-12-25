@@ -77,7 +77,7 @@ namespace Framework.Guide
 
         public void SetInt(byte portIndex, int value)
         {
-            m_nMaxPortIndex = (byte)Mathf.Max(m_nMaxPortIndex, portIndex);
+            m_nMaxPortIndex = (byte)Mathf.Max(m_nMaxPortIndex, portIndex+1);
             if (m_vPorts == null) m_vPorts = new Dictionary<byte, PortData>(2);
             if(m_vPorts.TryGetValue(portIndex, out var portData))
             {
@@ -94,7 +94,7 @@ namespace Framework.Guide
 
         public void SetString(byte portIndex, string value)
         {
-            m_nMaxPortIndex = (byte)Mathf.Max(m_nMaxPortIndex, portIndex);
+            m_nMaxPortIndex = (byte)Mathf.Max(m_nMaxPortIndex, portIndex+1);
             if (m_vPorts == null) m_vPorts = new Dictionary<byte, PortData>(2);
             if (m_vPorts.TryGetValue(portIndex, out var portData))
             {

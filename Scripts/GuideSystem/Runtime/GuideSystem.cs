@@ -850,12 +850,7 @@ namespace Framework.Guide
         //------------------------------------------------------
         void GotoNode(BaseNode pGo, bool bCallAutoNext= false)
         {
-            if (m_pDoingNode != null && (m_pDoingNode.IsAutoNext() || m_pDoingNode.GetAutoNextTime() > 0 || bCallAutoNext))
-            {
-                OnNodeAutoNext(m_pDoingNode);
-            }
-			SeqNode pCurrent = m_pDoingNode;
-            if (m_pDoingNode != null) OnEvent(m_pDoingNode.GetEndEvents());
+            SeqNode pCurrent = m_pDoingNode;
 
             TriggerNode preTriggerNode = m_pDoingTriggerNode;
             SeqNode pNext = null;
@@ -863,16 +858,34 @@ namespace Framework.Guide
             else pNext = CheckNext(m_pDoingNode);
             if (pNext == null)
             {
-                if (bGuideLogEnable && m_pDoingNode != null)
-                    Log("当前引导节点没有满足触发条件,或者没有下一个节点,,开始结束当前引导:" + m_pDoingNode.guideGroup.Guid);
-                if(preTriggerNode== m_pDoingTriggerNode)
+                if (pCurrent != null && (pCurrent.IsAutoNext() || pCurrent.GetAutoNextTime() > 0 || bCallAutoNext))
+                {
+                    OnNodeAutoNext(pCurrent);
+                }
+                if (pCurrent != null) OnEvent(pCurrent.GetEndEvents());
+
+                if (bGuideLogEnable && pCurrent != null)
+                    Log("当前引导节点没有满足触发条件,或者没有下一个节点,,开始结束当前引导:" + pCurrent.guideGroup.Guid);
+                if (preTriggerNode == m_pDoingTriggerNode)
                     OverGuide(true);
                 else
                 {
-                    OnTriggerNodeEnd(preTriggerNode,true);
+                    OnTriggerNodeEnd(preTriggerNode, true);
                 }
                 return;
             }
+            if (pNext == pCurrent && pCurrent != null && m_pDoingNode == pCurrent)
+            {
+                DoNode(pNext);
+                return;
+            }
+
+            if (pCurrent != null && (pCurrent.IsAutoNext() || pCurrent.GetAutoNextTime() > 0 || bCallAutoNext))
+            {
+                OnNodeAutoNext(pCurrent);
+            }
+            if (pCurrent != null) OnEvent(pCurrent.GetEndEvents());
+
             if (pCurrent == m_pDoingNode)
             {
                 DoNode(pNext);
