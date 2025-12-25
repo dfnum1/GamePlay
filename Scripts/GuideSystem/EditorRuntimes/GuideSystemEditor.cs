@@ -38,6 +38,8 @@ namespace Framework.Guide.Editor
             Delete,
             UnDo,
 
+            EnableGuide,
+            DisableGuide,
 
             OpenCurrent,
             Stop,
@@ -57,8 +59,9 @@ namespace Framework.Guide.Editor
             Count,
         }
         static string[] CONTROLL_NAMES = new string[] 
-        { "新建(ctl+n)", "打开(ctl+o)", "创建节点", "保存(ctl+s)", "重新命名", "复制(ctl+c)", "粘贴(ctl+v)", "删除(del)", "回退(ctl+z)", 
-            "打开当前引导", "关闭当前引导", "测试", "录制(ctl+r)", "取消录制",
+        { "新建(ctl+n)", "打开(ctl+o)", "创建节点", "保存(ctl+s)", "重新命名", "复制(ctl+c)", "粘贴(ctl+v)", "删除(del)", "回退(ctl+z)",
+             "开启引导系统", "关闭引导系统",
+           "打开当前引导", "关闭当前引导", "测试", "录制(ctl+r)", "取消录制",
             "全部展开", "全部收起", "自定义", "关联文件", "提交", "编辑设置项", "说明文档" };
 
         public interface BaseParam
@@ -950,7 +953,17 @@ namespace Framework.Guide.Editor
                         //     m_pLogic.UnRedo();
                     }
                         break;
-                    case EControllType.LinkFile:
+                case EControllType.EnableGuide:
+                    {
+                        GuideSystem.getInstance().Enable(true);
+                    }
+                    break;
+                case EControllType.DisableGuide:
+                    {
+                        GuideSystem.getInstance().Enable(false);
+                    }
+                    break;
+                case EControllType.LinkFile:
                         {
                             OpenPathInExplorer(GetSaveFilePath());
                             if (m_pLogic.GetCurGroup() != null && !string.IsNullOrEmpty(m_pLogic.GetCurGroup().strFile))
