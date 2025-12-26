@@ -730,6 +730,15 @@ namespace Framework.AT.Editor
                 return null;
             return (VisualElement)returnEle;
         }
+        //-----------------------------------------------------
+        public static Rect Union(Rect a, Rect b)
+        {
+            float xMin = Mathf.Min(a.xMin, b.xMin);
+            float yMin = Mathf.Min(a.yMin, b.yMin);
+            float xMax = Mathf.Max(a.xMax, b.xMax);
+            float yMax = Mathf.Max(a.yMax, b.yMax);
+            return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
     }
 }
 

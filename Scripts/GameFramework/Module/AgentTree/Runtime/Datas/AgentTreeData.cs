@@ -17,6 +17,7 @@ namespace Framework.AT.Runtime
     [System.Serializable]
     public class AgentTreeData
     {
+        public GroupNode[] groupNodes;
         public EnterTask[] tasks;
         public ActionNode[] actions;
         public CustomEvent[] events;
@@ -72,6 +73,7 @@ namespace Framework.AT.Runtime
             if (actions != null) nodeCnt += actions.Length;
             if (events != null) nodeCnt += events.Length;
             if (parallelConditions != null) nodeCnt += parallelConditions.Length;
+            if (groupNodes != null) nodeCnt += groupNodes.Length;
             return nodeCnt;
         }
         //-----------------------------------------------------
@@ -118,6 +120,11 @@ namespace Framework.AT.Runtime
                 {
                     for (int i = 0; i < parallelConditions.Length; ++i)
                         m_vNodes[parallelConditions[i].guid] = parallelConditions[i];
+                }
+                if (groupNodes != null)
+                {
+                    for (int i = 0; i < groupNodes.Length; ++i)
+                        m_vNodes[groupNodes[i].guid] = groupNodes[i];
                 }
             }
             else

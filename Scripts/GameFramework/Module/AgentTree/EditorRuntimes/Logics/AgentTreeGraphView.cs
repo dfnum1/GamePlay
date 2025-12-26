@@ -86,6 +86,13 @@ namespace Framework.AT.Editor
                         ReNodeName(node, "设置备注名");
                     });
                 }
+                if (this.selection != null && this.selection.Count > 1)
+                {
+                    evt.menu.InsertAction(3, "打组", (a) =>
+                    {
+                        BuildGroup();
+                    });
+                }
             }));
 
             this.RegisterCallback<KeyDownEvent>(evt =>
@@ -208,6 +215,105 @@ namespace Framework.AT.Editor
                 node.bindNode.name = value.ToString();
                 node.UpdateTitle();
             });
+        }
+        //-----------------------------------------------------
+        void BuildGroup()
+        {
+            // 1. 收集选中的GraphNode
+            var selectedNodes = this.selection
+                .OfType<GraphNode>()
+                .Where(n => !(n is GroupViewNode))
+                .ToList();
+            if (selectedNodes.Count < 1)
+            {
+                ShowNotificationWarning("请先选择要打组的节点");
+                return;
+            }
+
+            // 2. 计算包围盒
+            Rect groupRect = selectedNodes[0].GetPosition();
+            foreach (var node in selectedNodes)
+            {
+                groupRect = AgentTreeUtil.Union(groupRect, node.GetPosition());
+            }
+            // 适当扩展边距
+            float padding = 40f;
+            groupRect.xMin -= padding;
+            groupRect.yMin -= padding;
+            groupRect.xMax += padding;
+            groupRect.yMax += padding;
+
+            // 3. 创建GroupViewNode
+            // 这里你可以自定义GroupNode数据结构
+            var groupNodeData = new GroupNode();
+            groupNodeData.guid = GeneratorGUID();
+            groupNodeData.posX = (int)(groupRect.x * 100);
+            groupNodeData.posY = (int)(groupRect.y * 100);
+            groupNodeData.width = (int)(groupRect.width * 100);
+            groupNodeData.height = (int)(groupRect.height * 100);
+            // 记录组内节点
+            groupNodeData.childGuids = selectedNodes.Select(n => n.bindNode.guid).ToArray();
+
+            // 添加到数据和视图
+            if (m_pAgentTreeData.groupNodes == null)
+                m_pAgentTreeData.groupNodes = new GroupNode[0];
+            var groupList = m_pAgentTreeData.groupNodes.ToList();
+            groupList.Add(groupNodeData);
+            m_pAgentTreeData.groupNodes = groupList.ToArray();
+
+            var groupViewNode = new GroupViewNode(this, groupNodeData, true);
+            AddElement(groupViewNode);
+            groupViewNode.SetPosition(new Rect(groupRect.x, groupRect.y, groupRect.width, groupRect.height));
+
+            // 4. 让节点知道自己属于哪个组
+            foreach (var node in selectedNodes)
+            {
+                node.ownerGroup = groupNodeData;
+            }
+
+            // 5. 拖动组时，联动所有子节点
+            groupViewNode.RegisterCallback<MouseDownEvent>(evt =>
+            {
+                if (evt.button == 0)
+                {
+                    groupViewNode.userData = evt.mousePosition;
+                }
+            });
+            groupViewNode.RegisterCallback<MouseMoveEvent>(evt =>
+            {
+                if (evt.pressedButtons == 1 && groupViewNode.userData is Vector2 startPos)
+                {
+                    Vector2 delta = evt.mousePosition - startPos;
+                    groupViewNode.userData = evt.mousePosition;
+                    // 移动所有子节点
+                    foreach (var node in selectedNodes)
+                    {
+                        var pos = node.GetPosition();
+                        node.SetPosition(new Rect(pos.x + delta.x, pos.y + delta.y, pos.width, pos.height));
+                    }
+                    // 组自身也移动
+                    var groupPos = groupViewNode.GetPosition();
+                    groupViewNode.SetPosition(new Rect(groupPos.x + delta.x, groupPos.y + delta.y, groupPos.width, groupPos.height));
+                }
+            });
+
+            // 6. 组节点自适应大小（可在节点拖动后调用）
+            void UpdateGroupRect()
+            {
+                Rect newRect = selectedNodes[0].GetPosition();
+                foreach (var node in selectedNodes)
+                    newRect = AgentTreeUtil.Union(newRect, node.GetPosition());
+                newRect.xMin -= padding;
+                newRect.yMin -= padding;
+                newRect.xMax += padding;
+                newRect.yMax += padding;
+                groupViewNode.SetPosition(new Rect(newRect.x, newRect.y, newRect.width, newRect.height));
+            }
+
+            AddElement(groupViewNode);
+            m_vNodes.Add(groupNodeData, groupViewNode);
+            m_vGuidNodes[groupNodeData.guid] = groupViewNode;
+            // 可在节点拖动后调用 UpdateGroupRect()
         }
         //-----------------------------------------------------
         void OnLocationNodeFunction(GraphNode pNode)

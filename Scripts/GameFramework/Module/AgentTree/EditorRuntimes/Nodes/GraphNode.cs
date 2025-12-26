@@ -24,6 +24,7 @@ namespace Framework.AT.Editor
     public class GraphNode : Node
     {
         public AT.Runtime.BaseNode bindNode;
+        public GroupNode ownerGroup;
 
         protected LinkPort m_pLinkIn;
         protected LinkPort m_pLinkOut;
