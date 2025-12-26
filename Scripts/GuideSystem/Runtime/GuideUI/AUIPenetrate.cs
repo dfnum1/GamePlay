@@ -29,7 +29,6 @@ namespace Framework.Guide
 
         private bool m_bPenetrate = false;
         private int m_PenetrateGUID = 0;
-        private int m_nListIndex = -1;
         private string m_PenetrateTag = null;
         public string SearchListenName;
         //------------------------------------------------------

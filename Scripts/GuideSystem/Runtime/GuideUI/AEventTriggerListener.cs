@@ -28,7 +28,7 @@ namespace Framework.Guide
         AUIPenetrate m_Parentrate = null;
         [SerializeField]
         private Framework.Guide.AGuideGuid m_GuideGuid = null;
-        private int m_nListIndex = -1;
+        protected int m_nListIndex = -1;
 
         public delegate void VoidDelegate(GameObject go, params IUserData[] param);
         [NonSerialized]public VoidDelegate onClick;
