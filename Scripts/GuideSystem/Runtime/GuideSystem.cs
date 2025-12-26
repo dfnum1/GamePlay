@@ -4,10 +4,15 @@
 作    者:	HappLI
 描    述:	引导系统
 *********************************************************************/
+#define USE_DEBUG
+using PlasticGui;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Text;
 using UnityEngine;
+#if USE_DEBUG
+using UnityEngine.Networking.PlayerConnection;
+#endif
 
 namespace Framework.Guide
 {
@@ -99,7 +104,7 @@ namespace Framework.Guide
         bool m_bPressWidget = false;
         CallbackParam m_CallbackParam = new CallbackParam();
 
-        private Dictionary<int,System.UInt64> m_vGuideFlags = new Dictionary<int, ulong>();
+        private Dictionary<int,System.UInt64> m_vGuideFlags = new Dictionary<int, ulong>(32);
 //         private System.UInt64 m_GuideFlag1 = 0;
 //         private System.UInt64 m_GuideFlag2 = 0;
 //         private System.UInt64 m_GuideFlag3 = 0;
@@ -185,6 +190,9 @@ namespace Framework.Guide
             m_bEnableSystem = bEnable;
             if (!m_bEnableSystem)
                 OverGuide(false);
+#if USE_DEBUG
+            GuideSystemPlayerDebuger.Enable(bEnable);
+#endif
         }
         //------------------------------------------------------
         public void EnableSkip(bool bEnableSkip)
@@ -304,6 +312,11 @@ namespace Framework.Guide
             //             else if (tag < 128) m_GuideFlag2 |= (bit << (tag - 64));
             //             else if (tag < 192) m_GuideFlag3 |= (bit << (tag - 128));
             //             else if (tag < 256) m_GuideFlag4 |= (bit << (tag - 192));
+        }
+        //------------------------------------------------------
+        internal Dictionary<int, System.UInt64> GetGuideFlags()
+        {
+            return m_vGuideFlags;
         }
         //------------------------------------------------------
         public void ResetRefresh(IList<UInt64> flags, bool bMaskFlag=true, bool bClearReset = false)
@@ -1137,6 +1150,9 @@ namespace Framework.Guide
             {
                 m_vCallbacks[j].OnGuideExecuteNode(pNode);
             }
+#if USE_DEBUG
+            GuideSystemPlayerDebuger.OnGuideExecuteNode(pNode);
+#endif
         }
         //------------------------------------------------------
         void OnNodeExit(BaseNode pNode)

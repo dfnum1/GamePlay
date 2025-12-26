@@ -301,8 +301,11 @@ namespace Framework.Guide
                 return;
             }
             GameObject pTarget = target.gameObject;
-            if (eventData != null)
+            if (eventData == null)
+            {
+                Guide.GuideSystem.getInstance().OnUIWidgetTrigger(-1, -1, null, EUIWidgetTriggerType.Click);
                 return;
+            }
             OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Click);
             ExecuteEvents.Execute<IPointerClickHandler>(pTarget, eventData, ExecuteEvents.pointerClickHandler);
         }

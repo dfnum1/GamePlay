@@ -1235,6 +1235,15 @@ namespace Framework.Guide.Editor
             return ++ms_nPortGUID;
         }
         //------------------------------------------------------
+        public BaseNode GetBaseNode(int guid)
+        {
+            if (m_vActioNodes.TryGetValue(guid, out GraphNode node))
+            {
+                return node.bindNode;
+            }
+            return null;
+        }
+        //------------------------------------------------------
         public GraphNode CreateTriggerNode(GuideSystemEditor.TriggerParam param)
         {
             if (m_pGroupData == null) return null;

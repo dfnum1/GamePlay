@@ -8,9 +8,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
+using UnityEditor.Experimental;
+using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Networking.PlayerConnection;
 namespace Framework.Guide.Editor
 {
     public partial class GuideSystemEditor : EditorWindow, IGuideSystemCallback
@@ -47,6 +51,8 @@ namespace Framework.Guide.Editor
             Recode,
             Unrecode,
 
+            PlayerDebuger,
+
             Expand,
             UnExpand,
 
@@ -60,8 +66,8 @@ namespace Framework.Guide.Editor
         }
         static string[] CONTROLL_NAMES = new string[] 
         { "新建(ctl+n)", "打开(ctl+o)", "创建节点", "保存(ctl+s)", "重新命名", "复制(ctl+c)", "粘贴(ctl+v)", "删除(del)", "回退(ctl+z)",
-             "开启引导系统", "关闭引导系统",
-           "打开当前引导", "关闭当前引导", "测试", "录制(ctl+r)", "取消录制",
+           "开启引导系统", "关闭引导系统",
+          "打开当前引导", "关闭当前引导", "测试", "录制(ctl+r)", "取消录制","联机调试",
             "全部展开", "全部收起", "自定义", "关联文件", "提交", "编辑设置项", "说明文档" };
 
         public interface BaseParam
@@ -112,6 +118,9 @@ namespace Framework.Guide.Editor
         private Vector2 m_OpenMousePos = Vector2.zero;
         private bool m_bOpenGuideSearcher = false;
         DataSearcher m_pDataSearcher = new DataSearcher();
+
+        private bool m_bPlayerDebuger = false;
+        private int m_nPlayderDebugerPlayerId = -1;
 
         public class NodeAttr
         {
@@ -203,6 +212,17 @@ namespace Framework.Guide.Editor
                 m_pRecodeModeGO = null;
             }
             IsRecodeMode = false;
+
+            if (m_bPlayerDebuger)
+            {
+                m_bPlayerDebuger = false;
+                EditorConnection.instance.Unregister(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+            }
+            if (EditorConnection.instance)
+            {
+                EditorConnection.instance.UnregisterConnection(OnConnectionPlayer);
+                EditorConnection.instance.UnregisterDisconnection(OnDisconnectionPlayer);
+            }
         }
         //-----------------------------------------------------
         protected void OnEnable()
@@ -237,6 +257,51 @@ namespace Framework.Guide.Editor
             hideFlags = HideFlags.DontSave;
             if (OnNodeEditorPreviewEnable != null)
                 OnNodeEditorPreviewEnable.Invoke(null, null);
+
+            if(EditorConnection.instance)
+            {
+                EditorConnection.instance.RegisterConnection(OnConnectionPlayer);
+                EditorConnection.instance.RegisterDisconnection(OnDisconnectionPlayer);
+            }
+        }
+        //------------------------------------------------------
+        void UpdateEditorTitle()
+        {
+            if (m_bPlayerDebuger)
+            {
+                var players = EditorConnection.instance.ConnectedPlayers;
+                string addName = "联调";
+                for(int i =0; i < players.Count; ++i)
+                {
+                    if (players[i].playerId == m_nPlayderDebugerPlayerId)
+                    {
+                        addName = "联调(" + players[i].name + ")";
+                    }
+                }
+                Instance.titleContent = new GUIContent("引导编辑器[" + addName + "]");
+            }
+            else
+                Instance.titleContent = new GUIContent("引导编辑器");
+        }
+        //------------------------------------------------------
+        void OnConnectionPlayer(int player)
+        {
+            m_nPlayderDebugerPlayerId = player;
+            UpdateEditorTitle();
+        }
+        //------------------------------------------------------
+        void OnDisconnectionPlayer(int player)
+        {
+            if(m_nPlayderDebugerPlayerId == player)
+            {
+                m_nPlayderDebugerPlayerId = -1;
+                if (m_bPlayerDebuger)
+                {
+                    m_bPlayerDebuger = false;
+                    EditorConnection.instance.Unregister(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+                }
+                UpdateEditorTitle();
+            }
         }
         //------------------------------------------------------
         public void Save(bool bPop=true, bool bSaveAll = false)
@@ -930,6 +995,14 @@ namespace Framework.Guide.Editor
                             GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
                             GuideSystem.getInstance().RefreshTriggers();
                             m_pLogic.SyncCurGroup();
+                            
+                            if(m_bPlayerDebuger)
+                            {
+                                GuideDebugInfo debugInfo = new GuideDebugInfo();
+                                debugInfo.msgType = (byte)EGuideDebugType.SyncGuideGroupData;
+                                debugInfo.msgContent = JsonUtility.ToJson(m_pLogic.GetCurGroup());
+                                SendToPlayer(debugInfo);
+                            }
                         }
                         break;
                     case EControllType.OpenCreateSearch:
@@ -974,13 +1047,26 @@ namespace Framework.Guide.Editor
                         break;
                     case EControllType.OpenCurrent:
                         {
+                        if (m_bPlayerDebuger)
+                        {
+                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+                            debugInfo.msgType = (byte)EGuideDebugType.OpenCurGuide;
+                            debugInfo.msgData = -1;
+                            debugInfo.msgContent = "";
+                            SendToPlayer(debugInfo);
+                        }
+                        else
+                        {
                             if (GuideSystem.getInstance().bDoing)
                             {
                                 m_pLogic.Load(GuideSystem.getInstance().DoingTriggerNode.guideGroup);
                                 m_pLogic.ExcudeNode(GuideSystem.getInstance().DoingSeqNode);
                             }
                             else
-                                EditorUtility.DisplayDialog("提示", "当前没有正在执行的引导", "好的");
+                            {
+                                this.ShowNotification(new GUIContent("当前没有正在执行的引导"), 2);
+                            }
+                        }
                         }
                         break;
                     case EControllType.Test:
@@ -995,7 +1081,16 @@ namespace Framework.Guide.Editor
                         {
                             //    OpenPathInExplorer(Data.DataManager.getInstance().Guide.strFilePath);
                             m_pLogic.OverGuide();
-                        }
+							if(m_bPlayerDebuger)
+							{
+	                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+	                            debugInfo.msgType = (byte)EGuideDebugType.StopGuide;
+	                            debugInfo.msgData = -1;
+	                            debugInfo.msgContent = "";
+	                            var nodeJson = JsonUtility.ToJson(debugInfo);
+	                            SendToPlayer(debugInfo);
+							}
+                    	}
                         break;
                     case EControllType.CustomAgent:
                         {
@@ -1050,11 +1145,122 @@ namespace Framework.Guide.Editor
                             titleContent = new GUIContent("引导编辑器");
                     }
                     break;
+                case EControllType.PlayerDebuger:
+                    {
+                        if(EditorConnection.instance == null)
+                        {
+                            this.ShowNotification(new GUIContent("请先打开Window/Analysis/Profiler(或Ctrl+7)打开调试器连接"), 2);
+                            return;
+                        }
+                        var conecteds = EditorConnection.instance.ConnectedPlayers;
+                        if(conecteds == null || conecteds.Count<=0)
+                        {
+                            this.ShowNotification(new GUIContent("请先打开Window/Analysis/Profiler(或Ctrl+7)打开调试器连接"), 2);
+                            return;
+                        }
+                        if (m_bPlayerDebuger)
+                        {
+                            m_bPlayerDebuger = false;
+                            EditorConnection.instance.Unregister(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+                        }
+                        else
+                        {
+                            m_bPlayerDebuger = true;
+                            EditorConnection.instance.Register(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+                        }
+                        UpdateEditorTitle();
+                    }
+                    break;
                 case EControllType.Document:
                     {
                         Application.OpenURL("https://docs.qq.com/doc/DTFFNT3JsRXRTcENY");
                     }
                     break;
+            }
+        }
+        //------------------------------------------------------
+        internal static void SendToPlayer(GuideDebugInfo debugInfo)
+        {
+            if (EditorConnection.instance)
+            {
+                EditorConnection.instance.Send(GuideSystemPlayerDebuger.kSendEditorToPlayer, System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(debugInfo)));
+            }
+        }
+        //------------------------------------------------------
+        void OnPlayerDebugResponse(MessageEventArgs data)
+        {
+            try
+            {
+                var nodeJson = Encoding.UTF8.GetString(data.data);
+                var debugInfo = JsonUtility.FromJson<GuideDebugInfo>(nodeJson);
+                if (debugInfo.msgType == (byte)EGuideDebugType.ExecuteNode)
+                {
+                    BaseNode pEditNode = null;
+                    if (debugInfo.msgData == 0) //StepNode
+                    {
+                        var node = JsonUtility.FromJson<StepNode>(debugInfo.msgContent);
+                        if (node != null)
+                        {
+                            pEditNode = m_pLogic.GetBaseNode(node.Guid);
+                        }
+                    }
+                    else if (debugInfo.msgData == 1) //TriggerNode
+                    {
+                        var node = JsonUtility.FromJson<TriggerNode>(debugInfo.msgContent);
+                        if (node != null)
+                        {
+                            pEditNode = m_pLogic.GetBaseNode(node.Guid);
+                        }
+                    }
+                    else if (debugInfo.msgData == 2) //ExcudeNode
+                    {
+                        var node = JsonUtility.FromJson<ExcudeNode>(debugInfo.msgContent);
+                        if (node != null)
+                        {
+                            pEditNode = m_pLogic.GetBaseNode(node.Guid);
+                        }
+                    }
+                    else if (debugInfo.msgData == 3) //GuideOperate
+                    {
+                        var node = JsonUtility.FromJson<GuideOperate>(debugInfo.msgContent);
+                        if (node != null)
+                        {
+                            pEditNode = m_pLogic.GetBaseNode(node.Guid);
+                        }
+                    }
+                    if (pEditNode != null) m_pLogic.ExcudeNode(pEditNode);
+                }
+                else if (debugInfo.msgType == (byte)EGuideDebugType.OpenCurGuide)
+                {
+                    var info = JsonUtility.FromJson<GuideDebugTestNode>(debugInfo.msgContent);
+                    var guideGroupData =  m_pGuideCsv.GetGuide(debugInfo.msgData);
+                    if(debugInfo.msgData < 0)
+                    {
+                        this.ShowNotification(new GUIContent("当前没有正在执行的引导"), 2);
+                    }
+                    else
+                    {
+                        m_pLogic.Load(guideGroupData);
+                        var node = m_pLogic.GetBaseNode(info.startNodeGuid);
+                        if(node!=null) m_pLogic.ExcudeNode(node);
+                    }
+                }
+                else if (debugInfo.msgType == (byte)EGuideDebugType.SyncGuideFlags)
+                {
+                    var info = JsonUtility.FromJson<GuideDebugFlags>(debugInfo.msgContent);
+                    Dictionary<int, UInt64> vFlags = GuideSystem.getInstance().GetGuideFlags();
+                    if (info.keys != null && info.values != null)
+                    {
+                        for (int i = 0; i < info.keys.Count && i < info.values.Count; ++i)
+                        {
+                            vFlags[info.keys[i]] = info.values[i];
+                        }
+                    }
+                }
+            }
+            catch
+            {
+
             }
         }
         //------------------------------------------------------
