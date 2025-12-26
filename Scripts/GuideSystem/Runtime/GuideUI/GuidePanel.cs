@@ -673,25 +673,25 @@ namespace Framework.Guide
                             {
                                 if(m_bRayTest) m_Serialize.BgMask?.gameObject.SetActive(false);
                             }
-
-                            if (GuideSystem.getInstance().bNoForceDoing)
-                            {
-                                GuideSystem.getInstance().OverGuide(false);
-                                return;
-                            }
                         }
                         else
                         {
                             if (m_bMaskSelfWidget) SetMaskActive(true);
                         }
                     }
-                    if (!bListenWidgetInView)
+                    //! 如果为非强制引导,并且当前引导控件已经被移除,则结束引导
+                    if (GuideSystem.getInstance().bNoForceDoing)
                     {
-                        //! 如果为非强制引导，则立马结束引导
-                        if (GuideSystem.getInstance().bNoForceDoing)
+                        if (GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag) == null)
                         {
-                            GuideSystem.getInstance().OverGuide(false);
-                            return;
+                            if (GuideSystem.getInstance().bNoForceDoing)
+                            {
+                                if(!GuideSystem.getInstance().SignCheckFialGo())
+                                {
+                                    GuideSystem.getInstance().OverGuide(false);
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
@@ -706,8 +706,11 @@ namespace Framework.Guide
                 //    }
                     if (!m_bClickZoom && GuideSystem.getInstance().bNoForceDoing)
                     {
-                        GuideSystem.getInstance().OverGuide(false);
-                        return;
+                        if (!GuideSystem.getInstance().SignCheckFialGo())
+                        {
+                            GuideSystem.getInstance().OverGuide(false);
+                            return;
+                        }
                     }
                 }
             }

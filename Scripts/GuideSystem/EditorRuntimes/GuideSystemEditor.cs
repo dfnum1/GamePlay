@@ -1160,13 +1160,16 @@ namespace Framework.Guide.Editor
                         }
                         if (m_bPlayerDebuger)
                         {
+                            //! 帮我实现下，将所有的真机对象，做个下拉框，让选择后，将链接到对应的真机上进行联调
                             m_bPlayerDebuger = false;
                             EditorConnection.instance.Unregister(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+                            this.ShowNotification(new GUIContent("关闭联调模式"), 2);
                         }
                         else
                         {
                             m_bPlayerDebuger = true;
                             EditorConnection.instance.Register(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
+                            this.ShowNotification(new GUIContent("开启联调模式"), 2);
                         }
                         UpdateEditorTitle();
                     }

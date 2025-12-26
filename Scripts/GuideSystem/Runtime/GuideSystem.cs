@@ -847,7 +847,7 @@ namespace Framework.Guide
             GotoNode(null);
         }
         //------------------------------------------------------
-        bool SignCheckFialGo()
+        internal bool SignCheckFialGo()
         {
             if (!m_pDoingNode.IsSuccessedListenerBreak() || m_fFailSignCheckDelta > 0 || m_pDoingNode == null)
                 return false;
