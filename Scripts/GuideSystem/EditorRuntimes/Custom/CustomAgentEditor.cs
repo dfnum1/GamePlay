@@ -91,7 +91,7 @@ namespace Framework.Guide.Editor
         void OnEnable()
         {
             ms_pInstnace = this;
-            this.minSize = new Vector2(800, 400);
+            this.minSize = new Vector2(1096, 653);
             CustomAgentUtil.Init(true);
             m_pTriggerTreeview = new AssetTree(new string[] { "类型", "名称" });
             m_pStepTreeview = new AssetTree(new string[] { "类型", "名称" });
@@ -502,14 +502,15 @@ namespace Framework.Guide.Editor
             float controlWidth = 100;
             float editColWidth = 70;
             float displayWidth = 100;
-            float headWidth = (width - controlWidth- editColWidth- displayWidth) / 3;
-            if (bShowDefault) headWidth = (width - controlWidth - editColWidth - displayWidth) / 4;
+            float headWidth = (width - controlWidth- editColWidth- displayWidth) / 4;
+            if (bShowDefault) headWidth = (width - controlWidth - editColWidth - displayWidth) / 5;
             GUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("参数名", GUILayout.Width(headWidth));          
             GUILayout.Label("Port定义", GUILayout.Width(headWidth));
             GUILayout.Label("显示规则", GUILayout.Width(displayWidth));
-            if(bShowDefault) GUILayout.Label("默认值", GUILayout.Width(displayWidth));
+            GUILayout.Label("说明", GUILayout.Width(displayWidth));
+            if (bShowDefault) GUILayout.Label("默认值", GUILayout.Width(displayWidth));
             GUILayout.Label(new GUIContent("位标志","当显示规则为枚举时，才有位标志编辑"), GUILayout.Width(headWidth));
             EditorGUILayout.EndHorizontal();
 
@@ -528,7 +529,8 @@ namespace Framework.Guide.Editor
                 {
                     vParams[i].displayType = null;
                 }
-                if(bShowDefault)
+                vParams[i].tips = EditorGUILayout.TextField(vParams[i].tips, new GUILayoutOption[] { GUILayout.Width(headWidth) });
+                if (bShowDefault)
                 {
                     vParams[i].defaultValule = EditorGUILayout.TextField(vParams[i].defaultValule, new GUILayoutOption[] { GUILayout.Width(headWidth) });
                 }

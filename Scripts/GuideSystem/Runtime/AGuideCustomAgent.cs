@@ -18,6 +18,7 @@ namespace Framework.Guide
             public EArgvFalg Flag = EArgvFalg.All;
             public bool canEdit = true;
             public string defaultValule = "";
+			public string tips= "";
         }
         [System.Serializable]
         public class AgentUnit

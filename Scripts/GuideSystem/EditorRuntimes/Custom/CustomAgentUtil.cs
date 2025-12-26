@@ -276,6 +276,7 @@ namespace Framework.Guide.Editor
                     newAttr.argvName = unit.inputs[a].name;
                     newAttr.DisplayName = unit.inputs[a].name;
                     newAttr.defaultValue = unit.inputs[a].defaultValule;
+                    newAttr.strTips = unit.inputs[a].tips;
 
                     GuideSystemEditor.NodeAttr.ArgvAttr attr = new GuideSystemEditor.NodeAttr.ArgvAttr();
                     attr.attr = newAttr;
@@ -294,6 +295,7 @@ namespace Framework.Guide.Editor
                     newAttr.argvName = unit.outputs[a].name;
                     newAttr.DisplayName = unit.outputs[a].name;
                     newAttr.defaultValue = unit.outputs[a].defaultValule;
+                    newAttr.strTips = unit.outputs[a].tips;
 
                     GuideSystemEditor.NodeAttr.ArgvAttr attr = new GuideSystemEditor.NodeAttr.ArgvAttr();
                     attr.attr = newAttr;
