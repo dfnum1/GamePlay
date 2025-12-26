@@ -677,6 +677,7 @@ namespace Framework.Guide
                             if (GuideSystem.getInstance().bNoForceDoing)
                             {
                                 GuideSystem.getInstance().OverGuide(false);
+                                return;
                             }
                         }
                         else
@@ -684,20 +685,29 @@ namespace Framework.Guide
                             if (m_bMaskSelfWidget) SetMaskActive(true);
                         }
                     }
- 
+                    if (!bListenWidgetInView)
+                    {
+                        //! 如果为非强制引导，则立马结束引导
+                        if (GuideSystem.getInstance().bNoForceDoing)
+                        {
+                            GuideSystem.getInstance().OverGuide(false);
+                            return;
+                        }
+                    }
                 }
                 else
                 {
                     //! destroyed widget, so relinsten widget
                     m_bListenGuideWidget = true;
                     m_nListenLastFrame = Time.frameCount;
-                   // if (m_bMaskSelfWidget)
-                   // {
-                   //     m_Serialize.BgMask?.gameObject.SetActive(false);
-                   // }
-                    if (GuideSystem.getInstance().bNoForceDoing)
+                //    if (m_bMaskSelfWidget)
+                //    {
+                //        m_Serialize.BgMask?.gameObject.SetActive(false);
+                //    }
+                    if (!m_bClickZoom && GuideSystem.getInstance().bNoForceDoing)
                     {
                         GuideSystem.getInstance().OverGuide(false);
+                        return;
                     }
                 }
             }
@@ -1230,6 +1240,17 @@ namespace Framework.Guide
             if (widget == null)
             {
                 m_fListenWidgetCheckTime += Time.unscaledDeltaTime;
+                if (GuideSystem.getInstance().bGuideLogEnable)
+                {
+                    int nodeGuid = 0;
+                    int gorupGuid = 0;
+                    if (GuideSystem.getInstance().DoingSeqNode != null )
+                    {
+                        nodeGuid = GuideSystem.getInstance().DoingSeqNode.Guid;
+                        gorupGuid = GuideSystem.getInstance().DoingSeqNode.guideGroupGUID;
+                    }
+                    GuideSystem.Log($"引导组Id:{gorupGuid} 节点Id:{nodeGuid}找不到监听控件 guid:{m_ListenGuideGuid} tag:{m_ListenGuideGuidTag}");
+                }
             }
             else
                 m_fListenWidgetCheckTime = 0;

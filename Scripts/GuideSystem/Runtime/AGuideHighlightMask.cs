@@ -290,11 +290,18 @@ namespace Framework.Guide
         public void OnPointerClick(PointerEventData eventData)
         {
             var target = GetTarget();
-            if (target == null) return;
-            if (!RectTransformUtility.RectangleContainsScreenPoint(target, eventData.position, eventData.enterEventCamera))
+            if (target == null)
+            {
+                Guide.GuideSystem.getInstance().OnUIWidgetTrigger(-1, -1, null, EUIWidgetTriggerType.Click);
                 return;
+            }
+            if (!RectTransformUtility.RectangleContainsScreenPoint(target, eventData.position, eventData.enterEventCamera))
+            {
+                Guide.GuideSystem.getInstance().OnUIWidgetTrigger(-1, -1, null, EUIWidgetTriggerType.Click);
+                return;
+            }
             GameObject pTarget = target.gameObject;
-            if (eventData != null && eventData.dragging)
+            if (eventData != null)
                 return;
             OnUIWidgetTrigger(eventData, EUIWidgetTriggerType.Click);
             ExecuteEvents.Execute<IPointerClickHandler>(pTarget, eventData, ExecuteEvents.pointerClickHandler);

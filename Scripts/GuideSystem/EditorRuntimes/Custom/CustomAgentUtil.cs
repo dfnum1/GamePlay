@@ -270,7 +270,7 @@ namespace Framework.Guide.Editor
                 for (int a = 0; a < unit.inputs.Length; ++a)
                 {
                     GuideArgvAttribute newAttr = new GuideArgvAttribute();
-                    if(GuideSystemEditor.DisplayTypes.TryGetValue(unit.inputs[a].displayType, out var attrType)) newAttr.displayType = attrType.displayType;
+                    if(unit.inputs[a].displayType != null && GuideSystemEditor.DisplayTypes.TryGetValue(unit.inputs[a].displayType, out var attrType)) newAttr.displayType = attrType.displayType;
                     newAttr.bBit = unit.inputs[a].bBit;
                     newAttr.Flag = unit.inputs[a].Flag;
                     newAttr.argvName = unit.inputs[a].name;
@@ -289,7 +289,7 @@ namespace Framework.Guide.Editor
                 for (int a = 0; a < unit.outputs.Length; ++a)
                 {
                     GuideArgvAttribute newAttr = new GuideArgvAttribute();
-                    if (GuideSystemEditor.DisplayTypes.TryGetValue(unit.outputs[a].displayType, out var attrType)) newAttr.displayType = attrType.displayType;
+                    if (unit.outputs[a].displayType!=null && GuideSystemEditor.DisplayTypes.TryGetValue(unit.outputs[a].displayType, out var attrType)) newAttr.displayType = attrType.displayType;
                     newAttr.bBit = unit.outputs[a].bBit;
                     newAttr.Flag = unit.outputs[a].Flag;
                     newAttr.argvName = unit.outputs[a].name;

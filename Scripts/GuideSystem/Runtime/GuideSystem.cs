@@ -96,6 +96,7 @@ namespace Framework.Guide
         float m_fDeltaSign = 0;
         float m_fFailSignCheckDelta = 0;
         int m_nTouchID = -1;
+        bool m_bPressWidget = false;
         CallbackParam m_CallbackParam = new CallbackParam();
 
         private Dictionary<int,System.UInt64> m_vGuideFlags = new Dictionary<int, ulong>();
@@ -212,6 +213,7 @@ namespace Framework.Guide
             m_fDeltaSign = 0;
             m_fFailSignCheckDelta = 0;
             m_CallbackParam.Clear();
+            m_bPressWidget = false;
 
             m_vGuideFlags.Clear();
             //             m_GuideFlag1 = 0;
@@ -993,6 +995,7 @@ namespace Framework.Guide
             m_CallbackParam.listIndex = listIndex;
             m_CallbackParam.triggerType = type;
             m_CallbackParam.widgetTag = widgetTag;
+            m_bPressWidget = true;
 
             SeqNode pPreNode = m_pDoingNode;
             if (OnNodeSign(m_pDoingNode))
@@ -1062,14 +1065,27 @@ namespace Framework.Guide
                 m_CallbackParam.touchId = touchId;
                 m_CallbackParam.mousePos = position;
                 m_CallbackParam.deltaMose = deltaPosition;
+
+                SeqNode pPreNode = m_pDoingNode;
                 if (OnNodeSign(m_pDoingNode))//!m_pDoingNode.IsAutoNext() &&  如果步骤节点在勾上自动跳转后,手动触发,这边就不能通过
                 {
                     OnNodeSignCompleted();
                     DoNext();
                 }
                 else
-                    SignCheckFialGo();
-
+                {
+                    if(!SignCheckFialGo())
+                    {
+                        if(!m_bPressWidget)
+                        {
+                            if (pPreNode == m_pDoingNode)
+                            {
+                                OverOptionState();
+                            }
+                        }
+                    }
+                }
+                m_bPressWidget = false;
                 m_nTouchID = -1;
             }
         }
@@ -1103,6 +1119,8 @@ namespace Framework.Guide
         {
             if (m_vCallbacks.Count <= 0 || pNode == null) return;
 
+            if (bGuideLogEnable)
+                Log("引导组:" + pNode.guideGroup.Guid + ":执行节点[" + pNode.Guid + "]");
 
             if (pNode is Framework.Guide.StepNode)
             {
