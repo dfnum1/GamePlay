@@ -169,6 +169,10 @@ namespace Framework.Guide.Editor
                                 m_pGroupData.Tag = tag;
                             }
                         }
+                        if(GUILayout.Button("清除", GUILayout.Width(40)))
+                        {
+                            m_pGroupData.Tag = 65535;
+                        }
                         EditorGUIUtility.labelWidth = label;
                         EditorGUILayout.HelpBox("Tag不能超过65535,用于服务器记录(若需要)", MessageType.Info);
                         GUILayout.EndHorizontal();

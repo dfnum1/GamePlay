@@ -44,6 +44,16 @@ namespace Framework.Guide
     {
         public List<int> keys;
         public List<UInt64> values;
+
+    }
+    //-----------------------------------------------------
+    [System.Serializable]
+    internal struct GuideDebugNodeInfo
+    {
+        public string nodeContent;
+        public List<int> portKeys;
+        public List<int> portValues;
+        public List<string> portStrValues;
     }
     //-----------------------------------------------------
     internal class GuideSystemPlayerDebuger
@@ -144,7 +154,26 @@ namespace Framework.Guide
             else if (pNode is ExcudeNode) debugInfo.msgData = 2;
             else if (pNode is GuideOperate) debugInfo.msgData = 3;
             else debugInfo.msgData = 4;
-            debugInfo.msgContent = JsonUtility.ToJson(pNode);
+
+            GuideDebugNodeInfo nodeInfo = new GuideDebugNodeInfo();
+            nodeInfo.nodeContent = JsonUtility.ToJson(pNode);
+            var ports = pNode.GetArgvPorts();
+            if(ports!=null)
+            {
+                nodeInfo.portKeys = new List<int>(ports.Count);
+                nodeInfo.portValues = new List<int>(ports.Count);
+                nodeInfo.portStrValues = new List<string>(ports.Count);
+                foreach (var db in ports)
+                {
+                    nodeInfo.portKeys.Add(db.guid);
+                    nodeInfo.portValues.Add(db.fillValue);
+                    nodeInfo.portStrValues.Add(db.fillStrValue);
+                }
+            }
+
+            debugInfo.msgContent = JsonUtility.ToJson(nodeInfo);
+
+
             PlayerConnection.instance.Send(kSendPlayerToEditor, Encoding.UTF8.GetBytes(JsonUtility.ToJson(debugInfo)));
         }
     }

@@ -59,6 +59,7 @@ namespace Framework.Guide
         string m_ListenGuideGuidTag = null;
         private bool m_bConvertUIPos = false;
         private bool m_bRayTest = false;
+        private int m_nRayTestHit = 0;
         private bool m_bMaskSelfWidget = false;
         private int m_nListIndex = -1;
         private int m_nListenLastFrame = 0;
@@ -324,6 +325,7 @@ namespace Framework.Guide
             m_bConvertUIPos = false;
             m_bMaskSelfWidget = false;
             m_bRayTest = false;
+            m_nRayTestHit = 0;
             m_nListIndex = -1;
             m_nListenLastFrame = 0;
             m_fListenWidgetCheckTime = 0;
@@ -675,6 +677,13 @@ namespace Framework.Guide
                             }
                         }
                         else
+                        {
+                            if (m_bMaskSelfWidget) SetMaskActive(true);
+                        }
+                    }
+                    else
+                    {
+                        if(bListenWidgetInView)
                         {
                             if (m_bMaskSelfWidget) SetMaskActive(true);
                         }
@@ -1211,6 +1220,7 @@ namespace Framework.Guide
             m_nListenLastFrame = Time.frameCount;
             m_bConvertUIPos = false;
             m_bRayTest = bRayTest;
+            m_nRayTestHit = 0;
             m_nListenLastFrame = Time.frameCount;
             m_fListenWidgetCheckTime = 0;
             m_nRaytestListenLastFrame = 0;
@@ -1917,11 +1927,18 @@ namespace Framework.Guide
                             while (t != null)
                             {
                                 if (t == pObj)
+                                {
+                                    m_nRayTestHit = 0;
                                     return true;
+                                }
                                 t = t.parent;
                             }
                         }
                     }
+
+                    m_nRayTestHit++;
+                    if (m_nRayTestHit >= 5) return false;
+                    else return true;
                 }
                 return false;
             }

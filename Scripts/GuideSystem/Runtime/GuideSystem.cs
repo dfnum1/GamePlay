@@ -536,7 +536,7 @@ namespace Framework.Guide
                             Log("引导组:" + vTriggers[i].guideGroup.Guid + ",满足触发条件,不执行以下引导id:");
                             for (int j = i - 1; j >= 0; j--)
                             {
-                                Log("不检测的引导组id:" + vTriggers[j].guideGroup.Guid);
+                                if(vTriggers[j].guideGroup!=null) Log("不检测的引导组id:" + vTriggers[j].guideGroup.Guid);
                             }
                         }
 
@@ -895,6 +895,18 @@ namespace Framework.Guide
                 m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
                 m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
                 m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
+
+#if UNITY_EDITOR
+                //!仅编辑器模式下通知编辑器
+                for (int j = 0; j < m_vCallbacks.Count; ++j)
+                {
+                    if(m_vCallbacks[j] is Framework.Guide.Editor.GuideSystemEditor)
+                        m_vCallbacks[j].OnGuideExecuteNode(pCurrent);
+                }
+#endif
+#if USE_DEBUG
+                GuideSystemPlayerDebuger.OnGuideExecuteNode(pCurrent);
+#endif
                 return;
             }
 

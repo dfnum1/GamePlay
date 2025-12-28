@@ -1198,10 +1198,11 @@ namespace Framework.Guide.Editor
                 var debugInfo = JsonUtility.FromJson<GuideDebugInfo>(nodeJson);
                 if (debugInfo.msgType == (byte)EGuideDebugType.ExecuteNode)
                 {
+                    GuideDebugNodeInfo nodeInfo = JsonUtility.FromJson<GuideDebugNodeInfo>(debugInfo.msgContent);
                     BaseNode pEditNode = null;
                     if (debugInfo.msgData == 0) //StepNode
                     {
-                        var node = JsonUtility.FromJson<StepNode>(debugInfo.msgContent);
+                        var node = JsonUtility.FromJson<StepNode>(nodeInfo.nodeContent);
                         if (node != null)
                         {
                             pEditNode = m_pLogic.GetBaseNode(node.Guid);
@@ -1209,7 +1210,7 @@ namespace Framework.Guide.Editor
                     }
                     else if (debugInfo.msgData == 1) //TriggerNode
                     {
-                        var node = JsonUtility.FromJson<TriggerNode>(debugInfo.msgContent);
+                        var node = JsonUtility.FromJson<TriggerNode>(nodeInfo.nodeContent);
                         if (node != null)
                         {
                             pEditNode = m_pLogic.GetBaseNode(node.Guid);
@@ -1217,7 +1218,7 @@ namespace Framework.Guide.Editor
                     }
                     else if (debugInfo.msgData == 2) //ExcudeNode
                     {
-                        var node = JsonUtility.FromJson<ExcudeNode>(debugInfo.msgContent);
+                        var node = JsonUtility.FromJson<ExcudeNode>(nodeInfo.nodeContent);
                         if (node != null)
                         {
                             pEditNode = m_pLogic.GetBaseNode(node.Guid);
@@ -1225,13 +1226,33 @@ namespace Framework.Guide.Editor
                     }
                     else if (debugInfo.msgData == 3) //GuideOperate
                     {
-                        var node = JsonUtility.FromJson<GuideOperate>(debugInfo.msgContent);
+                        var node = JsonUtility.FromJson<GuideOperate>(nodeInfo.nodeContent);
                         if (node != null)
                         {
                             pEditNode = m_pLogic.GetBaseNode(node.Guid);
                         }
                     }
-                    if (pEditNode != null) m_pLogic.ExcudeNode(pEditNode);
+                    if (pEditNode != null)
+                    {
+                        var ports = pEditNode.GetArgvPorts();
+                        if(ports!=null && nodeInfo.portKeys!=null && nodeInfo.portValues!=null && nodeInfo.portStrValues != null)
+                        {
+                            for(int i =0; i < ports.Count; ++i)
+                            {
+                                var port = ports[i];
+                                for (int j = 0; j < nodeInfo.portKeys.Count; ++j)
+                                {
+                                    if (port.guid == nodeInfo.portKeys[j])
+                                    {
+                                        port.fillValue = nodeInfo.portValues[j];
+                                        port.fillStrValue = nodeInfo.portStrValues[j];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        m_pLogic.ExcudeNode(pEditNode);
+                    }
                 }
                 else if (debugInfo.msgType == (byte)EGuideDebugType.OpenCurGuide)
                 {

@@ -102,22 +102,26 @@ namespace Framework.Guide
         public static AGuideGuid FindGuide(int guid, string tag = null)
         {
             if (guid == 0) return null;
-            if (ms_vGuids.TryGetValue(guid, out var guideList) && guideList.Count>0)
+            if (ms_vGuids.TryGetValue(guid, out var guideList) && guideList.Count > 0)
             {
                 if (guideList.Count == 1 || string.IsNullOrEmpty(tag))
-                    return guideList[guideList.Count-1].guide;
-                for (int i = 0; i < guideList.Count;++i)
+                    return guideList[guideList.Count - 1].guide;
+
+                AGuideGuid guideGuid = null;
+                for (int i = 0; i < guideList.Count; ++i)
                 {
                     var guideInfo = guideList[i];
                     if (guideInfo.guide == null)
                     {
                         continue;
                     }
+                    guideGuid = guideInfo.guide;
                     if (tag.CompareTo(guideInfo.tag) == 0)
                     {
                         return guideInfo.guide;
                     }
                 }
+                return guideGuid;
             }
             return null;
         }
