@@ -1030,11 +1030,14 @@ namespace Framework.Guide
             }
             else
             {//如果点击的不是目标UI,才进行非强制引导检测
-                if(!SignCheckFialGo())
+                if (type == EUIWidgetTriggerType.Click)
                 {
-                    if (pPreNode == m_pDoingNode && type == EUIWidgetTriggerType.Click)
+                    if (!SignCheckFialGo())
                     {
-                        OverOptionState();
+                        if (pPreNode == m_pDoingNode)
+                        {
+                            OverOptionState();
+                        }
                     }
                 }
             }
