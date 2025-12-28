@@ -5,7 +5,9 @@
 描    述:	引导界面面板
 *********************************************************************/
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,7 +24,8 @@ namespace Framework.Guide
         int m_nDefaultOrder = 0;
         AUIGuideSerialize m_Serialize = null;
 
-
+        static Rect ms_Safe;
+        static bool ms_Read;
 
         private bool m_bVisible = false;
         private bool m_bSlideFinger = false;
@@ -673,7 +676,21 @@ namespace Framework.Guide
                         {
                             if (m_bMaskSelfWidget)
                             {
-                                if(m_bRayTest) m_Serialize.BgMask?.gameObject.SetActive(false);
+                                if (m_bRayTest)
+                                {
+                                    if (GuideSystem.getInstance().bGuideLogEnable)
+                                    {
+                                        int nodeGuid = 0;
+                                        int gorupGuid = 0;
+                                        if (GuideSystem.getInstance().DoingSeqNode != null)
+                                        {
+                                            nodeGuid = GuideSystem.getInstance().DoingSeqNode.Guid;
+                                            gorupGuid = GuideSystem.getInstance().DoingSeqNode.guideGroupGUID;
+                                        }
+                                        GuideSystem.Log($"引导组Id:{gorupGuid} 节点Id:{nodeGuid}监听控件 guid:{m_ListenGuideGuid} tag:{m_ListenGuideGuidTag}  不在屏幕内或不可点击");
+                                    }
+                                    m_Serialize.BgMask?.gameObject.SetActive(false);
+                                }
                             }
                         }
                         else
@@ -1845,25 +1862,14 @@ namespace Framework.Guide
         {
             if (finger == null)
                 return null;
+
             RectTransform rectTrans = finger as RectTransform;
             Vector3 center = rectTrans.TransformPoint(rectTrans.rect.center);
-            Vector2 screenPos = m_pUICamera.WorldToScreenPoint(center);
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(m_pRootUI, screenPos, m_pUICamera, out var canvasPos);
-            {
-                Vector2 referenceResolution = m_CanvasScaler.referenceResolution;
-                float screenWidth = Screen.width;
-                float screenHeight = Screen.height;
-                float match = m_CanvasScaler.matchWidthOrHeight;
-                float scaleX = screenWidth / referenceResolution.x;
-                float scaleY = screenHeight / referenceResolution.y;
-                float scale = Mathf.Lerp(scaleX, scaleY, match);
-                Vector2 screenCenter = new Vector2(screenWidth, screenHeight) * 0.5f;
-                screenPos = screenCenter + canvasPos * scale;
-            }
-
+            Vector2 centerScreen = RectTransformUtility.WorldToScreenPoint(m_pUICamera, center);
+            centerScreen.x = centerScreen.x / Screen.width* GetSafeArea().width;
+            centerScreen.y = centerScreen.y / Screen.height * GetSafeArea().height;
             if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
-            m_pTestEventData.position = screenPos;
+            m_pTestEventData.position = centerScreen;
             if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);
             m_RayTestResults.Clear();
             EventSystem.current.RaycastAll(m_pTestEventData, m_RayTestResults);
@@ -1896,6 +1902,21 @@ namespace Framework.Guide
             return m_RayTestResults;
         }
         //------------------------------------------------------
+        static bool IsRectTransformVisibleOnScreen(RectTransform rectTrans, Camera uiCamera)
+        {
+            rectTrans.GetWorldCorners(ms_contersArray);
+            for (int i = 0; i < 4; i++)
+            {
+                Vector3 screenPos = uiCamera.WorldToScreenPoint(ms_contersArray[i]);
+                if (screenPos.x >= 0 && screenPos.x <= Screen.width &&
+                    screenPos.y >= 0 && screenPos.y <= Screen.height)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        //------------------------------------------------------
         public bool IsCheckInViewAdnCanHit(Transform pObj, bool bRayTest)
         {
             if (pObj is RectTransform)
@@ -1912,6 +1933,10 @@ namespace Framework.Guide
                 tranBd.min = new Vector3(ms_contersArray1[0].x, ms_contersArray1[0].y, 0);//忽略旋转
                 tranBd.max = new Vector3(ms_contersArray1[2].x, ms_contersArray1[2].y, 0);
                 bool bInView = tranBd.Intersects(rootBd);
+                if(!bInView)
+                {
+                    bInView = IsRectTransformVisibleOnScreen(rectTrans, m_pUICamera);
+                }
                 if(m_nListIndex >=0 || !bRayTest)
                     return bInView;
                 if(bInView)
@@ -1956,6 +1981,34 @@ namespace Framework.Guide
                 }
             }
             return false;
+        }
+        //------------------------------------------------------
+        public static Rect GetSafeArea()
+        {
+            if (!ms_Read)
+            {
+                ms_Read = true;
+                var cut = Screen.cutouts;
+                if (cut != null && cut.Length > 0)
+                {
+                    ms_Safe = new Rect(cut[0].x, cut[0].y,
+                                     Screen.width - cut[0].x - cut[0].width,
+                                     Screen.height - cut[0].y - cut[0].height);
+                }
+                else
+                {
+                    ms_Safe = new Rect(0, 0, Screen.width, Screen.height);
+                }
+            }
+            return ms_Safe;
+        }
+        //------------------------------------------------------
+        public static Vector2 ClampToSafe(Vector2 screenPos)
+        {
+            GetSafeArea();
+            screenPos.x = Mathf.Clamp(screenPos.x, ms_Safe.xMin, ms_Safe.xMax);
+            screenPos.y = Mathf.Clamp(screenPos.y, ms_Safe.yMin, ms_Safe.yMax);
+            return screenPos;
         }
     }
 }
