@@ -460,7 +460,10 @@ namespace Framework.Guide
         public void OverGuide(bool bCheckRecord = false)
         {
             TriggerNode pDoingTriggerNode = m_pDoingTriggerNode;
-
+#if USE_DEBUG
+            if(pDoingTriggerNode!=null)
+                GuideSystemPlayerDebuger.StopGuide(pDoingTriggerNode.guideGroupGUID);
+#endif
             foreach (var db in m_vTracking)
             {
                 OnNodeExit(db);

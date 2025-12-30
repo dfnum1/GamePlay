@@ -17,8 +17,8 @@ namespace Framework.Guide
 	public class GuideGroup : IUserData
 	{
         public int Guid = 0;
-#if UNITY_EDITOR
         public string Name = "";
+#if UNITY_EDITOR
         [System.NonSerialized]
         public string strFile = "";
 #endif

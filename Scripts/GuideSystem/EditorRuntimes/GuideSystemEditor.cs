@@ -1074,6 +1074,22 @@ namespace Framework.Guide.Editor
                         break;
                     case EControllType.Test:
                         {
+                        if (m_bPlayerDebuger)
+                        {
+                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+                            debugInfo.msgType = (byte)EGuideDebugType.TestNode;
+                            GuideDebugTestNode testNode = new GuideDebugTestNode();
+                            testNode.guideGuid = m_pLogic.GetCurGroup().Guid;
+                            testNode.startNodeGuid = 0;
+                            if(m_pLogic.SelectonCache!=null && m_pLogic.SelectonCache.Count>0)
+                            {
+                                testNode.startNodeGuid = m_pLogic.SelectonCache[0].bindNode.Guid;
+                            }
+                            debugInfo.msgContent = JsonUtility.ToJson(testNode);
+                            SendToPlayer(debugInfo);
+                        }
+                        else
+                        {
                             m_pLogic.Save();
                             GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
                             GuideSystem.getInstance().RefreshTriggers();
@@ -1172,7 +1188,12 @@ namespace Framework.Guide.Editor
                         {
                             m_bPlayerDebuger = true;
                             EditorConnection.instance.Register(GuideSystemPlayerDebuger.kSendPlayerToEditor, OnPlayerDebugResponse);
-                            this.ShowNotification(new GUIContent("开启联调模式"), 2);
+
+                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+                            debugInfo.msgType = (byte)EGuideDebugType.GetDatas;
+                            debugInfo.msgData = -1;
+                            debugInfo.msgContent = "";
+                            SendToPlayer(debugInfo);
                         }
                         UpdateEditorTitle();
                     }
@@ -1272,6 +1293,24 @@ namespace Framework.Guide.Editor
                         if(node!=null) m_pLogic.ExcudeNode(node);
                     }
                 }
+                else if (debugInfo.msgType == (byte)EGuideDebugType.GetDatas)
+                {
+                    var info = JsonUtility.FromJson<GuideDebugNodeDatas>(debugInfo.msgContent);
+                    foreach(var db in info.datas)
+                    {
+                        GuideGroup group = JsonUtility.FromJson<GuideGroup>(db);
+                        if(group!=null)
+                        {
+                            var guideGp = m_pGuideCsv.GetGuide(group.Guid);
+                            if(guideGp == null)
+                            {
+                                m_pGuideCsv.allDatas[group.Guid] = group;
+                            }
+                            GuideSystem.getInstance().AddGuide(group);
+                            GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
+                        }
+                    }
+                }
                 else if (debugInfo.msgType == (byte)EGuideDebugType.SyncGuideFlags)
                 {
                     var info = JsonUtility.FromJson<GuideDebugFlags>(debugInfo.msgContent);
@@ -1283,6 +1322,10 @@ namespace Framework.Guide.Editor
                             vFlags[info.keys[i]] = info.values[i];
                         }
                     }
+                }
+                else if (debugInfo.msgType == (byte)EGuideDebugType.StopGuide)
+                {
+                    var info = JsonUtility.FromJson<GuideDebugFlags>(debugInfo.msgContent);
                 }
             }
             catch

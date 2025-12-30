@@ -15,7 +15,8 @@ namespace Framework.Guide
 {
     public enum EGuideDebugType : byte
     {
-        ExecuteNode = 0,
+        GetDatas =0,
+        ExecuteNode,
         TestNode,
         StopGuide,
         OpenCurGuide,
@@ -56,6 +57,12 @@ namespace Framework.Guide
         public List<string> portStrValues;
     }
     //-----------------------------------------------------
+    [System.Serializable]
+    internal struct GuideDebugNodeDatas
+    {
+        public List<string> datas;
+    }
+    //-----------------------------------------------------
     internal class GuideSystemPlayerDebuger
     {
         internal static readonly Guid kSendPlayerToEditor = new Guid("e225f75e9217344ae83c81f2a84fc759");
@@ -80,13 +87,37 @@ namespace Framework.Guide
             {
                 var nodeJson = Encoding.UTF8.GetString(data.data);
                 var debugInfo = JsonUtility.FromJson<GuideDebugInfo>(nodeJson);
-                if (debugInfo.msgType == (byte)EGuideDebugType.TestNode)
+                if (debugInfo.msgType == (byte)EGuideDebugType.GetDatas)
+                {
+                    if (PlayerConnection.instance && PlayerConnection.instance.isConnected)
+                    {
+                        var infoMsg = new GuideDebugInfo();
+                        infoMsg.msgType = debugInfo.msgType;
+                        infoMsg.msgData = -1;
+
+                        var nodes = GuideSystem.getInstance().datas;
+                        GuideDebugNodeDatas debugDatas = new GuideDebugNodeDatas();
+                        debugDatas.datas = new List<string>();
+                        foreach (var db in nodes)
+                        {
+                            debugDatas.datas.Add(JsonUtility.ToJson(db.Value));
+                        }
+
+                        infoMsg.msgContent = JsonUtility.ToJson(debugDatas);
+                        PlayerConnection.instance.Send(kSendPlayerToEditor, Encoding.UTF8.GetBytes(JsonUtility.ToJson(infoMsg)));
+                    }
+                }
+                else if (debugInfo.msgType == (byte)EGuideDebugType.TestNode)
                 {
                     GuideDebugTestNode node = JsonUtility.FromJson<GuideDebugTestNode>(debugInfo.msgContent);
 
-                    GuideSystem.getInstance().Enable(true);
-                    GuideSystem.getInstance().OverGuide(false);
-                    GuideSystem.getInstance().DoGuide(node.guideGuid, node.startNodeGuid, node.bForce);
+                    if(GuideSystem.getInstance().datas.TryGetValue(node.guideGuid, out var guideGroup))
+                    {
+                        GuideSystem.getInstance().Enable(true);
+                        GuideSystem.getInstance().OverGuide(false);
+                        GuideSystem.getInstance().AddGuide(guideGroup, true);
+                        GuideSystem.getInstance().DoGuide(node.guideGuid, node.startNodeGuid, node.bForce);
+                    }
                 }
                 if (debugInfo.msgType == (byte)EGuideDebugType.OpenCurGuide)
                 {
@@ -174,6 +205,16 @@ namespace Framework.Guide
             debugInfo.msgContent = JsonUtility.ToJson(nodeInfo);
 
 
+            PlayerConnection.instance.Send(kSendPlayerToEditor, Encoding.UTF8.GetBytes(JsonUtility.ToJson(debugInfo)));
+        }
+        //-----------------------------------------------------
+        public static void StopGuide(int guideGroup)
+        {
+            if (PlayerConnection.instance == null || !PlayerConnection.instance.isConnected)
+                return;
+            GuideDebugInfo debugInfo = new GuideDebugInfo();
+            debugInfo.msgType = (byte)EGuideDebugType.StopGuide;
+            debugInfo.msgData = guideGroup;
             PlayerConnection.instance.Send(kSendPlayerToEditor, Encoding.UTF8.GetBytes(JsonUtility.ToJson(debugInfo)));
         }
     }
