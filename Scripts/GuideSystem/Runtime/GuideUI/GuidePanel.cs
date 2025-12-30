@@ -1242,11 +1242,10 @@ namespace Framework.Guide
             m_ListenGuideGuid = clickUI;
             m_ListenGuideGuidTag = widgetTag;
             m_bListenGuideWidget = true;
-            m_nListenLastFrame = Time.frameCount;
             m_bConvertUIPos = false;
             m_bRayTest = bRayTest;
             m_nRayTestHit = 0;
-            m_nListenLastFrame = Time.frameCount;
+            m_nListenLastFrame =0;
             m_fListenWidgetCheckTime = 0;
             m_nRaytestListenLastFrame = 0;
             m_SearchListenName = searchName;
