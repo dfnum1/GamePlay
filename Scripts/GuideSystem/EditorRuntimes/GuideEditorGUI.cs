@@ -157,7 +157,7 @@ namespace Framework.Guide.Editor
                         List<Vector2> gridPoints = new List<Vector2>();
                         gridPoints.Add(fromRect.center);
                         gridPoints.Add(toRect.center);
-                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
+                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
                     }
 
                     for (int j = 0; j < node.vExternPorts[i].vSignFailedLinks.Count; ++j)
@@ -171,7 +171,7 @@ namespace Framework.Guide.Editor
                         List<Vector2> gridPoints = new List<Vector2>();
                         gridPoints.Add(fromRect.center);
                         gridPoints.Add(toRect.center);
-                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
+                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
                     }
                 }
             }
@@ -197,7 +197,17 @@ namespace Framework.Guide.Editor
                 if (draggedOutputTargetGuid >= 0) gridPoints.Add(portConnectionPoints[draggedOutputTargetGuid].center);
                 else gridPoints.Add(WindowToGridPosition(Event.current.mousePosition));
 
-                DrawNoodle(col, gridPoints);
+                GuidePreferences.NoodleType noodleType = GuidePreferences.NoodleType.Count;
+                if (draggedOutput is ExternPort)
+                {
+                    ExternPort externPort = draggedOutput as ExternPort;
+                    if(externPort.externID == 10 || externPort.externID == 20)
+                    {
+                        noodleType = GuidePreferences.NoodleType.Angled;
+                    }
+                }
+
+                DrawNoodle(col, gridPoints, noodleType);
 
                 Color bgcol = Color.black;
                 Color frcol = col;

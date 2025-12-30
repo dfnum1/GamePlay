@@ -66,7 +66,7 @@ namespace Framework.Guide.Editor
             public bool portTooltips = true;
             [SerializeField] private string typeColorsData = "";
             [NonSerialized] public Dictionary<string, Color> typeColors = new Dictionary<string, Color>();
-            public NoodleType noodleType = NoodleType.Angled;
+            public NoodleType noodleType = NoodleType.Curve;
 
             private Texture2D _gridTexture;
             public Texture2D gridTexture
