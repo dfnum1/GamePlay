@@ -892,6 +892,9 @@ namespace Framework.Guide.Editor
                             if (!TypeDisplayTypes.ContainsKey(attr.displayType))
                             {
                                 TypeDisplayTypes[attr.displayType] = attr;
+                            }
+                            if(!DisplayTypes.ContainsKey(displayName))
+                            {
                                 DisplayTypes[displayName] = attr;
                                 DisplayTypesPop.Add(displayName);
                             }

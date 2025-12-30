@@ -4,7 +4,7 @@
 作    者:	HappLI
 描    述:	引导系统连接调试
 *********************************************************************/
-#if USE_DEBUG
+#if USE_DEBUG || UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;

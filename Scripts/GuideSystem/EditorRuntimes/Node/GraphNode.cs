@@ -154,9 +154,9 @@ namespace Framework.Guide.Editor
                     ExcudeNodeDraw.Draw(this, bindNode as ExcudeNode);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                Debug.LogException(ex);
             }
 
             EditorGUIUtility.labelWidth = labelWidth;
@@ -447,9 +447,9 @@ namespace Framework.Guide.Editor
 
             string strValueField = "strValue";
             string strIntField = "value";
-            if (GuideSystem.getInstance().bDoing && GuideSystem.getInstance().DoingTriggerNode != null)
+            if(GuideSystem.getInstance().bDoing && GuideSystem.getInstance().DoingTriggerNode!=null)
             {
-                if (GuideSystem.getInstance().DoingTriggerNode.guideGroupGUID == this.bindNode.guideGroup.Guid)
+                if(this.bindNode.guideGroup!=null && GuideSystem.getInstance().DoingTriggerNode.guideGroupGUID == this.bindNode.guideGroup.Guid)
                 {
                     strValueField = "m_strFillVaue";
                     strIntField = "m_fillVaue";

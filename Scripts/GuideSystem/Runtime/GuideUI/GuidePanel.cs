@@ -5,9 +5,7 @@
 描    述:	引导界面面板
 *********************************************************************/
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -343,6 +341,7 @@ namespace Framework.Guide
             m_bClick3DPosition = false;
             if (m_Serialize && m_Serialize.uiPenetrate)
             {
+                m_Serialize.uiPenetrate.TriggerGo = null;
                 m_Serialize.uiPenetrate.gameObject.SetActive(false);
                 m_Serialize.uiPenetrate.EnablePenetrate(false, m_ListenGuideGuid, m_nListIndex, m_ListenGuideGuidTag);
             }
@@ -751,10 +750,12 @@ namespace Framework.Guide
                         if(m_pGuideTriggerListen) m_pGuideTriggerListen.SetParentrate(m_Serialize.uiPenetrate);
                         m_Serialize.uiPenetrate.SearchListenName = m_SearchListenName;
 
+                        bool bActive = !IsMaskActive() && !m_bMaskSelfWidget;
                         var widgetRect = m_pOriGuideWidget? m_pOriGuideWidget: m_pGuideWidget;
-                        m_Serialize.uiPenetrate.TriggerGo = widgetRect?.gameObject;
-                        m_Serialize.uiPenetrate.EnablePenetrate(!IsMaskActive(), m_ListenGuideGuid, m_nListIndex, m_ListenGuideGuidTag);
-                        m_Serialize.uiPenetrate.gameObject.SetActive(!IsMaskActive());
+                        if (bActive) m_Serialize.uiPenetrate.TriggerGo = widgetRect?.gameObject;
+                        else m_Serialize.uiPenetrate.TriggerGo = null;
+                        m_Serialize.uiPenetrate.EnablePenetrate(bActive, m_ListenGuideGuid, m_nListIndex, m_ListenGuideGuidTag);
+                        m_Serialize.uiPenetrate.gameObject.SetActive(bActive);
 
                         if (widgetRect!=null && widgetRect is RectTransform && m_Serialize.uiPenetrate.isActiveAndEnabled)
                         {
@@ -862,6 +863,7 @@ namespace Framework.Guide
 
                 if(m_bClickZoom)
                 {
+                    bool bValidConvert = false;
                     Transform finger = GetFinger(m_fingerType);
                     if(finger!=null)
                     {
@@ -871,8 +873,12 @@ namespace Framework.Guide
                         {
                             Vector3 uiPos = Vector3.zero;
                             if (WorldPosToUIPos(m_ClickZoomPosition, true, ref uiPos))
+                            {
+                                bValidConvert = true;
                                 pos = uiPos;
+                            }
                         }
+                        else bValidConvert = true;
                         finger.localPosition = pos;
 #if UNITY_EDITOR
                         if (m_pClickZoomEditor)
@@ -882,7 +888,9 @@ namespace Framework.Guide
                         if(m_bMaskSelfWidget)
                         {
                             if (m_nRaytestListenLastFrame <= 0) m_nRaytestListenLastFrame = Time.frameCount;
+                            if(!bValidConvert) finger.localPosition = Vector3.zero;
                             var testResult = IsRayTestEvent(finger);
+                            finger.localPosition = pos;
                             if (testResult != null && testResult.Count > 0)
                             {
                                 if (finger) finger.localPosition = INVAILD_POS;
@@ -1284,7 +1292,7 @@ namespace Framework.Guide
             }
             else
                 m_fListenWidgetCheckTime = 0;
-            if (widget && IsCheckInViewAdnCanHit(widget.transform, false))
+            if (widget /*&& IsCheckInViewAdnCanHit(widget.transform, false)*/)
             {
                 if (m_bMaskSelfWidget) SetMaskActive(true);
                 //检测组件状态,如果强制引导,并且没有跳过步骤,则默认显示
@@ -1367,7 +1375,22 @@ namespace Framework.Guide
             }
             else
             {
-            //    if (m_bMaskSelfWidget) SetMaskActive(false);
+                //   if (m_bMaskSelfWidget) SetMaskActive(false);
+                if (m_fListenWidgetCheckTime>= (LISTEN_WIDGET_OVERTIME-0.01f) && 
+                    GuideSystem.getInstance().DoingSeqNode != null && !GuideSystem.getInstance().DoingSeqNode.IsAutoSignCheck() &&
+                    GuideSystem.getInstance().DoingSeqNode.GetFailSignCheckTime()>0 &&
+                    GuideSystem.getInstance().DoingSeqNode.IsSuccessedListenerBreak())
+                {
+                    if (GuideSystem.getInstance().bNoForceDoing)
+                    {
+                        if (!GuideSystem.getInstance().SignCheckFialGo())
+                        {
+                            GuideSystem.getInstance().OverGuide(false);
+                        }
+                    }
+                    else
+                        GuideSystem.getInstance().SignCheckFialGo();
+                }
             }
         }
         //------------------------------------------------------
@@ -1742,7 +1765,7 @@ namespace Framework.Guide
         public bool WorldPosToUIPos(Vector3 worldPos, bool bLocal, ref Vector3 point, Camera cam = null)
         {
             if (cam == null) cam = Camera.main;
-            if (cam == null) return false;
+            if (cam == null || !cam.isActiveAndEnabled) return false;
             Vector2 screenPos = cam.WorldToScreenPoint(worldPos);
             if (bLocal)
             {
@@ -1862,16 +1885,30 @@ namespace Framework.Guide
         {
             if (finger == null)
                 return null;
+            RectTransform rectTrans = finger as RectTransform;
+            IsRayTestEvent(finger, rectTrans.rect.center);
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            IsRayTestEvent(finger, new Vector2(rectTrans.rect.center.x, rectTrans.rect.yMin + 0.1f));
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            IsRayTestEvent(finger, new Vector2(rectTrans.rect.center.x, rectTrans.rect.yMax - 0.1f));
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            return m_RayTestResults;
+        }
+        //------------------------------------------------------
+        public void IsRayTestEvent(Transform finger, Vector2 position)
+        {
+            if (m_RayTestResults != null) m_RayTestResults.Clear();
+            if (finger == null)
+                return;
 
             RectTransform rectTrans = finger as RectTransform;
-            Vector3 center = rectTrans.TransformPoint(rectTrans.rect.center);
+            Vector3 center = rectTrans.TransformPoint(position);
             Vector2 centerScreen = RectTransformUtility.WorldToScreenPoint(m_pUICamera, center);
-            centerScreen.x = centerScreen.x / Screen.width* GetSafeArea().width;
+            centerScreen.x = centerScreen.x / Screen.width * GetSafeArea().width;
             centerScreen.y = centerScreen.y / Screen.height * GetSafeArea().height;
             if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
             m_pTestEventData.position = centerScreen;
             if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);
-            m_RayTestResults.Clear();
             EventSystem.current.RaycastAll(m_pTestEventData, m_RayTestResults);
 
             if (m_RayTestResults.Count > 0)
@@ -1899,7 +1936,6 @@ namespace Framework.Guide
                     }
                 }
             }
-            return m_RayTestResults;
         }
         //------------------------------------------------------
         static bool IsRectTransformVisibleOnScreen(RectTransform rectTrans, Camera uiCamera)
@@ -1988,7 +2024,8 @@ namespace Framework.Guide
             if (!ms_Read)
             {
                 ms_Read = true;
-                var cut = Screen.cutouts;
+                ms_Safe = Screen.safeArea;
+                /*var cut = Screen.cutouts;
                 if (cut != null && cut.Length > 0)
                 {
                     ms_Safe = new Rect(cut[0].x, cut[0].y,
@@ -1998,8 +2035,11 @@ namespace Framework.Guide
                 else
                 {
                     ms_Safe = new Rect(0, 0, Screen.width, Screen.height);
-                }
+                }*/
             }
+#if UNITY_EDITOR
+            ms_Safe = Screen.safeArea;
+#endif
             return ms_Safe;
         }
         //------------------------------------------------------

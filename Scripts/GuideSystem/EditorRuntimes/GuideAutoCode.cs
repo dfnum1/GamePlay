@@ -32,6 +32,12 @@ namespace Framework.Guide.Editor
             code += "\t\t}\r\n";
 
             code += "\t\t//--------------------------------------------------\r\n";
+            code += "\t\tpublic static bool bNoForceDoing\r\n";
+            code += "\t\t{\r\n";
+            code += "\t\t\tget{return GuideSystem.getInstance().bNoForceDoing;}\r\n";
+            code += "\t\t}\r\n";
+
+            code += "\t\t//--------------------------------------------------\r\n";
             code += "\t\tpublic static void StopGuiding(bool bRecord = false)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tGuideSystem.getInstance().OverGuide(bRecord);\r\n";
@@ -112,7 +118,7 @@ namespace Framework.Guide.Editor
             code += "\t\t\tif(widget== null) return;\r\n";
             code += "\t\t\tif(widget.guid == guid) return;\r\n";
             code += "\t\t\tFramework.Guide.GuideGuidUtl.OnRemove(widget);\r\n";
-            code += "\t\t\twidget.guid = guid;\r\n";
+            code += "\t\t\twidget.guid = guid;\r\n"; 
             code += "\t\t\tFramework.Guide.GuideGuidUtl.OnAdd(widget);\r\n";
             code += "\t\t}\r\n";
 
