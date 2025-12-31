@@ -1903,8 +1903,8 @@ namespace Framework.Guide
             RectTransform rectTrans = finger as RectTransform;
             Vector3 center = rectTrans.TransformPoint(position);
             Vector2 centerScreen = RectTransformUtility.WorldToScreenPoint(m_pUICamera, center);
-            centerScreen.x = centerScreen.x / Screen.width * GetSafeArea().width;
-            centerScreen.y = centerScreen.y / Screen.height * GetSafeArea().height;
+          //  centerScreen.x = centerScreen.x / Screen.width * GetSafeArea().width;
+         //   centerScreen.y = centerScreen.y / Screen.height * GetSafeArea().height;
             if (m_pTestEventData == null) m_pTestEventData = new PointerEventData(EventSystem.current);
             m_pTestEventData.position = centerScreen;
             if (m_RayTestResults == null) m_RayTestResults = new List<RaycastResult>(4);

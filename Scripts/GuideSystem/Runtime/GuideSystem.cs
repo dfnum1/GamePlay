@@ -4,8 +4,6 @@
 作    者:	HappLI
 描    述:	引导系统
 *********************************************************************/
-#define USE_DEBUG
-using PlasticGui;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -727,13 +725,25 @@ namespace Framework.Guide
                                 return CheckNext(seq.vOps[i].pNext);
                             }
                             else
-                                return seq.vOps[i].pNext as SeqNode;
+                            {
+                                if (seq.vOps[i].pNext != null && seq.vOps[i].pNext is ExcudeNode)
+                                {
+                                    return CheckNext(seq.vOps[i].pNext);
+                                }
+                                else
+                                    return seq.vOps[i].pNext as SeqNode;
+                            }
                         }
                     }
                 }
                 else
                 {
-                    return seq.pNext;
+                    if(seq.pNext!=null && seq.pNext is ExcudeNode)
+                    {
+                        return CheckNext(seq.pNext);
+                    }
+                    else
+                        return seq.pNext;
                 }
             }
             else if( pNode is GuideOperate )
@@ -894,15 +904,14 @@ namespace Framework.Guide
                 }
                 return;
             }
-            if (pNext == pCurrent && pCurrent != null && m_pDoingNode == pCurrent)
-            {
-                m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
-                m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
-                m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
-                m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
-                OnEditorDummyNode(pCurrent);
-                return;
-            }
+            //if(pNext == pCurrent && pCurrent!=null && m_pDoingNode == pCurrent)
+            //{
+            //    m_fDeltaDelta = m_pDoingNode.GetDeltaTime();
+            //    m_fDeltaSign = m_pDoingNode.GetDeltaSignTime();
+            //    m_fAutoNextDelta = m_pDoingNode.GetAutoNextTime();
+            //    m_fFailSignCheckDelta = m_pDoingNode.GetFailSignCheckTime();
+            //    return;
+            //}
 
             if (pCurrent != null && (pCurrent.IsAutoNext() || pCurrent.GetAutoNextTime() > 0 || bCallAutoNext))
             {
