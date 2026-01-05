@@ -43,7 +43,7 @@ namespace Framework.Guide.Editor
             if (m_nState == EState.Open) return;
             m_nState = EState.Open;
             Init();
-            Search("");
+            Search(m_assetTree!=null?m_assetTree.searchString:"");
             OnOpen();
         }
         //------------------------------------------------------

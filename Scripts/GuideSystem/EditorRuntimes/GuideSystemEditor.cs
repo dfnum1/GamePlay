@@ -653,7 +653,7 @@ namespace Framework.Guide.Editor
             {
                 bool bCtl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
                 bool bShift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift); 
-                if (bCtl && bShift)
+                if (/*bCtl && */bShift)
                 {
                     var lastNode = m_pLogic.FindLastNodeAndNoNextLink();
                     if (lastNode != null)
@@ -744,11 +744,15 @@ namespace Framework.Guide.Editor
         static void AddDisplayAttr(System.Type type, string displayName)
         {
             if (string.IsNullOrEmpty(displayName)) displayName = type.Name;
-            if(!TypeDisplayTypes.ContainsKey(type))
+            var attr = new GuideDisplayTypeAttribute(type, displayName);
+            if (!TypeDisplayTypes.ContainsKey(type))
             {
-                var attr = new GuideDisplayTypeAttribute(type, displayName);
                 if (attr.callDisplayType == null) attr.callDisplayType = attr.displayType;
                 TypeDisplayTypes[type] = attr;
+ 
+            }
+            if(!DisplayTypes.ContainsKey(displayName))
+            {
                 DisplayTypes[displayName] = attr;
                 DisplayTypesPop.Add(displayName);
             }
@@ -799,6 +803,9 @@ namespace Framework.Guide.Editor
                             if (!TypeDisplayTypes.ContainsKey(attr.displayType))
                             {
                                 TypeDisplayTypes[attr.displayType] = attr;
+                            }
+                            if (!DisplayTypes.ContainsKey(displayName))
+                            {
                                 DisplayTypes[displayName] = attr;
                                 DisplayTypesPop.Add(displayName);
                             }
@@ -1153,7 +1160,7 @@ namespace Framework.Guide.Editor
                             }
                             IsRecodeMode = true;
                             titleContent = new GUIContent("引导编辑器-录制模式");
-                        this.ShowNotification(new GUIContent("进入录制模式\r\n1.请按住control键，然后鼠标在Game 视图中点击ui，即可录制\r\n1.请按住control键+shift键，然后鼠标在Game 视图中点击3D物件，即可录制3D坐标"), 3);
+                        this.ShowNotification(new GUIContent("进入录制模式\r\n1.请按住control键，然后鼠标在Game 视图中点击ui，即可录制\r\n1.请按住shift键，然后鼠标在Game 视图中点击3D物件，即可录制3D坐标"), 3);
                     }
                     break;
                     case EControllType.Unrecode:

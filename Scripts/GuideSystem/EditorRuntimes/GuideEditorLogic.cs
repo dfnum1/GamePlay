@@ -149,7 +149,7 @@ namespace Framework.Guide.Editor
 
                 if(ms_bDrawInfo)
                 {
-                    Rect infoRect = new Rect(m_pEditor.position.width - 250, topPadding * zoom + 5, 250, 120);
+                    Rect infoRect = new Rect(m_pEditor.position.width - 250, topPadding * zoom + 5, 250, 135);
                     if(GUI.Button(new Rect(infoRect.xMin-20, infoRect.yMin, 20, 20), EditorGUIUtility.TrIconContent("StepButton").image))
                     {
                         ms_bDrawInfo = false;
@@ -1263,6 +1263,7 @@ namespace Framework.Guide.Editor
             pNode.posX = (int)param.gridPos.x;
             pNode.posY = (int)param.gridPos.y;
             pNode.Name = param.Data.strShortName;
+            pNode.guideGroup = m_pGroupData;
 
             GraphNode grap = new GraphNode(m_pGroupData, pNode);
             GuideEditorUtil.SetNodeDefault(pNode);
@@ -1289,6 +1290,7 @@ namespace Framework.Guide.Editor
             pNode.posX = (int)param.gridPos.x;
             pNode.posY = (int)param.gridPos.y;
             pNode.Name = param.Data.strShortName;
+            pNode.guideGroup = m_pGroupData;
 
             GraphNode grap = new GraphNode(m_pGroupData, pNode);
             GuideEditorUtil.SetNodeDefault(pNode);
@@ -1326,7 +1328,9 @@ namespace Framework.Guide.Editor
             pNode.posX = (int)param.gridPos.x;
             pNode.posY = (int)param.gridPos.y;
             pNode.Name = param.Data.strShortName;
-            
+
+            pNode.guideGroup = m_pGroupData;
+
             GraphNode grap = new GraphNode(m_pGroupData, pNode);
             GuideEditorUtil.SetNodeDefault(pNode);
             m_vActioNodes.Add(guid, grap);
@@ -1350,6 +1354,7 @@ namespace Framework.Guide.Editor
             pNode.posX = (int)param.gridPos.x;
             pNode.posY = (int)param.gridPos.y;
             pNode.Name = guid.ToString();
+            pNode.guideGroup = m_pGroupData;
 
             GraphNode grap = new GraphNode(m_pGroupData, pNode);
             GuideEditorUtil.SetNodeDefault(pNode);

@@ -91,7 +91,7 @@ namespace Framework.Guide.Editor
             if (GuideSystem.getInstance().datas == null) return;
             bool includeNodeFinder = false;
             string queryName = query;
-            if(query.StartsWith("t:"))
+            if(query!=null && query.StartsWith("t:"))
             {
                 includeNodeFinder = true;
                 query = query.Substring(2);
