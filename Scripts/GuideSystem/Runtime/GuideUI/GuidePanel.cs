@@ -14,6 +14,7 @@ namespace Framework.Guide
 {
     public class GuidePanel
     {
+        const float LISTEN_WIDGET_COSTTIME_STOP = 20.0f;
         const float LISTEN_WIDGET_OVERTIME = 1.0f;
         const float LISTEN_RAYTEST_OVERTIME = 10.0f;
         public static Vector3 INVAILD_POS = new Vector3(-9000, -9000, -9000);
@@ -66,6 +67,7 @@ namespace Framework.Guide
         private int m_nListenLastFrame = 0;
         private int m_nRaytestListenLastFrame = 0;
         private float m_fListenWidgetCheckTime = 0;
+        private float m_fListenWidgetCostTime = 0;
         private Vector3 m_FingerOffset = Vector3.zero;
         private EFingerType m_fingerType = EFingerType.None;
         private bool m_bClickZoom = false;
@@ -330,6 +332,7 @@ namespace Framework.Guide
             m_nListIndex = -1;
             m_nListenLastFrame = 0;
             m_fListenWidgetCheckTime = 0;
+            m_fListenWidgetCostTime = 0;
             m_fingerType = EFingerType.None;
             m_FingerOffset = Vector3.zero;
             m_SearchListenName = null;
@@ -666,7 +669,7 @@ namespace Framework.Guide
                 m_fListenWidgetCheckTime = 0;
                 if (m_pOriGuideWidget!=null)
                 {
-                    bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest);
+                    bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest, out var bInView);
                     if(m_nRaytestListenLastFrame<=0) m_nRaytestListenLastFrame = Time.frameCount;
                     if (Time.frameCount- m_nRaytestListenLastFrame>= LISTEN_RAYTEST_OVERTIME)
                     {
@@ -689,6 +692,15 @@ namespace Framework.Guide
                                         GuideSystem.Log($"引导组Id:{gorupGuid} 节点Id:{nodeGuid}监听控件 guid:{m_ListenGuideGuid} tag:{m_ListenGuideGuidTag}  不在屏幕内或不可点击");
                                     }
                                     m_Serialize.BgMask?.gameObject.SetActive(false);
+                                }
+                            }
+
+                            if (!bInView)
+                            {
+                                //! 如果控件不在屏幕内,并且强制引导,则检测失败处理
+                                if (!GuideSystem.getInstance().bNoForceDoing)
+                                {
+                                    GuideSystem.getInstance().SignCheckFialGo();
                                 }
                             }
                         }
@@ -724,6 +736,7 @@ namespace Framework.Guide
                 {
                     //! destroyed widget, so relinsten widget
                     m_bListenGuideWidget = true;
+                    m_fListenWidgetCostTime = 0;
                     m_nListenLastFrame = Time.frameCount;
                 //    if (m_bMaskSelfWidget)
                 //    {
@@ -1245,7 +1258,8 @@ namespace Framework.Guide
             m_bConvertUIPos = false;
             m_bRayTest = bRayTest;
             m_nRayTestHit = 0;
-            m_nListenLastFrame =0;
+            m_nListenLastFrame = 0;
+            m_fListenWidgetCostTime = 0;
             m_fListenWidgetCheckTime = 0;
             m_nRaytestListenLastFrame = 0;
             m_SearchListenName = searchName;
@@ -1273,6 +1287,7 @@ namespace Framework.Guide
                 return;
             m_nListenLastFrame = Time.frameCount;
 
+			m_fListenWidgetCostTime += Time.unscaledDeltaTime;
             AGuideGuid widget = GuideGuidUtl.FindGuide(m_ListenGuideGuid, m_ListenGuideGuidTag);
             if (widget == null)
             {
@@ -1375,7 +1390,7 @@ namespace Framework.Guide
             else
             {
                 //   if (m_bMaskSelfWidget) SetMaskActive(false);
-                if (m_fListenWidgetCheckTime>= (LISTEN_WIDGET_OVERTIME-0.01f) && 
+                if (m_fListenWidgetCostTime >= LISTEN_WIDGET_COSTTIME_STOP && 
                     GuideSystem.getInstance().DoingSeqNode != null && !GuideSystem.getInstance().DoingSeqNode.IsAutoSignCheck() &&
                     GuideSystem.getInstance().DoingSeqNode.GetFailSignCheckTime()>0 &&
                     GuideSystem.getInstance().DoingSeqNode.IsSuccessedListenerBreak())
@@ -1954,6 +1969,12 @@ namespace Framework.Guide
         //------------------------------------------------------
         public bool IsCheckInViewAdnCanHit(Transform pObj, bool bRayTest)
         {
+            return IsCheckInViewAdnCanHit(pObj, bRayTest, out var isInView);
+        }
+        //------------------------------------------------------
+        public bool IsCheckInViewAdnCanHit(Transform pObj, bool bRayTest, out bool bInView)
+        {
+            bInView = false;
             if (pObj is RectTransform)
             {
                 RectTransform rectTrans = pObj as RectTransform;
@@ -1967,7 +1988,7 @@ namespace Framework.Guide
                 Bounds tranBd = new Bounds();
                 tranBd.min = new Vector3(ms_contersArray1[0].x, ms_contersArray1[0].y, 0);//忽略旋转
                 tranBd.max = new Vector3(ms_contersArray1[2].x, ms_contersArray1[2].y, 0);
-                bool bInView = tranBd.Intersects(rootBd);
+                bInView = tranBd.Intersects(rootBd);
                 if(!bInView)
                 {
                     bInView = IsRectTransformVisibleOnScreen(rectTrans, m_pUICamera);
@@ -2012,7 +2033,10 @@ namespace Framework.Guide
                     Vector3 dir = (pObj.position - camTrans.position).normalized;
                     float dot = Vector3.Dot(camTrans.forward, dir);
                     if (dot > 0 && viewPos.x >= -0.1f && viewPos.x <= 1.1f && viewPos.y >= -0.1f && viewPos.y <= 1.1f)
+                    {
+                        bInView = true;
                         return true;
+                    }
                 }
             }
             return false;
