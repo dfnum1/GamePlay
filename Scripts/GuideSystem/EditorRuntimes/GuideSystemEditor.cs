@@ -64,7 +64,7 @@ namespace Framework.Guide.Editor
             Document,
             Count,
         }
-        static string[] CONTROLL_NAMES = new string[] 
+        static string[] CONTROLL_NAMES = new string[]
         { "新建(ctl+n)", "打开(ctl+o)", "创建节点", "保存(ctl+s)", "重新命名", "复制(ctl+c)", "粘贴(ctl+v)", "删除(del)", "回退(ctl+z)",
            "开启引导系统", "关闭引导系统",
           "打开当前引导", "关闭当前引导", "测试", "录制(ctl+r)", "取消录制","联机调试",
@@ -247,7 +247,7 @@ namespace Framework.Guide.Editor
             {
                 m_pGuideCsv = AssetDatabase.LoadAssetAtPath<AGuideDatas>(AssetDatabase.GUIDToAssetPath(guideDatas[0]));
             }
-            if (m_pGuideCsv!=null)
+            if (m_pGuideCsv != null)
             {
                 GuideSystem.getInstance().Register(this);
                 m_pGuideCsv.Init(true);
@@ -258,7 +258,7 @@ namespace Framework.Guide.Editor
             if (OnNodeEditorPreviewEnable != null)
                 OnNodeEditorPreviewEnable.Invoke(null, null);
 
-            if(EditorConnection.instance)
+            if (EditorConnection.instance)
             {
                 EditorConnection.instance.RegisterConnection(OnConnectionPlayer);
                 EditorConnection.instance.RegisterDisconnection(OnDisconnectionPlayer);
@@ -271,7 +271,7 @@ namespace Framework.Guide.Editor
             {
                 var players = EditorConnection.instance.ConnectedPlayers;
                 string addName = "联调";
-                for(int i =0; i < players.Count; ++i)
+                for (int i = 0; i < players.Count; ++i)
                 {
                     if (players[i].playerId == m_nPlayderDebugerPlayerId)
                     {
@@ -292,7 +292,7 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         void OnDisconnectionPlayer(int player)
         {
-            if(m_nPlayderDebugerPlayerId == player)
+            if (m_nPlayderDebugerPlayerId == player)
             {
                 m_nPlayderDebugerPlayerId = -1;
                 if (m_bPlayerDebuger)
@@ -304,7 +304,7 @@ namespace Framework.Guide.Editor
             }
         }
         //------------------------------------------------------
-        public void Save(bool bPop=true, bool bSaveAll = false)
+        public void Save(bool bPop = true, bool bSaveAll = false)
         {
             if (m_pGuideCsv == null)
             {
@@ -324,7 +324,7 @@ namespace Framework.Guide.Editor
         {
             if (m_pGuideCsv == null)
             {
-                if(EditorUtility.DisplayDialog("提示", "没有创建引导数据集，请先创建!!","创建", "先看看"))
+                if (EditorUtility.DisplayDialog("提示", "没有创建引导数据集，请先创建!!", "创建", "先看看"))
                 {
                     string savePath = EditorUtility.SaveFilePanelInProject("创建引导数据集", "GuideDatas", "asset", "用于管理零散的引导配置数据文件", Application.dataPath);
                     if (string.IsNullOrEmpty(savePath))
@@ -377,14 +377,15 @@ namespace Framework.Guide.Editor
             {
                 menu.AddItem(new GUIContent(CONTROLL_NAMES[(int)i]), false, CreateCtlAction, new MenuData(i, mousePos));
             }
-            if(m_pLogic.SelectonCache!=null && m_pLogic.SelectonCache.Count ==1 && m_pLogic.SelectonCache[0].bindNode!=null)
+            if (m_pLogic.SelectonCache != null && m_pLogic.SelectonCache.Count == 1 && m_pLogic.SelectonCache[0].bindNode != null)
             {
-                if (NodeMenuCalls.TryGetValue(m_pLogic.SelectonCache[0].bindNode.GetEnumType(), out var menus) && menus.Count>0)
+                if (NodeMenuCalls.TryGetValue(m_pLogic.SelectonCache[0].bindNode.GetEnumType(), out var menus) && menus.Count > 0)
                 {
                     menu.AddSeparator("");
-                    foreach(var db in menus)
+                    foreach (var db in menus)
                     {
-                        menu.AddItem(new GUIContent(db.GetCustomAttribute<GuideNodeMenuAttribute>().DisplayName), false, (node) => {
+                        menu.AddItem(new GUIContent(db.GetCustomAttribute<GuideNodeMenuAttribute>().DisplayName), false, (node) =>
+                        {
                             db.Invoke(null, new object[] { node });
                         }, m_pLogic.SelectonCache[0].bindNode);
                     }
@@ -406,23 +407,23 @@ namespace Framework.Guide.Editor
         {
             if (hoveredPort == null) return;
             GenericMenu contextMenu = new GenericMenu();
-             contextMenu.AddItem(new GUIContent("Clear Connections"), false, () => hoveredPort.ClearConnections());
-//             contextMenu.AddItem(new GUIContent("常量标签"), false, () => hoveredPort.SetConstFlag());
+            contextMenu.AddItem(new GUIContent("Clear Connections"), false, () => hoveredPort.ClearConnections());
+            //             contextMenu.AddItem(new GUIContent("常量标签"), false, () => hoveredPort.SetConstFlag());
             contextMenu.DropDown(new Rect(Event.current.mousePosition, Vector2.zero));
         }
         //------------------------------------------------------
         public bool CanUseTag(ushort tag)
         {
-            if(tag<=0 || tag>= 65535)
+            if (tag <= 0 || tag >= 65535)
             {
                 EditorUtility.DisplayDialog("提示", "tag 值只能在1到65535区间范围", "好的");
                 return false;
             }
-            foreach(var db in m_pGuideCsv.allDatas)
+            foreach (var db in m_pGuideCsv.allDatas)
             {
                 if (db.Value.Tag == 0xffff)
                     continue;
-                if(db.Value.Tag == tag)
+                if (db.Value.Tag == tag)
                 {
                     EditorUtility.DisplayDialog("提示", "tag=" + tag + " 以被" + db.Value.Name + "使用,请更换", "好的");
                     return false;
@@ -433,7 +434,7 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         public void OnEvent(Event evt)
         {
-            if(evt.type == EventType.KeyDown)
+            if (evt.type == EventType.KeyDown)
             {
                 if (evt.keyCode == KeyCode.Z && evt.control)
                 {
@@ -467,11 +468,11 @@ namespace Framework.Guide.Editor
                 }
                 else if (evt.keyCode == KeyCode.R && evt.control)
                 {
-                    if(IsRecodeMode)
+                    if (IsRecodeMode)
                     {
                         CreateCtlAction(EControllType.Unrecode);
                     }
-                    else 
+                    else
                         CreateCtlAction(EControllType.Recode);
                     evt.Use();
                 }
@@ -497,7 +498,7 @@ namespace Framework.Guide.Editor
 
                 if (m_bOpenGuideSearcher)
                 {
-                    m_pDataSearcher.Open(new Rect(0,20, 450, position.height));
+                    m_pDataSearcher.Open(new Rect(0, 20, 450, position.height));
                     m_bOpenSearch = false;
                     m_bOpenGuideSearcher = false;
                 }
@@ -512,7 +513,7 @@ namespace Framework.Guide.Editor
             m_PreviousTime = EditorApplication.timeSinceStartup;
         }
         //------------------------------------------------------
-        internal void AddRecodeClickStep(AGuideGuid guide, string widgetTag, int listIndex,string searchName)
+        internal void AddRecodeClickStep(AGuideGuid guide, string widgetTag, int listIndex, string searchName)
         {
             StepParam stepParam = new StepParam();
             if (StepTypes.TryGetValue((int)GuideStepType.ClickUI, out stepParam.Data))
@@ -539,14 +540,14 @@ namespace Framework.Guide.Editor
                                         if (field != null)
                                             field.SetValue(ports[j], guide.guid);
                                     }
-                                    else if ( stepParam.Data.argvs[j].attr.argvName == "widgetTag")
+                                    else if (stepParam.Data.argvs[j].attr.argvName == "widgetTag")
                                     {
                                         if (!string.IsNullOrEmpty(widgetTag))
                                         {
                                             var field = ports[j].GetType().GetField("strValue", BindingFlags.Instance | BindingFlags.NonPublic);
                                             if (field != null)
                                                 field.SetValue(ports[j], widgetTag);
-                                        }           
+                                        }
                                     }
                                     else if (stepParam.Data.argvs[j].attr.argvName == "bMask")
                                     {
@@ -564,7 +565,7 @@ namespace Framework.Guide.Editor
                                     {
                                         var field = ports[j].GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
                                         if (field != null)
-                                            field.SetValue(ports[j], listIndex+1);
+                                            field.SetValue(ports[j], listIndex + 1);
                                     }
                                     else if (stepParam.Data.argvs[j].attr.argvName == "listenerName")
                                     {
@@ -578,7 +579,7 @@ namespace Framework.Guide.Editor
                                         if (field != null)
                                         {
                                             int RayTest = 1;
-                                            if(guide.transform is RectTransform)
+                                            if (guide.transform is RectTransform)
                                             {
                                                 RectTransform rectTrans = guide.transform as RectTransform;
                                                 Camera uiCamera = null;
@@ -652,7 +653,7 @@ namespace Framework.Guide.Editor
             if (StepTypes.TryGetValue((int)GuideStepType.ClickZoom, out stepParam.Data))
             {
                 bool bCtl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-                bool bShift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift); 
+                bool bShift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
                 if (/*bCtl && */bShift)
                 {
                     var lastNode = m_pLogic.FindLastNodeAndNoNextLink();
@@ -681,7 +682,7 @@ namespace Framework.Guide.Editor
                                     else if (stepParam.Data.argvs[j].attr.argvName == "startPosZ")
                                     {
                                         var field = ports[j].GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
-                                        if (field != null) field.SetValue(ports[j], (int)(worldPos.z*1000));
+                                        if (field != null) field.SetValue(ports[j], (int)(worldPos.z * 1000));
                                     }
                                     else if (stepParam.Data.argvs[j].attr.argvName == "IsStart3DPos")
                                     {
@@ -749,9 +750,9 @@ namespace Framework.Guide.Editor
             {
                 if (attr.callDisplayType == null) attr.callDisplayType = attr.displayType;
                 TypeDisplayTypes[type] = attr;
- 
+
             }
-            if(!DisplayTypes.ContainsKey(displayName))
+            if (!DisplayTypes.ContainsKey(displayName))
             {
                 DisplayTypes[displayName] = attr;
                 DisplayTypesPop.Add(displayName);
@@ -849,21 +850,21 @@ namespace Framework.Guide.Editor
                 {
                     Type enumType = types[i];
                     if (enumType == null) continue;
-                    if(enumType.IsDefined(typeof(GuideEditorPreviewAttribute)))
+                    if (enumType.IsDefined(typeof(GuideEditorPreviewAttribute)))
                     {
                         var method = enumType.GetCustomAttribute<GuideEditorPreviewAttribute>();
-                        if(method.type>0)
+                        if (method.type > 0)
                         {
-                            if(!string.IsNullOrEmpty(method.CallMethod))
+                            if (!string.IsNullOrEmpty(method.CallMethod))
                             {
                                 var drawSceneMethod = enumType.GetMethod(method.CallMethod);
                                 if (drawSceneMethod != null)
                                     NodeSceneDraws[method.type] = drawSceneMethod;
                             }
                             var methods = enumType.GetMethods();
-                            foreach(var func in methods)
+                            foreach (var func in methods)
                             {
-                                if(func.IsDefined(typeof(GuideNodeMenuAttribute)))
+                                if (func.IsDefined(typeof(GuideNodeMenuAttribute)))
                                 {
                                     var nodeMenu = func.GetCustomAttribute<GuideNodeMenuAttribute>();
                                     if (func != null && func.GetParameters() != null && func.GetParameters().Length == 1 &&
@@ -881,26 +882,26 @@ namespace Framework.Guide.Editor
                         }
                     }
 
-                    if(OnCustomRecodeMethod == null && enumType.IsDefined(typeof(GuideCustomRecodeAttribute)))
+                    if (OnCustomRecodeMethod == null && enumType.IsDefined(typeof(GuideCustomRecodeAttribute)))
                     {
-                        OnCustomRecodeMethod = enumType.GetMethod(enumType.GetCustomAttribute<GuideCustomRecodeAttribute>().callMethod, BindingFlags.Instance| BindingFlags.Static| BindingFlags.Public| BindingFlags.NonPublic);
+                        OnCustomRecodeMethod = enumType.GetMethod(enumType.GetCustomAttribute<GuideCustomRecodeAttribute>().callMethod, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                     }
 
                     if (enumType.IsDefined(typeof(GuideDisplayTypeAttribute)))
                     {
                         GuideDisplayTypeAttribute[] attrs = (GuideDisplayTypeAttribute[])enumType.GetCustomAttributes<GuideDisplayTypeAttribute>();
-                        for(int k =0; k < attrs.Length; ++k)
-                        {               
+                        for (int k = 0; k < attrs.Length; ++k)
+                        {
                             var attr = attrs[k];
                             string displayName = attr.popDisplayName;
-                            if(string.IsNullOrEmpty(displayName)) displayName = enumType.Name;
-                            if(attr.displayType == null) attr.displayType = enumType;
+                            if (string.IsNullOrEmpty(displayName)) displayName = enumType.Name;
+                            if (attr.displayType == null) attr.displayType = enumType;
                             attr.callDisplayType = enumType;
                             if (!TypeDisplayTypes.ContainsKey(attr.displayType))
                             {
                                 TypeDisplayTypes[attr.displayType] = attr;
                             }
-                            if(!DisplayTypes.ContainsKey(displayName))
+                            if (!DisplayTypes.ContainsKey(displayName))
                             {
                                 DisplayTypes[displayName] = attr;
                                 DisplayTypesPop.Add(displayName);
@@ -912,9 +913,9 @@ namespace Framework.Guide.Editor
             }
             CustomAgentUtil.RefreshEditorData();
 
-            if(OnNodeEditorPreview == null)
+            if (OnNodeEditorPreview == null)
             {
-                OnNodeEditorPreview =  typeof(GuideNodePreviewEditor).GetMethod("OnEditorPreview");
+                OnNodeEditorPreview = typeof(GuideNodePreviewEditor).GetMethod("OnEditorPreview");
                 OnNodeEditorPreviewEnable = typeof(GuideNodePreviewEditor).GetMethod("OnEnable");
                 OnNodeEditorPreviewDisable = typeof(GuideNodePreviewEditor).GetMethod("OnDisable");
                 OnNodeEditorPreviewVisible = typeof(GuideNodePreviewEditor).GetMethod("OnVisible");
@@ -960,7 +961,7 @@ namespace Framework.Guide.Editor
         {
             EControllType ctl = EControllType.New;
             Vector2 mousePos = Vector2.zero;
-            if(var is MenuData)
+            if (var is MenuData)
             {
                 MenuData menu = (MenuData)var;
                 ctl = menu.ctlType;
@@ -969,73 +970,73 @@ namespace Framework.Guide.Editor
             else
                 ctl = (EControllType)var;
             switch (ctl)
-                {
-                    case EControllType.Copy:
+            {
+                case EControllType.Copy:
+                    {
+                        if (m_pLogic.SelectonCache != null)
                         {
-                            if (m_pLogic.SelectonCache != null)
+                            if (m_pLogic.CopySelectionCathes == null) m_pLogic.CopySelectionCathes = new List<GraphNode>();
+                            m_pLogic.CopySelectionCathes.Clear();
+                            for (int i = 0; i < m_pLogic.SelectonCache.Count; ++i)
                             {
-                                if (m_pLogic.CopySelectionCathes == null) m_pLogic.CopySelectionCathes = new List<GraphNode>();
-                                m_pLogic.CopySelectionCathes.Clear();
-                                for (int i = 0; i < m_pLogic.SelectonCache.Count; ++i)
-                                {
-                                    m_pLogic.CopySelectionCathes.Add(m_pLogic.SelectonCache[i]);
-                                }
+                                m_pLogic.CopySelectionCathes.Add(m_pLogic.SelectonCache[i]);
                             }
                         }
-                        break;
-                    case EControllType.Parse:
+                    }
+                    break;
+                case EControllType.Parse:
+                    {
+                        m_pLogic.ParseNode();
+                    }
+                    break;
+                case EControllType.New:
+                    {
+                        m_pLogic.NewGuide();
+                    }
+                    break;
+                case EControllType.Open:
+                    {
+                        m_bOpenGuideSearcher = true;
+                    }
+                    break;
+                case EControllType.Save:
+                    {
+                        m_pLogic.Save();
+                        m_pGuideCsv.Init(true);
+                        GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
+                        GuideSystem.getInstance().RefreshTriggers();
+                        m_pLogic.SyncCurGroup();
+
+                        if (m_bPlayerDebuger)
                         {
-                            m_pLogic.ParseNode();
+                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+                            debugInfo.msgType = (byte)EGuideDebugType.SyncGuideGroupData;
+                            debugInfo.msgContent = JsonUtility.ToJson(m_pLogic.GetCurGroup());
+                            SendToPlayer(debugInfo);
                         }
-                        break;
-                    case EControllType.New:
-                        {
-                            m_pLogic.NewGuide();
-                        }
-                        break;
-                    case EControllType.Open:
-                        {
-                            m_bOpenGuideSearcher = true;
-                        }
-                        break;
-                    case EControllType.Save:
-                        {
-                            m_pLogic.Save();
-                            m_pGuideCsv.Init(true);
-                            GuideSystem.getInstance().datas = m_pGuideCsv.allDatas;
-                            GuideSystem.getInstance().RefreshTriggers();
-                            m_pLogic.SyncCurGroup();
-                            
-                            if(m_bPlayerDebuger)
-                            {
-                                GuideDebugInfo debugInfo = new GuideDebugInfo();
-                                debugInfo.msgType = (byte)EGuideDebugType.SyncGuideGroupData;
-                                debugInfo.msgContent = JsonUtility.ToJson(m_pLogic.GetCurGroup());
-                                SendToPlayer(debugInfo);
-                            }
-                        }
-                        break;
-                    case EControllType.OpenCreateSearch:
-                        {
-                            FuncContextMenu(mousePos);
-                        }
-                        break;
-                    case EControllType.Delete:
-                        {
-                            m_pLogic.RemoveSelectedNodes();
-                        }
-                        break;
-                    case EControllType.ReName:
-                        {
-                            m_pLogic.RenameSelectedNode();
-                        }
-                        break;
-                    case EControllType.UnDo:
-                        {
+                    }
+                    break;
+                case EControllType.OpenCreateSearch:
+                    {
+                        FuncContextMenu(mousePos);
+                    }
+                    break;
+                case EControllType.Delete:
+                    {
+                        m_pLogic.RemoveSelectedNodes();
+                    }
+                    break;
+                case EControllType.ReName:
+                    {
+                        m_pLogic.RenameSelectedNode();
+                    }
+                    break;
+                case EControllType.UnDo:
+                    {
                         this.ShowNotification(new GUIContent("目前功能暂时不支持，敬请期待"), 1.0f);
                         //     m_pLogic.UnRedo();
                     }
-                        break;
+                    break;
                 case EControllType.EnableGuide:
                     {
                         GuideSystem.getInstance().Enable(true);
@@ -1047,16 +1048,16 @@ namespace Framework.Guide.Editor
                     }
                     break;
                 case EControllType.LinkFile:
+                    {
+                        OpenPathInExplorer(GetSaveFilePath());
+                        if (m_pLogic.GetCurGroup() != null && !string.IsNullOrEmpty(m_pLogic.GetCurGroup().strFile))
                         {
-                            OpenPathInExplorer(GetSaveFilePath());
-                            if (m_pLogic.GetCurGroup() != null && !string.IsNullOrEmpty(m_pLogic.GetCurGroup().strFile))
-                            {
-                                EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(m_pLogic.GetCurGroup().strFile));
-                            }
+                            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(m_pLogic.GetCurGroup().strFile));
                         }
-                        break;
-                    case EControllType.OpenCurrent:
-                        {
+                    }
+                    break;
+                case EControllType.OpenCurrent:
+                    {
                         if (m_bPlayerDebuger)
                         {
                             GuideDebugInfo debugInfo = new GuideDebugInfo();
@@ -1077,10 +1078,10 @@ namespace Framework.Guide.Editor
                                 this.ShowNotification(new GUIContent("当前没有正在执行的引导"), 2);
                             }
                         }
-                        }
-                        break;
-                    case EControllType.Test:
-                        {
+                    }
+                    break;
+                case EControllType.Test:
+                    {
                         if (m_bPlayerDebuger)
                         {
                             GuideDebugInfo debugInfo = new GuideDebugInfo();
@@ -1088,7 +1089,7 @@ namespace Framework.Guide.Editor
                             GuideDebugTestNode testNode = new GuideDebugTestNode();
                             testNode.guideGuid = m_pLogic.GetCurGroup().Guid;
                             testNode.startNodeGuid = 0;
-                            if(m_pLogic.SelectonCache!=null && m_pLogic.SelectonCache.Count>0)
+                            if (m_pLogic.SelectonCache != null && m_pLogic.SelectonCache.Count > 0)
                             {
                                 testNode.startNodeGuid = m_pLogic.SelectonCache[0].bindNode.Guid;
                             }
@@ -1102,84 +1103,85 @@ namespace Framework.Guide.Editor
                             GuideSystem.getInstance().RefreshTriggers();
                             m_pLogic.TestGuide();
                         }
-                        break;
-                    case EControllType.Stop:
+                    }
+                    break;
+                case EControllType.Stop:
+                    {
+                        //    OpenPathInExplorer(Data.DataManager.getInstance().Guide.strFilePath);
+                        m_pLogic.OverGuide();
+                        if (m_bPlayerDebuger)
                         {
-                            //    OpenPathInExplorer(Data.DataManager.getInstance().Guide.strFilePath);
-                            m_pLogic.OverGuide();
-							if(m_bPlayerDebuger)
-							{
-	                            GuideDebugInfo debugInfo = new GuideDebugInfo();
-	                            debugInfo.msgType = (byte)EGuideDebugType.StopGuide;
-	                            debugInfo.msgData = -1;
-	                            debugInfo.msgContent = "";
-	                            var nodeJson = JsonUtility.ToJson(debugInfo);
-	                            SendToPlayer(debugInfo);
-							}
-                    	}
-                        break;
-                    case EControllType.CustomAgent:
-                        {
-                            CustomAgentEditor.Open();
+                            GuideDebugInfo debugInfo = new GuideDebugInfo();
+                            debugInfo.msgType = (byte)EGuideDebugType.StopGuide;
+                            debugInfo.msgData = -1;
+                            debugInfo.msgContent = "";
+                            var nodeJson = JsonUtility.ToJson(debugInfo);
+                            SendToPlayer(debugInfo);
                         }
-                        break;
-                    case EControllType.Commit:
-                        {
+                    }
+                    break;
+                case EControllType.CustomAgent:
+                    {
+                        CustomAgentEditor.Open();
+                    }
+                    break;
+                case EControllType.Commit:
+                    {
                         string saveToPath = Framework.Guide.Editor.GuidePreferences.GetSettings().dataSavePath;
                         GuideEditorUtil.CommitGit(saveToPath);
                         //    if (m_pGuideCsv != null) m_pGuideCsv.CommitServer();
-                        }
-                        break;
-                    case EControllType.Editor:
+                    }
+                    break;
+                case EControllType.Editor:
+                    {
+                        SettingsService.OpenUserPreferences("Preferences/GuideSystemEditor");
+                    }
+                    break;
+                case EControllType.Expand:
+                    {
+                        m_pLogic.ExpandNodes(true);
+                    }
+                    break;
+                case EControllType.UnExpand:
+                    {
+                        m_pLogic.ExpandNodes(false);
+                    }
+                    break;
+                case EControllType.Recode:
+                    {
+                        if (!m_pLogic.HasTriggerNode())
                         {
-                            SettingsService.OpenUserPreferences("Preferences/GuideSystemEditor");
+                            this.ShowNotification(new GUIContent("请先创建触发节点"), 2);
+                            return;
                         }
-                        break;
-                    case EControllType.Expand:
+                        if (m_pRecodeModeGO == null)
                         {
-                            m_pLogic.ExpandNodes(true);
+                            m_pRecodeModeGO = new GameObject("GuideRecodeMode");
+                            m_pRecodeModeGO.hideFlags = HideFlags.HideAndDontSave;
+                            m_pRecodeModeGO.AddComponent<GudieRecodeMode>();
                         }
-                        break;
-                    case EControllType.UnExpand:
-                        {
-                            m_pLogic.ExpandNodes(false);
-                        }
-                        break;
-                    case EControllType.Recode:
-                        {
-                            if (!m_pLogic.HasTriggerNode())
-                            {
-                                this.ShowNotification(new GUIContent("请先创建触发节点"), 2);
-                                return;
-                            }
-                            if (m_pRecodeModeGO == null)
-                            {
-                                m_pRecodeModeGO = new GameObject("GuideRecodeMode");
-                                m_pRecodeModeGO.hideFlags = HideFlags.HideAndDontSave;
-                                m_pRecodeModeGO.AddComponent<GudieRecodeMode>();
-                            }
-                            IsRecodeMode = true;
-                            titleContent = new GUIContent("引导编辑器-录制模式");
+                        IsRecodeMode = true;
+                        titleContent = new GUIContent("引导编辑器-录制模式");
                         this.ShowNotification(new GUIContent("进入录制模式\r\n1.请按住control键，然后鼠标在Game 视图中点击ui，即可录制\r\n1.请按住shift键，然后鼠标在Game 视图中点击3D物件，即可录制3D坐标"), 3);
                     }
                     break;
-                    case EControllType.Unrecode:
-                        {
-                            if(IsRecodeMode)
-                                this.ShowNotification(new GUIContent("退出录制模式"), 1);
-                            IsRecodeMode = false;
-                            titleContent = new GUIContent("引导编辑器");
+                case EControllType.Unrecode:
+                    {
+                        if (IsRecodeMode)
+                            this.ShowNotification(new GUIContent("退出录制模式"), 1);
+                        IsRecodeMode = false;
+                        titleContent = new GUIContent("引导编辑器");
                     }
                     break;
                 case EControllType.PlayerDebuger:
                     {
-                        if(EditorConnection.instance == null)
+                        if (EditorConnection.instance == null)
                         {
                             this.ShowNotification(new GUIContent("请先打开Window/Analysis/Profiler(或Ctrl+7)打开调试器连接"), 2);
                             return;
                         }
                         var conecteds = EditorConnection.instance.ConnectedPlayers;
-                        if(conecteds == null || conecteds.Count<=0)
+                        if (conecteds == null || conecteds.Count <= 0)
                         {
                             this.ShowNotification(new GUIContent("请先打开Window/Analysis/Profiler(或Ctrl+7)打开调试器连接"), 2);
                             return;
@@ -1266,9 +1268,9 @@ namespace Framework.Guide.Editor
                     if (pEditNode != null)
                     {
                         var ports = pEditNode.GetArgvPorts();
-                        if(ports!=null && nodeInfo.portKeys!=null && nodeInfo.portValues!=null && nodeInfo.portStrValues != null)
+                        if (ports != null && nodeInfo.portKeys != null && nodeInfo.portValues != null && nodeInfo.portStrValues != null)
                         {
-                            for(int i =0; i < ports.Count; ++i)
+                            for (int i = 0; i < ports.Count; ++i)
                             {
                                 var port = ports[i];
                                 for (int j = 0; j < nodeInfo.portKeys.Count; ++j)
@@ -1288,8 +1290,8 @@ namespace Framework.Guide.Editor
                 else if (debugInfo.msgType == (byte)EGuideDebugType.OpenCurGuide)
                 {
                     var info = JsonUtility.FromJson<GuideDebugTestNode>(debugInfo.msgContent);
-                    var guideGroupData =  m_pGuideCsv.GetGuide(debugInfo.msgData);
-                    if(debugInfo.msgData < 0)
+                    var guideGroupData = m_pGuideCsv.GetGuide(debugInfo.msgData);
+                    if (debugInfo.msgData < 0)
                     {
                         this.ShowNotification(new GUIContent("当前没有正在执行的引导"), 2);
                     }
@@ -1297,19 +1299,19 @@ namespace Framework.Guide.Editor
                     {
                         m_pLogic.Load(guideGroupData);
                         var node = m_pLogic.GetBaseNode(info.startNodeGuid);
-                        if(node!=null) m_pLogic.ExcudeNode(node);
+                        if (node != null) m_pLogic.ExcudeNode(node);
                     }
                 }
                 else if (debugInfo.msgType == (byte)EGuideDebugType.GetDatas)
                 {
                     var info = JsonUtility.FromJson<GuideDebugNodeDatas>(debugInfo.msgContent);
-                    foreach(var db in info.datas)
+                    foreach (var db in info.datas)
                     {
                         GuideGroup group = JsonUtility.FromJson<GuideGroup>(db);
-                        if(group!=null)
+                        if (group != null)
                         {
                             var guideGp = m_pGuideCsv.GetGuide(group.Guid);
-                            if(guideGp == null)
+                            if (guideGp == null)
                             {
                                 m_pGuideCsv.allDatas[group.Guid] = group;
                             }
