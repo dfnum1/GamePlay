@@ -12,17 +12,17 @@ using UnityEngine;
 namespace Framework.Guide.Editor
 {
     //------------------------------------------------------
-    public class StepNodeDraw 
+    public class StepNodeDraw
     {
         public static void Draw(GraphNode pGraph, StepNode pNode)
         {
-//             int selIndex = GuideSystemEditor.Instance.ExportTypes.IndexOf(pNode.type);
-//             selIndex = EditorGUILayout.Popup("类型", selIndex, GuideSystemEditor.Instance.ExportTypesPop.ToArray());
-//             if (selIndex >= 0 && selIndex < GuideSystemEditor.Instance.ExportTypes.Count)
-//             {
-//                 int type = GuideSystemEditor.Instance.ExportTypes[selIndex];
-//                 pNode.type = type;
-//             }
+            //             int selIndex = GuideSystemEditor.Instance.ExportTypes.IndexOf(pNode.type);
+            //             selIndex = EditorGUILayout.Popup("类型", selIndex, GuideSystemEditor.Instance.ExportTypesPop.ToArray());
+            //             if (selIndex >= 0 && selIndex < GuideSystemEditor.Instance.ExportTypes.Count)
+            //             {
+            //                 int type = GuideSystemEditor.Instance.ExportTypes[selIndex];
+            //                 pNode.type = type;
+            //             }
             GuideSystemEditor.NodeAttr nodeAttr;
             if (!GuideSystemEditor.StepTypes.TryGetValue(pNode.type, out nodeAttr))
                 return;
@@ -50,7 +50,7 @@ namespace Framework.Guide.Editor
             //    if (pNode.guideGroup.Tag >= 0 && pNode.guideGroup.Tag < 65535)
             //        pNode.bMaster = EditorGUILayout.Toggle(new GUIContent("关键步骤", "如果勾选了关键步骤，则业务层需要发送服务器记录"), pNode.bMaster);
             //}
-            
+
             pNode.fDeltaTime = EditorGUILayout.FloatField("延时(s)", pNode.fDeltaTime);
             if (pNode.GetEnumType() != (int)GuideStepType.Delay)
             {
@@ -72,7 +72,6 @@ namespace Framework.Guide.Editor
                 EditorGUIUtility.labelWidth = labelWidthBack;
             }
 
-            
 
             for (int i = 0; i < pNode._Ports.Count; ++i)
             {
@@ -83,13 +82,15 @@ namespace Framework.Guide.Editor
                 int bBit = 0;
                 EArgvFalg falg = EArgvFalg.None;
                 System.Type displayType = null;
+                string displayTypeLabel = null;
                 string strLabel = "槽[" + (i + 1) + "]";
                 if (i >= 0 && i < nodeAttr.argvs.Count)
                 {
                     strLabel = nodeAttr.argvs[i].attr.DisplayName;
                     displayType = nodeAttr.argvs[i].attr.displayType;
+                    displayTypeLabel = nodeAttr.argvs[i].attr.dispayTypeName;
                     bBit = (int)nodeAttr.argvs[i].bBit;
-                    if(!string.IsNullOrEmpty(nodeAttr.argvs[i].attr.strTips))
+                    if (!string.IsNullOrEmpty(nodeAttr.argvs[i].attr.strTips))
                         port.SetTips(nodeAttr.argvs[i].attr.strTips);
                     else
                         port.SetTips(strLabel);
@@ -97,7 +98,7 @@ namespace Framework.Guide.Editor
 
                     port.SetAttribute(nodeAttr.argvs[i].attr);
                 }
-                if(EArgvFalg.Get == falg || EArgvFalg.GetAndPort == falg)
+                if (EArgvFalg.Get == falg || EArgvFalg.GetAndPort == falg)
                     port.direction = EPortIO.Out;
                 else
                     port.direction = EPortIO.In;
@@ -109,8 +110,9 @@ namespace Framework.Guide.Editor
                 }
 
                 pNode._Ports[i].bindType = displayType;
+                pNode._Ports[i].bindTypeLabel = displayTypeLabel;
                 pNode._Ports[i].enumDisplayType = bBit;
-                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, true, (EBitGuiType)bBit, falg);
+                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, displayTypeLabel, true, (EBitGuiType)bBit, falg);
                 PortUtil.SetDisplayType(port.port.GetGuid(), displayType, bBit);
                 pGraph.Port.Add(port);
             }
@@ -125,7 +127,7 @@ namespace Framework.Guide.Editor
             if (pNode.bSignFailedListenerBreak)
             {
                 EditorGUIUtility.labelWidth = 120;
-                pNode.fSignFailedBreakDelayTime = EditorGUILayout.FloatField(new GUIContent("不成立时跳转(s)","在规定时间内信号一直检测不通过，则跳转"), pNode.fSignFailedBreakDelayTime);
+                pNode.fSignFailedBreakDelayTime = EditorGUILayout.FloatField(new GUIContent("不成立时跳转(s)", "在规定时间内信号一直检测不通过，则跳转"), pNode.fSignFailedBreakDelayTime);
                 EditorGUIUtility.labelWidth = labelWidth;
 
                 Rect auto_rect = GUILayoutUtility.GetLastRect();

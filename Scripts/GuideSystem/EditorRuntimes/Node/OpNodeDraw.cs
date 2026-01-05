@@ -37,13 +37,15 @@ namespace Framework.Guide.Editor
                 port.direction = EPortIO.In;
                 port.index = i;
 
+                string dispTypeLabel = null;
                 System.Type disp = null;
                 EBitGuiType bit = EBitGuiType.None;
                 if(pNode._Ports[i].dummyMaps!=null)
                 {
                     foreach (var db in pNode._Ports[i].dummyMaps)
                     {
-                        if(db.Value.bindType!=null)
+                        dispTypeLabel = db.Value.bindTypeLabel;
+                        if (db.Value.bindType!=null)
                         {
                             disp = db.Value.bindType;
                             bit = (EBitGuiType)db.Value.enumDisplayType;
@@ -70,9 +72,9 @@ namespace Framework.Guide.Editor
                     }
                     object ret = null;
                     if(disp == typeof(string) || bString)
-                        ret = pGraph.DrawProperty(new GUIContent(""), pNode._Ports[i], pNode._Ports[i].value, "strValue", disp, bit);
+                        ret = pGraph.DrawProperty(new GUIContent(""), pNode._Ports[i], pNode._Ports[i].value, "strValue", disp, dispTypeLabel, bit);
                     else
-                        ret = pGraph.DrawProperty(new GUIContent(""), pNode._Ports[i], pNode._Ports[i].strValue, "value", disp, bit);
+                        ret = pGraph.DrawProperty(new GUIContent(""), pNode._Ports[i], pNode._Ports[i].strValue, "value", disp, dispTypeLabel, bit);
                     if (ret == null)
                         pNode._Ports[i].value = EditorGUILayout.IntField(pNode._Ports[i].value);
                     else
@@ -94,7 +96,7 @@ namespace Framework.Guide.Editor
                     GUILayout.BeginHorizontal();
                     string strLabel = "IF";
 
-                    pGraph.DrawPort(port, new GUIContent(strLabel), disp, true, EBitGuiType.None, EArgvFalg.PortAll, 20);
+                    pGraph.DrawPort(port, new GUIContent(strLabel), disp, dispTypeLabel, true, EBitGuiType.None, EArgvFalg.PortAll, 20);
                     if (GUILayout.Button("-", new GUILayoutOption[] { GUILayout.Width(20) }))
                     {
                         if (EditorUtility.DisplayDialog("提示", "确认删除改条目", "删除", "取消"))

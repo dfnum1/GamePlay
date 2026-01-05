@@ -1,8 +1,8 @@
 /********************************************************************
-Éú³ÉÈÕÆÚ:	1:11:2020 10:06
-Àà    Ãû: 	GuidePreferences
-×÷    Õß:	
-Ãè    Êö:	Òıµ¼±à¼­Æ÷Æ«ºÃÉèÖÃ
+ç”Ÿæˆæ—¥æœŸ:	1:11:2020 10:06
+ç±»    å: 	GuidePreferences
+ä½œ    è€…:	
+æ    è¿°:	å¼•å¯¼ç¼–è¾‘å™¨åå¥½è®¾ç½®
 *********************************************************************/
 #if UNITY_EDITOR
 using UnityEngine;
@@ -24,8 +24,8 @@ namespace Framework.Guide.Editor
 
         private static string GetProjectKeyPrefix()
         {
-            // ÓÃÏîÄ¿Â·¾¶µÄ hash ×÷ÎªÇ°×º£¬±£Ö¤Î¨Ò»ĞÔ
-            string projectPath = Application.dataPath; // ÀıÈç D:/MyProject/Assets
+            // ç”¨é¡¹ç›®è·¯å¾„çš„ hash ä½œä¸ºå‰ç¼€ï¼Œä¿è¯å”¯ä¸€æ€§
+            string projectPath = Application.dataPath; // ä¾‹å¦‚ D:/MyProject/Assets
             int hash = projectPath.GetHashCode();
             return $"GuideSystem.{hash}.";
         }
@@ -35,6 +35,7 @@ namespace Framework.Guide.Editor
             public string dataSavePath = "Assets/Res/GuideDatas";
             public string generatorCodePath = "";//"Assets/OpenScripts/GameApp/GuideSystem/Generated";
             public string commitRoots = "Res/UI;Res/UIPrefabTmp";
+            public string tablePath = "../../gametable";
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
             public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value; _gridTexture = null; _crossTexture = null; } }
 
@@ -150,6 +151,7 @@ namespace Framework.Guide.Editor
             settings.generatorCodePath = EditorGUILayout.TextField(new GUIContent("Generator Code Path", "Path to generate code to"), settings.generatorCodePath);
             settings.dataSavePath = EditorGUILayout.TextField(new GUIContent("Data Save Path", "Path save"), settings.dataSavePath);
             settings.commitRoots = EditorGUILayout.TextField(new GUIContent("Commit Directorys", "Commit Check Directory, split by \';\'"), settings.commitRoots);
+            settings.tablePath = EditorGUILayout.TextField(new GUIContent("è¡¨æ ¼é…ç½®è·¯å¾„","ç›¸å¯¹äºå·¥ç¨‹Assetç›®å½•çš„ç›¸å¯¹ç›®å½•"), settings.tablePath);
 
             NodeSettingsGUI(lastKey, settings);
             GridSettingsGUI(lastKey, settings);

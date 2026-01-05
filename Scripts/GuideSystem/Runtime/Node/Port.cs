@@ -78,6 +78,8 @@ namespace Framework.Guide
         [System.NonSerialized]
         public System.Type bindType = null;
         [System.NonSerialized]
+        public string bindTypeLabel = null;
+        [System.NonSerialized]
         public int enumDisplayType = 0;
 #endif
         public void Init()

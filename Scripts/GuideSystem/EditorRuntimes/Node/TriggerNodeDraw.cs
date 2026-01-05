@@ -50,11 +50,13 @@ namespace Framework.Guide.Editor
                 int bBit = 0;
                 EArgvFalg falg = EArgvFalg.None;
                 System.Type displayType = null;
+                string displayTypeLabel = null;
                 string strLabel = "槽[" + (i + 1) + "]";
                 if (i >= 0 && i < nodeAttr.argvs.Count)
                 {
                     strLabel = nodeAttr.argvs[i].attr.DisplayName;
                     displayType = nodeAttr.argvs[i].attr.displayType;
+                    displayTypeLabel = nodeAttr.argvs[i].attr.dispayTypeName;
                     bBit = (int)nodeAttr.argvs[i].bBit;
                     if (!string.IsNullOrEmpty(nodeAttr.argvs[i].attr.strTips))
                         port.SetTips(nodeAttr.argvs[i].attr.strTips);
@@ -72,7 +74,8 @@ namespace Framework.Guide.Editor
 
                 pNode._Ports[i].bindType = displayType;
                 pNode._Ports[i].enumDisplayType = bBit;
-                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, false, (EBitGuiType)bBit, falg);
+                pNode._Ports[i].bindTypeLabel = displayTypeLabel;
+                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, displayTypeLabel, false, (EBitGuiType)bBit, falg);
                 pGraph.Port.Add(port);
                 PortUtil.SetDisplayType(port.port.GetGuid(), displayType, bBit);
             }

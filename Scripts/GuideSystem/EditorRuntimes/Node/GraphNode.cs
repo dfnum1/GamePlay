@@ -227,7 +227,7 @@ namespace Framework.Guide.Editor
             return false;
         }
         //------------------------------------------------------
-        public object DrawProperty(GUIContent strLabel, object pOwnerData, object pValue, string valueFiledName, System.Type displayType, EBitGuiType bBit = EBitGuiType.None, GUILayoutOption[] layoutOps = null)
+        public object DrawProperty(GUIContent strLabel, object pOwnerData, object pValue, string valueFiledName, System.Type displayType, string drawTypeTypeName, EBitGuiType bBit = EBitGuiType.None, GUILayoutOption[] layoutOps = null)
         {
             if (displayType == null) return null;
             if (displayType.IsEnum)
@@ -257,7 +257,7 @@ namespace Framework.Guide.Editor
             if (displayType == typeof(Color))
             {
                 int val = (int)pValue;
-        //        if (val == 0) val = -939524096;//0xC8000000
+                //if (val == 0) val = -939524096;//0xC8000000
                 Color col = new Color(
                 ((val & 0x00ff0000) >> 16) / 255f,
                 ((val & 0x0000ff00) >> 8) / 255f,
@@ -283,8 +283,8 @@ namespace Framework.Guide.Editor
                     col = EditorGUILayout.Vector2Field(strLabel, col);
                 return (int)(((int)Mathf.Clamp((int)(col.x * 100f),-65535,65535) << 16) | (int)((int)Mathf.Clamp((int)(col.y * 100f), -65535, 65535)));
             }
-
-            if (displayType!=null && GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out var displayAttr))
+            if (drawTypeTypeName == null) drawTypeTypeName = displayType.Name;
+            if ((!string.IsNullOrEmpty(drawTypeTypeName) && GuideSystemEditor.DisplayTypes.TryGetValue(drawTypeTypeName, out var displayAttr)))
             {
                 if (displayAttr.Draw(this, strLabel, pOwnerData, valueFiledName))
                     return "-";//上层不做任何赋值
@@ -438,7 +438,7 @@ namespace Framework.Guide.Editor
             return val;
         }
         //------------------------------------------------------
-        public void DrawPort(IPortNode portNode, GUIContent strLabel, System.Type displayType = null, bool bEdit = true, EBitGuiType bBit = EBitGuiType.None, EArgvFalg bPort = EArgvFalg.PortAll, float newLabelWidth = 84)
+        public void DrawPort(IPortNode portNode, GUIContent strLabel, System.Type displayType = null, string displayTypeLabel = null, bool bEdit = true, EBitGuiType bBit = EBitGuiType.None, EArgvFalg bPort = EArgvFalg.PortAll, float newLabelWidth = 84)
         {
             bool bDraw = false;
             float labelWidth = EditorGUIUtility.labelWidth;
@@ -463,7 +463,11 @@ namespace Framework.Guide.Editor
                 ArgvPort argv = port as ArgvPort;
 
                 bool bString = false;
-                if (displayType != null && GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out var displayAttr))
+                if (displayType!=null&& GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out var displayAttr))
+                {
+                    bString = displayAttr.bStrValue; 
+                }
+                if (!string.IsNullOrEmpty(displayTypeLabel) && GuideSystemEditor.DisplayTypes.TryGetValue(displayTypeLabel, out displayAttr))
                 {
                     bString = displayAttr.bStrValue;
                 }
@@ -477,8 +481,8 @@ namespace Framework.Guide.Editor
                         var strObj = field.GetValue(argv);
                         string strVal = "";
                         if (strObj != null) strVal = strObj.ToString();
-                        retObj = DrawProperty(strLabel, argv, strVal, strValueField, displayType, bBit);
-                        if (retObj != null && retObj.ToString() != "-")
+                        retObj = DrawProperty(strLabel, argv, strVal, strValueField, displayType, displayTypeLabel, bBit);
+                        if(retObj != null && retObj.ToString() != "-")
                         {
                             field.SetValue(port, retObj.ToString());
                         }
@@ -490,7 +494,7 @@ namespace Framework.Guide.Editor
                     if (field != null)
                     {
                         int value = (int)field.GetValue(argv);
-                        retObj = DrawProperty(strLabel, argv, value, strIntField, displayType, bBit);
+                        retObj = DrawProperty(strLabel, argv, value, strIntField, displayType, displayTypeLabel, bBit);
                         if (retObj != null && int.TryParse(retObj.ToString(), out var intVal))
                         {
                             field.SetValue(port, intVal);
@@ -518,12 +522,12 @@ namespace Framework.Guide.Editor
                         if (field != null)
                         {
                             int value = (int)field.GetValue(argv);
-                            object ret = DrawProperty(strLabel, port, value, strIntField, displayType, bBit);
+                            object ret = DrawProperty(strLabel, port, value, strIntField, displayType, displayTypeLabel, bBit);
                             if (ret == null)
                                 value = EditorGUILayout.IntField(strLabel, value);
                             else
                             {
-                                if (int.TryParse(ret.ToString(), out var portVal))
+                                if(int.TryParse(ret.ToString(), out var portVal))
                                     value = portVal;
                             }
                             field.SetValue(argv, value);
@@ -540,7 +544,7 @@ namespace Framework.Guide.Editor
                 varPort.type = (EOpType)PopEnum(varPort.type, strLabel, typeof(EOpType), EBitGuiType.None, new GUILayoutOption[] { GUILayout.Width(60) }, displayType);
                 view = GUILayoutUtility.GetLastRect();
                 bool bString = false;
-                if (displayType != null && GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out var displayAttr))
+                if (displayType!=null && GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out var displayAttr))
                 {
                     bString = displayAttr.bStrValue;
                 }
@@ -549,10 +553,10 @@ namespace Framework.Guide.Editor
                 if (displayType == typeof(String) || bString)
                 {
                     if (varPort.strValue == null) varPort.strValue = "";
-                    retObj = DrawProperty(new GUIContent(""), port, varPort.strValue, strValueField, displayType, bBit);
+                    retObj = DrawProperty(new GUIContent(""), port, varPort.strValue, strValueField, displayType, displayTypeLabel, bBit);
                 }
                 else
-                    retObj = DrawProperty(new GUIContent(""), port, varPort.value, strIntField, displayType, bBit);
+                    retObj = DrawProperty(new GUIContent(""), port, varPort.value, strIntField, displayType, displayTypeLabel, bBit);
 
 
                 if (retObj == null)
@@ -561,12 +565,12 @@ namespace Framework.Guide.Editor
                 {
                     if (displayType == typeof(String))
                     {
-                        if (retObj.ToString() != "-")
+                        if(retObj.ToString()!= "-")
                             varPort.strValue = retObj.ToString();
                     }
                     else
                     {
-                        if (int.TryParse(retObj.ToString(), out var portVal))
+                        if(int.TryParse(retObj.ToString(), out var portVal))
                             varPort.value = portVal;
                     }
                 }
@@ -575,7 +579,7 @@ namespace Framework.Guide.Editor
             EditorGUI.EndDisabledGroup();
             if (bDraw)
             {
-                if (((int)bPort & (int)EArgvFalg.GetAndPort) != 0 || ((int)bPort & (int)EArgvFalg.SetAndPort) != 0)
+                if(((int)bPort & (int)EArgvFalg.GetAndPort)!=0 || ((int)bPort & (int)EArgvFalg.SetAndPort) != 0)
                     DrawPort(portNode, view);
             }
 

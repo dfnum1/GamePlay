@@ -47,11 +47,10 @@ namespace Framework.Guide.Editor
 
             pNode.bFireCheck = EditorGUILayout.Toggle(new GUIContent("触发检测","勾选后，可将本次触发器的触发条件前置判断，如果满足，则触发该引导"), pNode.bFireCheck);
 
-            using (new Framework.ED.GUILabelWidthScope(80))
-            {
-                pNode.bCanRepeatTrigger = EditorGUILayout.Toggle(new GUIContent("可重复触发", "勾选后，如果该触发器已经出发过，再次调用到该节点时，可重复触发"), pNode.bCanRepeatTrigger);
-            }
-
+            float lastLabel = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 80;
+            pNode.bCanRepeatTrigger = EditorGUILayout.Toggle(new GUIContent("可重复触发", "勾选后，如果该触发器已经出发过，再次调用到该节点时，可重复触发"), pNode.bCanRepeatTrigger);
+            EditorGUIUtility.labelWidth = lastLabel;
 
             for (int i = 0; i < pNode._Ports.Count; ++i)
             {
@@ -62,6 +61,7 @@ namespace Framework.Guide.Editor
                 int bBit = 0;
                 EArgvFalg falg = EArgvFalg.None;
                 System.Type displayType = null;
+                string displayTypeLabel = null;
                 string strLabel = "槽[" + (i + 1) + "]";
                 if (i >= 0 && i < nodeAttr.argvs.Count)
                 {
@@ -76,6 +76,7 @@ namespace Framework.Guide.Editor
                         port.SetTips(strLabel);
 
                     port.SetAttribute(nodeAttr.argvs[i].attr);
+                    displayTypeLabel = nodeAttr.argvs[i].attr.dispayTypeName;
                 }
                 if (EArgvFalg.Get == falg || EArgvFalg.GetAndPort == falg)
                     port.direction = EPortIO.Out;
@@ -88,8 +89,9 @@ namespace Framework.Guide.Editor
                     if (displayType != null) bBit = PortUtil.GetDisplayTypeBit(port.port.GetGuid());
                 }
                 pNode._Ports[i].bindType = displayType;
+                pNode._Ports[i].bindTypeLabel = displayTypeLabel;
                 pNode._Ports[i].enumDisplayType = bBit;
-                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, falg == EArgvFalg.All || falg == EArgvFalg.Get || falg == EArgvFalg.PortAll || falg == EArgvFalg.SetAndPort, (EBitGuiType)bBit, falg);
+                pGraph.DrawPort(port, new GUIContent(strLabel, port.GetTips()), displayType, displayTypeLabel, falg == EArgvFalg.All || falg == EArgvFalg.Get || falg == EArgvFalg.PortAll || falg == EArgvFalg.SetAndPort, (EBitGuiType)bBit, falg);
                 pGraph.Port.Add(port);
                 PortUtil.SetDisplayType(port.port.GetGuid(), displayType, bBit);
             }
