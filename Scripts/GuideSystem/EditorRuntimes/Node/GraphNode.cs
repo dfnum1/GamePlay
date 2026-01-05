@@ -284,7 +284,8 @@ namespace Framework.Guide.Editor
                 return (int)(((int)Mathf.Clamp((int)(col.x * 100f),-65535,65535) << 16) | (int)((int)Mathf.Clamp((int)(col.y * 100f), -65535, 65535)));
             }
             if (drawTypeTypeName == null) drawTypeTypeName = displayType.Name;
-            if ((!string.IsNullOrEmpty(drawTypeTypeName) && GuideSystemEditor.DisplayTypes.TryGetValue(drawTypeTypeName, out var displayAttr)))
+            if ((!string.IsNullOrEmpty(drawTypeTypeName) && GuideSystemEditor.DisplayTypes.TryGetValue(drawTypeTypeName, out var displayAttr)) ||
+                (displayType!=null && GuideSystemEditor.TypeDisplayTypes.TryGetValue(displayType, out displayAttr)))
             {
                 if (displayAttr.Draw(this, strLabel, pOwnerData, valueFiledName))
                     return "-";//上层不做任何赋值
