@@ -405,6 +405,14 @@ namespace Framework.Guide
                 }
                 vTriggers.Add(guidGroup.vTriggers[i]);
             }
+
+            //! sort
+            List<TriggerNode> vTri;
+            foreach (var db in m_vTriggers)
+            {
+                vTri = db.Value;
+                SortUtility.QuickSortUp<TriggerNode>(ref vTri);
+            }
         }
         //------------------------------------------------------
         public void OverOptionState()

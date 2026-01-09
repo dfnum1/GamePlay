@@ -39,6 +39,7 @@ namespace Framework.Guide
         private Transform m_pSlideFinger = null;
         private Vector3 m_SlideParam = Vector3.zero;
         private Vector3 m_SlideRuning = Vector3.zero;
+        private bool m_bResetFingerActive = true;
 
         private EDescBGType m_TipsType = EDescBGType.None;
         private int m_nTipsDockWidgetGUID = 0;
@@ -166,8 +167,11 @@ namespace Framework.Guide
         {
             bool bVisible = m_bVisible;
             m_bVisible = true;
-            if(bVisible != m_bVisible)
+            if (bVisible != m_bVisible)
+            {
                 ResetData();
+                ResetFinger();
+            }
             if (m_Serialize && m_Serialize.BgMask)
             {
                 m_Serialize.BgMask.SetRootCavas(m_pRootUICanvas, m_pUICamera);
@@ -179,6 +183,7 @@ namespace Framework.Guide
         {
             m_bVisible = false;
             ResetData();
+            ResetFinger();
             SetDefaultOrder();
             bDoing = false;
             if(m_Serialize) m_Serialize.gameObject.SetActive(m_bVisible);
@@ -204,18 +209,8 @@ namespace Framework.Guide
             m_pSlideFinger = null;
             m_SlideParam = Vector3.zero;
             m_SlideRuning = Vector3.zero;
+            m_bResetFingerActive = true;
             if (m_Serialize == null) return;
-            if (m_Serialize.Fingers != null)
-            {
-                for (int i = 0; i < m_Serialize.Fingers.Length; ++i)
-                {
-                    if (m_Serialize.Fingers[i])
-                    {
-                        m_Serialize.Fingers[i].gameObject.SetActive(false);
-                        m_Serialize.Fingers[i].rotation = Quaternion.identity;
-                    }
-                }
-            }
 
 
             if (m_Serialize.BgMask)
@@ -269,6 +264,23 @@ namespace Framework.Guide
             }
 
             if (m_RayTestResults != null) m_RayTestResults.Clear();
+        }
+        //------------------------------------------------------
+        void ResetFinger()
+        {
+            if (m_Serialize == null) return;
+            if (m_Serialize.Fingers != null)
+            {
+                for (int i = 0; i < m_Serialize.Fingers.Length; ++i)
+                {
+                    if (m_Serialize.Fingers[i])
+                    {
+                        m_Serialize.Fingers[i].gameObject.SetActive(false);
+                        m_Serialize.Fingers[i].rotation = Quaternion.identity;
+                    }
+                }
+            }
+            m_bResetFingerActive = false;
         }
         //------------------------------------------------------
         void ClearMoveUI()
@@ -650,6 +662,12 @@ namespace Framework.Guide
         public void Update(float fFrameTime)
         {
             if (!m_bVisible)
+            {
+                if (m_bResetFingerActive)
+                {
+                    ResetFinger();
+                    m_bResetFingerActive = false;
+                }
                 return;
             bool bListenWidgetInView = true;
             if(m_bListenGuideWidget)
@@ -726,6 +744,12 @@ namespace Framework.Guide
                                 if(!GuideSystem.getInstance().SignCheckFialGo())
                                 {
                                     GuideSystem.getInstance().OverGuide(false);
+
+                                    if (m_bResetFingerActive)
+                                    {
+                                        ResetFinger();
+                                        m_bResetFingerActive = false;
+                                    }
                                     return;
                                 }
                             }
@@ -747,6 +771,12 @@ namespace Framework.Guide
                         if (!GuideSystem.getInstance().SignCheckFialGo())
                         {
                             GuideSystem.getInstance().OverGuide(false);
+
+                            if (m_bResetFingerActive)
+                            {
+                                ResetFinger();
+                                m_bResetFingerActive = false;
+                            }
                             return;
                         }
                     }
@@ -921,6 +951,12 @@ namespace Framework.Guide
                         }
                     }
                 }
+            }
+
+            if (m_bResetFingerActive)
+            {
+                ResetFinger();
+                m_bResetFingerActive = false;
             }
             if (!m_bSlideFinger) return;
         }
