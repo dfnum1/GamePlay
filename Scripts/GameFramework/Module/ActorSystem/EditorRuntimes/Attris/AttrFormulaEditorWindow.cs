@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.ActorSystem.Runtime;
 using Framework.ED;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -24,7 +25,6 @@ namespace Framework.ActorSystem.Editor
 
         // 滚动位置
         private List<LambdaParam> m_vInputLambdas = new List<LambdaParam>();
-        private string m_strFormulaInput = "";
         private Vector2 m_LeftScroll;
         private Vector2 m_RightScroll;
         [MenuItem("Tools/GamePlay/属性编辑器")]
@@ -288,12 +288,12 @@ namespace Framework.ActorSystem.Editor
 
             if (formula.vLambda == null)
                 formula.vLambda = new List<LambdaParam>();
-            m_strFormulaInput = EditorGUILayout.TextArea(m_strFormulaInput, GUILayout.Height(120));
-            if (!string.IsNullOrEmpty(m_strFormulaInput))
+            formula.inputLambda = EditorGUILayout.TextArea(formula.inputLambda, GUILayout.Height(120));
+            if (!string.IsNullOrEmpty(formula.inputLambda))
             {
                 if (GUILayout.Button("应用输入表达式"))
                 {
-                    formula.vLambda = FormulaTextToLambdaList(m_strFormulaInput);
+                    formula.vLambda = FormulaTextToLambdaList(formula.inputLambda);
                 }
             }
 
@@ -307,7 +307,7 @@ namespace Framework.ActorSystem.Editor
             m_Data.vFormulas[m_SelectedFormulaIndex] = formula;
         }
         //-----------------------------------------------------
-        private void DrawLambdaList(List<LambdaParam> list, int indent)
+        private void DrawLambdaList(List<LambdaParam> list, int indent, LambdaParam parentLambda = null)
         {
             if (list == null) return;
 
@@ -317,20 +317,31 @@ namespace Framework.ActorSystem.Editor
                 var lambda = list[i];
                 EditorGUILayout.BeginVertical("box", GUILayout.ExpandWidth(true));
                 EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
-
                 GUILayout.Space(indent * 16);
 
-                lambda.type = (EAttrFormulaType)EditorGUILayout.EnumPopup(lambda.type, GUILayout.Width(80));
-
-                if (lambda.type == EAttrFormulaType.eBracket)
+                if (GUILayout.Button("-", GUILayout.Width(15)))
                 {
-                    if (lambda.subLambda == null)
-                        lambda.subLambda = new List<LambdaParam>();
-                    EditorGUILayout.LabelField("括号", GUILayout.Width(40));
+                    if (EditorUtility.DisplayDialog("确认删除", "确定要删除该表达式项吗？", "删除", "取消"))
+                    {
+                        removeIndex = i;
+                    }
                 }
+
+                lambda.type = (EAttrFormulaType)EditorEnumPop.PopEnum(string.Empty,lambda.type, null, new GUILayoutOption[] { GUILayout.Width(80) });
+
+                // 递归显示所有有 subLambda 的节点
+                if (lambda.subLambda != null && lambda.subLambda.Count > 0)
+                {
+                    lambda.bExpand = EditorGUILayout.Foldout(lambda.bExpand,"子表达式：",true);
+                    EditorGUILayout.EndHorizontal();
+                    if (lambda.bExpand)
+                    {
+                        DrawLambdaList(lambda.subLambda, indent + 1, lambda);
+                    }
+                }
+                // 其他类型专用UI
                 else if (lambda.type == EAttrFormulaType.eActorAttr)
                 {
-                    // 属性下拉
                     int attrIndex = 0;
                     string[] attrNames = GetAttrNames(out attrIndex, (int)lambda.paramValue1);
                     using (new GUILabelWidthScope(40))
@@ -340,6 +351,7 @@ namespace Framework.ActorSystem.Editor
                     }
                     if (attrIndex >= 0 && attrIndex < m_Data.vAttributes.Length)
                         lambda.paramValue1 = m_Data.vAttributes[attrIndex].attr;
+                    EditorGUILayout.EndHorizontal();
                 }
                 else if (lambda.type == EAttrFormulaType.eRandom)
                 {
@@ -348,11 +360,12 @@ namespace Framework.ActorSystem.Editor
                         lambda.paramValue0 = EditorGUILayout.FloatField("最小", lambda.paramValue0, GUILayout.Width(200));
                         lambda.paramValue1 = EditorGUILayout.FloatField("最大", lambda.paramValue1, GUILayout.Width(200));
                     }
+                    EditorGUILayout.EndHorizontal();
                 }
                 else if (lambda.type == EAttrFormulaType.eAdd ||
-                        lambda.type == EAttrFormulaType.eSub ||
-                        lambda.type == EAttrFormulaType.eMul ||
-                        lambda.type == EAttrFormulaType.eDiv)
+                         lambda.type == EAttrFormulaType.eSub ||
+                         lambda.type == EAttrFormulaType.eMul ||
+                         lambda.type == EAttrFormulaType.eDiv)
                 {
                     lambda.isUnary = EditorGUILayout.ToggleLeft("一元操作", lambda.isUnary, GUILayout.Width(67));
                     using (new GUILabelWidthScope(40))
@@ -367,33 +380,23 @@ namespace Framework.ActorSystem.Editor
                             lambda.paramValue1 = EditorGUILayout.FloatField("参数1", lambda.paramValue1, GUILayout.Width(165));
                         }
                     }
-
+                    EditorGUILayout.EndHorizontal();
                 }
                 else
                 {
                     using (new GUILabelWidthScope(40))
                     {
-                        lambda.paramValue0 = EditorGUILayout.FloatField("参数0", lambda.paramValue0, GUILayout.Width(200));
-                        lambda.paramValue1 = EditorGUILayout.FloatField("参数1", lambda.paramValue1, GUILayout.Width(200));
+                        if(parentLambda!=null && parentLambda.subLambda!=null && parentLambda.subLambda.Count==2)
+                        {
+                            lambda.paramValue0 = EditorGUILayout.FloatField("参数", lambda.paramValue0, GUILayout.Width(200));
+                        }
+                        else
+                        {
+                            lambda.paramValue0 = EditorGUILayout.FloatField("参数0", lambda.paramValue0, GUILayout.Width(200));
+                            lambda.paramValue1 = EditorGUILayout.FloatField("参数1", lambda.paramValue1, GUILayout.Width(200));
+                        }
                     }
-                }
-
-                if (GUILayout.Button("删除", GUILayout.Width(40)))
-                {
-                    if (EditorUtility.DisplayDialog("确认删除", "确定要删除该表达式项吗？", "删除", "取消"))
-                    {
-                        removeIndex = i;
-                    }
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-                // 递归括号
-                if (lambda.type == EAttrFormulaType.eBracket)
-                {
-                    EditorGUILayout.LabelField("括号内容：", GUILayout.Width(80));
-                    DrawLambdaList(lambda.subLambda, indent + 1);
-                    // 括号内添加表达式入口已存在
+                    EditorGUILayout.EndHorizontal();
                 }
 
                 EditorGUILayout.EndVertical();
@@ -405,10 +408,12 @@ namespace Framework.ActorSystem.Editor
                 list.RemoveAt(removeIndex);
             }
 
-            // ★★★ 这里加“添加表达式”按钮（每一层都能加） ★★★
-            if (GUILayout.Button("添加表达式", GUILayout.Width(120)))
+            if (indent <= 0)
             {
-                list.Add(new LambdaParam() { type = EAttrFormulaType.eAdd });
+                if (GUILayout.Button("添加表达式", GUILayout.Width(120)))
+                {
+                    list.Add(new LambdaParam() { type = EAttrFormulaType.eAdd });
+                }
             }
         }
         //-----------------------------------------------------
@@ -431,8 +436,154 @@ namespace Framework.ActorSystem.Editor
         {
             var tokens = TokenizeFormula(formula);
             int pos = 0;
-            var lambdaList = ParseExpression(tokens, ref pos);
-            return lambdaList;
+            var expr = ParseExpr(tokens, ref pos, 0);
+            return new List<LambdaParam> { expr };
+
+            // 解析表达式（递归下降，支持优先级）
+            LambdaParam ParseExpr(List<string> tokens, ref int pos, int minPrecedence)
+            {
+                LambdaParam left = ParsePrimary(tokens, ref pos);
+
+                while (pos < tokens.Count)
+                {
+                    string op = tokens[pos];
+                    if (!IsOperator(op)) break;
+                    int precedence = GetPrecedence(op);
+                    if (precedence < minPrecedence) break;
+
+                    pos++;
+                    LambdaParam right = ParseExpr(tokens, ref pos, precedence + 1);
+
+                    left = new LambdaParam
+                    {
+                        type = GetOpType(op),
+                        isUnary = false,
+                        subLambda = new List<LambdaParam> { left, right }
+                    };
+                }
+                return left;
+            }
+
+            // 解析基本单元：数字、属性、括号、函数
+            LambdaParam ParsePrimary(List<string> tokens, ref int pos)
+            {
+                string token = tokens[pos];
+
+                // 数字
+                if (float.TryParse(token, out float num))
+                {
+                    pos++;
+                    return new LambdaParam { type = EAttrFormulaType.eVal, paramValue0 = num };
+                }
+                // 属性
+                if (token.StartsWith("攻击方") || token.StartsWith("受击方") || token.StartsWith("攻方") || token.StartsWith("受方"))
+                {
+                    int dotAtt = token.IndexOf('.');
+                    pos++;
+                    if (dotAtt>0)
+                    {
+                        string camp = token.Substring(0, dotAtt);
+                        string attrName = token.Substring(dotAtt+1);
+                        int attrId = GetAttrIdByName(attrName);
+                        return new LambdaParam
+                        {
+                            type = EAttrFormulaType.eActorAttr,
+                            paramValue0 = (camp == "攻击方" || camp == "攻方") ? 0 : 1,
+                            paramValue1 = attrId
+                        };
+                    }
+                }
+                // 括号
+                if (token == "(")
+                {
+                    pos++;
+                    var expr = ParseExpr(tokens, ref pos, 0);
+                    if (pos < tokens.Count && tokens[pos] == ")") pos++;
+                    return new LambdaParam { type = EAttrFormulaType.eBracket, subLambda = new List<LambdaParam> { expr } };
+                }
+                // 函数
+                if (IsFunc(token))
+                {
+                    var funcType = GetFuncType(token);
+                    pos++;
+                    if (pos < tokens.Count && tokens[pos] == "(")
+                    {
+                        pos++;
+                        var args = new List<LambdaParam>();
+                        args.Add(ParseExpr(tokens, ref pos, 0));
+                        while (pos < tokens.Count && tokens[pos] == ",")
+                        {
+                            pos++;
+                            args.Add(ParseExpr(tokens, ref pos, 0));
+                        }
+                        if (pos < tokens.Count && tokens[pos] == ")") pos++;
+                        // 只支持2参数函数
+                        float arg0 = args.Count > 0 ? GetLambdaValue(args[0]) : 0;
+                        float arg1 = args.Count > 1 ? GetLambdaValue(args[1]) : 0;
+                        return new LambdaParam
+                        {
+                            type = funcType,
+                            paramValue0 = arg0,
+                            paramValue1 = arg1,
+                            subLambda = args
+                        };
+                    }
+                }
+                // 其他
+                pos++;
+                return new LambdaParam { type = EAttrFormulaType.eVal, paramValue0 = 0 };
+            }
+
+            // 获取LambdaParam的值（仅支持eNone类型和常量，属性/表达式返回0）
+            float GetLambdaValue(LambdaParam lambda)
+            {
+                if (lambda == null) return 0;
+                if (lambda.type == EAttrFormulaType.eVal) return lambda.paramValue0;
+                return 0;
+            }
+
+            // 判断是否为函数
+            bool IsFunc(string token)
+            {
+                return token.Equals("min", StringComparison.OrdinalIgnoreCase)
+                    || token.Equals("max", StringComparison.OrdinalIgnoreCase)
+                    || token.Equals("rand", StringComparison.OrdinalIgnoreCase)
+                    || token.Equals("floor", StringComparison.OrdinalIgnoreCase)
+                    || token.Equals("ceil", StringComparison.OrdinalIgnoreCase)
+                    || token.Equals("abs", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // 获取函数类型
+            EAttrFormulaType GetFuncType(string token)
+            {
+                switch (token.ToLower())
+                {
+                    case "min": return EAttrFormulaType.eMin;
+                    case "max": return EAttrFormulaType.eMax;
+                    case "rand": return EAttrFormulaType.eRandom;
+                    case "floor": return EAttrFormulaType.eFloor;
+                    case "ceil": return EAttrFormulaType.eCeil;
+                    case "abs": return EAttrFormulaType.eAbs;
+                    default: return EAttrFormulaType.eVal;
+                }
+            }
+
+            // 运算符优先级
+            int GetPrecedence(string op)
+            {
+                switch (op)
+                {
+                    case "+": case "-": return 1;
+                    case "*": case "/": return 2;
+                    default: return 0;
+                }
+            }
+
+            // 是否为运算符
+            bool IsOperator(string token)
+            {
+                return token == "+" || token == "-" || token == "*" || token == "/";
+            }
         }
         //-----------------------------------------------------
         private string LambdaListToFormulaText(List<LambdaParam> vLambda)
@@ -440,8 +591,8 @@ namespace Framework.ActorSystem.Editor
             if (vLambda == null || vLambda.Count == 0)
                 return "";
 
-            Stack<string> stack = new Stack<string>();
-            foreach (var lambda in vLambda)
+            // 递归处理表达式树
+            string BuildText(LambdaParam lambda)
             {
                 switch (lambda.type)
                 {
@@ -450,90 +601,84 @@ namespace Framework.ActorSystem.Editor
                     case EAttrFormulaType.eMul:
                     case EAttrFormulaType.eDiv:
                         {
-                            string op = "";
-                            switch (lambda.type)
+                            string op = lambda.type switch
                             {
-                                case EAttrFormulaType.eAdd: op = "+"; break;
-                                case EAttrFormulaType.eSub: op = "-"; break;
-                                case EAttrFormulaType.eMul: op = "*"; break;
-                                case EAttrFormulaType.eDiv: op = "/"; break;
-                            }
+                                EAttrFormulaType.eAdd => "+",
+                                EAttrFormulaType.eSub => "-",
+                                EAttrFormulaType.eMul => "*",
+                                EAttrFormulaType.eDiv => "/",
+                                _ => ""
+                            };
                             if (lambda.isUnary)
                             {
-                                string leftA = stack.Count > 0 ? stack.Pop() : "0";
-                                string rightB = lambda.paramValue0.ToString();
-                                stack.Push($"({leftA} {op} {rightB})");
+                                return $"({BuildText(lambda.subLambda?[0] ?? null)} {op} {lambda.paramValue0})";
+                            }
+                            else if (lambda.subLambda != null && lambda.subLambda.Count == 2)
+                            {
+                                return $"({BuildText(lambda.subLambda[0])} {op} {BuildText(lambda.subLambda[1])})";
                             }
                             else
                             {
-                                string b = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
-                                string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue1.ToString();
-                                stack.Push($"({a} {op} {b})");
+                                return $"({lambda.paramValue1} {op} {lambda.paramValue0})";
                             }
-                            break;
                         }
                     case EAttrFormulaType.ePower:
                     case EAttrFormulaType.eMin:
                     case EAttrFormulaType.eMax:
                         {
-                            string op = "";
-                            switch (lambda.type)
+                            string op = lambda.type switch
                             {
-                                case EAttrFormulaType.ePower: op = "^"; break;
-                                case EAttrFormulaType.eMin: op = "min"; break;
-                                case EAttrFormulaType.eMax: op = "max"; break;
+                                EAttrFormulaType.ePower => "^",
+                                EAttrFormulaType.eMin => "min",
+                                EAttrFormulaType.eMax => "max",
+                                _ => ""
+                            };
+                            if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
+                            {
+                                if (op == "min" || op == "max")
+                                    return $"{op}({BuildText(lambda.subLambda[0])},{BuildText(lambda.subLambda[1])})";
+                                else
+                                    return $"({BuildText(lambda.subLambda[0])} {op} {BuildText(lambda.subLambda[1])})";
                             }
-                            string b = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
-                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue1.ToString();
-                            if (op == "min" || op == "max")
-                                stack.Push($"{op}({a},{b})");
                             else
-                                stack.Push($"({a} {op} {b})");
-                            break;
+                            {
+                                // 兼容老数据
+                                if (op == "min" || op == "max")
+                                    return $"{op}({lambda.paramValue0},{lambda.paramValue1})";
+                                else
+                                    return $"({lambda.paramValue1} {op} {lambda.paramValue0})";
+                            }
                         }
                     case EAttrFormulaType.eFloor:
-                        {
-                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
-                            stack.Push($"floor({a})");
-                            break;
-                        }
+                        return $"floor({BuildText(lambda.subLambda?[0] ?? null)})";
                     case EAttrFormulaType.eCeil:
-                        {
-                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
-                            stack.Push($"ceil({a})");
-                            break;
-                        }
+                        return $"ceil({BuildText(lambda.subLambda?[0] ?? null)})";
                     case EAttrFormulaType.eAbs:
-                        {
-                            string a = stack.Count > 0 ? stack.Pop() : lambda.paramValue0.ToString();
-                            stack.Push($"abs({a})");
-                            break;
-                        }
+                        return $"abs({BuildText(lambda.subLambda?[0] ?? null)})";
                     case EAttrFormulaType.eRandom:
-                        {
-                            stack.Push($"rand({lambda.paramValue0},{lambda.paramValue1})");
-                            break;
-                        }
+                        if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
+                            return $"rand({BuildText(lambda.subLambda[0])},{BuildText(lambda.subLambda[1])})";
+                        else
+                            return $"rand({lambda.paramValue0},{lambda.paramValue1})";
                     case EAttrFormulaType.eBracket:
-                        {
-                            string inner = LambdaListToFormulaText(lambda.subLambda);
-                            stack.Push($"({inner})");
-                            break;
-                        }
+                        return $"({LambdaListToFormulaText(lambda.subLambda)})";
                     case EAttrFormulaType.eActorAttr:
                         {
                             string camp = ((int)lambda.paramValue0 == 0) ? "攻击方" : "受击方";
                             string attrName = GetAttrNameById((int)lambda.paramValue1);
-                            stack.Push($"{camp}.{attrName}");
-                            break;
+                            return $"{camp}.{attrName}";
                         }
-                    case EAttrFormulaType.eNone:
+                    case EAttrFormulaType.eVal:
                     default:
-                        stack.Push(lambda.paramValue0.ToString());
-                        break;
+                        return lambda.paramValue0.ToString();
                 }
             }
-            return stack.Count > 0 ? stack.Pop() : "";
+
+            // 只处理根节点列表
+            if (vLambda.Count == 1)
+                return BuildText(vLambda[0]);
+            else
+                return string.Join(",", vLambda.ConvertAll(BuildText));
         }
         //-----------------------------------------------------
         private List<LambdaParam> ParseExpression(List<string> tokens, ref int pos)
@@ -550,7 +695,7 @@ namespace Framework.ActorSystem.Editor
                 // 数字
                 if (float.TryParse(token, out float num))
                 {
-                    lambdaStack.Peek().Add(new LambdaParam { type = EAttrFormulaType.eNone, paramValue0 = num });
+                    lambdaStack.Peek().Add(new LambdaParam { type = EAttrFormulaType.eVal, paramValue0 = num });
                     pos++;
                 }
                 // 属性（攻击方.攻击/受击方.防御等）
@@ -583,7 +728,7 @@ namespace Framework.ActorSystem.Editor
                     token.Equals("ceil", System.StringComparison.OrdinalIgnoreCase) || 
                     token.Equals("abs", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    EAttrFormulaType funcType = EAttrFormulaType.eNone;
+                    EAttrFormulaType funcType = EAttrFormulaType.eVal;
                     string tempToken = token.ToLower();
                     switch (tempToken)
                     {
@@ -736,7 +881,7 @@ namespace Framework.ActorSystem.Editor
                 case "-": return EAttrFormulaType.eSub;
                 case "*": return EAttrFormulaType.eMul;
                 case "/": return EAttrFormulaType.eDiv;
-                default: return EAttrFormulaType.eNone;
+                default: return EAttrFormulaType.eVal;
             }
         }
         //-----------------------------------------------------
@@ -755,11 +900,68 @@ namespace Framework.ActorSystem.Editor
         private List<string> TokenizeFormula(string formula)
         {
             var tokens = new List<string>();
-            var pattern = @"(\d+(\.\d+)?|[\+\-\*/\^\(\),]|min|max|rand|floor|ceil|abs|攻击方|受击方|[A-Za-z_][A-Za-z0-9_]*|\.)";
-            foreach (Match m in Regex.Matches(formula, pattern))
+            int i = 0;
+            while (i < formula.Length)
             {
-                if (!string.IsNullOrWhiteSpace(m.Value))
-                    tokens.Add(m.Value);
+                char c = formula[i];
+
+                // 跳过空白
+                if (char.IsWhiteSpace(c))
+                {
+                    i++;
+                    continue;
+                }
+
+                // 数字（整数或小数）
+                if (char.IsDigit(c) || (c == '.' && i + 1 < formula.Length && char.IsDigit(formula[i + 1])))
+                {
+                    int start = i;
+                    bool hasDot = false;
+                    if (c == '.') hasDot = true;
+                    i++;
+                    while (i < formula.Length && (char.IsDigit(formula[i]) || (!hasDot && formula[i] == '.')))
+                    {
+                        if (formula[i] == '.') hasDot = true;
+                        i++;
+                    }
+                    tokens.Add(formula.Substring(start, i - start));
+                    continue;
+                }
+
+                // 运算符或括号
+                if ("+-*/^(),".IndexOf(c) >= 0)
+                {
+                    tokens.Add(c.ToString());
+                    i++;
+                    continue;
+                }
+
+                // 标识符（支持中文、英文、下划线、数字，且支持点号连接）
+                if (char.IsLetter(c) || c == '_' || (c >= 0x4e00 && c <= 0x9fa5))
+                {
+                    int start = i;
+                    while (i < formula.Length &&
+                           (char.IsLetterOrDigit(formula[i]) || formula[i] == '_' || (formula[i] >= 0x4e00 && formula[i] <= 0x9fa5)))
+                    {
+                        i++;
+                    }
+                    // 检查是否是属性访问（如攻击方.攻击）
+                    if (i < formula.Length && formula[i] == '.')
+                    {
+                        i++; // 跳过点
+                        while (i < formula.Length &&
+                               (char.IsLetterOrDigit(formula[i]) || formula[i] == '_' || (formula[i] >= 0x4e00 && formula[i] <= 0x9fa5)))
+                        {
+                            i++;
+                        }
+                    }
+                    tokens.Add(formula.Substring(start, i - start));
+                    continue;
+                }
+
+                // 其他字符，单独作为token
+                tokens.Add(c.ToString());
+                i++;
             }
             return tokens;
         }

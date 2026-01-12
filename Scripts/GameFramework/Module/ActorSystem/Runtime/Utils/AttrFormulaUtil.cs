@@ -51,25 +51,40 @@ namespace Framework.ActorSystem.Runtime
                                 if (lambda.isUnary)
                                 {
                                     float leftA = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : 0;
-                                    switch (lambda.type)
+                                    result = lambda.type switch
                                     {
-                                        case EAttrFormulaType.eAdd: result = leftA + lambda.paramValue0; break;
-                                        case EAttrFormulaType.eSub: result = leftA - lambda.paramValue0; break;
-                                        case EAttrFormulaType.eMul: result = leftA * lambda.paramValue0; break;
-                                        case EAttrFormulaType.eDiv: result = (lambda.paramValue0 == 0) ? 0f : leftA / lambda.paramValue0; break;
-                                    }
+                                        EAttrFormulaType.eAdd => leftA + lambda.paramValue0,
+                                        EAttrFormulaType.eSub => leftA - lambda.paramValue0,
+                                        EAttrFormulaType.eMul => leftA * lambda.paramValue0,
+                                        EAttrFormulaType.eDiv => (lambda.paramValue0 == 0) ? 0f : leftA / lambda.paramValue0,
+                                        _ => 0f
+                                    };
+                                }
+                                else if (lambda.subLambda != null && lambda.subLambda.Count == 2)
+                                {
+                                    float a = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    float b = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    result = lambda.type switch
+                                    {
+                                        EAttrFormulaType.eAdd => a + b,
+                                        EAttrFormulaType.eSub => a - b,
+                                        EAttrFormulaType.eMul => a * b,
+                                        EAttrFormulaType.eDiv => (b == 0) ? 0f : a / b,
+                                        _ => 0f
+                                    };
                                 }
                                 else
                                 {
                                     float b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
                                     float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
-                                    switch (lambda.type)
+                                    result = lambda.type switch
                                     {
-                                        case EAttrFormulaType.eAdd: result = a + b; break;
-                                        case EAttrFormulaType.eSub: result = a - b; break;
-                                        case EAttrFormulaType.eMul: result = a * b; break;
-                                        case EAttrFormulaType.eDiv: result = (b == 0) ? 0f : a / b; break;
-                                    }
+                                        EAttrFormulaType.eAdd => a + b,
+                                        EAttrFormulaType.eSub => a - b,
+                                        EAttrFormulaType.eMul => a * b,
+                                        EAttrFormulaType.eDiv => (b == 0) ? 0f : a / b,
+                                        _ => 0f
+                                    };
                                 }
                                 ms_FormulaStack.Push(result);
                                 break;
@@ -78,19 +93,28 @@ namespace Framework.ActorSystem.Runtime
                         case EAttrFormulaType.eMin:
                         case EAttrFormulaType.eMax:
                             {
-                                // 二元操作符，需2个操作数
-                                float b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
-                                float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
                                 float result = 0f;
-                                switch (lambda.type)
+                                if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
                                 {
-                                    case EAttrFormulaType.eAdd: result = a + b; break;
-                                    case EAttrFormulaType.eSub: result = a - b; break;
-                                    case EAttrFormulaType.eMul: result = a * b; break;
-                                    case EAttrFormulaType.eDiv: result = (b == 0) ? 0f : a / b; break;
-                                    case EAttrFormulaType.ePower: result = (float)Math.Pow(a, b); break;
-                                    case EAttrFormulaType.eMin: result = Math.Min(a, b); break;
-                                    case EAttrFormulaType.eMax: result = Math.Max(a, b); break;
+                                    float a = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    float b = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    switch (lambda.type)
+                                    {
+                                        case EAttrFormulaType.ePower: result = (float)Math.Pow(a, b); break;
+                                        case EAttrFormulaType.eMin: result = Math.Min(a, b); break;
+                                        case EAttrFormulaType.eMax: result = Math.Max(a, b); break;
+                                    }
+                                }
+                                else
+                                {
+                                    float b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
+                                    float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
+                                    switch (lambda.type)
+                                    {
+                                        case EAttrFormulaType.ePower: result = (float)Math.Pow(a, b); break;
+                                        case EAttrFormulaType.eMin: result = Math.Min(a, b); break;
+                                        case EAttrFormulaType.eMax: result = Math.Max(a, b); break;
+                                    }
                                 }
                                 ms_FormulaStack.Push(result);
                                 break;
@@ -99,8 +123,11 @@ namespace Framework.ActorSystem.Runtime
                         case EAttrFormulaType.eCeil:
                         case EAttrFormulaType.eAbs:
                             {
-                                // 一元操作符，需1个操作数
-                                float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
+                                float a;
+                                if (lambda.subLambda != null && lambda.subLambda.Count > 0)
+                                    a = CalcLambdaList(lambda.subLambda, pAttacker, pTarget);
+                                else
+                                    a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
                                 float result = 0f;
                                 switch (lambda.type)
                                 {
@@ -113,12 +140,20 @@ namespace Framework.ActorSystem.Runtime
                             }
                         case EAttrFormulaType.eRandom:
                             {
-                                ms_FormulaStack.Push(UnityEngine.Random.Range(lambda.paramValue0, lambda.paramValue1));
+                                if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
+                                {
+                                    float min = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    float max = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    ms_FormulaStack.Push(UnityEngine.Random.Range(min, max));
+                                }
+                                else
+                                {
+                                    ms_FormulaStack.Push(UnityEngine.Random.Range(lambda.paramValue0, lambda.paramValue1));
+                                }
                                 break;
                             }
                         case EAttrFormulaType.eBracket:
                             {
-                                // 递归括号
                                 if (lambda.subLambda != null && lambda.subLambda.Count > 0)
                                     ms_FormulaStack.Push(CalcLambdaList(lambda.subLambda, pAttacker, pTarget));
                                 else
@@ -137,9 +172,8 @@ namespace Framework.ActorSystem.Runtime
                                 ms_FormulaStack.Push(value);
                                 break;
                             }
-                        case EAttrFormulaType.eNone:
+                        case EAttrFormulaType.eVal:
                         default:
-                            // 直接压入参数
                             ms_FormulaStack.Push(lambda.paramValue0);
                             break;
                     }

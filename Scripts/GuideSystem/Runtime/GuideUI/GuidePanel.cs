@@ -669,6 +669,7 @@ namespace Framework.Guide
                     m_bResetFingerActive = false;
                 }
                 return;
+            }
             bool bListenWidgetInView = true;
             if(m_bListenGuideWidget)
             {
