@@ -4,16 +4,17 @@
 作    者:	HappLI
 描    述:	游戏世界
 *********************************************************************/
+using Framework.Core;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework.State.Runtime
 {
-    public class GameWorld
+    public class GameWorld : AModule
     {
         private AState m_pGameState;
-        public void Update(float fFrameTime)
+        protected override void OnUpdate(float fFrameTime)
         {
             if(m_pGameState!=null)
             {
