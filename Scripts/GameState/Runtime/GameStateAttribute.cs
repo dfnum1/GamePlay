@@ -27,21 +27,24 @@ namespace Framework.State.Runtime
     {
 #if UNITY_EDITOR
         public string name;
+        public int order;
         public System.Type[] limitStates;
 #endif
-        public GameStateLogicAttribute(string name)
+        public GameStateLogicAttribute(string name, int order = 0)
         {
 #if UNITY_EDITOR
             this.name = name;
+            this.order = order;
             limitStates = null;
 #endif
         }
         //------------------------------------------------------------
-        public GameStateLogicAttribute(string name, System.Type[] limitStateTypes)
+        public GameStateLogicAttribute(string name, System.Type[] limitStateTypes, int order = 0)
         {
 #if UNITY_EDITOR
             this.name = name;
-            limitStates = limitStateTypes;
+            this.order = order;
+            this.limitStates = limitStateTypes;
 #endif
         }
     }
@@ -74,20 +77,23 @@ namespace Framework.State.Runtime
     {
 #if UNITY_EDITOR
         public string name;
+        public int order;
         public System.Type[] limitModes;
 #endif
-        public GameModeLogicAttribute(string name)
+        public GameModeLogicAttribute(string name, int order=0)
         {
 #if UNITY_EDITOR
             this.name = name;
+            this.order = order;
             limitModes = null;
 #endif
         }
         //------------------------------------------------------------
-        public GameModeLogicAttribute(string name, System.Type[] limitModeTypes)
+        public GameModeLogicAttribute(string name, System.Type[] limitModeTypes, int order = 0)
         {
 #if UNITY_EDITOR
             this.name = name;
+            this.order = order;
             limitModes = limitModeTypes;
 #endif
         }
