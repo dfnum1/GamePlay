@@ -17,11 +17,11 @@ namespace Framework.State.Editor
     {
         public enum ETab
         {
-            WarEle,
+            GameElement,
             AgentLibrary,
         }
-        static string[] TABS = new string[] { "战争元素", "Agent图书馆" };
-        ETab m_eTab = ETab.WarEle;
+        static string[] TABS = new string[] { "游戏元素", "Agent图书馆" };
+        ETab m_eTab = ETab.GameElement;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
