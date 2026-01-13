@@ -10,7 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     [EditorBinder(typeof(BattleWorldEditor), "TimelineRect", 100)]
     public class AIDrawLogic : ABattleLogic

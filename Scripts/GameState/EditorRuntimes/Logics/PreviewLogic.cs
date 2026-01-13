@@ -9,7 +9,7 @@ using Framework.ED;
 using UnityEditor;
 using UnityEngine;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     [EditorBinder(typeof(BattleWorldEditor), "PreviewRect")]
     public class PreviewLogic : AEditorLogic
@@ -33,7 +33,7 @@ namespace Framework.War.Editor
             m_Preview.SetPreviewInstance(roots[0] as GameObject);
             m_Preview.OnDrawAfterCB = this.OnDraw;
             m_Preview.bLeftMouseForbidMove = true;
-            m_Preview.SetFloorTexture(WarEditorUtil.GetFloorTexture());
+            m_Preview.SetFloorTexture(Framework.ED.EditorUtils.GetFloorTexture());
 
             //test
             m_Preview.AddPreview(m_RoleTest);

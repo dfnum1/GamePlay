@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     [EditorBinder(typeof(BattleWorldEditor), "InspectorRect")]
     public class InspectorDrawLogic : ABattleLogic

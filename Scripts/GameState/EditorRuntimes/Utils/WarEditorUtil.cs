@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     public class WarEditorUtil
     {
@@ -17,16 +17,6 @@ namespace Framework.War.Editor
                 }
             }
             return ms_installPath;
-        }
-        //-----------------------------------------------------
-        public static Texture2D GetFloorTexture()
-        {
-            string install = BuildInstallPath();
-            if (string.IsNullOrEmpty(install)) return null;
-            string groundPath = install + "/Editor/ground.png";
-            if (!System.IO.File.Exists(groundPath))
-                return null;
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(groundPath);
         }
         //-----------------------------------------------------
         private static GUIStyle ms_PanelTileStyle = null;

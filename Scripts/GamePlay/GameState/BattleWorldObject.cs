@@ -4,18 +4,18 @@
 作    者:	HappLI
 描    述:	过场unity 存储对象
 *********************************************************************/
-using System;
+using Framework.State.Runtime;
 using UnityEngine;
 
 namespace Framework.Cutscene.Runtime
 {
-    [CreateAssetMenu(menuName = "GamePlay/过场动画")]
-    public class CutsceneObject : ACutsceneObject
+    [CreateAssetMenu(menuName = "GamePlay/游戏世界")]
+    public class BattleWorldObject : ABattleWorldObject
     {
     }
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(CutsceneObject))]
-    public class CutsceneObjectEditor : ACutsceneObjectEditor
+    [UnityEditor.CustomEditor(typeof(BattleWorldObject))]
+    public class BattleWorldObjectEditor : ABattleWorldObjectEditor
     {
         public override void OnInspectorGUI()
         {

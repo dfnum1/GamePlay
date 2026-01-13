@@ -10,7 +10,7 @@ using UnityEngine;
 namespace Framework.ActorSystem.Runtime
 {
     //------------------------------------------------------
-    [CreateAssetMenu(menuName = "GamePlay/ProjectileDatas")]
+    [CreateAssetMenu(menuName = "GamePlay/弹道数据")]
     public class ProjectileDatas : AProjectileDatas
     {
     }

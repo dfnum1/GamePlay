@@ -4,11 +4,10 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
-using System.Collections.Generic;
 using UnityEngine;
 namespace Framework.ActorSystem.Runtime
 {
-    [CreateAssetMenu(menuName = "GamePlay/AttrDatas")]
+    [CreateAssetMenu(menuName = "GamePlay/属性数据")]
     public class ActorAttrDatas : AActorAttrDatas
     {
     }

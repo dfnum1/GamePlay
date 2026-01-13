@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     [EditorBinder(typeof(BattleWorldEditor), "AssetRect", -1)]
     public class AssetDrawLogic : ABattleLogic

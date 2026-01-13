@@ -6,11 +6,12 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.ED;
+using Framework.State.Runtime;
 using UnityEditor;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     public class BattleWorldEditor : EditorWindowBase
     {
@@ -47,7 +48,7 @@ namespace Framework.War.Editor
         GUIStyle m_TileStyle;
         string m_lastContentMd5 = null;
         //--------------------------------------------------------
-        [MenuItem("Tools/GamePlay/战争世界编辑器")]
+        [MenuItem("Tools/GamePlay/游戏世界编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)
@@ -56,7 +57,19 @@ namespace Framework.War.Editor
                 return;
             }
             BattleWorldEditor window = EditorWindow.GetWindow<BattleWorldEditor>();
-            window.titleContent = new GUIContent("战争世界编辑器");
+            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
+        }
+        //--------------------------------------------------------
+        public static void OpenTarget(ABattleWorldObject pObject)
+        {
+            if (EditorApplication.isCompiling)
+            {
+                EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
+                return;
+            }
+            BattleWorldEditor window = EditorWindow.GetWindow<BattleWorldEditor>();
+            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
+            window.OnChangeSelect(pObject);
         }
         //--------------------------------------------------------
         protected override void OnInnerEnable()

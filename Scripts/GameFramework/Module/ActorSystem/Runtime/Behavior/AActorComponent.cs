@@ -6,11 +6,11 @@
 *********************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
-using Framework.ProjectileSystem.Editor;
 
 #if UNITY_EDITOR
 using UnityEditor;
 using Framework.ActorSystem.Editor;
+using Framework.ProjectileSystem.Editor;
 #endif
 
 namespace Framework.ActorSystem.Runtime

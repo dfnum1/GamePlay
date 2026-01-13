@@ -1,17 +1,20 @@
 /********************************************************************
 生成日期:	11:07:2025
-类    名: 	WarWorld
+类    名: 	BattleVariables
 作    者:	HappLI
-描    述:	战争世界
+描    述:	战争世界变量列表
 *********************************************************************/
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Framework.War.Runtime
+namespace Framework.State.Runtime
 {
-    public class WarWorld
+    public class BattleVariables
     {
+#if UNITY_EDITOR
+        public string strDesc = "";
+#endif
     }
 }
 

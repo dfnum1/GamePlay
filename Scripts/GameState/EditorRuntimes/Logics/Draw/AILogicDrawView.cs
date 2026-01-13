@@ -10,7 +10,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     public class AILogicDrawView : GraphView
     {

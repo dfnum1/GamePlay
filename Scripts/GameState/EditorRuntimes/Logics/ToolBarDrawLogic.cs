@@ -6,11 +6,12 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.ED;
+using Framework.State.Runtime;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     [EditorBinder(typeof(BattleWorldEditor), "ToolBarRect")]
     public class ToolBarDrawLogic : AEditorLogic
@@ -21,6 +22,18 @@ namespace Framework.War.Editor
             GUILayout.BeginHorizontal();
             if(GUILayout.Button("创建", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
+                string savePath = EditorUtility.SaveFilePanelInProject("创建游戏世界对象", "BattleWorld", "asset", "", Application.dataPath);
+                if (string.IsNullOrEmpty(savePath))
+                {
+                    return;
+                }
+                ABattleWorldObject projData = Framework.ED.EditorUtils.CreateUnityScriptObject<ABattleWorldObject>();
+                projData.name = "BattleWorld";
+                AssetDatabase.CreateAsset(projData, savePath);
+                EditorUtility.SetDirty(projData);
+                AssetDatabase.SaveAssetIfDirty(projData);
+                ABattleWorldObject battleObj = AssetDatabase.LoadAssetAtPath<ABattleWorldObject>(savePath);
+                GetOwner().OnChangeSelect(battleObj);
             }
             if(GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
@@ -28,7 +41,7 @@ namespace Framework.War.Editor
             }
             if (GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
-                Application.OpenURL("https://docs.qq.com/doc/DTHNGdXpNaVdmT1dx");
+                Application.OpenURL("https://docs.qq.com/doc/DTHpDaENHVUJGeVB6");
             }
             GUILayout.EndHorizontal();
         }

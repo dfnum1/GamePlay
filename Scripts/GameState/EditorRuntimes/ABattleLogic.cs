@@ -8,7 +8,7 @@
 using Framework.ED;
 using System.Collections.Generic;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     public class ABattleLogic : AEditorLogic
     {

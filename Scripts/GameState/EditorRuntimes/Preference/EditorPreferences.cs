@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System;
 using Framework.ED;
 
-namespace Framework.War.Editor
+namespace Framework.State.Editor
 {
     public class EditorPreferences
     {
@@ -32,7 +32,7 @@ namespace Framework.War.Editor
         {
             public int FrameRate = 30;
             public float playbackSpeedScale = 1;
-            public string generatorCodePath = "Assets/OpenScripts/GameApp/WarWorld";
+            public string generatorCodePath = "Assets/OpenScripts/GameApp/BattleWorld";
             public float animationRunStandardDistance = 7;
             public float animationRunStandardTime = 0.8f;
             public float animationRunStandardSpeed = 1;
