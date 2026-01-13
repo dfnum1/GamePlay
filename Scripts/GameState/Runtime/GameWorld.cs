@@ -12,6 +12,14 @@ namespace Framework.State.Runtime
 {
     public class GameWorld
     {
+        private AState m_pGameState;
+        public void Update(float fFrameTime)
+        {
+            if(m_pGameState!=null)
+            {
+                m_pGameState.Update(fFrameTime);
+            }
+        }
     }
 }
 
