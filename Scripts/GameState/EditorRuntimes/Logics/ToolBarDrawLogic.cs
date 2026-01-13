@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Framework.State.Editor
 {
-    [EditorBinder(typeof(BattleWorldEditor), "ToolBarRect")]
+    [EditorBinder(typeof(GameWorldEditor), "ToolBarRect")]
     public class ToolBarDrawLogic : AEditorLogic
     {
         //--------------------------------------------------------
@@ -22,13 +22,13 @@ namespace Framework.State.Editor
             GUILayout.BeginHorizontal();
             if(GUILayout.Button("创建", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
-                string savePath = EditorUtility.SaveFilePanelInProject("创建游戏世界对象", "BattleWorld", "asset", "", Application.dataPath);
+                string savePath = EditorUtility.SaveFilePanelInProject("创建游戏世界对象", "GameWorld", "asset", "", Application.dataPath);
                 if (string.IsNullOrEmpty(savePath))
                 {
                     return;
                 }
                 AGameWorldObject projData = Framework.ED.EditorUtils.CreateUnityScriptObject<AGameWorldObject>();
-                projData.name = "BattleWorld";
+                projData.name = "GameWorld";
                 AssetDatabase.CreateAsset(projData, savePath);
                 EditorUtility.SetDirty(projData);
                 AssetDatabase.SaveAssetIfDirty(projData);

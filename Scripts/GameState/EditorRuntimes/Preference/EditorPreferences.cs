@@ -32,7 +32,7 @@ namespace Framework.State.Editor
         {
             public int FrameRate = 30;
             public float playbackSpeedScale = 1;
-            public string generatorCodePath = "Assets/OpenScripts/GameApp/BattleWorld";
+            public string generatorCodePath = "Assets/OpenScripts/GameApp/GameWorld";
             public float animationRunStandardDistance = 7;
             public float animationRunStandardTime = 0.8f;
             public float animationRunStandardSpeed = 1;
@@ -294,7 +294,7 @@ namespace Framework.State.Editor
 
         static void RepaintAll()
         {
-            var editors = Resources.FindObjectsOfTypeAll<BattleWorldEditor>();
+            var editors = Resources.FindObjectsOfTypeAll<GameWorldEditor>();
             if (editors != null)
             {
                 for (int i = 0; i < editors.Length; ++i)

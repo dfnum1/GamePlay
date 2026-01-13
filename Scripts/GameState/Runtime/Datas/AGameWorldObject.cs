@@ -34,7 +34,7 @@ namespace Framework.State.Runtime
             OnInnerInspectorGUI();
             if (GUILayout.Button("编辑"))
             {
-                BattleWorldEditor.OpenTarget(controller);
+                GameWorldEditor.OpenTarget(controller);
             }
             serializedObject.ApplyModifiedProperties();
         }
@@ -48,7 +48,7 @@ namespace Framework.State.Runtime
             if (obj != null && obj is AGameWorldObject)
             {
                 AGameWorldObject pGo = obj as AGameWorldObject;
-                BattleWorldEditor.OpenTarget(pGo);
+                GameWorldEditor.OpenTarget(pGo);
                 return true;
             }
             return false;

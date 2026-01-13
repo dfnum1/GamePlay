@@ -1,8 +1,8 @@
 /********************************************************************
 生成日期:	06:30:2025
-类    名: 	CutsceneEditor
+类    名: 	GameWorldEditor
 作    者:	HappLI
-描    述:	过场动作编辑器
+描    述:	游戏世界编辑器
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.ED;
@@ -13,7 +13,7 @@ using Color = UnityEngine.Color;
 
 namespace Framework.State.Editor
 {
-    public class BattleWorldEditor : EditorWindowBase
+    public class GameWorldEditor : EditorWindowBase
     {
         private const float EDGE_SNAP_OFFSET = 1;
         enum EDragEdge
@@ -56,7 +56,7 @@ namespace Framework.State.Editor
                 EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
                 return;
             }
-            BattleWorldEditor window = EditorWindow.GetWindow<BattleWorldEditor>();
+            GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
             window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png"));
         }
         //--------------------------------------------------------
@@ -67,7 +67,7 @@ namespace Framework.State.Editor
                 EditorUtility.DisplayDialog("警告", "请等待编辑器完成编译再执行此功能", "确定");
                 return;
             }
-            BattleWorldEditor window = EditorWindow.GetWindow<BattleWorldEditor>();
+            GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
             window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png"));
             window.OnChangeSelect(pObject);
         }

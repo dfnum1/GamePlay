@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Framework.State.Editor
 {
-    [EditorBinder(typeof(BattleWorldEditor), "AssetRect", -1)]
+    [EditorBinder(typeof(GameWorldEditor), "AssetRect", -1)]
     public class AssetDrawLogic : ABattleLogic
     {
         public enum ETab
