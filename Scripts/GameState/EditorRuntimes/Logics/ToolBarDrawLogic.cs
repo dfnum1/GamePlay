@@ -27,12 +27,12 @@ namespace Framework.State.Editor
                 {
                     return;
                 }
-                ABattleWorldObject projData = Framework.ED.EditorUtils.CreateUnityScriptObject<ABattleWorldObject>();
+                AGameWorldObject projData = Framework.ED.EditorUtils.CreateUnityScriptObject<AGameWorldObject>();
                 projData.name = "BattleWorld";
                 AssetDatabase.CreateAsset(projData, savePath);
                 EditorUtility.SetDirty(projData);
                 AssetDatabase.SaveAssetIfDirty(projData);
-                ABattleWorldObject battleObj = AssetDatabase.LoadAssetAtPath<ABattleWorldObject>(savePath);
+                AGameWorldObject battleObj = AssetDatabase.LoadAssetAtPath<AGameWorldObject>(savePath);
                 GetOwner().OnChangeSelect(battleObj);
             }
             if(GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))

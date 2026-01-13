@@ -10,12 +10,12 @@ using UnityEngine;
 namespace Framework.Cutscene.Runtime
 {
     [CreateAssetMenu(menuName = "GamePlay/游戏世界")]
-    public class BattleWorldObject : ABattleWorldObject
+    public class GameWorldObject : AGameWorldObject
     {
     }
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(BattleWorldObject))]
-    public class BattleWorldObjectEditor : ABattleWorldObjectEditor
+    [UnityEditor.CustomEditor(typeof(GameWorldObject))]
+    public class GameWorldObjectEditor : AGameWorldObjectEditor
     {
         public override void OnInspectorGUI()
         {

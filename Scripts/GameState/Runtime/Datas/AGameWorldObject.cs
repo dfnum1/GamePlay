@@ -1,12 +1,9 @@
 /********************************************************************
 生成日期:	11:07:2025
-类    名: 	ABattleWorldObject
+类    名: 	AGameWorldObject
 作    者:	HappLI
 描    述:	一个战争世界数据体
 *********************************************************************/
-
-using Framework.ActorSystem.Runtime;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -17,21 +14,22 @@ using UnityEditor;
 namespace Framework.State.Runtime
 {
     [AddComponentMenu("")]
-    public abstract class ABattleWorldObject : ScriptableObject
+    public abstract class AGameWorldObject : ScriptableObject
     {
-        public BattleVariables warVariables = new BattleVariables();
-        public List<BattleAgentData> warAgents = new List<BattleAgentData>();
+        public GameStateData gameStateData = new GameStateData();
+        public GameVariables warVariables = new GameVariables();
+        public List<GameAgentData> warAgents = new List<GameAgentData>();
     }
 
 #if UNITY_EDITOR
-    [UnityEditor.CustomEditor(typeof(ABattleWorldObject), true)]
-    public class ABattleWorldObjectEditor : UnityEditor.Editor
+    [UnityEditor.CustomEditor(typeof(AGameWorldObject), true)]
+    public class AGameWorldObjectEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            ABattleWorldObject controller = target as ABattleWorldObject;
+            AGameWorldObject controller = target as AGameWorldObject;
             Color color = GUI.color;
             OnInnerInspectorGUI();
             if (GUILayout.Button("编辑"))
@@ -47,9 +45,9 @@ namespace Framework.State.Runtime
         internal static bool OnOpenAsset(int instanceID, int line)
         {
             var obj = EditorUtility.InstanceIDToObject(instanceID);
-            if (obj != null && obj is ABattleWorldObject)
+            if (obj != null && obj is AGameWorldObject)
             {
-                ABattleWorldObject pGo = obj as ABattleWorldObject;
+                AGameWorldObject pGo = obj as AGameWorldObject;
                 BattleWorldEditor.OpenTarget(pGo);
                 return true;
             }

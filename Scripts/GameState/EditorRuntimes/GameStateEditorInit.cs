@@ -20,7 +20,7 @@ namespace Framework.State.Editor
         static Texture2D s_CustomIcon;
         static GameStateEditorInit()
         {
-            s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png");
+            s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
         }
         //-----------------------------------------------------
@@ -29,7 +29,7 @@ namespace Framework.State.Editor
             if (s_CustomIcon == null) return;
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            if (obj is ABattleWorldObject)
+            if (obj is AGameWorldObject)
             {
                 //      Rect iconRect = new Rect(selectionRect.x + 2, selectionRect.y + 2, 16, 16);
                 //       GUI.DrawTexture(iconRect, s_CustomIcon, ScaleMode.ScaleToFit);
