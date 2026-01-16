@@ -57,7 +57,7 @@ namespace Framework.State.Editor
                 return;
             }
             GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
-            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png"));
+            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
         }
         //--------------------------------------------------------
         public static void OpenTarget(AGameWorldObject pObject)
@@ -68,7 +68,7 @@ namespace Framework.State.Editor
                 return;
             }
             GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
-            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png"));
+            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
             window.OnChangeSelect(pObject);
         }
         //--------------------------------------------------------
