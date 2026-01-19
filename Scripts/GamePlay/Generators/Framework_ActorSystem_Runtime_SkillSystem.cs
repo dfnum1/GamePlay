@@ -114,7 +114,7 @@ namespace Framework.ActorSystem.Runtime
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is SkillSystem)) return true;
-				return AT_AddLockTarget((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Actor>(pNode,0),pAgentTree.GetInportBool(pNode,1));
+				return AT_AddLockTarget((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Actor>(pNode,1),pAgentTree.GetInportBool(pNode,2));
 			}
 			case 1763740771://ClearLockTargets
 			{
@@ -128,28 +128,28 @@ namespace Framework.ActorSystem.Runtime
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is SkillSystem)) return true;
-				return AT_AddSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Skill>(pNode,0),(Framework.ActorSystem.Runtime.ESkillType)pAgentTree.GetInportInt(pNode,1));
+				return AT_AddSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Skill>(pNode,1),(Framework.ActorSystem.Runtime.ESkillType)pAgentTree.GetInportInt(pNode,2));
 			}
 			case -1373543655://GetCurrentSkill
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is SkillSystem)) return true;
-				return AT_GetCurrentSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,0), pAgentTree, pNode);
+				return AT_GetCurrentSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1), pAgentTree, pNode);
 			}
 			case -1067266602://DoSkill
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is SkillSystem)) return true;
-				return AT_DoSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Skill>(pNode,0), pAgentTree, pNode);
+				return AT_DoSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Skill>(pNode,1), pAgentTree, pNode);
 			}
 			case 680701531://EnableAutoSkill
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is SkillSystem)) return true;
-				return AT_EnableAutoSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,0));
+				return AT_EnableAutoSkill((SkillSystem)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
 			}
 			case 786601174://IsAutoSkill
 			{

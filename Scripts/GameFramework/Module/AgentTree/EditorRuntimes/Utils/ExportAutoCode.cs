@@ -496,7 +496,7 @@ namespace Framework.AT.Editor
             {
                 code.Append($"\t\t\t\treturn {functionName}(");
             }
-            int paramIndex = 0;
+            int paramIndex = 1;
             for (int i = 0; i < method.GetParameters().Length; ++i)
             {
                 var parm = method.GetParameters()[i];
@@ -522,7 +522,7 @@ namespace Framework.AT.Editor
                     code.Append(",");
                     bAddDot = true;
                 }
-                if (paramIndex > 0) code.Append($", ");
+                if (paramIndex > 1) code.Append($", ");
                 code.Append($"pAgentTree, pNode");
             }
 
