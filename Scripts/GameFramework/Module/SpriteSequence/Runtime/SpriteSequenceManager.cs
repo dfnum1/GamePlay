@@ -4,12 +4,13 @@
 作    者:	HappLI
 描    述:	基于Sprite的序列帧动画管理类
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework.SpriteSeq
 {
-    public class SpriteSequenceManager
+    public class SpriteSequenceManager : AModule
     {
         private Dictionary<long, FrameSequenceRenderer> m_vRenders;
         private Dictionary<int, long> m_vGuidKey = null;
@@ -219,6 +220,11 @@ namespace Framework.SpriteSeq
             return false;
         }
         //--------------------------------------------------------
+        protected override void OnUpdate(float fFrame)
+        {
+            Render(deltaTime:fFrame);
+        }
+        //--------------------------------------------------------
         public void Render(Camera camera = null, int drawLayer =0, float deltaTime = 0)
         {
             if (m_vRenders == null)
@@ -239,7 +245,7 @@ namespace Framework.SpriteSeq
             }
         }
         //--------------------------------------------------------
-        public void Destroy()
+        protected override void OnDestroy()
         {
             if (m_vRenders == null)
                 return;
