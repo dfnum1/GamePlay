@@ -13,14 +13,27 @@ using UnityEditor;
 #endif
 namespace Framework.State.Runtime
 {
+    //------------------------------------------------------
+    //! 游戏世界对象接口
+    //------------------------------------------------------
+    public interface IGameWorldItem
+    {
+
+    }
+    //------------------------------------------------------
+    //! 游戏世界对象基类
+    //------------------------------------------------------
     [AddComponentMenu("")]
     public abstract class AGameWorldObject : ScriptableObject
     {
         public GameStateData gameStateData = new GameStateData();
+        public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
         public GameVariables warVariables = new GameVariables();
         public List<GameAgentData> warAgents = new List<GameAgentData>();
     }
-
+    //------------------------------------------------------
+    //! 自定义编辑器
+    //------------------------------------------------------
 #if UNITY_EDITOR
     [UnityEditor.CustomEditor(typeof(AGameWorldObject), true)]
     public class AGameWorldObjectEditor : UnityEditor.Editor

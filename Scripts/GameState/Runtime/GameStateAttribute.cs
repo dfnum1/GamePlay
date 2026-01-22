@@ -5,16 +5,18 @@
 描    述:	属性定义
 *********************************************************************/
 
+using System.IO;
+
 namespace Framework.State.Runtime
 {
     //------------------------------------------------------------
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-    public class GameStateAttribute : System.Attribute
+    public class DecNameAttribute : System.Attribute
     {
 #if UNITY_EDITOR
         public string name;
 #endif
-        public GameStateAttribute(string name)
+        public DecNameAttribute(string name)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -22,15 +24,22 @@ namespace Framework.State.Runtime
         }
     }
     //------------------------------------------------------------
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
+    public class GameStateAttribute : DecNameAttribute
+    {
+        public GameStateAttribute(string name) : base(name)
+        {
+        }
+    }
+    //------------------------------------------------------------
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=true)]
-    public class GameStateLogicAttribute : System.Attribute
+    public class GameStateLogicAttribute : DecNameAttribute
     {
 #if UNITY_EDITOR
-        public string name;
         public int order;
         public System.Type[] limitStates;
 #endif
-        public GameStateLogicAttribute(string name, int order = 0)
+        public GameStateLogicAttribute(string name, int order = 0) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -39,7 +48,7 @@ namespace Framework.State.Runtime
 #endif
         }
         //------------------------------------------------------------
-        public GameStateLogicAttribute(string name, System.Type[] limitStateTypes, int order = 0)
+        public GameStateLogicAttribute(string name, System.Type[] limitStateTypes, int order = 0) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -50,20 +59,19 @@ namespace Framework.State.Runtime
     }
     //------------------------------------------------------------
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-    public class GameModeAttribute : System.Attribute
+    public class GameModeAttribute : DecNameAttribute
     {
 #if UNITY_EDITOR
-        public string name;
         public System.Type[] limitStates;
 #endif
-        public GameModeAttribute(string name)
+        public GameModeAttribute(string name) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.limitStates = null;
 #endif
         }
-        public GameModeAttribute(string name, System.Type[] limitStateTypes)
+        public GameModeAttribute(string name, System.Type[] limitStateTypes) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -73,14 +81,13 @@ namespace Framework.State.Runtime
     }
     //------------------------------------------------------------
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-    public class GameModeLogicAttribute : System.Attribute
+    public class GameModeLogicAttribute : DecNameAttribute
     {
 #if UNITY_EDITOR
-        public string name;
         public int order;
         public System.Type[] limitModes;
 #endif
-        public GameModeLogicAttribute(string name, int order=0)
+        public GameModeLogicAttribute(string name, int order=0) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
@@ -89,12 +96,31 @@ namespace Framework.State.Runtime
 #endif
         }
         //------------------------------------------------------------
-        public GameModeLogicAttribute(string name, System.Type[] limitModeTypes, int order = 0)
+        public GameModeLogicAttribute(string name, System.Type[] limitModeTypes, int order = 0) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.order = order;
             limitModes = limitModeTypes;
+#endif
+        }
+    }
+    //------------------------------------------------------------
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
+    public class StateIconAttribute : System.Attribute
+    {
+#if UNITY_EDITOR
+        public string name;
+#endif
+        public StateIconAttribute(string name)
+        {
+#if UNITY_EDITOR
+            string suffix = Path.GetExtension(name);
+            if(string.IsNullOrEmpty(suffix))
+            {
+                name += ".png";
+            }
+            this.name = name;
 #endif
         }
     }

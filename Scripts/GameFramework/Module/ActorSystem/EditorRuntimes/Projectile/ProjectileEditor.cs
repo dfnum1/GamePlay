@@ -48,7 +48,7 @@ namespace Framework.ProjectileSystem.Editor
         byte m_DragSplitGap = 0;
         TimelinePanel m_Timeline = new TimelinePanel();
         //-----------------------------------------------------
-        [MenuItem("Tools/GamePlay/飞行道具编辑器 _F7")]
+        [MenuItem("GamePlay/飞行道具编辑器 _F7")]
         internal static void StartEditor()
         {
             if (Instance == null)

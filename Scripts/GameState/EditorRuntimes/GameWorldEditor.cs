@@ -48,7 +48,7 @@ namespace Framework.State.Editor
         GUIStyle m_TileStyle;
         string m_lastContentMd5 = null;
         //--------------------------------------------------------
-        [MenuItem("Tools/GamePlay/游戏世界编辑器")]
+        [MenuItem("GamePlay/游戏世界编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)
@@ -57,7 +57,7 @@ namespace Framework.State.Editor
                 return;
             }
             GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
-            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
+            window.titleContent = new GUIContent("游戏世界编辑器", GameStateEditorInit.gameWorldIcon());
         }
         //--------------------------------------------------------
         public static void OpenTarget(AGameWorldObject pObject)
@@ -68,7 +68,7 @@ namespace Framework.State.Editor
                 return;
             }
             GameWorldEditor window = EditorWindow.GetWindow<GameWorldEditor>();
-            window.titleContent = new GUIContent("游戏世界编辑器", Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/battleworld.png"));
+            window.titleContent = new GUIContent("游戏世界编辑器", GameStateEditorInit.gameWorldIcon());
             window.OnChangeSelect(pObject);
         }
         //--------------------------------------------------------
@@ -330,6 +330,15 @@ namespace Framework.State.Editor
         //-----------------------------------------------------
         protected override void OnInnerEvent(Event evt)
         {
+        }
+        //-----------------------------------------------------
+        internal void OnGameItemSelected(IGameWorldItem pGameItem)
+        {
+            var logics = GetLogics<AStateEditorLogic>();
+            foreach(var db in logics)
+            {
+                db.OnGameItemSelected(pGameItem);
+            }
         }
     }
 }

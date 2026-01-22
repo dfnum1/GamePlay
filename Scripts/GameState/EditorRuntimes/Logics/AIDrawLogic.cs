@@ -13,7 +13,7 @@ using UnityEngine.UIElements;
 namespace Framework.State.Editor
 {
     [EditorBinder(typeof(GameWorldEditor), "TimelineRect", 100)]
-    public class AIDrawLogic : ABattleLogic
+    public class AIDrawLogic : AStateEditorLogic
     {
         VisualElement m_pRoot;
         AILogicDrawView m_pGraphView;

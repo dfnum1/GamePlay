@@ -6,6 +6,7 @@
 *********************************************************************/
 
 #if UNITY_EDITOR
+using Framework.AT.Runtime;
 using Framework.DrawProps;
 using Microsoft.International.Converters.PinYinConverter;
 using System;
@@ -991,6 +992,50 @@ namespace Framework.ED
             var method = audioUtilClass.GetMethod("StopAllClips", BindingFlags.Static | BindingFlags.Public);
             if (method == null) return;
             method.Invoke(null, null);
+        }
+    }
+    //------------------------------------------------------
+    [InitializeOnLoad]
+    public class GamePlayEditorInit
+    {
+        static GamePlayEditorInit()
+        {
+            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types = null;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types; // 部分可用类型
+                                      // 可选：输出警告
+                    UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                    continue;
+                }
+                for (int i = 0; i < types.Length; ++i)
+                {
+                    System.Type tp = types[i];
+                    if (tp == null) continue;
+                    if (tp.IsDefined(typeof(EditorInitOnloadAttribute), false))
+                    {
+                        var attrs = (EditorInitOnloadAttribute[])tp.GetCustomAttributes(typeof(EditorInitOnloadAttribute));
+                        foreach(var db in attrs)
+                        {
+                            if (string.IsNullOrEmpty(db.callMethod))
+                                continue;
+                            var method = tp.GetMethod(db.callMethod, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                            if (method == null) continue;
+                            method.Invoke(null, null);
+                        }
+                    }
+                }
+            }
         }
     }
 }

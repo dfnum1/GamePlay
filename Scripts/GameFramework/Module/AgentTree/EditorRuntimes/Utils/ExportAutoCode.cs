@@ -44,7 +44,7 @@ namespace Framework.AT.Editor
         static HashSet<System.Type> ms_vRefTypes = new HashSet<Type>();
         static string EXPORT_PATH = "../GamePlay/Generators/";
         //-----------------------------------------------------
-        [MenuItem("Tools/编译蓝图脚本")]
+        [MenuItem("GamePlay/编译蓝图脚本")]
         public static void ExportInternalAT()
         {
             ExportATMothed(true);

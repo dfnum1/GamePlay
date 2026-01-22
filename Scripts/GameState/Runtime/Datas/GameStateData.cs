@@ -10,7 +10,7 @@ namespace Framework.State.Runtime
     //------------------------------------------------
     //! 游戏状态下模式数据体
     //------------------------------------------------
-    public class GameStateModeData
+    public class GameStateModeData : IGameWorldItem
     {
         public int modeType;
         public List<int> modeLogics;
@@ -22,10 +22,11 @@ namespace Framework.State.Runtime
     //------------------------------------------------
     //! 游戏状态数据体
     //------------------------------------------------
-    public class GameStateData
+    [StateIcon("GameState/gamestate")]
+    public class GameStateData : IGameWorldItem
     {
         public int stateType;
-        public GameStateModeData modeData;
+        public int activeMode;
         public List<int> stateLogics;
 #if UNITY_EDITOR
         public string name;

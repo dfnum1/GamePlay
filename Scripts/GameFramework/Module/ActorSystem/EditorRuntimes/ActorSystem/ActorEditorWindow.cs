@@ -92,7 +92,7 @@ namespace Framework.ActorSystem.Editor
             get { return m_pTarget; }
         }
         //--------------------------------------------------------
-        [MenuItem("Tools/GamePlay/动作编辑器")]
+        [MenuItem("GamePlay/动作编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)

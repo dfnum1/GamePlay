@@ -180,7 +180,7 @@ namespace Framework.Guide.Editor
         public System.Reflection.MethodInfo OnNodeEditorPreviewVisible = null;
         public System.Reflection.MethodInfo OnCustomRecodeMethod = null;
         //-----------------------------------------------------
-        [MenuItem("Tools/GamePlay/引导编辑器 _F1")]
+        [MenuItem("GamePlay/引导编辑器 _F1")]
         internal static void OpenTool()
         {
             if (Instance != null) return;

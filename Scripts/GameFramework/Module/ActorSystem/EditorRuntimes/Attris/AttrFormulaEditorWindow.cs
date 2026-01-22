@@ -27,7 +27,7 @@ namespace Framework.ActorSystem.Editor
         private List<LambdaParam> m_vInputLambdas = new List<LambdaParam>();
         private Vector2 m_LeftScroll;
         private Vector2 m_RightScroll;
-        [MenuItem("Tools/GamePlay/属性编辑器")]
+        [MenuItem("GamePlay/属性编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)

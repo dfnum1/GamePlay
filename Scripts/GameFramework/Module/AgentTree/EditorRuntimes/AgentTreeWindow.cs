@@ -21,7 +21,7 @@ namespace Framework.AT.Editor
         AgentTreeData                   m_pATData = null;
         System.Action<AgentTreeData>    m_onSave = null;
         //--------------------------------------------------------
-        [MenuItem("Tools/GamePlay/蓝图脚本 _F3")]
+        [MenuItem("GamePlay/蓝图脚本 _F3")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)

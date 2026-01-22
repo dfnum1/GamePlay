@@ -52,7 +52,7 @@ namespace Framework.Cutscene.Editor
         string m_lastContentMd5 = null;
         bool m_bRuntimeOpenPlayingCutscene = false;
         //--------------------------------------------------------
-        [MenuItem("Tools/GamePlay/过场编辑器")]
+        [MenuItem("GamePlay/过场编辑器")]
         public static void Open()
         {
             if (EditorApplication.isCompiling)

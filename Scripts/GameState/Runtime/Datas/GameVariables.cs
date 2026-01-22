@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Framework.State.Runtime
 {
-    public class GameVariables
+    public class GameVariables : IGameWorldItem
     {
 #if UNITY_EDITOR
         public string strDesc = "";

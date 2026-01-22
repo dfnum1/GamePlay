@@ -20,8 +20,15 @@ namespace Framework.State.Editor
         static Texture2D s_CustomIcon;
         static GameStateEditorInit()
         {
-            s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameStateData/battleworld.png");
+            gameWorldIcon();
+            StateEditorUtil.ReInitTypes();
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
+        }
+        //-----------------------------------------------------
+        public static Texture2D gameWorldIcon()
+        {
+            if(s_CustomIcon == null) s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/gameworld.png");
+            return s_CustomIcon;
         }
         //-----------------------------------------------------
         static void OnProjectWindowItemGUI(string guid, Rect selectionRect)

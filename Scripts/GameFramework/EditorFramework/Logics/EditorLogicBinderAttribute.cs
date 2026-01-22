@@ -26,6 +26,16 @@ namespace Framework.ED
             this.rectMethod = rectMethod;
         }
     }
+    //-----------------------------------------------------
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
+    public class EditorInitOnloadAttribute : System.Attribute
+    {
+        public string callMethod;
+        public EditorInitOnloadAttribute(string rectMethod)
+        {
+            this.callMethod = rectMethod;
+        }
+    }
 }
 
 #endif
