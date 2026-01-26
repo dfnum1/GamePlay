@@ -120,6 +120,7 @@ namespace Framework.SpriteSeq
                 return;
             }
             m_pData.altas = EditorGUILayout.ObjectField("精灵图集", m_pData.altas, typeof(SpriteAtlas), false) as SpriteAtlas;
+            m_pData.shareAtlasTexture = EditorGUILayout.Toggle("共享图集纹理", m_pData.shareAtlasTexture);
             m_pData.frameRate = EditorGUILayout.IntField("帧率", m_pData.frameRate);
             int seqCnt = m_pData.subSequeneces != null ? m_pData.subSequeneces.Count : 0;
             m_Scrool = GUILayout.BeginScrollView(m_Scrool, GUILayout.Height( Mathf.Max(90, Mathf.Min((seqCnt+2)*25, 200))));
@@ -425,15 +426,45 @@ namespace Framework.SpriteSeq
             if (atlasTex == null)
                 return;
 
-            int width = atlasTex.width;
-            int height = atlasTex.height;
+            if(m_pData.shareAtlasTexture)
+            {
+                packField.SetValue(m_pData, atlasTex);
+            }
+            else
+            {
+                int width = atlasTex.width;
+                int height = atlasTex.height;
 
-            // 新建一张同尺寸同格式的贴图
-            Texture2D atlasClone = new Texture2D(width, height, atlasTex.format, atlasTex.mipmapCount > 1);
-            atlasClone.name = "AtlasTexture";
-            atlasClone.hideFlags = HideFlags.None;
+                Texture2D atlasClone = null;
+                TextureFormat format = atlasTex.format;
+                if (format.ToString().Contains("DXT", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    format = TextureFormat.ARGB32;
+                    this.ShowNotification(new GUIContent("当前图集的压缩格式为\"" + format + "\"\r\n不兼容，将强转为ARGB32"),3);
 
-            Graphics.CopyTexture(atlasTex, atlasClone);
+                    atlasClone = new Texture2D(width, height, format, atlasTex.mipmapCount > 1);
+                    atlasClone.name = "AtlasTexture";
+                    atlasClone.hideFlags = HideFlags.None;
+
+
+                    //    Graphics.CopyTexture(atlasTex, atlasClone);
+
+                    RenderTexture tmpRT = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+                    Graphics.Blit(atlasTex, tmpRT);
+                    RenderTexture previous = RenderTexture.active;
+                    RenderTexture.active = tmpRT;
+                    atlasClone.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                    atlasClone.Apply();
+                    RenderTexture.active = previous;
+                    RenderTexture.ReleaseTemporary(tmpRT);
+                }
+                else
+                {
+                    atlasClone = new Texture2D(width, height, format, atlasTex.mipmapCount > 1);
+                    atlasClone.name = "AtlasTexture";
+                    atlasClone.hideFlags = HideFlags.None;
+                    Graphics.CopyTexture(atlasTex, atlasClone);
+                }
 
             packField.SetValue(m_pData, atlasClone);
 

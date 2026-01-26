@@ -30,6 +30,7 @@ namespace Framework.SpriteSeq
         public static SubSequence Null = new SubSequence() { label = null, beginFrame = -1, endFrame = -1 };
 #if UNITY_EDITOR
         public SpriteAtlas altas;
+        public bool shareAtlasTexture = true;
 #endif
 
         [SerializeField]
