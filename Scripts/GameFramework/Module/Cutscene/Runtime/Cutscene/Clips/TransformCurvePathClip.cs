@@ -78,7 +78,10 @@ namespace Framework.Cutscene.Runtime
                     EditorGUI.indentLevel++;
                     for (int i = 0; i < this.pathPoints.Length; i++)
                     {
-                        this.pathPoints[i].position = EditorGUILayout.Vector3Field(GetName() + "路径点" + i, this.pathPoints[i].position);
+                        GUILayout.Label("路径点[" + (i + 1) + "]");
+                        if (posToggle) this.pathPoints[i].position = EditorGUILayout.Vector3Field("路径点", this.pathPoints[i].position);
+                        if (rotToggle) this.pathPoints[i].eulerAngle = EditorGUILayout.Vector3Field("角度", this.pathPoints[i].eulerAngle);
+                        if (scaleToggle) this.pathPoints[i].scale = EditorGUILayout.Vector3Field("缩放", this.pathPoints[i].scale);
                     }
                     EditorGUI.indentLevel--;
                 }
