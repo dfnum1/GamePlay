@@ -10,17 +10,11 @@ using System.Collections.Generic;
 using Framework.DrawProps;
 using Framework.Cutscene.Runtime;
 using Framework.Core;
-using Framework.ProjectileSystem.Editor;
-using Framework.ActorSystem.Editor;
 using System;
 
-
-
-
-
-
-
 #if UNITY_EDITOR
+using Framework.ProjectileSystem.Editor;
+using Framework.ActorSystem.Editor;
 using Framework.ED;
 using System.Reflection;
 using UnityEditor;
@@ -120,25 +114,48 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
+        [System.NonSerialized]bool m_bExpandEditor = false;
         [AddInspector]
         internal void OnInspector()
         {
-            if(GUILayout.Button("编辑"))
-            {
-                if(this.projectileLibrary!=0)
-                    ProjectileEditor.EditorProjectile(this.projectileLibrary);
-                else
-                    ProjectileEditor.EditorProjectile(this.projecitleData);
-            }
-            if(this.projectileLibrary != 0)
+            if (this.projectileLibrary != 0)
             {
                 if (GUILayout.Button("设置弹道原本时长"))
                 {
                     var projData = ProjecitleProvider.GetProjectileData(projectileLibrary);
-                    if(projData!=null)
+                    if (projData != null)
                     {
                         this.baseProp.duration = Mathf.Min(50, projData.life_time);
-                    };
+                    }
+                }
+            }
+            float width = GUILayoutUtility.GetLastRect().width;
+            GUILayout.BeginHorizontal();
+            m_bExpandEditor = EditorGUILayout.Foldout(m_bExpandEditor, "编辑");
+            if (GUILayout.Button("编辑器"))
+            {
+                m_bExpandEditor = false;
+                if (this.projectileLibrary != 0)
+                    ProjectileEditor.EditorProjectile(this.projectileLibrary);
+                else
+                {
+                    ProjectileEditor.EditorProjectile(this.projecitleData);
+                }
+            }
+            GUILayout.EndHorizontal();
+            if (m_bExpandEditor)
+            {
+                if (this.projectileLibrary != 0)
+                {
+                    var projData = ProjecitleProvider.GetProjectileData(projectileLibrary);
+                    if(projData!=null) 
+                        Framework.ProjectileSystem.Editor.ProjectileDataDrawer.OnInsepctor(projData, new Vector2(width, 0));
+                    else
+                        GUILayout.Label("弹道库中不存在该弹道[" + projectileLibrary + "]");
+                }
+                else
+                {
+                    Framework.ProjectileSystem.Editor.ProjectileDataDrawer.OnInsepctor(this.projecitleData, new Vector2(width, 0));
                 }
             }
         }
