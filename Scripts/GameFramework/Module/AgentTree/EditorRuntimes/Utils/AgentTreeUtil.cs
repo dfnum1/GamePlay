@@ -68,6 +68,7 @@ namespace Framework.AT.Editor
         private static List<AgentTreeAttri> ms_vLists = new List<AgentTreeAttri>();
         private static Dictionary<System.Type, System.Type> ms_vEditorNodeTypes = new Dictionary<Type, Type>();
         private static List<string> ms_vPops = new List<string>();
+        private static Dictionary<int, System.Type> ms_ATClassTypes = new Dictionary<int, Type>();
         static string ms_installPath = null;
         static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
         static MenuTreeNode ms_SearchMenuRoot = new MenuTreeNode("添加节点");
@@ -118,6 +119,7 @@ namespace Framework.AT.Editor
                 ms_vPopEnumTypes.Clear();
                 ms_vPopCompareOpTypes.Clear();
                 ms_CustomDrawPorts.Clear();
+                ms_ATClassTypes.Clear();
 
                 foreach (Enum v in Enum.GetValues(typeof(AT.Runtime.ECompareOpType)))
                 {
@@ -283,11 +285,23 @@ namespace Framework.AT.Editor
                     {
                         Type tp = types[i];
                         if (tp == null) continue;
-                        if(tp.IsDefined(typeof(ATClassAttribute)))
+
+                        if (tp.IsDefined(typeof(ATClassAttribute)))
                         {
                             ATClassAttribute classAT = tp.GetCustomAttribute<ATClassAttribute>();
                             if (classAT.classType == null)
                                 continue;
+                            if (classAT.classType.IsDefined(typeof(ATExportAttribute), false))
+                            {
+                                var exportAttr = classAT.classType.GetCustomAttribute<ATExportAttribute>();
+                                int guid = exportAttr.guid;
+                                if (guid == 0)
+                                {
+                                    guid = ATRtti.BuildHashCode(tp);
+                                }
+                                ms_ATClassTypes[guid] = classAT.classType;
+                            }
+
                             var iconAttr = tp.GetCustomAttribute<ATIconAttribute>(false);
                             var colorAttr = tp.GetCustomAttribute<ATColorAttribute>(false);
                             ATExportAttribute atExport = classAT.classType.GetCustomAttribute<ATExportAttribute>(false);
@@ -330,8 +344,20 @@ namespace Framework.AT.Editor
                                         ATFunctionArgvAttribute[] argvs = (ATFunctionArgvAttribute[])method.GetCustomAttributes<ATFunctionArgvAttribute>();
                                         if (argvs != null)
                                         {
-                                            for(int j =0; j < argvs.Length; ++j)
+                                            for (int j = 0; j < argvs.Length; ++j)
+                                            {
                                                 attr.argvs.Add(argvs[j].ToArgv());
+                                                if(argvs[j].DisplayType!=null)
+                                                {
+                                                    int guid = ATRtti.BuildHashCode(argvs[j].DisplayType);
+                                                    if (argvs[j].DisplayType.IsDefined(typeof(ATExportAttribute), false))
+                                                    {
+                                                        var exportAttr = argvs[j].DisplayType.GetCustomAttribute<ATExportAttribute>();
+                                                        if(exportAttr.guid!=0) guid = exportAttr.guid;
+                                                    }
+                                                    ms_ATClassTypes[guid] = argvs[j].DisplayType;
+                                                }
+                                            }
                                         }
                                     }
                                     if (method.IsDefined(typeof(ATFunctionReturnAttribute), false))
@@ -342,6 +368,16 @@ namespace Framework.AT.Editor
                                             for (int j = 0; j < returns.Length; ++j)
                                             {
                                                 attr.returns.Add(new ArgvAttribute(returns[j].Name, returns[j].DisplayType));
+                                                if (returns[j].DisplayType != null)
+                                                {
+                                                    int guid = ATRtti.BuildHashCode(returns[j].DisplayType);
+                                                    if (returns[j].DisplayType.IsDefined(typeof(ATExportAttribute), false))
+                                                    {
+                                                        var exportAttr = returns[j].DisplayType.GetCustomAttribute<ATExportAttribute>();
+                                                        if (exportAttr.guid != 0) guid = exportAttr.guid;
+                                                    }
+                                                    ms_ATClassTypes[guid] = returns[j].DisplayType;
+                                                }
                                             }
                                         }
                                     }
@@ -598,6 +634,34 @@ namespace Framework.AT.Editor
             return editorType;
         }
         //-----------------------------------------------------
+        public static Dictionary<int, System.Type> GetATClassTypes()
+        {
+            Init();
+            return ms_ATClassTypes;
+        }
+        //-----------------------------------------------------
+        public static Dictionary<string,int> GetATClassTypes(int baseTypeId)
+        {
+            Init();
+            Dictionary<string, int> filterTypes = new Dictionary<string, int>();
+            if(!ms_ATClassTypes.TryGetValue(baseTypeId, out var baseType))
+            {
+                return filterTypes;
+            }
+            string regName = AgentTreeUtil.BuildShortDispName(baseType, filterTypes);
+            string baseTypeFullName = baseType.FullName.Replace("+", ".");
+            filterTypes[regName] = baseTypeId;
+            foreach (var db in ms_ATClassTypes)
+            {
+                if (db.Value.IsSubclassOf(baseType) || db.Value.GetInterface(baseTypeFullName) !=null)
+                {
+                    regName = AgentTreeUtil.BuildShortDispName(db.Value, filterTypes);
+                    filterTypes[regName] = db.Key;
+                }
+            }
+            return filterTypes;
+        }
+        //-----------------------------------------------------
         public static List<string> GetPops()
         {
             Init();
@@ -738,6 +802,29 @@ namespace Framework.AT.Editor
             float xMax = Mathf.Max(a.xMax, b.xMax);
             float yMax = Mathf.Max(a.yMax, b.yMax);
             return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+        }
+        //-----------------------------------------------------
+        internal static string BuildShortDispName(System.Type type, Dictionary<string, int> collects)
+        {
+            string fullName = type.FullName.Replace("+", "/").Replace(".", "/");
+            string[] parts = fullName.Split('/');
+            string regName = parts[parts.Length - 1];
+            bool found = false;
+            for (int i = parts.Length - 1; i >= 0; i--)
+            {
+                string tryName = string.Join("/", parts, i, parts.Length - i);
+                if (!collects.ContainsKey(tryName))
+                {
+                    regName = tryName;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                regName = fullName;
+            }
+            return regName;
         }
     }
 }

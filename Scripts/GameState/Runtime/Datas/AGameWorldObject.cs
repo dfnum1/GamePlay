@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using Framework.State.Editor;
-using Framework.ActorSystem.Editor;
 using UnityEditor;
 #endif
 namespace Framework.State.Runtime

@@ -1537,7 +1537,7 @@ namespace Framework.AT.Editor
         bool canEdit = true,
         int width = 120)
         {
-            var nameIds = ATRtti.GetTypeNameIds();
+            var nameIds = AgentTreeUtil.GetATClassTypes(typeId);
             List<string> displayNames = nameIds.Keys.ToList();
             List<int> valueList = nameIds.Values.ToList();
             int curIndex = valueList.IndexOf(typeId);

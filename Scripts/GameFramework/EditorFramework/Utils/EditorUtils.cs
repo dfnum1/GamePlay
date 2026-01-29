@@ -23,6 +23,19 @@ namespace Framework.ED
         private static bool ms_LoadUnityPluginCheck = false;
         private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
         //-----------------------------------------------------
+        public static bool IsGamePlayInnerType(System.Type type)
+        {
+            if (type == null) return false;
+            var assemblyName = type.Assembly.GetName().Name.ToLower();
+            if (assemblyName.CompareTo("gamegramework") == 0 ||
+                assemblyName.CompareTo("gameplay") == 0 ||
+                assemblyName.CompareTo("gamestate") == 0 ||
+                assemblyName.CompareTo("guidesystem") == 0 ||
+                assemblyName.CompareTo("gameeditor") == 0)
+                return true;
+            return false;
+        }
+        //-----------------------------------------------------
         static void EditorPluginInit()
         {
             if (ms_LoadUnityPluginCheck)

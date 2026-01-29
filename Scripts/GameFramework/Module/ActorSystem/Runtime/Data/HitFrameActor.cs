@@ -25,7 +25,7 @@ namespace Framework.ActorSystem.Runtime
         MutiHit = 3,
     }
     //------------------------------------------------------
-    [ATInteralExport("Actor系统/命中帧数据", -3, icon: "ActorSystem/hit_frame_actor")]
+    [ATInteralExport("Actor系统/命中帧数据", -5, icon: "ActorSystem/hit_frame_actor")]
     public struct HitFrameActor : IUserData
     {
         [ATField("攻击者",true,false)]public Actor attack_ptr;

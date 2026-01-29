@@ -4,10 +4,13 @@
 作    者:	HappLI
 描    述:	RTTI 类
 *********************************************************************/
-using Framework.Core;
-using System.Collections.Generic;
+#if UNITY_EDITOR
+using Framework.AT.Editor;
 using System.Linq;
 using System.Reflection;
+#endif
+using Framework.Core;
+using System.Collections.Generic;
 using UnityEngine;
 namespace Framework.AT.Runtime
 {
@@ -45,24 +48,7 @@ namespace Framework.AT.Runtime
                 ms_vParentTypeIds[typeId] = parentTypeId;
             }
 #if UNITY_EDITOR
-            string fullName = type.FullName.Replace("+", "/").Replace(".", "/");
-            string[] parts = fullName.Split('/');
-            string regName = parts[parts.Length - 1];
-            bool found = false;
-            for (int i = parts.Length - 1; i >= 0; i--)
-            {
-                string tryName = string.Join("/", parts, i, parts.Length - i);
-                if (!ms_TypeFullNameIds.ContainsKey(tryName))
-                {
-                    regName = tryName;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                regName = fullName;
-            }
+            string regName = AgentTreeUtil.BuildShortDispName(type, ms_TypeFullNameIds);
             ms_TypeFullNameIds[regName] = typeId;
 #endif
         }
@@ -141,6 +127,20 @@ namespace Framework.AT.Runtime
         //------------------------------------------------------
         internal static Dictionary<string,int> GetTypeNameIds()
         {
+            return ms_TypeFullNameIds;
+        }
+        //------------------------------------------------------
+        internal static Dictionary<string, int> GetTypeNameIdsFilter(int baseTypeId)
+        {
+            var baseType = GetClassType(baseTypeId);
+            if (baseType == null) return ms_TypeFullNameIds;
+
+            Dictionary<string, int> vTypes = new Dictionary<string, int>();
+            foreach(var db in ms_TypeFullNameIds)
+            {
+
+            }
+
             return ms_TypeFullNameIds;
         }
         //------------------------------------------------------

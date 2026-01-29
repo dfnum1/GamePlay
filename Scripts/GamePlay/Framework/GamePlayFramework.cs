@@ -5,6 +5,7 @@
 描    述:	GamePlay框架类
 *********************************************************************/
 using Framework.AT.Runtime;
+using Framework.State.Runtime;
 
 namespace Framework.Core
 {
@@ -16,6 +17,7 @@ namespace Framework.Core
         {
             AddModule<Framework.State.Runtime.GameWorld>();
             ATRegisterInternalHandler.Init();
+            GameStateInnerTypeRegistry.Init();
         }
         //--------------------------------------------------------
         protected override void OnAwake()

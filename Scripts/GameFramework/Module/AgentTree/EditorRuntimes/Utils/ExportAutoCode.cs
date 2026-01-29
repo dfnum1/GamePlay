@@ -42,7 +42,7 @@ namespace Framework.AT.Editor
         }
         static Dictionary<string, ExportInfo> ms_vExports = new Dictionary<string, ExportInfo>();
         static HashSet<System.Type> ms_vRefTypes = new HashSet<Type>();
-        static string EXPORT_PATH = "../GamePlay/Generators/";
+        static string EXPORT_PATH = "../Packages/GamePlay/Scripts/GamePlay/AgentTree/Generators/";
         //-----------------------------------------------------
         [MenuItem("GamePlay/编译蓝图脚本")]
         public static void ExportInternalAT()
@@ -374,7 +374,8 @@ namespace Framework.AT.Editor
             }
             else
             {
-                functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
+                if(!isModule)
+                    functionAttributes += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
 
                 string callArgv = "";
                 functionHead += $"{export.type.Name} pPointerThis";
@@ -585,8 +586,11 @@ namespace Framework.AT.Editor
             }
             else
             {
-                functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
-                functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                if(!isModule)
+                {
+                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                }
 
                 if (string.IsNullOrEmpty(drawMethod))
                 {

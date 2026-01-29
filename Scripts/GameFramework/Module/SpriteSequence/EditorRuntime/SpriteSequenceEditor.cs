@@ -27,6 +27,7 @@ namespace Framework.SpriteSeq
             SpriteSequenceEditor window = GetWindow<SpriteSequenceEditor>();
             window.Show();
         }
+
         //--------------------------------------------------------
         [UnityEditor.Callbacks.OnOpenAsset(0)]
         static bool OnOpenAsset(int instanceID, int line)
@@ -43,6 +44,7 @@ namespace Framework.SpriteSeq
             return false;
         }
         //------------------------------------------------
+        static Texture2D s_CustomIcon;
         Vector2 m_Scrool = Vector2.zero;
         GUIStyle m_PreviewStyle;
         bool m_bShowCullingSize = true;
@@ -123,7 +125,7 @@ namespace Framework.SpriteSeq
             m_pData.shareAtlasTexture = EditorGUILayout.Toggle("共享图集纹理", m_pData.shareAtlasTexture);
             m_pData.frameRate = EditorGUILayout.IntField("帧率", m_pData.frameRate);
             int seqCnt = m_pData.subSequeneces != null ? m_pData.subSequeneces.Count : 0;
-            m_Scrool = GUILayout.BeginScrollView(m_Scrool, GUILayout.Height( Mathf.Max(90, Mathf.Min((seqCnt+2)*25, 200))));
+            m_Scrool = GUILayout.BeginScrollView(m_Scrool, GUILayout.Height(Mathf.Max(90, Mathf.Min((seqCnt + 2) * 25, 200))));
             DrawSubSequences();
             GUILayout.EndScrollView();
 
@@ -232,7 +234,7 @@ namespace Framework.SpriteSeq
                 m_pData.subSequeneces = new List<ASpriteSequenceData.SubSequence>();
             Color guiColor = GUI.color;
             float centerOffsetWidth = 200;
-            float argvHead = (this.position.width - 140- centerOffsetWidth) / 5;
+            float argvHead = (this.position.width - 140 - centerOffsetWidth) / 5;
             GUILayout.BeginHorizontal();
             GUILayout.Label("子序列标签", GUILayout.Width(argvHead));
             GUILayout.Label("开始帧", GUILayout.Width(argvHead));
@@ -291,7 +293,7 @@ namespace Framework.SpriteSeq
                 m_pRenderer.SetFps(m_pData.frameRate);
                 m_pRenderer.EditorRender(m_pTimer.deltaTime, camera, TargetPreview.PreviewCullingLayer);
 
-                if (m_pData != null && m_pData.subSequeneces!=null)
+                if (m_pData != null && m_pData.subSequeneces != null)
                 {
                     for (int i = 0; i < m_pData.subSequeneces.Count; ++i)
                     {
@@ -299,7 +301,7 @@ namespace Framework.SpriteSeq
                         if (string.IsNullOrEmpty(draw.label))
                             continue;
                         Vector3 curPos = m_pRenderer.GetWorldMatrix(Animator.StringToHash(draw.label)).GetColumn(3);
-                        Vector3 worldPos = curPos + new Vector3(draw.centerOffset.x, draw.centerOffset.y,0);
+                        Vector3 worldPos = curPos + new Vector3(draw.centerOffset.x, draw.centerOffset.y, 0);
                         Handles.SphereHandleCap(controllerId, worldPos, Quaternion.identity, 0.5f, EventType.Repaint);
                         float size = draw.cullingSize;
                         if (size > 0 && m_bShowCullingSize)
@@ -426,7 +428,7 @@ namespace Framework.SpriteSeq
             if (atlasTex == null)
                 return;
 
-            if(m_pData.shareAtlasTexture)
+            if (m_pData.shareAtlasTexture)
             {
                 packField.SetValue(m_pData, atlasTex);
             }
@@ -440,7 +442,7 @@ namespace Framework.SpriteSeq
                 if (format.ToString().Contains("DXT", System.StringComparison.OrdinalIgnoreCase))
                 {
                     format = TextureFormat.ARGB32;
-                    this.ShowNotification(new GUIContent("当前图集的压缩格式为\"" + format + "\"\r\n不兼容，将强转为ARGB32"),3);
+                    this.ShowNotification(new GUIContent("当前图集的压缩格式为\"" + format + "\"\r\n不兼容，将强转为ARGB32"), 3);
 
                     atlasClone = new Texture2D(width, height, format, atlasTex.mipmapCount > 1);
                     atlasClone.name = "AtlasTexture";
@@ -466,10 +468,11 @@ namespace Framework.SpriteSeq
                     Graphics.CopyTexture(atlasTex, atlasClone);
                 }
 
-            packField.SetValue(m_pData, atlasClone);
+                packField.SetValue(m_pData, atlasClone);
 
-            string path = AssetDatabase.GetAssetPath(m_pData);
-            AssetDatabase.AddObjectToAsset(atlasClone, path);
+                string path = AssetDatabase.GetAssetPath(m_pData);
+                AssetDatabase.AddObjectToAsset(atlasClone, path);
+            }
         }
         //--------------------------------------------------------
         void GeneUvPackTextureSubAsset(Sprite[] sprites)
@@ -526,7 +529,7 @@ namespace Framework.SpriteSeq
             return (i0 & 0xFFFF) | ((i1 & 0xFFFF) << 16) | ((i2 & 0xFFFF) << 24);
         }
         //--------------------------------------------------------
-        private int GetTexSize(int spriteCount)
+        int GetTexSize(int spriteCount)
         {
             return spriteCount;
             int size = 1;
@@ -587,7 +590,6 @@ namespace Framework.SpriteSeq
             return null;
         }
         //-----------------------------------------------------
-        static Texture2D s_CustomIcon;
         static void OnEditorInitOnload()
         {
             s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("SpriteSequence/icon.png");

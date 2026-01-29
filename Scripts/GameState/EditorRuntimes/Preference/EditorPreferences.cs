@@ -22,7 +22,7 @@ namespace Framework.State.Editor
             // 用项目路径的 hash 作为前缀，保证唯一性
             string projectPath = Application.dataPath; // 例如 D:/MyProject/Assets
             int hash = projectPath.GetHashCode();
-            return $"CutsceneEditor.{hash}.";
+            return $"GameWorldEditor.{hash}.";
         }
         private static Dictionary<Type, Color> typeColors = new Dictionary<Type, Color>();
         private static Dictionary<string, Settings> settings = new Dictionary<string, Settings>();
@@ -156,7 +156,7 @@ namespace Framework.State.Editor
 //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/CutsceneEditor", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider("Preferences/GameWorldEditor", SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;

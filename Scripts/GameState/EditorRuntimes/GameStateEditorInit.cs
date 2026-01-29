@@ -23,11 +23,25 @@ namespace Framework.State.Editor
             gameWorldIcon();
             StateEditorUtil.ReInitTypes();
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
+
+            //! auto code
+            // 你可以自定义生成文件路径
+            string path = EditorPreferences.GetSettings().generatorCodePath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                AutoCodeGenerator.AutoCode(path);
+            }
+            else
+            {
+                AutoCodeGenerator.AutoCode(null);
+                Debug.LogError("请先在编辑器[Edit -> Preferences... -> GameWorld]设置中配置代码生成路径");
+                return;
+            }
         }
         //-----------------------------------------------------
         public static Texture2D gameWorldIcon()
         {
-            if(s_CustomIcon == null) s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameState/gameworld.png");
+            if(s_CustomIcon == null) s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameWorld/gameworld.png");
             return s_CustomIcon;
         }
         //-----------------------------------------------------
