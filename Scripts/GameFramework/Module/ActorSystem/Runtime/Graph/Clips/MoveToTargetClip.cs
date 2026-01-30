@@ -19,13 +19,13 @@ namespace Framework.ActorSystem.Runtime
     public class MoveToTargetClip : IBaseClip
     {
         [Display("基本属性")] public BaseClipProp       baseProp;
-        [Display("面朝目标")] public bool faceTo = true;
+        [Display("面朝目标")] public bool               faceTo = true;
         [Display("目标朝向偏移")] public bool           bDirOffset = true;
-        [Display("地表高度")]     public bool       bTerrainHeight = false;
-        [Display("实时更新目标位置")] public bool           bUpdateTarget = false;
-        [Display("位置偏移")] public Vector3        posOffset; //跟随偏移量
-        [Display("角度偏移")] public Vector3        rotOffset; //跟随角度偏移量
-        [Display("速度曲线")] public AnimationCurve speedCurve;
+        [Display("地表高度")]     public bool           bTerrainHeight = false;
+        [Display("实时更新目标位置")] public bool       bUpdateTarget = false;
+        [Display("位置偏移")] public Vector3            posOffset; //跟随偏移量
+        [Display("角度偏移")] public Vector3            rotOffset; //跟随角度偏移量
+        [Display("速度曲线")] public AnimationCurve     speedCurve;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {

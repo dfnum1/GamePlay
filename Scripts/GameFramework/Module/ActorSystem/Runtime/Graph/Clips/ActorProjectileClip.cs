@@ -28,18 +28,18 @@ namespace Framework.ActorSystem.Runtime
         [Display("基本属性")] public BaseClipProp baseProp;
 
         [BindSlot("OnCollectBindSlot"), Display("触发绑点")]
-        public string bindSlot = "";
+        public string                               bindSlot = "";
 
         [Display("偏移")]
-        public Vector3 offset = Vector3.zero;
+        public Vector3                              offset = Vector3.zero;
 
         [Display("角度偏移")]
-        public Vector3 localRotate = Vector3.zero;
+        public Vector3                              localRotate = Vector3.zero;
 
         [Display("弹道库"),RowFieldInspector("OnDrawProjectileLibrary")]
-        public uint projectileLibrary = 0;
+        public uint                                 projectileLibrary = 0;
         [StateByField("projectileLibrary","0",true)]
-        public ActorSystem.Runtime.ProjectileData projecitleData = null;
+        public ActorSystem.Runtime.ProjectileData   projecitleData = null;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {

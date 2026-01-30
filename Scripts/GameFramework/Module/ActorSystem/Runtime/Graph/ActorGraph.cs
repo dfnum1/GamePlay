@@ -19,18 +19,19 @@ namespace Framework.ActorSystem.Runtime
     }
     public class ActorGraph : TypeActor
     {
-        bool m_bInited = false;
-        Actor m_pOwner;
 #if USE_CUTSCENE
-        public Cutscene.Runtime.CutsceneInstance m_pCutsceneInstance = null;
+        public Cutscene.Runtime.CutsceneInstance    m_pCutsceneInstance = null;
 #endif
-        private bool m_bAutoUpdate = true;
-        private ActorAction m_pPlayingAction = null;
-        private ActorGraphData m_pGraphData = null;
-        System.Action<ActorGraphData> m_pOnLoadedCallback = null;
-        System.Action<ActorAction> m_pOnChangeAction = null;
-        System.Action<ActorAction> m_pOnStartAction = null;
-        System.Action<ActorAction> m_pOnEndAction = null;
+
+        bool m_bInited = false;
+        Actor                                       m_pOwner;
+        private bool                                m_bAutoUpdate = true;
+        private ActorAction                         m_pPlayingAction = null;
+        private ActorGraphData                      m_pGraphData = null;
+        System.Action<ActorGraphData>               m_pOnLoadedCallback = null;
+        System.Action<ActorAction>                  m_pOnChangeAction = null;
+        System.Action<ActorAction>                  m_pOnStartAction = null;
+        System.Action<ActorAction>                  m_pOnEndAction = null;
         //--------------------------------------------------------
         public ActorManager GetSystem()
         {

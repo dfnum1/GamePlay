@@ -24,7 +24,7 @@ namespace Framework.ActorSystem.Runtime
     public class ActorParameter : TypeActor
     {
         IContextData                            m_pConfigData = null;
-        Dictionary<byte, FFloat>                 m_vAttributes = new Dictionary<byte, FFloat>(16);
+        Dictionary<byte, FFloat>                m_vAttributes = new Dictionary<byte, FFloat>(16);
         Actor                                   m_pActor;
         byte                                    m_HpAttrType = 1;
         byte                                    m_SpeedAttrType = 2;
