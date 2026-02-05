@@ -1932,17 +1932,38 @@ namespace Framework.Guide
             return (worldPosWithRadius - worldPosCenter).magnitude;
         }
         //------------------------------------------------------
-        public List<RaycastResult> IsRayTestEvent(Transform finger)
+        public List<RaycastResult> IsRayTestEvent(Transform finger, bool bTopCheck = false)
         {
             if (finger == null)
                 return null;
             RectTransform rectTrans = finger as RectTransform;
             IsRayTestEvent(finger, rectTrans.rect.center);
-            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0)
+            {
+                if (bTopCheck)
+                {
+                    if (isInheritTransform(m_RayTestResults[0], finger)) return m_RayTestResults;
+                }
+                else return m_RayTestResults;
+            }
             IsRayTestEvent(finger, new Vector2(rectTrans.rect.center.x, rectTrans.rect.yMin + 0.1f));
-            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0)
+            {
+                if (bTopCheck)
+                {
+                    if (isInheritTransform(m_RayTestResults[0], finger)) return m_RayTestResults;
+                }
+                else return m_RayTestResults;
+            }
             IsRayTestEvent(finger, new Vector2(rectTrans.rect.center.x, rectTrans.rect.yMax - 0.1f));
-            if (m_RayTestResults != null && m_RayTestResults.Count > 0) return m_RayTestResults;
+            if (m_RayTestResults != null && m_RayTestResults.Count > 0)
+            {
+                if (bTopCheck)
+                {
+                    if (isInheritTransform(m_RayTestResults[0], finger)) return m_RayTestResults;
+                }
+                else return m_RayTestResults;
+            }
             return m_RayTestResults;
         }
         //------------------------------------------------------
@@ -2009,6 +2030,26 @@ namespace Framework.Guide
             return IsCheckInViewAdnCanHit(pObj, bRayTest, out var isInView);
         }
         //------------------------------------------------------
+        bool isInheritTransform(RaycastResult result, Transform pObj )
+        {
+            if (result.gameObject == null) return false;
+            if (result.gameObject != null)
+            {
+                // 判断是否为目标对象或其子对象
+                Transform t = result.gameObject.transform;
+                while (t != null)
+                {
+                    if (t == pObj)
+                    {
+                        m_nRayTestHit = 0;
+                        return true;
+                    }
+                    t = t.parent;
+                }
+            }
+            return false;
+        }
+        //------------------------------------------------------
         public bool IsCheckInViewAdnCanHit(Transform pObj, bool bRayTest, out bool bInView)
         {
             bInView = false;
@@ -2034,24 +2075,11 @@ namespace Framework.Guide
                     return bInView;
                 if(bInView)
                 {
-                    var results = IsRayTestEvent(pObj);
-                    if (results!=null && 0 < results.Count)
+                    var results = IsRayTestEvent(pObj,true);
+                    if (results != null && 0 < results.Count)
                     {
-                        var result = results[0];
-                        if (result.gameObject != null)
-                        {
-                            // 判断是否为目标对象或其子对象
-                            Transform t = result.gameObject.transform;
-                            while (t != null)
-                            {
-                                if (t == pObj)
-                                {
-                                    m_nRayTestHit = 0;
-                                    return true;
-                                }
-                                t = t.parent;
-                            }
-                        }
+                        if (isInheritTransform(results[0], pObj))
+                            return true;
                     }
 
                     m_nRayTestHit++;
