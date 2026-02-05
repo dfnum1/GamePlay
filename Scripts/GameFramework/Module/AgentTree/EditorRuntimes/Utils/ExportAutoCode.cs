@@ -218,8 +218,11 @@ namespace Framework.AT.Editor
             StringBuilder code = new StringBuilder();
             code.AppendLine("//auto generated");
             code.AppendLine("using Framework.AT.Runtime;");
-            code.AppendLine("namespace " + export.type.Namespace.Replace("+", "."));
-            code.AppendLine("{");
+            if (export.type.Namespace != null)
+            {
+                code.AppendLine("namespace " + export.type.Namespace.Replace("+", "."));
+                code.AppendLine("{");
+            }
             code.AppendLine("#if UNITY_EDITOR");
             code.AppendLine($"\t[ATClass(typeof({GetTypeName(export.type)}),\"{export.exportAttr.nodeName}\")]");
             code.AppendLine("#endif");
@@ -256,7 +259,8 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t\treturn true;");
             code.AppendLine("\t\t}");
             code.AppendLine("\t}");
-            code.AppendLine("}");
+            if (export.type.Namespace != null)
+                code.AppendLine("}");
 
             code.Replace("##FUNCTION##", methodCode.ToString());
             string fullPath = Application.dataPath + "/" + export.exportPath;
@@ -325,10 +329,6 @@ namespace Framework.AT.Editor
                     {
                         if (!functionHead.EndsWith("(")) functionHead += ",";
                         functionHead += $"{GetTypeName(parm.ParameterType)} {parm.Name}";
-                        if (i < method.GetParameters().Length - 1)
-                        {
-                            callArgv += ",";
-                        }
                     }
                     if (i < method.GetParameters().Length - 1)
                     {
@@ -795,7 +795,10 @@ namespace Framework.AT.Editor
             foreach (var db in ms_vExports)
             {
                 code.Append("\t\t\tcase " + db.Value.guid + ":");
-                code.Append($"return {db.Value.type.Namespace.Replace("+",".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction(pUserClasser,pAgentTree, pNode);");
+                if(db.Value.type.Namespace!=null)
+                    code.Append($"return {db.Value.type.Namespace.Replace("+",".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction(pUserClasser,pAgentTree, pNode);");
+                else
+                    code.Append($"return {db.Value.type.FullName.Replace(".", "_")}.DoAction(pUserClasser,pAgentTree, pNode);");
                 code.AppendLine("//" + db.Key);
             }
             code.AppendLine("\t\t\t}");
@@ -835,7 +838,11 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t{");
             foreach (var db in ms_vExports)
             {
-                string function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction";
+                string function = "";
+                if(db.Value.type.Namespace!= null)
+                    function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction";
+                else
+                    function = $"{db.Value.type.FullName.Replace(".", "_")}.DoAction";
                 string parentTypeId = "0";
                 if(db.Value.type.BaseType!=null)
                 {

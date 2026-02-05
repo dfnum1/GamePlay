@@ -256,6 +256,10 @@ namespace Framework.Core
             IPause pauseCB = pointer as IPause;
             if (pauseCB != null) m_vAllPauses[hashCode] = pauseCB;
 
+            ITouchInput touchCb = pointer as ITouchInput;
+            if (touchCb != null)
+                m_vAllTouchInputs[hashCode] = touchCb;
+
             OnRegisterFunction(pointer, hashCode);
         }
         //------------------------------------------------------
@@ -281,6 +285,10 @@ namespace Framework.Core
             IPause pauseCB = pointer as IPause;
             if (pauseCB != null)
                 m_vAllPauses.Remove(hashCode);
+
+            ITouchInput touchCb = pointer as ITouchInput;
+            if (touchCb != null)
+                m_vAllTouchInputs.Remove(hashCode);
 
             OnUnRegisterFunction(pointer, hashCode);
         }
