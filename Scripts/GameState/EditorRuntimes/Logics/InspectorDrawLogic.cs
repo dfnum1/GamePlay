@@ -71,6 +71,10 @@ namespace Framework.State.Editor
                 {
                     OnDrawGameMode(m_pGameworldItem as GameStateModeData);
                 }
+                else if (m_pGameworldItem is GameLevelData)
+                {
+                    OnDrawGameLevel(m_pGameworldItem as GameLevelData);
+                }
             }
             else
             {
@@ -192,6 +196,35 @@ namespace Framework.State.Editor
                 {
                     UndoRegister(false);
                 }
+            }
+        }
+        //--------------------------------------------------------
+        void OnDrawGameLevel(GameLevelData stateData)
+        {
+            using (new GUILabelWidthScope(70))
+            {
+                EditorGUI.BeginChangeCheck();
+                stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
+                GameLevelDataProvider.Draw(new GUIContent("游戏数据类型:"), stateData.dataType, (clsId, index) =>
+                {
+                    UndoRegister(false);
+                    stateData.dataType = clsId;
+                });
+
+                GUILayout.Label("描述:");
+                EditorGUI.BeginChangeCheck();
+                stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
+                var cfgData = stateData.GetGameData<AGameCfgData>();
+                if (cfgData != null)
+                    Framework.ED.InspectorDrawUtil.DrawProperty(cfgData, null);
             }
         }
     }

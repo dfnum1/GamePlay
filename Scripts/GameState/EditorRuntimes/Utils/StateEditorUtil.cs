@@ -148,8 +148,9 @@ namespace Framework.State.Editor
                     if (tp == null || tp.IsAbstract) continue;
                     if (tp.IsSubclassOf(typeof(AState)) ||
                         tp.IsSubclassOf(typeof(AStateLogic)) ||
-                        tp.IsSubclassOf(typeof(AMode)) ||
-                        tp.IsSubclassOf(typeof(AModeLogic)))
+                        tp.IsSubclassOf(typeof(AMode))  ||
+                        tp.IsSubclassOf(typeof(AModeLogic)) ||
+                        tp.IsSubclassOf(typeof(AGameCfgData)))
                     {
                         DecNameAttribute attr = tp.GetCustomAttribute<DecNameAttribute>();
                         string name = tp.Name;

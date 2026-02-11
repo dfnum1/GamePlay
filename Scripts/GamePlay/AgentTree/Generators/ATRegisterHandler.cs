@@ -1,7 +1,9 @@
 ﻿//auto generated
+using Framework.Base;
+
 namespace Framework.AT.Runtime
 {
-	[ATEditorInitialize]
+	[EditorSetupInit]
 	internal class ATRegisterInternalHandler
 	{
 		//-----------------------------------------------------

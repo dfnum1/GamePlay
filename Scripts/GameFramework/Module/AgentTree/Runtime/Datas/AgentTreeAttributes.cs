@@ -11,20 +11,6 @@ using UnityEngine;
 namespace Framework.AT.Runtime
 {
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
-    public class ATEditorInitializeAttribute : System.Attribute
-    {
-#if UNITY_EDITOR
-        public string method;
-#endif
-        public ATEditorInitializeAttribute(string method="Init")
-        {
-#if UNITY_EDITOR
-            this.method = method;
-#endif
-        }
-    }
-    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field, Inherited = false)]
     public class ATIconAttribute : System.Attribute
     {

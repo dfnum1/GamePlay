@@ -69,13 +69,13 @@ namespace Framework.State.Editor
             m_pGameEleTree = new TreeAssetView(new string[] { "" });
             m_pGameEleTree.SetRowHeight(25);
             m_pGameEleTree.buildMutiColumnDepth = true;
-            m_pGameEleTree.DepthIndentWidth = 20;
             m_pGameEleTree.ShowAlternatingRowBackgrounds(false);
             m_pGameEleTree.Reload();
             m_pGameEleTree.OnCellDraw += OnGameElementDraw;
             m_pGameEleTree.OnSelectChange += OnGameElementSelect;
             m_pGameEleTree.OnItemDoubleClick += OnGameElementSelect;
             m_pGameEleTree.OnItemRightClick += OnGameElementRightClick;
+            m_pGameEleTree.OnViewRightClick += OnGameViewRightClick;
             RefreshGameElements();
         }
         //--------------------------------------------------------
@@ -166,6 +166,12 @@ namespace Framework.State.Editor
                         m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = db, name = db.name, depth = 1 });
                     }
                 }
+                if(worldObj.gameLevel == null)
+                {
+                    worldObj.gameLevel = new GameLevelData();
+                    worldObj.gameLevel.name = "游戏玩法配置数据";
+                }
+                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameLevel, name = worldObj.gameLevel.name, depth = 0 });
             }
             else
                 m_pGameEleTree.AddData(new GameElementItem() { id = 0, bindData = new GameStateData() { name = "游戏状态" }, name = "游戏状态" });
@@ -197,71 +203,83 @@ namespace Framework.State.Editor
             GetOwner<GameWorldEditor>()?.OnGameItemSelected(gameItem.bindData);
         }
         //--------------------------------------------------------
+        void OnGameViewRightClick()
+        {
+            PopMenu(null);
+        }
+        //--------------------------------------------------------
         void OnGameElementRightClick(Framework.ED.TreeAssetView.ItemData itemData)
         {
             var gameItem = itemData as GameElementItem;
-            GenericMenu menu = new GenericMenu();
-            if (gameItem.bindData is GameStateData)
-            {
-                //! 弹出右键菜单创建游戏模式
-                menu.AddItem(new GUIContent("添加玩法模式"), false, (menuData) => {
-                    MenuContextData data = (MenuContextData)menuData;
-                    GameModeTypeProvider.PopSearch(data.mousePosition, (cls, index) =>
-                    {
-                        var worldData = GetWorldData();
-                        if (worldData.modeDatas == null)
-                        {
-                            worldData.modeDatas = new System.Collections.Generic.List<GameStateModeData>();
-                        }
-                        bool bHasMode = false;
-                        for (int i = 0; i < worldData.modeDatas.Count; ++i)
-                        {
-                            if (worldData.modeDatas[i].modeType == cls)
-                            {
-                                bHasMode = true;
-                                break;
-                            }
-                        }
-                        if (!bHasMode)
-                        {
-                            UndoRegister(true);
-                            GameStateModeData modeData = new GameStateModeData();
-                            modeData.modeType = cls;
-                            modeData.name = StateEditorUtil.GetStateWorldTypeName(cls);
-                            worldData.modeDatas.Add(modeData);
-                        }
-                    }, -1);
-                }, new MenuContextData(gameItem.bindData, Event.current.mousePosition));
-
-            }
-            if (gameItem.bindData is GameStateModeData)
-            {
-                //! 弹出右键菜单创建游戏模式
-                menu.AddItem(new GUIContent("删除模式"), false, (menuData) => {
-                    MenuContextData data = (MenuContextData)menuData;
-                    if (data.bindData != null)
-                    {
-                        var worldData = GetWorldData();
-                        if(worldData.modeDatas!=null)
-                        {
-                            if(EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
-                            {
-                                UndoRegister(true);
-                                //! 添加undo
-                                GameStateModeData gameData = data.bindData as GameStateModeData;
-                                worldData.modeDatas.Remove(gameData);
-                            }
-                        }
-                    }
-                }, new MenuContextData(gameItem.bindData, Event.current.mousePosition));
-            }
-
-            menu.ShowAsContext();
+            PopMenu(gameItem.bindData);
         }
         //--------------------------------------------------------
         void DrawGameAgnets(Rect rect)
         {
 
+        }
+        //--------------------------------------------------------
+        void PopMenu(System.Object bindData)
+        {
+            GenericMenu menu = new GenericMenu();
+            if(bindData!=null)
+            {
+                if (bindData is GameStateData)
+                {
+                    //! 弹出右键菜单创建游戏模式
+                    menu.AddItem(new GUIContent("添加玩法模式"), false, (menuData) => {
+                        MenuContextData data = (MenuContextData)menuData;
+                        GameModeTypeProvider.PopSearch(data.mousePosition, (cls, index) =>
+                        {
+                            var worldData = GetWorldData();
+                            if (worldData.modeDatas == null)
+                            {
+                                worldData.modeDatas = new System.Collections.Generic.List<GameStateModeData>();
+                            }
+                            bool bHasMode = false;
+                            for (int i = 0; i < worldData.modeDatas.Count; ++i)
+                            {
+                                if (worldData.modeDatas[i].modeType == cls)
+                                {
+                                    bHasMode = true;
+                                    break;
+                                }
+                            }
+                            if (!bHasMode)
+                            {
+                                UndoRegister(true);
+                                GameStateModeData modeData = new GameStateModeData();
+                                modeData.modeType = cls;
+                                modeData.name = StateEditorUtil.GetStateWorldTypeName(cls);
+                                worldData.modeDatas.Add(modeData);
+                            }
+                        }, -1);
+                    }, new MenuContextData(bindData, Event.current.mousePosition));
+
+                }
+                if (bindData is GameStateModeData)
+                {
+                    //! 弹出右键菜单创建游戏模式
+                    menu.AddItem(new GUIContent("删除模式"), false, (menuData) => {
+                        MenuContextData data = (MenuContextData)menuData;
+                        if (data.bindData != null)
+                        {
+                            var worldData = GetWorldData();
+                            if (worldData.modeDatas != null)
+                            {
+                                if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
+                                {
+                                    UndoRegister(true);
+                                    //! 添加undo
+                                    GameStateModeData gameData = data.bindData as GameStateModeData;
+                                    worldData.modeDatas.Remove(gameData);
+                                }
+                            }
+                        }
+                    }, new MenuContextData(bindData, Event.current.mousePosition));
+                }
+            }
+            menu.ShowAsContext();
         }
     }
 }

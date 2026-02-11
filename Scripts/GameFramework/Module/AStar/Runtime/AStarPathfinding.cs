@@ -5,12 +5,15 @@
 描    述:	AStar寻路系统核心类，提供地图创建、路径搜索、路径平滑、路径缓存和LOD系统接口，支持从二进制文件加载地图数据。
 *********************************************************************/
 using Framework.Core;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 namespace Framework.Pathfinding.Runtime
 {
     public class AStarPathfinding : AModule
     {
         ThreadPoolManager m_ThreadPool = null;
+        Stack<List<Grid>> m_vPaths = new Stack<List<Grid>>(32);
         //-------------------------------------------
         protected override void OnInit()
         {
@@ -27,6 +30,15 @@ namespace Framework.Pathfinding.Runtime
                 }
                 return m_ThreadPool;
             }
+        }
+        //-------------------------------------------
+        internal List<Grid> GetCachePath()
+        {
+            if (m_vPaths.Count > 0)
+            {
+                return m_vPaths.Pop();
+            }
+            return new List<Grid>(64);
         }
         //-------------------------------------------
         // 创建地图

@@ -32,7 +32,8 @@ namespace Framework.State.Editor
             code.AppendLine("using Framework.Core;");
             code.AppendLine("namespace Framework.State.Runtime");
             code.AppendLine("{");
-            code.AppendLine("    public static class GameStateTypeRegistry");
+            code.AppendLine("\t[Framework.Base.EditorSetupInit]");
+            code.AppendLine("    public static class " + className);
             code.AppendLine("    {");
             code.AppendLine("        public static void Init()");
             code.AppendLine("        {");

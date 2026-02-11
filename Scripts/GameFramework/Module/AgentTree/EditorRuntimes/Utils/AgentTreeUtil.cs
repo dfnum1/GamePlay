@@ -6,6 +6,7 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using Framework.Base;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -221,9 +222,9 @@ namespace Framework.AT.Editor
                                 vGraphNodeTypes[key] = tp;
                             }
                         }
-                        if (tp.IsDefined(typeof(ATEditorInitializeAttribute), false))
+                        if (tp.IsDefined(typeof(EditorSetupInitAttribute), false))
                         {
-                            ATEditorInitializeAttribute initAttri = tp.GetCustomAttribute<ATEditorInitializeAttribute>();
+                            EditorSetupInitAttribute initAttri = tp.GetCustomAttribute<EditorSetupInitAttribute>();
                             if(!string.IsNullOrEmpty(initAttri.method))
                             {
                                 var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);

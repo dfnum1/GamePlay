@@ -40,6 +40,7 @@ namespace Framework.State.Runtime
     {
         public GameStateData gameStateData = new GameStateData();
         public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
+        public GameLevelData gameLevel;
         public GameVariables warVariables = new GameVariables();
         public List<GameAgentData> warAgents = new List<GameAgentData>();
     }

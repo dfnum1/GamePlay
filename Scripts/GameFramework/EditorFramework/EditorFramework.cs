@@ -6,6 +6,9 @@
 描    述:	编辑器框架类
 *********************************************************************/
 using Framework.ActorSystem.Runtime;
+using Framework.AT.Editor;
+using Framework.AT.Runtime;
+using Framework.Base;
 using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
@@ -91,7 +94,40 @@ namespace Framework.ED
         //--------------------------------------------------------
         protected override void OnInit()
         {
-
+            foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types = null;
+                try
+                {
+                    types = ass.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types; // 部分可用类型
+                                      // 可选：输出警告
+                    UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时部分类型无法加载: {ex}");
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning($"加载程序集 {ass.FullName} 时发生异常: {ex}");
+                    continue;
+                }
+                for (int i = 0; i < types.Length; ++i)
+                {
+                    Type tp = types[i];
+                    if (tp == null) continue;
+                    if (tp.IsDefined(typeof(EditorSetupInitAttribute), false))
+                    {
+                        EditorSetupInitAttribute initAttri = tp.GetCustomAttribute<EditorSetupInitAttribute>();
+                        if (!string.IsNullOrEmpty(initAttri.method))
+                        {
+                            var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+                            if (initCall != null)
+                                initCall.Invoke(null, null);
+                        }
+                    }
+                }
+            }
         }
         //--------------------------------------------------------
         protected override void OnStart()

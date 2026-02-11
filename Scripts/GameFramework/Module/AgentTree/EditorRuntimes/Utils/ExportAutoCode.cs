@@ -836,7 +836,7 @@ namespace Framework.AT.Editor
             code.AppendLine("//auto generated");
             code.AppendLine("namespace Framework.AT.Runtime");
             code.AppendLine("{");
-            code.AppendLine("\t[ATEditorInitialize]");
+            code.AppendLine("\t[Framework.Base.EditorSetupInit]");
             if (bInternal) code.AppendLine("\tinternal class ATRegisterInternalHandler");
             else code.AppendLine("\tinternal class ATRegisterHandler");
             code.AppendLine("\t{");
