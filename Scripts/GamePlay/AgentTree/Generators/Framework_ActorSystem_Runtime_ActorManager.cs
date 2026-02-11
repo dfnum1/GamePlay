@@ -1,5 +1,10 @@
 ﻿//auto generated
 using Framework.AT.Runtime;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FBounds = UnityEngine.Bounds;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
@@ -9,9 +14,9 @@ namespace Framework.ActorSystem.Runtime
 	{
 #if UNITY_EDITOR
 		[ATFunction(-1714752779,"设置空间大小",typeof(Framework.ActorSystem.Runtime.ActorManager),false)]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBounds),"worldBounds",false, null,typeof(UnityEngine.Bounds))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBounds),"worldBounds",false, null,typeof(FBounds))]
 #endif
-		static bool AT_InitializeSpatialIndex(ActorManager pPointerThis,UnityEngine.Bounds worldBounds)
+		static bool AT_InitializeSpatialIndex(ActorManager pPointerThis, FBounds worldBounds)
 		{
 			pPointerThis.InitializeSpatialIndex(worldBounds);
 			return true;

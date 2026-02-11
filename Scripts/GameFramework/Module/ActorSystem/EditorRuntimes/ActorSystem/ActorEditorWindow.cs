@@ -26,6 +26,8 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 
 namespace Framework.ActorSystem.Editor
@@ -118,7 +120,7 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         protected override void OnInnerEnable()
         {
-            GetActorManager().InitializeSpatialIndex(new Bounds(new Vector3(0,0,0), new Vector3(10, 10, 10)));
+            GetActorManager().InitializeSpatialIndex(new FBounds(new Vector3(0,0,0), new Vector3(10, 10, 10)));
             GetActorManager().RegisterCallback(this);
             RefreshProjectileDatas();
 

@@ -47,16 +47,16 @@ namespace Framework.ActorSystem.Runtime
             m_WorldMax = m_Max;
         }
         //-------------------------------------------------
-        public static explicit operator Bounds(WorldBoundBox box)
+        public static explicit operator FBounds(WorldBoundBox box)
         {
             return box.ToBounds(true);
         }
         //-------------------------------------------------
-        public Bounds ToBounds(bool useWorld = true)
+        public FBounds ToBounds(bool useWorld = true)
         {
             var center = GetCenter(useWorld);
             var size = useWorld ? (m_WorldMax - m_WorldMin) : (m_Max - m_Min);
-            return new Bounds(center, size);
+            return new FBounds(center, size);
         }
         //-------------------------------------------------
         public void SetTransform(FMatrix4x4 mtWorld)
@@ -137,11 +137,11 @@ namespace Framework.ActorSystem.Runtime
         //    return point.x >= m_Min.x && point.x <= m_Max.x && point.y >= m_Min.y && point.y <= m_Max.y && point.z >= m_Min.z && point.z <= m_Max.z;
         }
         //-------------------------------------------------
-        public bool Intersect(IntersetionParam intersetion, Ray ray, out float result)
+        public bool Intersect(IntersetionParam intersetion, FRay ray, out float result)
         {
             result = 0;
             FFloat rayHit;
-            if (IntersetionUtil.CU_LineOBBIntersection(intersetion,out rayHit, ray.origin, ray.origin + ray.direction * 1000, GetCenter(), GetHalf(), m_Transform))
+            if (IntersetionUtil.CU_LineOBBIntersection(intersetion,out rayHit, ray.origin, ray.origin + ray.direction * 1000.0f, GetCenter(), GetHalf(), m_Transform))
             {
 #if USE_FIXEDMATH
                 result = rayHit.ToFloat();
@@ -153,20 +153,20 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //-------------------------------------------------
-        public bool RayHit( Ray ray)
+        public bool RayHit( FRay ray)
         {
-            Vector3 min = GetMin(true);
-            Vector3 max = GetMax(true);
+            FVector3 min = GetMin(true);
+            FVector3 max = GetMax(true);
 #if !USE_SERVER
-            UnityEngine.Bounds bounds = new UnityEngine.Bounds();
+            FBounds bounds = new FBounds();
             bounds.SetMinMax(min, max);
             if(bounds.IntersectRay(ray)) return true;
 #endif
-            Vector3 direction = ray.direction;
-            Vector3 point = ray.origin;
-            float tmin, tmax;
-            float idirectionx = (Mathf.Abs(ray.direction.x) > 0.00001f)?(1/ray.direction.x):0;
-            float idirectiony = (Mathf.Abs(ray.direction.y) > 0.00001f) ? (1 /ray.direction.y):0;
+            FVector3 direction = ray.direction;
+            FVector3 point = ray.origin;
+            FFloat tmin, tmax;
+            FFloat idirectionx = (Mathf.Abs(ray.direction.x) > 0.00001f)?(1/ray.direction.x):0;
+            FFloat idirectiony = (Mathf.Abs(ray.direction.y) > 0.00001f) ? (1 /ray.direction.y):0;
             if (ray.direction.x >= 0.0f)
             {
                 tmin = (min.x - point.x) * idirectionx;
@@ -177,7 +177,7 @@ namespace Framework.ActorSystem.Runtime
                 tmin = (max.x - point.x) * idirectionx;
                 tmax = (min.x - point.x) * idirectionx;
             }
-            float tymin, tymax;
+            FFloat tymin, tymax;
             if (direction.y >= 0.0f)
             {
                 tymin = (min.y - point.y) * idirectiony;
@@ -191,8 +191,8 @@ namespace Framework.ActorSystem.Runtime
             if ((tmin > tymax) || (tmax < tymin)) return false;
             if (tmin < tymin) tmin = tymin;
             if (tmax > tymax) tmax = tymax;
-            float tzmin, tzmax;
-            float idirectionz = (Mathf.Abs(ray.direction.z) > 0.00001f)?(1 /direction.z):0;
+            FFloat tzmin, tzmax;
+            FFloat idirectionz = (Mathf.Abs(ray.direction.z) > 0.00001f)?(1 /direction.z):0;
             if (direction.z >= 0.0f)
             {
                 tzmin = (min.z - point.z) * idirectionz;

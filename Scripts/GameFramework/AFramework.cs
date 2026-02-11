@@ -4,7 +4,6 @@
 作    者:	HappLI
 描    述:	框架基类
 *********************************************************************/
-using Framework.ActorSystem.Editor;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
 using Framework.Cutscene.Runtime;
@@ -12,7 +11,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 
 namespace Framework.Core
 {
@@ -443,7 +452,7 @@ namespace Framework.Core
             return false;
         }
         //------------------------------------------------------
-        public virtual bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, float oldValue, float newValue, IContextData externVar = null)
+        public virtual bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
         {
             return false;
         }

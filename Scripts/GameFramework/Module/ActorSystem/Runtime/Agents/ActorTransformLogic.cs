@@ -6,6 +6,7 @@
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
+using UnityEngine;
 #else
 using Framework.AT.Runtime;
 using Framework.Core;
@@ -190,7 +191,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public FVector3 GetFinalDirection()
         {
-            return m_TargetRotation * Vector3.forward;
+            return m_TargetRotation * FVector3.forward;
         }
         //------------------------------------------------------
         public FVector3 GetFinalEulerAngle()
@@ -205,7 +206,7 @@ namespace Framework.ActorSystem.Runtime
         //------------------------------------------------------
         public FVector3 GetFinalUp()
         {
-            return m_TargetRotation * Vector3.up;
+            return m_TargetRotation * FVector3.up;
         }
         //------------------------------------------------------
         public FFloat GetTurnTime()
@@ -328,7 +329,7 @@ namespace Framework.ActorSystem.Runtime
             m_PositionOffset.y = (m_Speed.y + pushSpeed.y) * fDelta;
 
             RaycastHit hit;
-            if (Physics.Raycast(m_pActor.GetPosition(), Vector3.down, out hit, Mathf.Max(m_PositionOffset.y*1.25f), m_pActor.GetActorManager().GetTerrainLayerMask()))
+            if (Physics.Raycast(m_pActor.GetPosition(), FVector3.down, out hit, Mathf.Max(m_PositionOffset.y*1.25f), m_pActor.GetActorManager().GetTerrainLayerMask()))
             {
                 m_PositionOffset.y = hit.point.y;
             }

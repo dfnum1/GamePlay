@@ -16,6 +16,8 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
@@ -30,9 +32,9 @@ namespace Framework.ActorSystem.Runtime
         void AddActor(Actor actor);
         void RemoveActor(Actor actor);
         void UpdateActor(Actor actor);
-        void QueryActorsAtPosition(FVector3 position, float radius, List<Actor> result, Actor pIngore = null);
+        void QueryActorsAtPosition(FVector3 position, FFloat radius, List<Actor> result, Actor pIngore = null);
         void QueryActorsInBounds(WorldBoundBox boundBox, List<Actor> result, Actor pIngore = null);
-        void QueryActorsByRay(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null);
+        void QueryActorsByRay(FRay ray, FFloat maxDistance, List<Actor> result, Actor pIngore = null);
         void Clear();
         int Count { get; }
         void DebugDraw(bool bGizmos);

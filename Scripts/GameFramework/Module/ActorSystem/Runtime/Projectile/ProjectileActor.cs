@@ -1518,7 +1518,7 @@ namespace Framework.ActorSystem.Runtime
             m2 = rhsKey.point + rhsKey.inTan;
 #if USE_FIXEDMATH
             vPosition = BezierUtility.FBezier4(t, lhsKey.point, m1, m2, rhsKey.point);
-            fSpeed = ExternEngine.FMath.Lerp(lhsKey.m_Speed, rhsKey.m_Speed, t);
+            fSpeed = ExternEngine.FMath.Lerp(lhsKey.speed, rhsKey.speed, t);
 #else
             vPosition = BezierUtility.Bezier4(t, lhsKey.point, m1, m2, rhsKey.point);
             fSpeed = Mathf.Lerp(lhsKey.speed, rhsKey.speed, t);

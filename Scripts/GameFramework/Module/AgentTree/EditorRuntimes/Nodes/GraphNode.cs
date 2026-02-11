@@ -1418,7 +1418,7 @@ namespace Framework.AT.Editor
                         if (CanChangeValue(port))
                         {
                             OnArgvPortChanging(port);
-                            var mat = matrixVar.value;
+                            Matrix4x4 mat = matrixVar.value;
                             SetRow(ref mat, rowIdx, evt.newValue);
                             matrixVar.value = mat;
                             OnArgvPortChanged(port);

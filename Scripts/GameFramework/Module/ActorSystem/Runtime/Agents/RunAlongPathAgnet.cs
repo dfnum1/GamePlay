@@ -7,15 +7,15 @@
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
-using Framework.Core;
-using System.Collections.Generic;
-using UnityEngine;
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
 #endif
+using Framework.Core;
+using System.Collections.Generic;
+using UnityEngine;
 namespace Framework.ActorSystem.Runtime
 {
     public class RunAlongPathAgnet : AActorAgent
@@ -87,24 +87,24 @@ namespace Framework.ActorSystem.Runtime
             PlayRunAction();
         }
         //-------------------------------------------------
-        public FFloat RunTo(FVector3 toPos, FFloat fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public FFloat RunTo(FVector3 toPos, float fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             return RunAlongPathPoint(m_pActor.GetPosition(), toPos, fSpeed,bEnsureSucceed,bUpdateDirection);
         }
         //-------------------------------------------------
-        public void NavRunTo(FVector3 toPos, FFloat fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public void NavRunTo(Vector3 toPos, float fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             if (m_pActor.GetFramework() == null)
                 return;
             m_pActor.GetFramework().OnSimpleFindPath(m_pActor, toPos, fSpeed, OnSimpleFindPath);
         }
         //-------------------------------------------------
-        void OnSimpleFindPath(List<FVector3> vPathPoint, FFloat fSpeed)
+        void OnSimpleFindPath(List<Vector3> vPathPoint, float fSpeed)
         {
             RunAlongPathPoint(vPathPoint, fSpeed);
         }
         //-------------------------------------------------
-        public FFloat RunAlongPathPoint(List<FVector3> vPathPoint, FFloat fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public FFloat RunAlongPathPoint(List<Vector3> vPathPoint, float fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             if (fSpeed <= 0) fSpeed = Mathf.Max(0.1f, GetRunSpeed());
             if (vPathPoint.Count > 1)

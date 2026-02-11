@@ -178,6 +178,18 @@ public static class BaseUtil
         mtWorld.m11 = scale.y;
         mtWorld.m22 = scale.z;
     }
+    //------------------------------------------------------
+    static public ExternEngine.FVector3 FRoateAround(ExternEngine.FVector3 anchor, ExternEngine.FVector3 point, ExternEngine.FQuaternion rot)
+    {
+        return rot * (point - anchor) + anchor;
+    }
+    //-----------------------------------------------------------------------------
+    public static void CU_GetQuaternionFromDirection(ExternEngine.FVector3 vDirection, ExternEngine.FVector3 vUp, ref ExternEngine.FQuaternion qRot)
+    {
+        if (vDirection.sqrMagnitude <= 0.001f) vDirection = ExternEngine.FVector3.forward;
+        if (vUp.sqrMagnitude <= 0.001f) vUp = ExternEngine.FVector3.up;
+        qRot = ExternEngine.FQuaternion.LookRotation(vDirection, vUp);
+    }
 #endif
     //-----------------------------------------------------
     static public void UpdatePosition(ref Matrix4x4 mtWorld, Vector3 position)

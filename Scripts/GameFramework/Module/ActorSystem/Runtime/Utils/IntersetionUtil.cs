@@ -368,7 +368,7 @@ namespace Framework.ActorSystem.Runtime
         }
 #if USE_FIXEDMATH
         //-----------------------------------------------------
-        public static bool BoundInView(FMatrix4x4 clipMatrix, ExternEngine.Bounds worldBounds)
+        public static bool BoundInView(FMatrix4x4 clipMatrix, ExternEngine.FBounds worldBounds)
         {
             if (PositionInView(clipMatrix, new FVector3(worldBounds.max.x, worldBounds.max.y, worldBounds.max.z))) return true;
             if (PositionInView(clipMatrix, new FVector3(worldBounds.max.x, worldBounds.min.y, worldBounds.max.z))) return true;

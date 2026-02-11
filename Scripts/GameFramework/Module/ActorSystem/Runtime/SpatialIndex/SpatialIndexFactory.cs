@@ -5,6 +5,16 @@
 描    述:	创建空间
 *********************************************************************/
 using UnityEngine;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     internal static class SpatialIndexFactory
@@ -12,7 +22,7 @@ namespace Framework.ActorSystem.Runtime
         /// <summary>
         /// 默认世界边界
         /// </summary>
-        public static readonly Bounds DefaultWorldBounds = new Bounds(Vector3.zero, new Vector3(1000, 1000, 1000));
+        public static readonly FBounds DefaultWorldBounds = new FBounds(Vector3.zero, new Vector3(1000, 1000, 1000));
         //-----------------------------------------------------
         /// <summary>
         /// 创建空间索引
@@ -20,9 +30,9 @@ namespace Framework.ActorSystem.Runtime
         /// <param name="indexType">索引类型</param>
         /// <param name="worldBounds">世界边界（可选）</param>
         /// <returns>创建的空间索引实例</returns>
-        public static ISpatialWorld CreateIndex(ESpatialIndexType indexType, Bounds? worldBounds = null)
+        public static ISpatialWorld CreateIndex(ESpatialIndexType indexType, FBounds? worldBounds = null)
         {
-            Bounds bounds = worldBounds ?? DefaultWorldBounds;
+            FBounds bounds = worldBounds ?? DefaultWorldBounds;
 
             switch (indexType)
             {
@@ -44,11 +54,11 @@ namespace Framework.ActorSystem.Runtime
         /// <param name="worldMin">世界边界最小值</param>
         /// <param name="worldMax">世界边界最大值</param>
         /// <returns>创建的空间索引实例</returns>
-        public static ISpatialWorld CreateIndex(ESpatialIndexType indexType, Vector3 worldMin, Vector3 worldMax)
+        public static ISpatialWorld CreateIndex(ESpatialIndexType indexType, FVector3 worldMin, FVector3 worldMax)
         {
-            Vector3 size = worldMax - worldMin;
-            Vector3 center = worldMin + size * 0.5f;
-            Bounds bounds = new Bounds(center, size);
+            FVector3 size = worldMax - worldMin;
+            FVector3 center = worldMin + size * 0.5f;
+            FBounds bounds = new FBounds(center, size);
             return CreateIndex(indexType, bounds);
         }
         //-----------------------------------------------------

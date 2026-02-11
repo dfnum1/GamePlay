@@ -18,6 +18,7 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
@@ -27,7 +28,7 @@ namespace Framework.ActorSystem.Runtime
     [ATInteralExport("Actor系统/Actor", -2, icon:"ActorSystem/actor")]
     public class Actor : TypeActor, ICutsceneObject
     {
-        public static FVector3 INVAILD_POS = new FVector3(-9000, -9000, -9000);
+        public static FVector3 INVAILD_POS = new FVector3(-9000.0f, -9000.0f, -9000.0f);
 
 
         int                                     m_nInstanceID = 0;
@@ -389,18 +390,18 @@ namespace Framework.ActorSystem.Runtime
         }
         //-------------------------------------------------
         [ATMethod("移动到目标点")]
-        public FFloat RunTo(FVector3 toPos, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public float RunTo(FVector3 toPos, float speed = 0.0f, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             return GetAgent<RunAlongPathAgnet>(true).RunTo(toPos, speed, bEnsureSucceed, bUpdateDirection);
         }
         //-------------------------------------------------
         [ATMethod("导航移动到目标哦点")]
-        public void NavRunTo(FVector3 toPos, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public void NavRunTo(FVector3 toPos, float speed = 0.0f, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             GetAgent<RunAlongPathAgnet>(true).NavRunTo(toPos, speed, bEnsureSucceed, bUpdateDirection);
         }
         //-------------------------------------------------
-        public FFloat RunAlongPathPoint(List<FVector3> vPoints, FFloat speed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public float RunAlongPathPoint(List<Vector3> vPoints, float speed = 0.0f, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             return GetAgent<RunAlongPathAgnet>(true).RunAlongPathPoint(vPoints, speed, bEnsureSucceed, bUpdateDirection);
         }
@@ -425,7 +426,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //-------------------------------------------------
         [ATMethod("获取包围盒")]
-        public Bounds GetBound()
+        public FBounds GetBound()
         {
             return m_BoundBox.ToBounds();
         }
@@ -437,7 +438,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //--------------------------------------------------------
         [ATMethod("设置方向")]
-        public void SetDirection(FVector3 vDirection, FFloat turnTime = -1f, bool replaceTurnTime = false)
+        public void SetDirection(FVector3 vDirection, float turnTime = -1f, bool replaceTurnTime = false)
         {
             if ((int)(vDirection.sqrMagnitude * 100) <= 0) return;
             GetAgent<ActorTransformLogic>(true).SetDirection(vDirection, turnTime, replaceTurnTime);
@@ -468,7 +469,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //-------------------------------------------------
         [ATMethod("设置Up朝向")]
-        public virtual void SetUp(FVector3 up, FFloat turnTime = -1.0f, bool replaceTurnTime = false)
+        public virtual void SetUp(FVector3 up, float turnTime = -1.0f, bool replaceTurnTime = false)
         {
             GetAgent<ActorTransformLogic>(true).SetUp(up, turnTime, replaceTurnTime);
         }
@@ -969,7 +970,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //--------------------------------------------------------
         [ATMethod("获取属性"), ATArgvDrawer("type", "DrawAttributePop")]
-        public FFloat GetAttr(byte type, FFloat defVal = 0)
+        public FFloat GetAttr(byte type, float defVal = 0)
         {
             return GetActorParameter().GetAttr(type, defVal);
         }
@@ -1470,7 +1471,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //------------------------------------------------------
         [ATMethod("碰撞检测-球性")]
-        public virtual bool IsIntersecition(FMatrix4x4 mtTrans, float radius)
+        public virtual bool IsIntersecition(FMatrix4x4 mtTrans, FFloat radius)
         {
             FVector3 vTransCenter = BaseUtil.GetPosition(mtTrans);
             if (IntersetionUtil.CU_LineSphereIntersection(m_pSytstem.GetIntersetionParam(), GetLastPosition(), GetPosition(), vTransCenter, radius))
@@ -1522,7 +1523,7 @@ namespace Framework.ActorSystem.Runtime
             return matrix;
         }
         //------------------------------------------------------
-        public virtual Transform GetEventBindSlot(string strSlot, out FVector3 slotOffset)
+        public virtual Transform GetEventBindSlot(string strSlot, out Vector3 slotOffset)
         {
             slotOffset = FVector3.zero;
             if (m_pObjectAble.pUnityObject == null) return null;

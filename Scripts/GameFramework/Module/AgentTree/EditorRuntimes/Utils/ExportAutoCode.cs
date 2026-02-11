@@ -39,6 +39,7 @@ namespace Framework.AT.Editor
             public ATExportAttribute exportAttr;
             public Dictionary<string, int> methodCount = new Dictionary<string, int>();
             public Dictionary<string, ExportMemberInfo> methods = new Dictionary<string, ExportMemberInfo>();
+            public string usingCode = "";
         }
         static Dictionary<string, ExportInfo> ms_vExports = new Dictionary<string, ExportInfo>();
         static HashSet<System.Type> ms_vRefTypes = new HashSet<Type>();
@@ -126,6 +127,7 @@ namespace Framework.AT.Editor
                                 }
                                 methodCnt++;
                                 exportData.methodCount[meths[m].Name] = methodCnt;
+                                exportData.usingCode = CheckUsing(meths[m], exportData.usingCode);
 
                                 ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
                                 exportMth.info = meths[m];
@@ -174,6 +176,7 @@ namespace Framework.AT.Editor
                                 }
                                 methodCnt++;
                                 exportData.methodCount[fields[m].Name] = methodCnt;
+                                exportData.usingCode = CheckUsing(meths[m], exportData.usingCode);
 
                                 ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
                                 exportMth.info = fields[m];
@@ -218,6 +221,10 @@ namespace Framework.AT.Editor
             StringBuilder code = new StringBuilder();
             code.AppendLine("//auto generated");
             code.AppendLine("using Framework.AT.Runtime;");
+            if(export.usingCode.Length>0)
+            {
+                code.AppendLine(export.usingCode);
+            }
             if (export.type.Namespace != null)
             {
                 code.AppendLine("namespace " + export.type.Namespace.Replace("+", "."));
@@ -875,6 +882,45 @@ namespace Framework.AT.Editor
             writer.Close();
         }
         //-----------------------------------------------------
+        static string CheckUsing(MethodInfo method, string usingCode)
+        {
+            if (usingCode == null) usingCode = "";
+            if (method.ReturnType!=null && SupportExportATType(method.ReturnType))
+            {
+                if(method.ReturnType.Namespace.Contains("ExternEngine") && method.ReturnType.Name.StartsWith("F"))
+                {
+                    if(string.IsNullOrEmpty(usingCode))
+                    {
+                        usingCode += "#if USE_FIXEDMATH\r\nusing ExternEngine;\r\n#else\r\n";
+                    }
+                    string usingEq = $"using {method.ReturnType.Name}=UnityEngine.{method.ReturnType.Name.Substring(1)};";
+                    if (!usingCode.Contains(usingEq))
+                        usingCode += usingEq += "\r\n";
+                }
+            }
+            var parameters = method.GetParameters();
+            if (parameters != null && parameters.Length > 0)
+            {
+                for (int i = 0; i < parameters.Length; ++i)
+                {
+                    if (SupportExportATType(parameters[i].ParameterType))
+                    {
+                        if (parameters[i].ParameterType.Namespace.Contains("ExternEngine") && parameters[i].ParameterType.Name.StartsWith("F"))
+                        {
+                            if (string.IsNullOrEmpty(usingCode))
+                            {
+                                usingCode += "#if USE_FIXEDMATH\r\nusing ExternEngine;\r\n#else\r\n";
+                            }
+                            string usingEq = $"using {parameters[i].ParameterType.Name}=UnityEngine.{parameters[i].ParameterType.Name.Substring(1)};";
+                            if (!usingCode.Contains(usingEq))
+                                usingCode += usingEq += "\r\n";
+                        }
+                    }
+                }
+            }
+            return usingCode;
+        }
+        //-----------------------------------------------------
         static bool CheckMethodCanExport(MethodInfo method)
         {
             if(!SupportExportATType(method.ReturnType))
@@ -964,6 +1010,17 @@ namespace Framework.AT.Editor
             else if (type == typeof(IUserData)) return typeof(VariableUserData);
             else if (IsUserDataType(type)) return typeof(VariableUserData);
             else if (type.IsEnum) return typeof(VariableInt);
+#if USE_FIXEDMATH
+            else if (type == typeof(ExternEngine.FFloat)) return typeof(VariableFloat);
+            else if (type == typeof(ExternEngine.FVector2)) return typeof(VariableVec2);
+            else if (type == typeof(ExternEngine.FVector3)) return typeof(VariableVec3);
+            else if (type == typeof(ExternEngine.FVector4)) return typeof(VariableVec4);
+            else if (type == typeof(ExternEngine.FQuaternion)) return typeof(VariableQuaternion);
+            else if (type == typeof(ExternEngine.FRay)) return typeof(VariableRay);
+            else if (type == typeof(ExternEngine.FRect)) return typeof(VariableRect);
+            else if (type == typeof(ExternEngine.FBounds)) return typeof(VariableBounds);
+            else if (type == typeof(ExternEngine.FMatrix4x4)) return typeof(VariableMatrix);
+#endif
             return null;
         }
         //-----------------------------------------------------
@@ -979,6 +1036,16 @@ namespace Framework.AT.Editor
             else if (type == typeof(int)) return "GetInportInt";
             else if (type == typeof(uint)) return "GetInportUint";
             else if (type == typeof(float)) return "GetInportFloat";
+#if USE_FIXEDMATH
+            else if (type == typeof(ExternEngine.FFloat)) return "GetInportFloat";
+            else if (type == typeof(ExternEngine.FVector2)) return "GetInportVec2";
+            else if (type == typeof(ExternEngine.FVector3)) return "GetInportVec3";
+            else if (type == typeof(ExternEngine.FVector4)) return "GetInportVec4";
+            else if (type == typeof(ExternEngine.FQuaternion)) return "GetInportQuaternion";
+            else if (type == typeof(ExternEngine.FRay)) return "GetInportRay";
+            else if (type == typeof(ExternEngine.FBounds)) return "GetInportBounds";
+            else if (type == typeof(ExternEngine.FMatrix4x4)) return "GetInportMatrix";
+#endif
             else if (type == typeof(double)) return "GetInportDouble";
             else if (type == typeof(long)) return "GetInportLong";
             else if (type == typeof(ulong)) return "GetInportUlong";
@@ -998,38 +1065,6 @@ namespace Framework.AT.Editor
             else if (type == typeof(ObjId)) return "GetInportObjId";
             else if (IsUserDataType(type)) return "GetInportUserData<"+GetTypeName(type) +">";
             else if (type.IsEnum) return "GetInportInt";
-            return null;
-        }
-        //-----------------------------------------------------
-        static string ConvertTypeToATGetOutPortFunction(System.Type type)
-        {
-            if (type == typeof(bool)) return "GetOutportBool";
-            else if (type == typeof(char)) return "GetOutportChar";
-            else if (type == typeof(byte)) return "GetOutportByte";
-            else if (type == typeof(sbyte)) return "GetOutportSbyte";
-            else if (type == typeof(ushort)) return "GetOutportUshort";
-            else if (type == typeof(short)) return "GetOutportShort";
-            else if (type == typeof(int)) return "GetOutportInt";
-            else if (type == typeof(uint)) return "GetOutportUint";
-            else if (type == typeof(float)) return "GetOutportFloat";
-            else if (type == typeof(double)) return "GetOutportDouble";
-            else if (type == typeof(long)) return "GetOutportLong";
-            else if (type == typeof(ulong)) return "GetOutportUlong";
-            else if (type == typeof(Vector2)) return "GetOutportVec2";
-            else if (type == typeof(Vector2Int)) return "GetOutportVec2Int";
-            else if (type == typeof(Vector3)) return "GetOutportVec3";
-            else if (type == typeof(Vector3Int)) return "GetOutportVec3Int";
-            else if (type == typeof(Vector4)) return "GetOutportVec4";
-            else if (type == typeof(Quaternion)) return "GetOutportQuaternion";
-            else if (type == typeof(Ray)) return "GetOutportRay";
-            else if (type == typeof(Color)) return "GetOutportColor";
-            else if (type == typeof(Rect)) return "GetOutportRect";
-            else if (type == typeof(Bounds)) return "GetOutportBounds";
-            else if (type == typeof(Matrix4x4)) return "GetOutportMatrix";
-            else if (type == typeof(IUserData)) return "GetOutportUserData";
-            else if (type == typeof(string)) return "GetOutportString";
-            else if (IsUserDataType(type)) return "GetOutportUserData";
-            else if (type.IsEnum) return "GetOutportInt";
             return null;
         }
         //-----------------------------------------------------
@@ -1062,6 +1097,17 @@ namespace Framework.AT.Editor
             else if (type == typeof(string))        return "SetOutportString";
             else if (IsUserDataType(type))          return "SetOutportUserData";
             else if (type.IsEnum)                   return "SetOutportInt";
+#if USE_FIXEDMATH
+            else if (type == typeof(ExternEngine.FFloat)) return "SetOutportFloat";
+            else if (type == typeof(ExternEngine.FVector2)) return "SetOutportVec2";
+            else if (type == typeof(ExternEngine.FVector3)) return "SetOutportVec3";
+            else if (type == typeof(ExternEngine.FVector4)) return "SetOutportVec4";
+            else if (type == typeof(ExternEngine.FQuaternion)) return "SetOutportQuaternion";
+            else if (type == typeof(ExternEngine.FRay)) return "SetOutportRay";
+            else if (type == typeof(ExternEngine.FRect)) return "SetOutportRect";
+            else if (type == typeof(ExternEngine.FBounds)) return "SetOutportBounds";
+            else if (type == typeof(ExternEngine.FMatrix4x4)) return "SetOutportMatrix";
+#endif
             return null;
         }
         //-----------------------------------------------------
@@ -1103,6 +1149,17 @@ namespace Framework.AT.Editor
                 || type == typeof(Bounds)
                 || type == typeof(Matrix4x4)
                 || type == typeof(ObjId)
+#if USE_FIXEDMATH
+                || type == typeof(ExternEngine.FFloat)
+                || type == typeof(ExternEngine.FVector2)
+                || type == typeof(ExternEngine.FVector3)
+                || type == typeof(ExternEngine.FVector4)
+                || type == typeof(ExternEngine.FQuaternion)
+                || type == typeof(ExternEngine.FRay)
+                || type == typeof(ExternEngine.FRect)
+                || type == typeof(ExternEngine.FBounds)
+                || type == typeof(ExternEngine.FMatrix4x4)
+#endif
                 || type.IsEnum)
             {
                 return true;

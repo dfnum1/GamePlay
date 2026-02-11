@@ -19,6 +19,7 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
@@ -31,7 +32,7 @@ namespace Framework.ActorSystem.Runtime
         bool OnDespawnInstance(GameObject pInstance, string name = null);
 
         bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null);
-        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, float oldValue, float newValue, IContextData externVar = null);
+        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null);
 
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
@@ -59,7 +60,7 @@ namespace Framework.ActorSystem.Runtime
         private ISpatialWorld                   m_pSpatialIndex;
         private ESpatialIndexType               m_eSpatialIndexType = ESpatialIndexType.Octree;
         private bool                            m_isSpatialIndexEnabled = true;
-        Bounds                                  m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
+        FBounds                                 m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -73,9 +74,9 @@ namespace Framework.ActorSystem.Runtime
         }
         //-----------------------------------------------------        
         [ATMethod("设置空间大小")]
-        public void InitializeSpatialIndex(Bounds? worldBounds = null)
+        public void InitializeSpatialIndex(FBounds? worldBounds = null)
         {
-            Bounds bounds = worldBounds ?? m_SpatialBounds;
+            FBounds bounds = worldBounds ?? m_SpatialBounds;
             if (m_pSpatialIndex != null)
             {
                 m_pSpatialIndex.Dispose();
@@ -362,7 +363,7 @@ namespace Framework.ActorSystem.Runtime
             return GetProjectileManager().LaunchProjectile(pData, pOwnerActor, stateParam, vPosition, vDirection, targetNode, dwAssignedID, fDelta, pTrackTransform, vResults);
         }
         //------------------------------------------------------
-        public void TrackCheck(Actor pTargetActor, Vector3 vPosition, ProjectileData pData, Transform pTrackTransform, ref Transform pTrackSlot, ref int damage_power, ref uint track_frame_id, ref uint track_body_id, ref Vector3 trackOffset)
+        public void TrackCheck(Actor pTargetActor, Vector3 vPosition, ProjectileData pData, Transform pTrackTransform, ref Transform pTrackSlot, ref int damage_power, ref uint track_frame_id, ref uint track_body_id, ref FVector3 trackOffset)
         {
             if (m_ProjectileManager == null) return;
             m_ProjectileManager.TrackCheck(pTargetActor, vPosition, pData, pTrackTransform, ref pTrackSlot, ref damage_power, ref track_frame_id, ref track_body_id, ref trackOffset);
@@ -696,7 +697,7 @@ namespace Framework.ActorSystem.Runtime
             return vResults;
         }
         //-----------------------------------------------------
-        public List<Actor> QueryActorsByRay(Ray ray, float maxDistance, Actor pIngore = null, List<Actor> vResults = null)
+        public List<Actor> QueryActorsByRay(FRay ray, float maxDistance, Actor pIngore = null, List<Actor> vResults = null)
         {
             if (vResults == null)
             {

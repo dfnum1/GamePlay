@@ -17,6 +17,8 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 
 namespace Framework.ActorSystem.Runtime
@@ -31,7 +33,7 @@ namespace Framework.ActorSystem.Runtime
         private readonly int            m_nMaxActorsPerNode;
         private int                     m_nCount;
 
-        public Quadtree(Bounds worldBounds, int maxDepth = 8, int maxActorsPerNode = 10)
+        public Quadtree(FBounds worldBounds, int maxDepth = 8, int maxActorsPerNode = 10)
         {
             m_pRoot = new QuadtreeNode(worldBounds, 0);
             m_nMaxDepth = maxDepth;
@@ -61,10 +63,10 @@ namespace Framework.ActorSystem.Runtime
             AddActor(actor);
         }
         //-----------------------------------------------------
-        public void QueryActorsAtPosition(FVector3 position, float radius, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsAtPosition(FVector3 position, FFloat radius, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
-            Bounds queryBounds = new Bounds(new Vector3(position.x, 0, position.z), new Vector3(radius * 2, 0, radius * 2));
+            FBounds queryBounds = new FBounds(new FVector3(position.x, 0, position.z), new FVector3(radius * 2, 0, radius * 2));
             m_pRoot.Query(queryBounds, result, pIngore);
         }
         //-----------------------------------------------------
@@ -73,14 +75,14 @@ namespace Framework.ActorSystem.Runtime
             result.Clear();
             FVector3 center = boundBox.GetCenter(true);
             FVector3 size = boundBox.GetSize();
-            Bounds queryBounds = new Bounds(
+            FBounds queryBounds = new FBounds(
                 new Vector3(center.x, 0, center.z),
                 new Vector3(size.x, 1.0f, size.z)
             );
             m_pRoot.Query(queryBounds, result, pIngore);
         }
         //-----------------------------------------------------
-        public void QueryActorsByRay(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsByRay(FRay ray, FFloat maxDistance, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
             // 四叉树只处理2D，忽略Z轴
@@ -110,12 +112,12 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         private class QuadtreeNode
         {
-            private readonly Bounds         m_Bounds;
+            private readonly FBounds         m_Bounds;
             private readonly List<Actor>    m_vActors;
             private QuadtreeNode[]          m_arrChildren;
             private readonly int            m_nDepth;
 
-            public QuadtreeNode(Bounds bounds, int depth)
+            public QuadtreeNode(FBounds bounds, int depth)
             {
                 m_Bounds.SetMinMax(bounds.min, bounds.max+Vector3.up*2);
                 m_nDepth = depth;
@@ -182,7 +184,7 @@ namespace Framework.ActorSystem.Runtime
                 return false;
             }
             //-----------------------------------------------------
-            public void Query(Bounds queryBounds, List<Actor> result, Actor pIngore = null)
+            public void Query(FBounds queryBounds, List<Actor> result, Actor pIngore = null)
             {
                 if (!m_Bounds.Intersects(queryBounds))
                 {
@@ -211,9 +213,9 @@ namespace Framework.ActorSystem.Runtime
                 }
             }
             //-----------------------------------------------------
-            public void Query(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+            public void Query(FRay ray, FFloat maxDistance, List<Actor> result, Actor pIngore = null)
             {
-                if (!m_Bounds.IntersectRay(ray, out float distance))
+                if (!m_Bounds.IntersectRay(ray, out FFloat distance))
                 {
                     return;
                 }
@@ -227,9 +229,9 @@ namespace Framework.ActorSystem.Runtime
                 for (int i = 0; i < m_vActors.Count; i++)
                 {
                     Actor actor = m_vActors[i];
-                    Bounds bound = new Bounds(new Vector3(actor.GetPosition().x, -0.1f, actor.GetPosition().z),
+                    FBounds bound = new FBounds(new Vector3(actor.GetPosition().x, -0.1f, actor.GetPosition().z),
                         new Vector3(1, 2, 1));
-                    if (bound.IntersectRay(ray, out float actorDistance) && actorDistance <= maxDistance)
+                    if (bound.IntersectRay(ray, out FFloat actorDistance) && actorDistance <= maxDistance)
                     {
                         if(actor!= pIngore)
                             result.Add(actor);
@@ -270,22 +272,22 @@ namespace Framework.ActorSystem.Runtime
 
                 // 四个子节点：西北、东北、西南、东南
                 m_arrChildren[0] = new QuadtreeNode(
-                    new Bounds(center + new FVector3(-halfWidth * 0.5f, 0, halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, 0, halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[1] = new QuadtreeNode(
-                    new Bounds(center + new FVector3(halfWidth * 0.5f, 0, halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, 0, halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[2] = new QuadtreeNode(
-                    new Bounds(center + new FVector3(-halfWidth * 0.5f, 0, -halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, 0, -halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[3] = new QuadtreeNode(
-                    new Bounds(center + new FVector3(halfWidth * 0.5f, 0, -halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, 0, -halfHeight * 0.5f), new FVector3(halfWidth, 0, halfHeight)),
                     m_nDepth + 1
                 );
 

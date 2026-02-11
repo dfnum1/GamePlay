@@ -18,6 +18,8 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 namespace Framework.ActorSystem.Runtime
 {
@@ -34,7 +36,7 @@ namespace Framework.ActorSystem.Runtime
         /// <param name="worldBounds">世界边界</param>
         /// <param name="maxDepth">最大深度</param>
         /// <param name="maxActorsPerNode">每个节点最大Actor数量</param>
-        public Octree(Bounds worldBounds, int maxDepth = 8, int maxActorsPerNode = 10)
+        public Octree(FBounds worldBounds, int maxDepth = 8, int maxActorsPerNode = 10)
         {
             m_pRoot = new OctreeNode(worldBounds, 0);
             m_nMaxDepth = maxDepth;
@@ -64,21 +66,21 @@ namespace Framework.ActorSystem.Runtime
             AddActor(actor);
         }
         //-----------------------------------------------------
-        public void QueryActorsAtPosition(FVector3 position, float radius, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsAtPosition(FVector3 position, FFloat radius, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
-            Bounds queryBounds = new Bounds(new Vector3(position.x, position.y, position.z), new Vector3(radius * 2, radius * 2, radius * 2));
+            FBounds queryBounds = new FBounds(new Vector3(position.x, position.y, position.z), new Vector3(radius * 2, radius * 2, radius * 2));
             m_pRoot.Query(queryBounds, result,pIngore);
         }
         //-----------------------------------------------------
         public void QueryActorsInBounds(WorldBoundBox boundBox, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
-            Bounds queryBounds = new Bounds( boundBox.GetCenter(true),boundBox.GetSize());
+            FBounds queryBounds = new FBounds( boundBox.GetCenter(true),boundBox.GetSize());
             m_pRoot.Query(queryBounds, result, pIngore);
         }
         //-----------------------------------------------------
-        public void QueryActorsByRay(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsByRay(FRay ray, FFloat maxDistance, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
             m_pRoot.Query(ray, maxDistance, result, pIngore);
@@ -106,12 +108,12 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         private class OctreeNode
         {
-            private readonly Bounds         m_Bounds;
+            private readonly FBounds m_Bounds;
             private readonly List<Actor>    m_vActors;
             private OctreeNode[]            m_arrChildren;
             private readonly int            m_nDepth;
 
-            public OctreeNode(Bounds bounds, int depth)
+            public OctreeNode(FBounds bounds, int depth)
             {
                 m_Bounds = bounds;
                 m_nDepth = depth;
@@ -177,7 +179,7 @@ namespace Framework.ActorSystem.Runtime
                 return false;
             }
             //-----------------------------------------------------
-            public void Query(Bounds queryBounds, List<Actor> result, Actor pIngore = null)
+            public void Query(FBounds queryBounds, List<Actor> result, Actor pIngore = null)
             {
                 if (!m_Bounds.Intersects(queryBounds))
                 {
@@ -206,9 +208,9 @@ namespace Framework.ActorSystem.Runtime
                 }
             }
             //-----------------------------------------------------
-            public void Query(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+            public void Query(FRay ray, float maxDistance, List<Actor> result, Actor pIngore = null)
             {
-                float distance;
+                FFloat distance;
                 if (!m_Bounds.IntersectRay(ray, out distance) || distance > maxDistance)
                 {
                     return;
@@ -260,42 +262,42 @@ namespace Framework.ActorSystem.Runtime
 
                 // 八个子节点
                 m_arrChildren[0] = new OctreeNode(
-                    new Bounds(center + new Vector3(-halfWidth * 0.5f, halfHeight * 0.5f, -halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, halfHeight * 0.5f, -halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[1] = new OctreeNode(
-                    new Bounds(center + new Vector3(halfWidth * 0.5f, halfHeight * 0.5f, -halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, halfHeight * 0.5f, -halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[2] = new OctreeNode(
-                    new Bounds(center + new Vector3(-halfWidth * 0.5f, -halfHeight * 0.5f, -halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, -halfHeight * 0.5f, -halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[3] = new OctreeNode(
-                    new Bounds(center + new Vector3(halfWidth * 0.5f, -halfHeight * 0.5f, -halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, -halfHeight * 0.5f, -halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[4] = new OctreeNode(
-                    new Bounds(center + new Vector3(-halfWidth * 0.5f, halfHeight * 0.5f, halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, halfHeight * 0.5f, halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[5] = new OctreeNode(
-                    new Bounds(center + new Vector3(halfWidth * 0.5f, halfHeight * 0.5f, halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, halfHeight * 0.5f, halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[6] = new OctreeNode(
-                    new Bounds(center + new Vector3(-halfWidth * 0.5f, -halfHeight * 0.5f, halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(-halfWidth * 0.5f, -halfHeight * 0.5f, halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 
                 m_arrChildren[7] = new OctreeNode(
-                    new Bounds(center + new Vector3(halfWidth * 0.5f, -halfHeight * 0.5f, halfDepth * 0.5f), new Vector3(halfWidth, halfHeight, halfDepth)),
+                    new FBounds(center + new FVector3(halfWidth * 0.5f, -halfHeight * 0.5f, halfDepth * 0.5f), new FVector3(halfWidth, halfHeight, halfDepth)),
                     m_nDepth + 1
                 );
 

@@ -8,7 +8,17 @@ using Framework.Core;
 using System;
 using System.Linq;
 using UnityEngine;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 namespace Framework.AT.Runtime
 {
     [System.Serializable]
@@ -133,6 +143,13 @@ namespace Framework.AT.Runtime
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
+#if USE_FIXEDMATH
+        //-----------------------------------------------------
+        public static implicit operator FFloat(VariableFloat value)
+        {
+            return value.value;
+        }
+#endif
     }
     //-----------------------------------------------------
     [System.Serializable]
@@ -159,6 +176,13 @@ namespace Framework.AT.Runtime
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
+#if USE_FIXEDMATH
+        //-----------------------------------------------------
+        public static implicit operator FVector2(VariableVec2 value)
+        {
+            return new FVector2(value.value.x, value.value.y);
+        }
+#endif
     }
     //-----------------------------------------------------
     [System.Serializable]
@@ -185,13 +209,20 @@ namespace Framework.AT.Runtime
         }
         //-----------------------------------------------------
         public short GetGuid() { return guid; }
+#if USE_FIXEDMATH
+        //-----------------------------------------------------
+        public static implicit operator FVector3(VariableVec3 value)
+        {
+            return new FVector3(value.value.x, value.value.y, value.value.z);
+        }
+#endif
     }
     //-----------------------------------------------------
     [System.Serializable]
     public struct VariableVec4 : IVariable
     {
         public short guid;
-        public Vector4 value;
+        public FVector4 value;
         //-----------------------------------------------------
         public VariableVec4(Vector4 value)
         {
@@ -202,7 +233,7 @@ namespace Framework.AT.Runtime
         public VariableVec4(float value1, float value2, float value3, float value4)
         {
             guid = 0;
-            this.value = new Vector4(value1, value2, value3, value4);
+            this.value = new FVector4(value1, value2, value3, value4);
         }
         //-----------------------------------------------------
         public EVariableType GetVariableType()
@@ -217,7 +248,7 @@ namespace Framework.AT.Runtime
     public struct VariableColor : IVariable
     {
         public short guid;
-        public Vector4 value;
+        public Color value;
         //-----------------------------------------------------
         public VariableColor(Vector4 value)
         {
@@ -283,9 +314,9 @@ namespace Framework.AT.Runtime
     public struct VariableRay : IVariable
     {
         public short guid;
-        public Ray value;
+        public FRay value;
         //-----------------------------------------------------
-        public VariableRay(Ray value)
+        public VariableRay(FRay value)
         {
             guid = 0;
             this.value = value;
@@ -303,9 +334,9 @@ namespace Framework.AT.Runtime
     public struct VariableQuaternion : IVariable
     {
         public short guid;
-        public Quaternion value;
+        public FQuaternion value;
         //-----------------------------------------------------
-        public VariableQuaternion(Quaternion value)
+        public VariableQuaternion(FQuaternion value)
         {
             guid = 0;
             this.value = value;
@@ -323,9 +354,9 @@ namespace Framework.AT.Runtime
     public struct VariableBounds : IVariable
     {
         public short guid;
-        public Bounds value;
+        public FBounds value;
         //-----------------------------------------------------
-        public VariableBounds(Bounds value)
+        public VariableBounds(FBounds value)
         {
             guid = 0;
             this.value = value;
@@ -343,9 +374,9 @@ namespace Framework.AT.Runtime
     public struct VariableRect : IVariable
     {
         public short guid;
-        public Rect value;
+        public FRect value;
         //-----------------------------------------------------
-        public VariableRect(Rect value)
+        public VariableRect(FRect value)
         {
             guid = 0;
             this.value = value;
@@ -363,9 +394,9 @@ namespace Framework.AT.Runtime
     public struct VariableMatrix : IVariable
     {
         public short guid;
-        public Matrix4x4 value;
+        public FMatrix4x4 value;
         //-----------------------------------------------------
-        public VariableMatrix(Matrix4x4 value)
+        public VariableMatrix(FMatrix4x4 value)
         {
             guid = 0;
             this.value = value;
@@ -483,21 +514,21 @@ namespace Framework.AT.Runtime
             return variables.GetObjId(index);
         }
         //-----------------------------------------------------
-        public Vector2 GetVec2(int index)
+        public FVector2 GetVec2(int index)
         {
-            if (variables == null) return Vector2.zero;
+            if (variables == null) return FVector2.zero;
             return variables.GetVec2(index);
         }
         //-----------------------------------------------------
-        public Vector3 GetVec3(int index)
+        public FVector3 GetVec3(int index)
         {
-            if (variables == null) return Vector3.zero;
+            if (variables == null) return FVector3.zero;
             return variables.GetVec3(index);
         }
         //-----------------------------------------------------
-        public Vector4 GetVec4(int index)
+        public FVector4 GetVec4(int index)
         {
-            if (variables == null) return Vector4.zero;
+            if (variables == null) return FVector4.zero;
             return variables.GetVec4(index);
         }
         //-----------------------------------------------------

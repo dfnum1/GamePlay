@@ -17,6 +17,8 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 
 namespace Framework.ActorSystem.Runtime
@@ -25,7 +27,7 @@ namespace Framework.ActorSystem.Runtime
     {
         private struct KDTreeNode
         {
-            public Vector3 Position;
+            public FVector3 Position;
             public Actor Actor;
             public int Axis;
             public int LeftChild;
@@ -80,7 +82,7 @@ namespace Framework.ActorSystem.Runtime
             m_isBuilt = false;
         }
         //--------------------------------------------------------
-        public void QueryActorsAtPosition(FVector3 position, float radius, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsAtPosition(FVector3 position, FFloat radius, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
             BuildTreeIfNeeded();
@@ -110,7 +112,7 @@ namespace Framework.ActorSystem.Runtime
             QueryNodeBounds(0, queryBounds, result);
         }
         //--------------------------------------------------------
-        public void QueryActorsByRay(Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+        public void QueryActorsByRay(FRay ray, FFloat maxDistance, List<Actor> result, Actor pIngore = null)
         {
             result.Clear();
             BuildTreeIfNeeded();
@@ -243,7 +245,7 @@ namespace Framework.ActorSystem.Runtime
             return pivotIndex;
         }
         //--------------------------------------------------------
-        private float GetValueByAxis(Vector3 position, int axis)
+        private float GetValueByAxis(FVector3 position, int axis)
         {
             switch (axis)
             {
@@ -261,7 +263,7 @@ namespace Framework.ActorSystem.Runtime
             m_arrActors[j] = temp;
         }
         //--------------------------------------------------------
-        private void QueryNode(int nodeIndex, Vector3 queryPos, float radiusSquared, List<Actor> result, Actor pIngore = null)
+        private void QueryNode(int nodeIndex, FVector3 queryPos, float radiusSquared, List<Actor> result, Actor pIngore = null)
         {
             if (nodeIndex < 0 || nodeIndex >= m_nNodeCount)
             {
@@ -327,7 +329,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        private void QueryNodeRay(int nodeIndex, Ray ray, float maxDistance, List<Actor> result, Actor pIngore = null)
+        private void QueryNodeRay(int nodeIndex, FRay ray, float maxDistance, List<Actor> result, Actor pIngore = null)
         {
             if (nodeIndex < 0 || nodeIndex >= m_nNodeCount)
             {

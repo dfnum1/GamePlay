@@ -7,7 +7,17 @@
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 
 namespace Framework.AT.Runtime
 {
@@ -26,18 +36,18 @@ namespace Framework.AT.Runtime
         List<bool>                  m_vBools = null;
         List<int>                   m_vInts = null;
         List<long>                  m_vLongs = null;
-        List<float>                 m_vFloats = null;
+        List<FFloat>                m_vFloats = null;
         List<double>                m_vDoubles = null;
         List<string>                m_vStrings = null;
-        List<Vector2>               m_vVec2s = null;
-        List<Vector3>               m_vVec3s = null;
-        List<Vector4>               m_vVec4s = null;
-        List<Ray>                   m_vRays = null;
+        List<FVector2>               m_vVec2s = null;
+        List<FVector3>               m_vVec3s = null;
+        List<FVector4>               m_vVec4s = null;
+        List<FRay>                   m_vRays = null;
         List<Color>                 m_vColors = null;
-        List<Quaternion>            m_vQuaternions = null;
-        List<Bounds>                m_vBounds = null;
-        List<Rect>                  m_vRects = null;
-        List<Matrix4x4>             m_vMatrixs = null;
+        List<FQuaternion>            m_vQuaternions = null;
+        List<FBounds>                m_vBounds = null;
+        List<FRect>                  m_vRects = null;
+        List<FMatrix4x4>             m_vMatrixs = null;
         List<ObjId>                 m_vObjIds = null;
         List<VariableUserData>      m_vUserDatas = null;
         List<TypeIndex>             m_vTypes = null;
@@ -241,7 +251,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public void AddFloat(float value)
         {
-            if (m_vFloats == null) m_vFloats = new List<float>(m_nCapacity);
+            if (m_vFloats == null) m_vFloats = new List<FFloat>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eFloat, (byte)m_vFloats.Count));
             m_vFloats.Add(value);
@@ -284,7 +294,7 @@ namespace Framework.AT.Runtime
             return defaultValue;
         }
         //-----------------------------------------------------
-        public List<float> GetFloats()
+        public List<FFloat> GetFloats()
         {
             return m_vFloats;
         }
@@ -391,7 +401,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public void AddVec2(Vector2 value)
         {
-            if (m_vVec2s == null) m_vVec2s = new List<Vector2>(m_nCapacity);
+            if (m_vVec2s == null) m_vVec2s = new List<FVector2>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eVec2, (byte)m_vVec2s.Count));
             m_vVec2s.Add(value);
@@ -434,14 +444,14 @@ namespace Framework.AT.Runtime
             return Vector2.zero;
         }
         //-----------------------------------------------------
-        public List<Vector2> GetVec2s()
+        public List<FVector2> GetVec2s()
         {
             return m_vVec2s;
         }
         //-----------------------------------------------------
         public void AddVec3(Vector3 value)
         {
-            if (m_vVec3s == null) m_vVec3s = new List<Vector3>(m_nCapacity);
+            if (m_vVec3s == null) m_vVec3s = new List<FVector3>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eVec3, (byte)m_vVec3s.Count));
             m_vVec3s.Add(value);
@@ -484,20 +494,20 @@ namespace Framework.AT.Runtime
             return Vector3.zero;
         }
         //-----------------------------------------------------
-        public List<Vector3> GetVec3s()
+        public List<FVector3> GetVec3s()
         {
             return m_vVec3s;
         }
         //-----------------------------------------------------
-        public void AddVec4(Vector4 value)
+        public void AddVec4(FVector4 value)
         {
-            if (m_vVec4s == null) m_vVec4s = new List<Vector4>(m_nCapacity);
+            if (m_vVec4s == null) m_vVec4s = new List<FVector4>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eVec4, (byte)m_vVec4s.Count));
             m_vVec4s.Add(value);
         }
         //-----------------------------------------------------
-        public void SetVec4(int index, Vector4 value)
+        public void SetVec4(int index, FVector4 value)
         {
             if (index >= 0 && m_vVec4s != null && m_vVec4s.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -515,7 +525,7 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Vector4 GetVec4(int index)
+        public FVector4 GetVec4(int index)
         {
             if (index >= 0 && m_vVec4s != null && m_vVec4s.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -527,14 +537,14 @@ namespace Framework.AT.Runtime
                 if (type.index < 0 || type.index >= m_vVec4s.Count)
                 {
                     Debug.LogError($"VariableList: GetVec4 index out of range, index={type.index}, count={m_vVec4s.Count}");
-                    return Vector4.zero;
+                    return FVector4.zero;
                 }
                 return m_vVec4s[type.index];
             }
-            return Vector4.zero;
+            return FVector4.zero;
         }
         //-----------------------------------------------------
-        public List<Vector4> GetVec4s()
+        public List<FVector4> GetVec4s()
         {
             return m_vVec4s;
         }
@@ -589,15 +599,15 @@ namespace Framework.AT.Runtime
             return m_vObjIds;
         }
         //-----------------------------------------------------
-        public void AddRay(Ray value)
+        public void AddRay(FRay value)
         {
-            if (m_vRays == null) m_vRays = new List<Ray>(m_nCapacity);
+            if (m_vRays == null) m_vRays = new List<FRay>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eRay, (byte)m_vRays.Count));
             m_vRays.Add(value);
         }
         //-----------------------------------------------------
-        public void SetRay(int index, Ray value)
+        public void SetRay(int index, FRay value)
         {
             if (index >= 0 && m_vRays != null && m_vRays.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -615,7 +625,7 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Ray GetRay(int index)
+        public FRay GetRay(int index)
         {
             if (index >= 0 && m_vRays != null && m_vRays.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -634,7 +644,7 @@ namespace Framework.AT.Runtime
             return default;
         }
         //-----------------------------------------------------
-        public List<Ray> GetRays()
+        public List<FRay> GetRays()
         {
             return m_vRays;
         }
@@ -691,7 +701,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public void AddQuaternion(Quaternion value)
         {
-            if (m_vQuaternions == null) m_vQuaternions = new List<Quaternion>(m_nCapacity);
+            if (m_vQuaternions == null) m_vQuaternions = new List<FQuaternion>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eQuaternion, (byte)m_vQuaternions.Count));
             m_vQuaternions.Add(value);
@@ -734,20 +744,20 @@ namespace Framework.AT.Runtime
             return Quaternion.identity;
         }
         //-----------------------------------------------------
-        public List<Quaternion> GetQuaternions()
+        public List<FQuaternion> GetQuaternions()
         {
             return m_vQuaternions;
         }
         //-----------------------------------------------------
-        public void AddBounds(Bounds value)
+        public void AddBounds(FBounds value)
         {
-            if (m_vBounds == null) m_vBounds = new List<Bounds>(m_nCapacity);
+            if (m_vBounds == null) m_vBounds = new List<FBounds>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eBounds, (byte)m_vBounds.Count));
             m_vBounds.Add(value);
         }
         //-----------------------------------------------------
-        public void SetBounds(int index, Bounds value)
+        public void SetBounds(int index, FBounds value)
         {
             if (index >= 0 && m_vBounds != null && m_vBounds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -765,7 +775,7 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Bounds GetBounds(int index)
+        public FBounds GetBounds(int index)
         {
             if (index >= 0 && m_vBounds != null && m_vBounds.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -784,20 +794,20 @@ namespace Framework.AT.Runtime
             return default;
         }
         //-----------------------------------------------------
-        public List<Bounds> GetBoundsList()
+        public List<FBounds> GetBoundsList()
         {
             return m_vBounds;
         }
         //-----------------------------------------------------
-        public void AddRect(Rect value)
+        public void AddRect(FRect value)
         {
-            if (m_vRects == null) m_vRects = new List<Rect>(m_nCapacity);
+            if (m_vRects == null) m_vRects = new List<FRect>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eRect, (byte)m_vRects.Count));
             m_vRects.Add(value);
         }
         //-----------------------------------------------------
-        public void SetRect(int index, Rect value)
+        public void SetRect(int index, FRect value)
         {
             if (index >= 0 && m_vRects != null && m_vRects.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -815,7 +825,7 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Rect GetRect(int index)
+        public FRect GetRect(int index)
         {
             if (index >= 0 && m_vRects != null && m_vRects.Count > 0 && m_vTypes != null && m_vTypes.Count > 0 && index < m_vTypes.Count)
             {
@@ -834,14 +844,14 @@ namespace Framework.AT.Runtime
             return default;
         }
         //-----------------------------------------------------
-        public List<Rect> GetRects()
+        public List<FRect> GetRects()
         {
             return m_vRects;
         }
         //-----------------------------------------------------
         public void AddMatrix(Matrix4x4 value)
         {
-            if (m_vMatrixs == null) m_vMatrixs = new List<Matrix4x4>(m_nCapacity);
+            if (m_vMatrixs == null) m_vMatrixs = new List<FMatrix4x4>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
             m_vTypes.Add(new TypeIndex(EVariableType.eMatrix, (byte)m_vMatrixs.Count));
             m_vMatrixs.Add(value);
@@ -884,7 +894,7 @@ namespace Framework.AT.Runtime
             return Matrix4x4.identity;
         }
         //-----------------------------------------------------
-        public List<Matrix4x4> GetMatrixs()
+        public List<FMatrix4x4> GetMatrixs()
         {
             return m_vMatrixs;
         }
@@ -1229,7 +1239,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eVec2:
                         if (m_vVec2s != null)
                         {
-                            Vector2 tmp = m_vVec2s[typeIndex0.index];
+                            FVector2 tmp = m_vVec2s[typeIndex0.index];
                             m_vVec2s[typeIndex0.index] = m_vVec2s[typeIndex1.index];
                             m_vVec2s[typeIndex1.index] = tmp;
                         }
@@ -1237,7 +1247,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eVec3:
                         if (m_vVec3s != null)
                         {
-                            Vector3 tmp = m_vVec3s[typeIndex0.index];
+                            FVector3 tmp = m_vVec3s[typeIndex0.index];
                             m_vVec3s[typeIndex0.index] = m_vVec3s[typeIndex1.index];
                             m_vVec3s[typeIndex1.index] = tmp;
                         }
@@ -1245,7 +1255,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eVec4:
                         if (m_vVec4s != null)
                         {
-                            Vector4 tmp = m_vVec4s[typeIndex0.index];
+                            FVector4 tmp = m_vVec4s[typeIndex0.index];
                             m_vVec4s[typeIndex0.index] = m_vVec4s[typeIndex1.index];
                             m_vVec4s[typeIndex1.index] = tmp;
                         }
@@ -1261,7 +1271,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eRay:
                         if (m_vRays != null)
                         {
-                            Ray tmp = m_vRays[typeIndex0.index];
+                            FRay tmp = m_vRays[typeIndex0.index];
                             m_vRays[typeIndex0.index] = m_vRays[typeIndex1.index];
                             m_vRays[typeIndex1.index] = tmp;
                         }
@@ -1277,7 +1287,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eQuaternion:
                         if (m_vQuaternions != null)
                         {
-                            Quaternion tmp = m_vQuaternions[typeIndex0.index];
+                            FQuaternion tmp = m_vQuaternions[typeIndex0.index];
                             m_vQuaternions[typeIndex0.index] = m_vQuaternions[typeIndex1.index];
                             m_vQuaternions[typeIndex1.index] = tmp;
                         }
@@ -1285,7 +1295,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eBounds:
                         if (m_vBounds != null)
                         {
-                            Bounds tmp = m_vBounds[typeIndex0.index];
+                            FBounds tmp = m_vBounds[typeIndex0.index];
                             m_vBounds[typeIndex0.index] = m_vBounds[typeIndex1.index];
                             m_vBounds[typeIndex1.index] = tmp;
                         }
@@ -1293,7 +1303,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eRect:
                         if (m_vRects != null)
                         {
-                            Rect tmp = m_vRects[typeIndex0.index];
+                            FRect tmp = m_vRects[typeIndex0.index];
                             m_vRects[typeIndex0.index] = m_vRects[typeIndex1.index];
                             m_vRects[typeIndex1.index] = tmp;
                         }
@@ -1301,7 +1311,7 @@ namespace Framework.AT.Runtime
                     case EVariableType.eMatrix:
                         if (m_vMatrixs != null)
                         {
-                            Matrix4x4 tmp = m_vMatrixs[typeIndex0.index];
+                            FMatrix4x4 tmp = m_vMatrixs[typeIndex0.index];
                             m_vMatrixs[typeIndex0.index] = m_vMatrixs[typeIndex1.index];
                             m_vMatrixs[typeIndex1.index] = tmp;
                         }

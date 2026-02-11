@@ -134,7 +134,7 @@ namespace Framework.ActorSystem.Runtime
             DoAttrDirtyCall(type, oldValue, m_vAttributes[type]);
         }
         //--------------------------------------------------------
-        internal FFloat GetAttr(byte type, FFloat defVal = 0)
+        internal FFloat GetAttr(byte type, float defVal = 0)
         {
             if (m_vAttributes.TryGetValue(type, out var val))
                 return val;

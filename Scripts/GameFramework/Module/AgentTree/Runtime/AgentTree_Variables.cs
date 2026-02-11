@@ -6,6 +6,17 @@
 *********************************************************************/
 using Framework.Core;
 using UnityEngine;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 namespace Framework.AT.Runtime
 {
     public partial class AgentTree
@@ -854,7 +865,7 @@ namespace Framework.AT.Runtime
             return GetObjId(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public float GetInportFloat(BaseNode pNode, int index, float defValue = 0)
+        public FFloat GetInportFloat(BaseNode pNode, int index, float defValue = 0)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -941,11 +952,11 @@ namespace Framework.AT.Runtime
             return GetString(nodePort.varGuid, defValue);
         }
         //-----------------------------------------------------
-        public Vector2 GetInportVec2(BaseNode pNode, int index)
+        public FVector2 GetInportVec2(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
-                return Vector2.zero;
+                return FVector2.zero;
 
             var nodePort = inports[index];
             DummyPort dummyPort = GetDummyPort(pNode, index, true);
@@ -999,11 +1010,11 @@ namespace Framework.AT.Runtime
             return GetVec2Int(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Vector3 GetInportVec3(BaseNode pNode, int index)
+        public FVector3 GetInportVec3(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
-                return Vector3.zero;
+                return FVector3.zero;
 
             var nodePort = inports[index];
             DummyPort dummyPort = GetDummyPort(pNode, index, true);
@@ -1057,11 +1068,11 @@ namespace Framework.AT.Runtime
             return GetVec3Int(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Vector4 GetInportVec4(BaseNode pNode, int index)
+        public FVector4 GetInportVec4(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
-                return Vector4.zero;
+                return FVector4.zero;
 
             var nodePort = inports[index];
             DummyPort dummyPort = GetDummyPort(pNode, index, true);
@@ -1086,7 +1097,7 @@ namespace Framework.AT.Runtime
             return GetVec4(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Ray GetInportRay(BaseNode pNode, int index)
+        public FRay GetInportRay(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -1144,7 +1155,7 @@ namespace Framework.AT.Runtime
             return GetColor(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Quaternion GetInportQuaternion(BaseNode pNode, int index)
+        public FQuaternion GetInportQuaternion(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -1173,7 +1184,7 @@ namespace Framework.AT.Runtime
             return GetQuaternion(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Rect GetInportRect(BaseNode pNode, int index)
+        public FRect GetInportRect(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -1202,7 +1213,7 @@ namespace Framework.AT.Runtime
             return GetRect(nodePort.varGuid);
         }
         //-----------------------------------------------------
-        public Bounds GetInportBounds(BaseNode pNode, int index)
+        public FBounds GetInportBounds(BaseNode pNode, int index)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)
@@ -1417,7 +1428,7 @@ namespace Framework.AT.Runtime
             return GetObjId(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public float GetOutportFloat(BaseNode pNode, int index, float defValue = 0.0f)
+        public FFloat GetOutportFloat(BaseNode pNode, int index, float defValue = 0.0f)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
@@ -1444,11 +1455,11 @@ namespace Framework.AT.Runtime
             return GetString(ports[index].varGuid, defValue);
         }
         //-----------------------------------------------------
-        public Vector2 GetOutportVec2(BaseNode pNode, int index)
+        public FVector2 GetOutportVec2(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
-                return Vector2.zero;
+                return FVector2.zero;
 
             return GetVec2(ports[index].varGuid);
         }
@@ -1462,11 +1473,11 @@ namespace Framework.AT.Runtime
             return GetVec2Int(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public Vector3 GetOutportVec3(BaseNode pNode, int index)
+        public FVector3 GetOutportVec3(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
-                return Vector2.zero;
+                return FVector3.zero;
 
             return GetVec3(ports[index].varGuid);
         }
@@ -1480,11 +1491,11 @@ namespace Framework.AT.Runtime
             return GetVec3Int(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public Vector4 GetOutportVec4(BaseNode pNode, int index)
+        public FVector4 GetOutportVec4(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
-                return Vector4.zero;
+                return FVector4.zero;
 
             return GetVec4(ports[index].varGuid);
         }
@@ -1498,7 +1509,7 @@ namespace Framework.AT.Runtime
             return GetColor(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public Ray GetOutportRay(BaseNode pNode, int index)
+        public FRay GetOutportRay(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
@@ -1507,7 +1518,7 @@ namespace Framework.AT.Runtime
             return GetRay(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public Bounds GetOutportBounds(BaseNode pNode, int index)
+        public FBounds GetOutportBounds(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
@@ -1516,7 +1527,7 @@ namespace Framework.AT.Runtime
             return GetBounds(ports[index].varGuid);
         }
         //-----------------------------------------------------
-        public Rect GetOutportRect(BaseNode pNode, int index)
+        public FRect GetOutportRect(BaseNode pNode, int index)
         {
             var ports = pNode.GetOutports();
             if (index < 0 || ports == null || index >= ports.Length)
@@ -1750,7 +1761,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetFloat(short guid, float fValue)
+        public bool SetFloat(short guid, FFloat fValue)
         {
             if (m_pData == null)
                 return false;
@@ -1828,7 +1839,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetVec2(short guid, Vector2 vecValue)
+        public bool SetVec2(short guid, FVector2 vecValue)
         {
             if (m_pData == null)
                 return false;
@@ -1844,7 +1855,7 @@ namespace Framework.AT.Runtime
             }
             else if (varNode.GetVariableType() == EVariableType.eVec3)
             {
-                GetRuntimeVariable().SetVec3(guid, vecValue);
+                GetRuntimeVariable().SetVec3(guid, new FVector3(vecValue.x, vecValue.y,0.0f));
             }
             else if (varNode.GetVariableType() == EVariableType.eVec4)
             {
@@ -1874,7 +1885,7 @@ namespace Framework.AT.Runtime
             }
             if (varNode.GetVariableType() == EVariableType.eVec2)
             {
-                GetRuntimeVariable().SetVec2(guid, vecValue);
+                GetRuntimeVariable().SetVec2(guid, new FVector2(vecValue.x, vecValue.y));
             }
             else
             {
@@ -1884,7 +1895,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetVec3(short guid, Vector3 vecValue)
+        public bool SetVec3(short guid, FVector3 vecValue)
         {
             if (m_pData == null)
                 return false;
@@ -1900,7 +1911,7 @@ namespace Framework.AT.Runtime
             }
             else if (varNode.GetVariableType() == EVariableType.eVec2)
             {
-                GetRuntimeVariable().SetVec2(guid, vecValue);
+                GetRuntimeVariable().SetVec2(guid, new FVector2(vecValue.x, vecValue.y));
             }
             else if (varNode.GetVariableType() == EVariableType.eVec4)
             {
@@ -1940,7 +1951,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetVec4(short guid, Vector4 vecValue)
+        public bool SetVec4(short guid, FVector4 vecValue)
         {
             if (m_pData == null)
                 return false;
@@ -1974,7 +1985,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetRay(short guid, Ray ray)
+        public bool SetRay(short guid, FRay ray)
         {
             if (m_pData == null)
                 return false;
@@ -2018,7 +2029,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetQuaternion(short guid, Quaternion quaternion)
+        public bool SetQuaternion(short guid, FQuaternion quaternion)
         {
             if (m_pData == null)
                 return false;
@@ -2044,7 +2055,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetBounds(short guid, Bounds bounds)
+        public bool SetBounds(short guid, FBounds bounds)
         {
             if (m_pData == null)
                 return false;
@@ -2066,7 +2077,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetRect(short guid, Rect rect)
+        public bool SetRect(short guid, FRect rect)
         {
             if (m_pData == null)
                 return false;
@@ -2088,7 +2099,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SetMatrix(short guid, Matrix4x4 matrix)
+        public bool SetMatrix(short guid, FMatrix4x4 matrix)
         {
             if (m_pData == null)
                 return false;
@@ -2566,15 +2577,15 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Vector4 GetVec4(short guid)
+        public FVector4 GetVec4(short guid)
         {
             if (m_pData == null)
-                return Vector4.zero;
+                return FVector4.zero;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return Vector4.zero;
+                return FVector4.zero;
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetVec4(guid, out var retVal))
                 return retVal;
@@ -2586,19 +2597,19 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return Vector4.zero;
+                return FVector4.zero;
             }
         }
         //-----------------------------------------------------
-        public Ray GetRay(short guid)
+        public FRay GetRay(short guid)
         {
             if (m_pData == null)
-                return new Ray();
+                return new FRay();
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return new Ray();
+                return new FRay();
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetRay(guid, out var retVal))
                 return retVal;
@@ -2610,7 +2621,7 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return new Ray();
+                return new FRay();
             }
         }
         //-----------------------------------------------------
@@ -2638,15 +2649,15 @@ namespace Framework.AT.Runtime
             }
         }
         //-----------------------------------------------------
-        public Quaternion GetQuaternion(short guid)
+        public FQuaternion GetQuaternion(short guid)
         {
             if (m_pData == null)
-                return Quaternion.identity;
+                return FQuaternion.identity;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return Quaternion.identity;
+                return FQuaternion.identity;
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetQuaternion(guid, out var retVal))
                 return retVal;
@@ -2658,19 +2669,19 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return Quaternion.identity;
+                return FQuaternion.identity;
             }
         }
         //-----------------------------------------------------
-        public Bounds GetBounds(short guid)
+        public FBounds GetBounds(short guid)
         {
             if (m_pData == null)
-                return new Bounds();
+                return new FBounds();
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return new Bounds();
+                return new FBounds();
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetBounds(guid, out var retVal))
                 return retVal;
@@ -2682,19 +2693,19 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return new Bounds();
+                return new FBounds();
             }
         }
         //-----------------------------------------------------
-        public Rect GetRect(short guid)
+        public FRect GetRect(short guid)
         {
             if (m_pData == null)
-                return Rect.zero;
+                return FRect.zero;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return Rect.zero;
+                return FRect.zero;
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetRect(guid, out var retVal))
                 return retVal;
@@ -2706,19 +2717,19 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return Rect.zero;
+                return FRect.zero;
             }
         }
         //-----------------------------------------------------
-        public Matrix4x4 GetMatrix(short guid)
+        public FMatrix4x4 GetMatrix(short guid)
         {
             if (m_pData == null)
-                return Matrix4x4.identity;
+                return FMatrix4x4.identity;
             var varNode = m_pData.GetVariable(guid);
             if (varNode == null)
             {
                 Debug.LogError("guid:" + guid + "  vairable is null");
-                return Matrix4x4.identity;
+                return FMatrix4x4.identity;
             }
             if (m_vRuntimeVariables != null && m_vRuntimeVariables.GetMatrix(guid, out var retVal))
                 return retVal;
@@ -2730,7 +2741,7 @@ namespace Framework.AT.Runtime
             else
             {
                 Debug.LogError("guid:" + guid + "  vairable type is " + varNode.GetVariableType().ToString());
-                return Matrix4x4.identity;
+                return FMatrix4x4.identity;
             }
         }
         //-----------------------------------------------------

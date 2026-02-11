@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	+运算符执行器
 *********************************************************************/
+using ExternEngine;
 using UnityEngine;
 namespace Framework.AT.Runtime
 {
@@ -238,7 +239,7 @@ namespace Framework.AT.Runtime
                         Rect result = Rect.zero;
                         switch (opType)
                         {
-                            case EOpType.eAdd: result.min = Vector3.Min(a.min, b.min); result.max = Vector3.Max(a.max, b.max); break;
+                            case EOpType.eAdd: result.min = FVector2.Min(a.min, b.min); result.max = FVector2.Max(a.max, b.max); break;
                             default: Debug.LogError($"Unsupported {opType} for Quaternion"); return false;
                         }
                         pAgent.SetOutportRect(pNode, 0, result);

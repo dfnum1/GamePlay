@@ -4,10 +4,22 @@
 作    者:	HappLI
 描    述:	变量Key-Value存储类
 *********************************************************************/
+using ExternEngine;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+using FRect = UnityEngine.Rect;
+#endif
 namespace Framework.AT.Runtime
 {
     internal class VariableKV
@@ -15,19 +27,19 @@ namespace Framework.AT.Runtime
         System.Collections.Generic.Dictionary<short, bool>      m_vBools = null;
         System.Collections.Generic.Dictionary<short, int>       m_vInts = null;
         System.Collections.Generic.Dictionary<short, long>      m_vLongs = null;
-        System.Collections.Generic.Dictionary<short, float>     m_vFloats = null;
+        System.Collections.Generic.Dictionary<short, FFloat>     m_vFloats = null;
         System.Collections.Generic.Dictionary<short, double>    m_vDoubles = null;
         System.Collections.Generic.Dictionary<short, string>    m_vStrings = null;
-        System.Collections.Generic.Dictionary<short, Vector2>   m_vVec2s = null;
-        System.Collections.Generic.Dictionary<short, Vector3>   m_vVec3s = null;
-        System.Collections.Generic.Dictionary<short, Vector4>   m_vVec4s = null;
+        System.Collections.Generic.Dictionary<short, FVector2>   m_vVec2s = null;
+        System.Collections.Generic.Dictionary<short, FVector3>   m_vVec3s = null;
+        System.Collections.Generic.Dictionary<short, FVector4>   m_vVec4s = null;
         System.Collections.Generic.Dictionary<short, ObjId>     m_vObjIds = null;
-        System.Collections.Generic.Dictionary<short, Ray>       m_vRays = null;
+        System.Collections.Generic.Dictionary<short, FRay>       m_vRays = null;
         System.Collections.Generic.Dictionary<short, Color>     m_vColors = null;
-        System.Collections.Generic.Dictionary<short, Quaternion> m_vQuaternions = null;
-        System.Collections.Generic.Dictionary<short, Bounds>    m_vBounds = null;
-        System.Collections.Generic.Dictionary<short, Rect>      m_vRects = null;
-        System.Collections.Generic.Dictionary<short, Matrix4x4> m_vMatrixs = null;
+        System.Collections.Generic.Dictionary<short, FQuaternion> m_vQuaternions = null;
+        System.Collections.Generic.Dictionary<short, FBounds>    m_vBounds = null;
+        System.Collections.Generic.Dictionary<short, FRect>      m_vRects = null;
+        System.Collections.Generic.Dictionary<short, FMatrix4x4> m_vMatrixs = null;
         System.Collections.Generic.Dictionary<short, VariableUserData>  m_vUserDatas = null;
         //-----------------------------------------------------
         public void Clear()
@@ -114,9 +126,9 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetFloat(short key, float value)
+        public void SetFloat(short key, FFloat value)
         {
-            if (m_vFloats == null) m_vFloats = new System.Collections.Generic.Dictionary<short, float>(2);
+            if (m_vFloats == null) m_vFloats = new System.Collections.Generic.Dictionary<short, FFloat>(2);
             m_vFloats[key] = value;
         }
         //-----------------------------------------------------
@@ -127,7 +139,7 @@ namespace Framework.AT.Runtime
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetFloat(short key, out float value)
+        public bool GetFloat(short key, out FFloat value)
         {
             if (m_vFloats != null && m_vFloats.TryGetValue(key, out value))
                 return true;
@@ -177,19 +189,19 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetVec2(short key, Vector2 value)
+        public void SetVec2(short key, FVector2 value)
         {
-            if (m_vVec2s == null) m_vVec2s = new System.Collections.Generic.Dictionary<short, Vector2>(2);
+            if (m_vVec2s == null) m_vVec2s = new System.Collections.Generic.Dictionary<short, FVector2>(2);
             m_vVec2s[key] = value;
         }
         //-----------------------------------------------------
         public void SetVec2Int(short key, Vector2Int value)
         {
-            if (m_vVec2s == null) m_vVec2s = new System.Collections.Generic.Dictionary<short, Vector2>(2);
-            m_vVec2s[key] = value;
+            if (m_vVec2s == null) m_vVec2s = new System.Collections.Generic.Dictionary<short, FVector2>(2);
+            m_vVec2s[key] = new FVector2((float)value.x, (float)value.y);
         }
         //-----------------------------------------------------
-        public Vector2 GetVec2(short key, Vector2 defaultValue = default)
+        public Vector2 GetVec2(short key, FVector2 defaultValue = default)
         {
             if (m_vVec2s != null && m_vVec2s.TryGetValue(key, out var val))
                 return val;
@@ -203,7 +215,7 @@ namespace Framework.AT.Runtime
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetVec2(short key, out Vector2 value)
+        public bool GetVec2(short key, out FVector2 value)
         {
             if (m_vVec2s != null && m_vVec2s.TryGetValue(key, out value))
                 return true;
@@ -213,7 +225,7 @@ namespace Framework.AT.Runtime
         //-----------------------------------------------------
         public bool GetVec2Int(short key, out Vector2Int value)
         {
-            Vector2 temp;
+            FVector2 temp;
             if (m_vVec3s != null && m_vVec2s.TryGetValue(key, out temp))
             {
                 value = new Vector2Int((int)temp.x, (int)temp.y);
@@ -223,23 +235,23 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetVec3(short key, Vector3 value)
+        public void SetVec3(short key, FVector3 value)
         {
-            if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, Vector3>(2);
+            if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, FVector3>(2);
             m_vVec3s[key] = value;
         }
         //-----------------------------------------------------
         public void SetVec3Int(short key, Vector3Int value)
         {
-            if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, Vector3>(2);
-            m_vVec3s[key] = value;
+            if (m_vVec3s == null) m_vVec3s = new System.Collections.Generic.Dictionary<short, FVector3>(2);
+            m_vVec3s[key] = new FVector3((float)value.x, (float)value.y,(float)value.z);
         }
         //-----------------------------------------------------
-        public Vector3 GetVec3(short key)
+        public FVector3 GetVec3(short key)
         {
             if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out var val))
                 return val;
-            return Vector3.zero;
+            return FVector3.zero;
         }
         //-----------------------------------------------------
         public Vector3Int GetVec3Int(short key)
@@ -249,17 +261,17 @@ namespace Framework.AT.Runtime
             return Vector3Int.zero;
         }
         //-----------------------------------------------------
-        public bool GetVec3(short key, out Vector3 value)
+        public bool GetVec3(short key, out FVector3 value)
         {
             if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out value))
                 return true;
-            value = Vector3.zero;
+            value = FVector3.zero;
             return false;
         }
         //-----------------------------------------------------
         public bool GetVec3Int(short key, out Vector3Int value)
         {
-            Vector3 temp;
+            FVector3 temp;
             if (m_vVec3s != null && m_vVec3s.TryGetValue(key, out temp))
             {
                 value = new Vector3Int((int)temp.x, (int)temp.y, (int)temp.z);
@@ -269,24 +281,24 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetVec4(short key, Vector4 value)
+        public void SetVec4(short key, FVector4 value)
         {
-            if (m_vVec4s == null) m_vVec4s = new System.Collections.Generic.Dictionary<short, Vector4>(2);
+            if (m_vVec4s == null) m_vVec4s = new System.Collections.Generic.Dictionary<short, FVector4>(2);
             m_vVec4s[key] = value;
         }
         //-----------------------------------------------------
-        public Vector4 GetVec4(short key)
+        public FVector4 GetVec4(short key)
         {
             if (m_vVec4s != null && m_vVec4s.TryGetValue(key, out var val))
                 return val;
-            return Vector4.one;
+            return FVector4.one;
         }
         //-----------------------------------------------------
-        public bool GetVec4(short key, out Vector4 value)
+        public bool GetVec4(short key, out FVector4 value)
         {
             if (m_vVec4s != null && m_vVec4s.TryGetValue(key, out value))
                 return true;
-            value = Vector4.zero;
+            value = FVector4.zero;
             return false;
         }
         //-----------------------------------------------------
@@ -311,20 +323,20 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetRay(short key, Ray value)
+        public void SetRay(short key, FRay value)
         {
-            if (m_vRays == null) m_vRays = new Dictionary<short, Ray>(2);
+            if (m_vRays == null) m_vRays = new Dictionary<short, FRay>(2);
             m_vRays[key] = value;
         }
         //-----------------------------------------------------
-        public Ray GetRay(short key, Ray defaultValue = default)
+        public FRay GetRay(short key, FRay defaultValue = default)
         {
             if (m_vRays != null && m_vRays.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetRay(short key, out Ray value)
+        public bool GetRay(short key, out FRay value)
         {
             if (m_vRays != null && m_vRays.TryGetValue(key, out value))
                 return true;
@@ -353,41 +365,41 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetQuaternion(short key, Quaternion value)
+        public void SetQuaternion(short key, FQuaternion value)
         {
-            if (m_vQuaternions == null) m_vQuaternions = new Dictionary<short, Quaternion>(2);
+            if (m_vQuaternions == null) m_vQuaternions = new Dictionary<short, FQuaternion>(2);
             m_vQuaternions[key] = value;
         }
         //-----------------------------------------------------
-        public Quaternion GetQuaternion(short key, Quaternion defaultValue = default)
+        public FQuaternion GetQuaternion(short key, FQuaternion defaultValue = default)
         {
             if (m_vQuaternions != null && m_vQuaternions.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetQuaternion(short key, out Quaternion value)
+        public bool GetQuaternion(short key, out FQuaternion value)
         {
             if (m_vQuaternions != null && m_vQuaternions.TryGetValue(key, out value))
                 return true;
-            value = Quaternion.identity;
+            value = FQuaternion.identity;
             return false;
         }
         //-----------------------------------------------------
-        public void SetBounds(short key, Bounds value)
+        public void SetBounds(short key, FBounds value)
         {
-            if (m_vBounds == null) m_vBounds = new Dictionary<short, Bounds>(2);
+            if (m_vBounds == null) m_vBounds = new Dictionary<short, FBounds>(2);
             m_vBounds[key] = value;
         }
         //-----------------------------------------------------
-        public Bounds GetBounds(short key, Bounds defaultValue = default)
+        public FBounds GetBounds(short key, FBounds defaultValue = default)
         {
             if (m_vBounds != null && m_vBounds.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetBounds(short key, out Bounds value)
+        public bool GetBounds(short key, out FBounds value)
         {
             if (m_vBounds != null && m_vBounds.TryGetValue(key, out value))
                 return true;
@@ -395,20 +407,20 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetRect(short key, Rect value)
+        public void SetRect(short key, FRect value)
         {
-            if (m_vRects == null) m_vRects = new Dictionary<short, Rect>(2);
+            if (m_vRects == null) m_vRects = new Dictionary<short, FRect>(2);
             m_vRects[key] = value;
         }
         //-----------------------------------------------------
-        public Rect GetRect(short key, Rect defaultValue = default)
+        public FRect GetRect(short key, FRect defaultValue = default)
         {
             if (m_vRects != null && m_vRects.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetRect(short key, out Rect value)
+        public bool GetRect(short key, out FRect value)
         {
             if (m_vRects != null && m_vRects.TryGetValue(key, out value))
                 return true;
@@ -416,24 +428,24 @@ namespace Framework.AT.Runtime
             return false;
         }
         //-----------------------------------------------------
-        public void SetMatrix(short key, Matrix4x4 value)
+        public void SetMatrix(short key, FMatrix4x4 value)
         {
-            if (m_vMatrixs == null) m_vMatrixs = new Dictionary<short, Matrix4x4>(2);
+            if (m_vMatrixs == null) m_vMatrixs = new Dictionary<short, FMatrix4x4>(2);
             m_vMatrixs[key] = value;
         }
         //-----------------------------------------------------
-        public Matrix4x4 GetMatrix(short key, Matrix4x4 defaultValue = default)
+        public FMatrix4x4 GetMatrix(short key, FMatrix4x4 defaultValue = default)
         {
             if (m_vMatrixs != null && m_vMatrixs.TryGetValue(key, out var val))
                 return val;
             return defaultValue;
         }
         //-----------------------------------------------------
-        public bool GetMatrix(short key, out Matrix4x4 value)
+        public bool GetMatrix(short key, out FMatrix4x4 value)
         {
             if (m_vMatrixs != null && m_vMatrixs.TryGetValue(key, out value))
                 return true;
-            value = Matrix4x4.identity;
+            value = FMatrix4x4.identity;
             return false;
         }
         //-----------------------------------------------------
