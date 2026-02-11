@@ -8,6 +8,7 @@ using Framework.Core;
 
 namespace Framework.State.Runtime
 {
+    [StateIcon("gameworld/statelogic")]
     public abstract class AStateLogic : TypeObject
     {
         private AState m_pState;

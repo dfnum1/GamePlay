@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.ED;
 using Framework.State.Runtime;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace Framework.State.Editor
     public class InspectorDrawLogic : AStateEditorLogic
     {
         Vector2 m_Scoller;
+        List<string> m_vModePops = new List<string>();
         IGameWorldItem m_pGameworldItem = null;
         //--------------------------------------------------------
         protected override void OnEnable()
@@ -43,12 +45,24 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         protected override void OnGUI()
         {
+            var worldData = GetWorldData();
+            if (worldData == null)
+                return;
             var window = GetOwner<GameWorldEditor>();
             Rect rect = GetRect();
             GUILayout.BeginArea(new Rect(rect.x, rect.y + 20, rect.width, rect.height - 20));
             m_Scoller = GUILayout.BeginScrollView(m_Scoller);
             if (m_pGameworldItem != null)
             {
+                m_vModePops.Clear();
+                if (worldData.modeDatas != null)
+                {
+                    foreach(var db in worldData.modeDatas)
+                    {
+                        m_vModePops.Add(db.name);
+                    }
+                }
+
                 if (m_pGameworldItem is GameStateData)
                 {
                     OnDrawGameState(m_pGameworldItem as GameStateData);
@@ -75,21 +89,110 @@ namespace Framework.State.Editor
         {
             using (new GUILabelWidthScope(70))
             {
+                EditorGUI.BeginChangeCheck();
                 stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
-                GameStateTypeProvider.Draw(new GUIContent("游戏状态:"), stateData.stateType, (clsId) => {
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
+                GameStateTypeProvider.Draw(new GUIContent("游戏状态:"), stateData.stateType, (clsId, index) => {
                     stateData.stateType = clsId;
                 });
 
+                //! 激活模式
+                {
+                    int modeIndex = -1;
+                    var modes = GetWorldData().modeDatas;
+                    if (modes != null)
+                    {
+                        for (int i = 0; i < modes.Count; ++i)
+                        {
+                            if (modes[i].modeType == stateData.activeMode)
+                            {
+                                modeIndex = i;
+                            }
+                        }
+                    }
+                    modeIndex = EditorGUILayout.Popup("激活模式:", modeIndex, m_vModePops.ToArray());
+                    if (modeIndex >= 0 && modeIndex < m_vModePops.Count)
+                    {
+                        if (modes != null)
+                        {
+                            if (stateData.activeMode != modes[modeIndex].modeType)
+                            {
+                                UndoRegister(false);
+                                stateData.activeMode = modes[modeIndex].modeType;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(stateData.activeMode!=0)
+                        {
+                            UndoRegister(false);
+                            stateData.activeMode = 0;
+                        }
+                    }
+
+                    if (modeIndex < 0)
+                    {
+                        EditorGUILayout.HelpBox("当前游戏状态还没有设置激活的玩法模式哦！", MessageType.Warning);
+                    }
+                }
+
+                //状态逻辑列表
+                {
+                    stateData.stateLogics = StateEditorUtil.DrawStateLogics(this,"逻辑:",stateData.stateLogics);
+                }
+
                 GUILayout.Label("描述:");
+                EditorGUI.BeginChangeCheck();
                 stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
             }
         }
         //--------------------------------------------------------
         void OnDrawGameMode(GameStateModeData stateData)
         {
-            GameModeTypeProvider.Draw(new GUIContent("游戏状态模式:"), stateData.modeType, (clsId) => {
-                stateData.modeType = clsId;
-            });
+            using (new GUILabelWidthScope(70))
+            {
+                EditorGUI.BeginChangeCheck();
+                stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
+                GameModeTypeProvider.Draw(new GUIContent("游戏玩法模式:"), stateData.modeType, (clsId, index) =>
+                {
+                    UndoRegister(false);
+                    stateData.modeType = clsId;
+                });
+
+                if(GUILayout.Button("设置为当前状态的激活模式"))
+                {
+                    var data = GetWorldData();
+                    if(data!=null)
+                    {
+                        UndoRegister(false);
+                        data.gameStateData.activeMode = stateData.modeType;
+                    }
+                }
+
+                {
+                    stateData.modeLogics = StateEditorUtil.DrawModeLogics(this, "逻辑:", stateData.modeLogics);
+                }
+
+                GUILayout.Label("描述:");
+                EditorGUI.BeginChangeCheck();
+                stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    UndoRegister(false);
+                }
+            }
         }
     }
 }

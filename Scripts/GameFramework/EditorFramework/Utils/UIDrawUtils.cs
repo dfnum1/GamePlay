@@ -319,5 +319,37 @@ namespace Framework.ED
             EditorGUIUtility.labelWidth = m_backup;
         }
     }
+    //------------------------------------------------------
+    //!GUILayoutHorizontalScope
+    //------------------------------------------------------
+    public struct GUILayoutHorizontalScope : IDisposable
+    {
+        public GUILayoutHorizontalScope(params GUILayoutOption[] options)
+        {
+            GUILayout.BeginHorizontal(options);
+        }
+
+        public void Dispose()
+        {
+            GUILayout.EndHorizontal();
+        }
+    }
+    //------------------------------------------------------
+    //!GUIHorizontalIndentScope
+    //------------------------------------------------------
+    public struct GUIHorizontalIndentScope : IDisposable
+    {
+        public GUIHorizontalIndentScope(params GUILayoutOption[] options)
+        {
+            GUILayout.BeginHorizontal(options);
+            EditorGUI.indentLevel++;
+        }
+
+        public void Dispose()
+        {
+            EditorGUI.indentLevel--;
+            GUILayout.EndHorizontal();
+        }
+    }
 }
 #endif

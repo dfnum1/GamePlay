@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.ED;
 using Framework.State.Runtime;
+using UnityEditor;
 
 namespace Framework.State.Editor
 {
@@ -28,6 +29,14 @@ namespace Framework.State.Editor
             var worldObj = GetObject<AGameWorldObject>();
             if (worldObj == null) return null;
             return worldObj.gameWorldData;
+        }
+        //-----------------------------------------------------
+        public void UndoRegister(bool bDityData = false)
+        {
+            UndoLogic logic = GetLogic<UndoLogic>();
+            if (logic == null)
+                return;
+            logic.LockUndoData(GetWorldData(), bDityData);
         }
     }
 }

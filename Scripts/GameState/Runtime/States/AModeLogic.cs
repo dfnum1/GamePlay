@@ -7,6 +7,7 @@
 using Framework.Core;
 namespace Framework.State.Runtime
 {
+    [StateIcon("gameworld/modelogic")]
     public abstract class AModeLogic : TypeObject
     {
         private AMode m_pMode;

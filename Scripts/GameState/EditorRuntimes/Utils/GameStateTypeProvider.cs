@@ -11,8 +11,9 @@ namespace Framework.State.Editor
     public class GameStateTypeProvider : ScriptableObject, ISearchWindowProvider
     {
         public System.Action<System.Type, int> onSelect;
+        int m_UserIndex = -1;
         //-----------------------------------------------------
-        public static void Draw(GUIContent label, int classId, System.Action<int> callback)
+        public static void Draw(GUIContent label, int classId, System.Action<int,int> callback, int userIndex = -1)
         {
             var stateType = StateEditorUtil.GetStateWorldType(classId);
             string name = "未选择状态";
@@ -42,22 +43,33 @@ namespace Framework.State.Editor
             GUI.color = useColor;
             if (GUILayout.Button(name))
             {
-                var provider = ScriptableObject.CreateInstance<Editor.GameStateTypeProvider>();
-                provider.onSelect = (node, clsId) =>
-                {
-                    if (callback != null) callback(clsId);
-                };
-                UnityEditor.Experimental.GraphView.SearchWindow.Open(new UnityEditor.Experimental.GraphView.SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition+Vector2.up*25)), provider);
+                PopSearch(callback, userIndex);
             }
             GUI.color = color;
             if ( callback !=null && GUILayout.Button(new GUIContent(Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("Editor/clean.png"),""), EditorStyles.toolbarButton,GUILayout.Width(20)))
             {
                 if(EditorUtility.DisplayDialog("提示","确定删除状态", "删除","再想想"))
                 {
-                    callback(0);
+                    callback(0, userIndex);
                 }
             }
             GUILayout.EndHorizontal();
+        }
+        //-----------------------------------------------------
+        public static void PopSearch(System.Action<int, int> callback, int userIndex = -1)
+        {
+            PopSearch(Event.current.mousePosition, callback, userIndex);
+        }
+        //-----------------------------------------------------
+        public static void PopSearch(Vector2 mousePosition, System.Action<int, int> callback, int userIndex = -1)
+        {
+            var provider = ScriptableObject.CreateInstance<Editor.GameStateTypeProvider>();
+            provider.m_UserIndex = userIndex;
+            provider.onSelect = (node, clsId) =>
+            {
+                if (callback != null) callback(clsId, provider.m_UserIndex);
+            };
+            UnityEditor.Experimental.GraphView.SearchWindow.Open(new UnityEditor.Experimental.GraphView.SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition + Vector2.up * 25)), provider);
         }
         //-----------------------------------------------------
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)

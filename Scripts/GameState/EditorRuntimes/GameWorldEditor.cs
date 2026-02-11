@@ -34,10 +34,12 @@ namespace Framework.State.Editor
         float m_fToolSize = 25;
         Rect m_InspectorRect;
         Vector2 m_InspectorScoller;
-        Rect m_TimelineRect;
+        Rect m_AIRect;
         Vector2 m_TimelineScoller;
         Rect m_AssetRect;
         Vector2 m_AssetScoller;
+
+        bool m_bEnableAIRect = false;
 
         EDragEdge m_eDragEdge = EDragEdge.None;
 
@@ -91,6 +93,11 @@ namespace Framework.State.Editor
             m_TileStyle.fontSize = 20;
             m_TileStyle.normal.textColor = Color.white;
             m_TileStyle.alignment = TextAnchor.MiddleCenter;
+
+            if(Selection.activeObject!=null && Selection.activeObject is AGameWorldObject)
+            {
+                OnChangeSelect(Selection.activeObject);
+            }
         }
         //--------------------------------------------------------
         protected override void OnInnerDisable()
@@ -119,7 +126,7 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         public Rect TimelineRect
         {
-            get { return m_TimelineRect; }
+            get { return m_AIRect; }
         }
         //--------------------------------------------------------
         public GUIStyle TileStyle
@@ -175,11 +182,12 @@ namespace Framework.State.Editor
                 UIDrawUtils.DrawColorLine(new Vector2(m_InspectorRect.xMin + 0.01f, m_InspectorRect.yMin), new Vector2(m_InspectorRect.xMin + 0.01f, m_InspectorRect.yMax), lineColor);
             }
             //! timeline split line
+            if(m_bEnableAIRect)
             {
                 Color lineColor = Color.grey;
-                if (CheckEdgeDrag(EDragEdge.Timeline, new Rect(m_TimelineRect.xMax - 300, m_TimelineRect.yMin, m_TimelineRect.width, 10)))
+                if (CheckEdgeDrag(EDragEdge.Timeline, new Rect(m_AIRect.xMax - 300, m_AIRect.yMin, m_AIRect.width, 10)))
                     lineColor = Color.yellow;
-                UIDrawUtils.DrawColorLine(new Vector2(m_TimelineRect.xMin, m_TimelineRect.yMin + 0.01f), new Vector2(m_TimelineRect.xMax, m_TimelineRect.yMin + 0.01f), lineColor);
+                UIDrawUtils.DrawColorLine(new Vector2(m_AIRect.xMin, m_AIRect.yMin + 0.01f), new Vector2(m_AIRect.xMax, m_AIRect.yMin + 0.01f), lineColor);
             }
 
             DrawControllBtn();
@@ -221,18 +229,19 @@ namespace Framework.State.Editor
                 }
             }
             //! timline
+            if(m_bEnableAIRect)
             {
                 if (m_ViewHeightRate.bOpen)
                 {
-                    Rect btnRect = new Rect(m_TimelineRect.xMax - 40, m_TimelineRect.y + 1, 20, 20);
+                    Rect btnRect = new Rect(m_AIRect.xMax - 40, m_AIRect.y + 1, 20, 20);
                     if (GUI.Button(btnRect, EditorGUIUtility.TrIconContent("StepButton").image) || CheckBtnRectClick(btnRect))
                         m_ViewHeightRate.bOpen = false;
 
                 }
                 else
                 {
-                    Rect btnRect = new Rect(m_TimelineRect.xMax - 40, m_TimelineRect.y + 1, 20, 20);
-                    Rect dragRect = new Rect(m_TimelineRect.xMax - 350, m_TimelineRect.y + 1, 350, 20);
+                    Rect btnRect = new Rect(m_AIRect.xMax - 40, m_AIRect.y + 1, 20, 20);
+                    Rect dragRect = new Rect(m_AIRect.xMax - 350, m_AIRect.y + 1, 350, 20);
                     if (GUI.Button(btnRect, EditorGUIUtility.TrIconContent("StepLeftButton").image) || CheckBtnRectClick(dragRect))
                         m_ViewHeightRate.bOpen = true;
                 }
@@ -313,11 +322,20 @@ namespace Framework.State.Editor
             m_AssetRect.width = this.position.width * leftRate;
             if (!m_ViewLeftRate.bOpen) m_AssetRect.width = 20;
 
-            m_TimelineRect.y = this.position.height * heightRate;
-            if (!m_ViewHeightRate.bOpen) m_TimelineRect.y = this.position.height - 20;
-            m_TimelineRect.height = this.position.height - m_TimelineRect.y;
-            if (!m_ViewHeightRate.bOpen) m_InspectorRect.height = 20;
-            m_TimelineRect.width = this.position.width;
+            if(m_bEnableAIRect)
+            {
+                m_AIRect.y = this.position.height * heightRate;
+                if (!m_ViewHeightRate.bOpen) m_AIRect.y = this.position.height - 20;
+                m_AIRect.height = this.position.height - m_AIRect.y;
+                if (!m_ViewHeightRate.bOpen) m_InspectorRect.height = 20;
+                m_AIRect.width = this.position.width;
+            }
+            else
+            {
+                m_AIRect.y = this.position.height;
+                m_AIRect.height = 0;
+                m_AIRect.width = 0;
+            }
 
             if (m_ViewRightRate.bOpen)
                 m_InspectorRect.x = this.position.width * rightRate;
@@ -325,13 +343,13 @@ namespace Framework.State.Editor
                 m_InspectorRect.x = this.position.width;
             m_InspectorRect.width = this.position.width - m_InspectorRect.x;
             if (!m_ViewRightRate.bOpen) m_InspectorRect.width = 20;
-            m_InspectorRect.height = this.position.height - m_TimelineRect.height - m_fToolSize;
+            m_InspectorRect.height = this.position.height - m_AIRect.height - m_fToolSize;
             m_AssetRect.height = m_InspectorRect.height;
 
             m_PreviewRect.x = m_AssetRect.xMax;
             m_PreviewRect.y = m_AssetRect.y;
             m_PreviewRect.width = this.position.width - m_AssetRect.width - m_InspectorRect.width;
-            m_PreviewRect.height = this.position.height - m_TimelineRect.height - m_AssetRect.y;
+            m_PreviewRect.height = this.position.height - m_AIRect.height - m_AssetRect.y;
 
         }
         //-----------------------------------------------------

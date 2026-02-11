@@ -1,11 +1,25 @@
 #if UNITY_EDITOR
+using Codice.Client.BaseCommands.BranchExplorer;
+using Framework.Core;
+using Framework.ED;
 using Framework.State.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 namespace Framework.State.Editor
 {
+    internal struct MenuContextData
+    {
+        public System.Object bindData;
+        public Vector2 mousePosition;
+        public MenuContextData(System.Object bind, Vector2 pos)
+        {
+            this.bindData = bind;
+            this.mousePosition = pos;
+        }
+    }
     public class StateEditorUtil
     {
         static string ms_installPath = null;
@@ -50,6 +64,7 @@ namespace Framework.State.Editor
         static bool ms_bInitTypeed = false;
         private static Dictionary<string, System.Type> ms_StateWorldTypes = new Dictionary<string, System.Type>();
         private static Dictionary<int, System.Type> ms_StateWorldTypeIds = new Dictionary<int, System.Type>();
+        private static Dictionary<int, string> ms_StateWorldTypeNames = new Dictionary<int, string>();
         //-----------------------------------------------------
         public static System.Type GetStateWorldType(int id)
         {
@@ -59,12 +74,29 @@ namespace Framework.State.Editor
             return null;
         }
         //-----------------------------------------------------
+        public static bool IsStateWorldType<T>(int id) where T : TypeObject
+        {
+            var type = GetStateWorldType(id);
+            if (type == null) return false;
+            return type.IsSubclassOf(typeof(T));
+        }
+        //-----------------------------------------------------
         public static System.Type GetStateWorldType(string name)
         {
             InitTypes();
             if (ms_StateWorldTypes.TryGetValue(name, out var worldType))
                 return worldType;
             return null;
+        }
+        //-----------------------------------------------------
+        public static string GetStateWorldTypeName(int id, string defName ="未知名称")
+        {
+            InitTypes();
+            if (ms_StateWorldTypeNames.TryGetValue(id, out var name))
+                return name;
+            var clsType = GetStateWorldType(id);
+            if (clsType != null) return clsType.Name;
+            return defName;
         }
         //-----------------------------------------------------
         public static Dictionary<string,System.Type> GetStateWorldTypes()
@@ -91,6 +123,7 @@ namespace Framework.State.Editor
             ms_bInitTypeed = true;
             ms_StateWorldTypes.Clear();
             ms_StateWorldTypeIds.Clear();
+            ms_StateWorldTypeNames.Clear();
             foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
             {
                 Type[] types = null;
@@ -122,11 +155,167 @@ namespace Framework.State.Editor
                         string name = tp.Name;
                         if (attr != null && !string.IsNullOrEmpty(name))
                             name = attr.name;
+
+                        var clsId = GetTypeClassId(tp);
                         ms_StateWorldTypes[name] = tp;
-                        ms_StateWorldTypeIds[GetTypeClassId(tp)] = tp;
+                        ms_StateWorldTypeIds[clsId] = tp;
+
+                        ms_StateWorldTypeNames[clsId] = name;
                     }
                 }
             }
+        }
+        //-----------------------------------------------------
+        public static List<int> DrawStateLogics(AStateEditorLogic logic, string label, List<int> vLogics)
+        {
+            if (vLogics == null) vLogics = new List<int>();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            if(GUILayout.Button("添加逻辑"))
+            {
+                logic.UndoRegister(true);
+                vLogics.Add(0);
+            }
+            GUILayout.EndHorizontal();
+
+            for(int i =0; i < vLogics.Count; ++i)
+            {
+                GUILayout.BeginHorizontal();
+                EditorGUI.indentLevel++;
+                {
+                    int clasType = vLogics[i];
+                    if (!IsStateWorldType<AStateLogic>(vLogics[i]))
+                    {
+                        clasType = 0;
+                    }
+                    GameStateLogicProvider.Draw(new GUIContent("逻辑[" + i + "]"), clasType, (clsId, index) => {
+                        if (index >= 0 && index < vLogics.Count)
+                        {
+                            if (!vLogics.Contains(clsId))
+                            {
+                                if(vLogics[index] != clsId)
+                                {
+                                    logic.UndoRegister(false);
+                                    vLogics[index] = clsId;
+                                }
+                            }
+                            else
+                                EditorUtility.DisplayDialog("提示", "逻辑状态已存在！！", "好的");
+                        }
+                    },i);
+                    if (GUILayout.Button("-", GUILayout.Width(20)))
+                    {
+                        if (EditorUtility.DisplayDialog("提示", "确定是要移除？", "移除", "再想想"))
+                        {
+                            logic.UndoRegister(true);
+                            vLogics.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                    if (i > 0)
+                    {
+                        if (GUILayout.Button("↑", GUILayout.Width(20)))
+                        {
+                            //! 交换位置
+                            logic.UndoRegister(false);
+                            int temp = vLogics[i - 1];
+                            vLogics[i - 1] = vLogics[i];
+                            vLogics[i] = temp;
+                        }
+                    }
+                    if (i < vLogics.Count - 1)
+                    {
+                        if (GUILayout.Button("↓", GUILayout.Width(20)))
+                        {
+                            //! 交换位置
+                            logic.UndoRegister(false);
+                            int temp = vLogics[i + 1];
+                            vLogics[i + 1] = vLogics[i];
+                            vLogics[i] = temp;
+                        }
+                    }
+                }
+                EditorGUI.indentLevel--;
+                GUILayout.EndHorizontal();
+            }
+
+            return vLogics;
+        }
+        //-----------------------------------------------------
+        public static List<int> DrawModeLogics(AStateEditorLogic logic, string label, List<int> vLogics)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            if (GUILayout.Button("添加逻辑"))
+            {
+                logic.UndoRegister(true);
+                vLogics.Add(0);
+            }
+            GUILayout.EndHorizontal();
+
+            for (int i = 0; i < vLogics.Count; ++i)
+            {
+                GUILayout.BeginHorizontal();
+                EditorGUI.indentLevel++;
+                {
+                    int clasType = vLogics[i];
+                    if (!IsStateWorldType<AModeLogic>(vLogics[i]))
+                    {
+                        clasType = 0;
+                    }
+                    GameModeLogicProvider.Draw(new GUIContent("逻辑[" + i + "]"), clasType, (clsId, index) => {
+                        if (vLogics == null) vLogics = new List<int>();
+                        if (index >= 0 && index < vLogics.Count)
+                        {
+                            if (!vLogics.Contains(clsId))
+                            {
+                                if (vLogics[index] != clsId)
+                                {
+                                    logic.UndoRegister(false);
+                                    vLogics[index] = clsId;
+                                }
+                            }
+                            else
+                                EditorUtility.DisplayDialog("提示", "逻辑状态已存在！！", "好的");
+                        }
+                    },i);
+                    if (GUILayout.Button("-", GUILayout.Width(20)))
+                    {
+                        if (EditorUtility.DisplayDialog("提示", "确定是要移除？", "移除", "再想想"))
+                        {
+                            logic.UndoRegister(true);
+                            vLogics.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                    if (i > 0)
+                    {
+                        if (GUILayout.Button("↑", GUILayout.Width(20)))
+                        {
+                            //! 交换位置
+                            logic.UndoRegister(false);
+                            int temp = vLogics[i - 1];
+                            vLogics[i - 1] = vLogics[i];
+                            vLogics[i] = temp;
+                        }
+                    }
+                    if (i < vLogics.Count - 1)
+                    {
+                        if (GUILayout.Button("↓", GUILayout.Width(20)))
+                        {
+                            //! 交换位置
+                            logic.UndoRegister(false);
+                            int temp = vLogics[i + 1];
+                            vLogics[i + 1] = vLogics[i];
+                            vLogics[i] = temp;
+                        }
+                    }
+                }
+                EditorGUI.indentLevel--;
+                GUILayout.EndHorizontal();
+            }
+
+            return vLogics;
         }
     }
 }
