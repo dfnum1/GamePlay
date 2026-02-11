@@ -140,6 +140,13 @@ namespace Framework.State.Editor
         public override void SaveChanges()
         {
             base.SaveChanges();
+            if(m_pCurrentObj!=null && m_pCurrentObj is UnityEngine.Object)
+            {
+                UnityEngine.Object Obj = m_pCurrentObj as UnityEngine.Object;
+                EditorUtility.SetDirty(Obj);
+                AssetDatabase.SaveAssetIfDirty(Obj);
+                AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            }
             m_lastContentMd5 = null;
         }
         //--------------------------------------------------------

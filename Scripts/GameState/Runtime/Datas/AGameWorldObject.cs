@@ -25,10 +25,7 @@ namespace Framework.State.Runtime
     [AddComponentMenu("")]
     public abstract class AGameWorldObject : ScriptableObject
     {
-        public GameStateData gameStateData = new GameStateData();
-        public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
-        public GameVariables warVariables = new GameVariables();
-        public List<GameAgentData> warAgents = new List<GameAgentData>();
+        public GameWorldData gameWorldData;
     }
     //------------------------------------------------------
     //! 自定义编辑器

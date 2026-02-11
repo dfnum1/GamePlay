@@ -16,9 +16,9 @@ namespace Framework.State.Runtime
     {
         private AState      m_pGameState;
         private List<AMode> m_vGameModes;
-        AGameWorldObject    m_pWorldObject;
+        GameWorldData       m_pWorldObject;
         //--------------------------------------------------------
-        public void CreateWorld(AGameWorldObject pObject)
+        public void CreateWorld(GameWorldData pObject)
         {
             if (m_pWorldObject == pObject)
                 return;

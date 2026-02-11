@@ -10,6 +10,7 @@ namespace Framework.State.Runtime
     //------------------------------------------------
     //! 游戏状态下模式数据体
     //------------------------------------------------
+    [StateIcon("GameWorld/gamemode"),System.Serializable]
     public class GameStateModeData : IGameWorldItem
     {
         public int modeType;
@@ -22,7 +23,7 @@ namespace Framework.State.Runtime
     //------------------------------------------------
     //! 游戏状态数据体
     //------------------------------------------------
-    [StateIcon("GameState/gamestate")]
+    [StateIcon("GameWorld/gamestate"), System.Serializable]
     public class GameStateData : IGameWorldItem
     {
         public int stateType;
@@ -32,6 +33,15 @@ namespace Framework.State.Runtime
         public string name;
         public string strDesc = "";
 #endif
+    }
+    //------------------------------------------------------
+    [System.Serializable]
+    public class GameWorldData
+    {
+        public GameStateData gameStateData = new GameStateData();
+        public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
+        public GameVariables warVariables = new GameVariables();
+        public List<GameAgentData> warAgents = new List<GameAgentData>();
     }
 }
 

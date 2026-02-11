@@ -22,6 +22,13 @@ namespace Framework.State.Editor
         public virtual void OnGameItemSelected(IGameWorldItem pGameItem)
         {
         }
+        //-----------------------------------------------------
+        public GameWorldData GetWorldData()
+        {
+            var worldObj = GetObject<AGameWorldObject>();
+            if (worldObj == null) return null;
+            return worldObj.gameWorldData;
+        }
     }
 }
 

@@ -19,6 +19,7 @@ namespace Framework.State.Editor
         public class GameElementItem : Framework.ED.TreeAssetView.ItemData
         {
             public IGameWorldItem bindData;
+            private System.Reflection.FieldInfo m_NameField;
             Texture2D m_pIcon = null;
             public override Color itemColor()
             { 
@@ -35,6 +36,21 @@ namespace Framework.State.Editor
                     }
                 }
                 return m_pIcon;
+            }
+            public string displayName
+            {
+                get
+                {
+                    if(m_NameField == null && bindData!=null)
+                    {
+                        m_NameField = bindData.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase);
+                    }
+                    if (m_NameField == null)
+                        return this.name;
+                    var nameVal = m_NameField.GetValue(bindData);
+                    if (nameVal != null) this.name = nameVal.ToString();
+                    return this.name;
+                }
             }
         }
         public enum ETab
@@ -112,6 +128,12 @@ namespace Framework.State.Editor
             }
         }
         //--------------------------------------------------------
+        public override void OnChangeSelect(object pData)
+        {
+            base.OnChangeSelect(pData);
+            RefreshGameElements();
+        }
+        //--------------------------------------------------------
         void DrawGameElement(Rect rect)
         {
             if (m_pGameEleTree != null)
@@ -126,7 +148,7 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void RefreshGameElements()
         {
-            var worldObj = GetObject<AGameWorldObject>();
+            var worldObj = GetWorldData();
             m_pGameEleTree.BeginTreeData();
             if(worldObj!=null)
                 m_pGameEleTree.AddData(new GameElementItem() { id = 0, bindData = worldObj.gameStateData, name = worldObj.gameStateData.name });
@@ -139,12 +161,15 @@ namespace Framework.State.Editor
         {
             if(rowData.column ==0)
             {
+                GameElementItem item = rowData.itemData.data as GameElementItem;
                 float iconSize = rowData.rowRect.height;
+                if (rowData.itemData.icon == null)
+                    rowData.itemData.icon = item.itemIcon();
                 if (rowData.itemData.icon != null)
                 {
-                    GUI.DrawTexture(new Rect(rowData.rowRect.xMin + 5, rowData.rowRect.y + (rowData.rowRect.height - iconSize) / 2, iconSize, iconSize), (Texture2D)rowData.itemData.icon);
+                    GUI.DrawTexture(new Rect(rowData.rowRect.xMin + 5, rowData.rowRect.y + (rowData.rowRect.height - iconSize) / 2, iconSize, iconSize), rowData.itemData.icon);
                 }
-                EditorGUI.LabelField(new Rect(rowData.rowRect.xMin + iconSize+10, rowData.rowRect.y, rowData.rowRect.width- iconSize-10, rowData.rowRect.height), rowData.itemData.displayName);
+                EditorGUI.LabelField(new Rect(rowData.rowRect.xMin + iconSize+10, rowData.rowRect.y, rowData.rowRect.width- iconSize-10, rowData.rowRect.height), item.displayName);
                 return true;
             }
             return false;
