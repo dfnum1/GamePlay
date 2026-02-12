@@ -1083,15 +1083,20 @@ namespace Framework.ED
         //-----------------------------------------------------
         public Ray GetRay(Event evt, Rect previewRect)
         {
+            return GetRay(evt.mousePosition, previewRect);
+        }
+        //-----------------------------------------------------
+        public Ray GetRay(Vector2 mousePosition, Rect previewRect)
+        {
             var pixel = EditorGUIUtility.PointsToPixels(previewRect);
 
             float scale = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
             Rect pixelRect = m_PreviewUtility.camera.pixelRect;
-            float scaleX = previewRect.width/pixelRect.width;
-            float scaleY = previewRect.height/pixelRect.height;
+            float scaleX = previewRect.width / pixelRect.width;
+            float scaleY = previewRect.height / pixelRect.height;
             Vector2 relativePos = new Vector2(
-                (evt.mousePosition.x - pixel.x) / pixel.width,
-                (evt.mousePosition.y  - pixel.y) / pixel.height
+                (mousePosition.x - pixel.x) / pixel.width,
+                (mousePosition.y - pixel.y) / pixel.height
             );
 
             relativePos.y = 1f - relativePos.y;
@@ -1386,38 +1391,24 @@ namespace Framework.ED
         //-----------------------------------------------------
         protected Vector3 ConvertMousePosition(Vector3 mousePosition, Rect previewRect)
         {
-            return new Vector3(mousePosition.x - previewRect.x, previewRect.height- (mousePosition.y - previewRect.y), 0);
+            return mousePosition;
+            var pixel = EditorGUIUtility.PointsToPixels(previewRect);
+
+            float scale = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
+            Rect pixelRect = m_PreviewUtility.camera.pixelRect;
+            float scaleX = previewRect.width / pixelRect.width;
+            float scaleY = previewRect.height / pixelRect.height;
+            Vector2 relativePos = new Vector2(
+                (mousePosition.x - pixel.x),
+                (mousePosition.y - pixel.y)
+            );
+
+            return new Vector3(relativePos.x, previewRect.height- relativePos.y, 0);
         }
         //-----------------------------------------------------
         protected Vector3 Change2DTo3DPos(Vector3 mousePosition)
         {
-            Camera cam = m_PreviewUtility.camera;
-            Vector2 relativePos = new Vector2(
-                (mousePosition.x) / m_Rect.width,
-                (mousePosition.y) / m_Rect.height
-            );
-
-            Vector3 viewportPoint = new Vector3(relativePos.x, relativePos.y, 0);
-            var ray = m_PreviewUtility.camera.ViewportPointToRay(viewportPoint);
-
-            Camera camera = m_PreviewUtility.camera;
-
-            Vector3 pos = ray.origin;
-            Vector3 dir = ray.direction;
-
-            Vector3 vPlanePos = bodyPosition;
-            Vector3 vPlaneNor = m_PreviewInstance ? m_PreviewInstance.transform.up : Vector3.up;
-
-            float fdot = Vector3.Dot(dir, vPlaneNor);
-            if (fdot == 0.0f)
-                return Vector3.zero;
-
-            float fRage = ((vPlanePos.x - pos.x) * vPlaneNor.x + (vPlanePos.y - pos.y) * vPlaneNor.y + (vPlanePos.z - pos.z) * vPlaneNor.z) / fdot;
-
-            Vector3 vPos = pos + dir * fRage;
-            vPos.y = vPlanePos.y;
-
-            return vPos;
+            return BaseUtil.RayHitPos(GetRay(mousePosition, m_Rect), this.bodyPosition.y);
         }
         //-----------------------------------------------------
         public void DoAvatarPreviewZoom(Event evt, float delta, Rect previewRect)
