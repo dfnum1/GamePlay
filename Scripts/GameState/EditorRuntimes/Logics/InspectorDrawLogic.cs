@@ -45,11 +45,13 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         protected override void OnGUI()
         {
+            Rect rect = GetRect();
+            if (rect.width <= 20)
+                return;
             var worldData = GetWorldData();
             if (worldData == null)
                 return;
             var window = GetOwner<GameWorldEditor>();
-            Rect rect = GetRect();
             GUILayout.BeginArea(new Rect(rect.x, rect.y + 20, rect.width, rect.height - 20));
             m_Scoller = GUILayout.BeginScrollView(m_Scoller);
             if (m_pGameworldItem != null)

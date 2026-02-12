@@ -82,10 +82,12 @@ namespace Framework.State.Editor
         protected override void OnGUI()
         {
             Rect rect = GetRect();
+            if (rect.width <= 20)
+                return;
 
             GUILayout.BeginArea(new Rect(rect.x, rect.y, rect.width, 20));
 
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal(GUILayout.Width(rect.width-20));
             Color color = GUI.color;
             for (int i = 0; i < TABS.Length; ++i)
             {

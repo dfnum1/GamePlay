@@ -109,6 +109,7 @@ namespace Framework.State.Editor
         protected override void OnInnerUpdate()
         {
             RefreshLayout();
+            ForceRepaint();
         }
         //--------------------------------------------------------
         public Rect InspectorRect
@@ -206,7 +207,7 @@ namespace Framework.State.Editor
             {
                 if (m_ViewLeftRate.bOpen)
                 {
-                    var btnRect = new Rect(m_AssetRect.xMax - 21, m_AssetRect.y + 28, 20, 20);
+                    var btnRect = new Rect(m_AssetRect.xMax - 21, m_AssetRect.y + 1, 20, 20);
                     if (GUI.Button(btnRect, EditorGUIUtility.TrIconContent("StepLeftButton").image) || CheckBtnRectClick(btnRect))
                     {
                         m_ViewLeftRate.bOpen = false;

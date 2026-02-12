@@ -5,11 +5,12 @@
 描    述:	渲染物件查看、编辑窗口
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.Core;
 using System;
-using UnityEngine;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace Framework.ED
 {
@@ -175,7 +176,7 @@ namespace Framework.ED
 
         public Action<int, Camera, Event> OnDrawBeforeCB = null;
         public Action<int, Camera, Event> OnDrawAfterCB = null;
-        public Action<Ray, Vector3, Event> OnMoseMoveCB = null;
+        public Action<Ray, Vector3, Event> OnMouseMoveCB = null;
         public Action<Ray, Vector3, Event> OnMoseHitCB = null;
         public Action<Ray, Vector3, Event> OnMouseDownCB = null;
         public Action<Ray, Vector3, Event> OnMosueUpCB = null;
@@ -505,10 +506,12 @@ namespace Framework.ED
             int controlID2 = GUIUtility.GetControlID(m_PreviewSceneHint, FocusType.Passive);
             Handles.SetCamera(GetCamera());
             typeForControl = current.GetTypeForControl(controlID2);
+
             HandleViewTool(current, typeForControl, controlID2, rect2);
             HandleMouseMove(current, controlID2, rect2);
             DoAvatarPreviewFrame(current, typeForControl, rect2);
             m_PreviewUtility.EndAndDrawPreview(rect2);
+
 
             if (current.type == EventType.Repaint)
             {
@@ -797,7 +800,6 @@ namespace Framework.ED
             Matrix4x4 oldMatrix = Handles.matrix;
             Handles.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
             Vector2 mousePos = evt.mousePosition;
-
             Rect screenRect = EditorGUIUtility.GUIToScreenRect(m_Rect);
             if (pOwnerWindow)
             {
@@ -1081,18 +1083,21 @@ namespace Framework.ED
         //-----------------------------------------------------
         public Ray GetRay(Event evt, Rect previewRect)
         {
-            Vector3 vPos = m_PreviewUtility.camera.ScreenToWorldPoint(evt.mousePosition);
-            vPos = GetCurrentMouseWorldPosition(evt, m_Rect);
+            var pixel = EditorGUIUtility.PointsToPixels(previewRect);
 
-            Ray ray;
-            float scaleFactor = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
+            float scale = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
+            Rect pixelRect = m_PreviewUtility.camera.pixelRect;
+            float scaleX = previewRect.width/pixelRect.width;
+            float scaleY = previewRect.height/pixelRect.height;
+            Vector2 relativePos = new Vector2(
+                (evt.mousePosition.x - pixel.x) / pixel.width,
+                (evt.mousePosition.y  - pixel.y) / pixel.height
+            );
 
-            Vector3 mouspos = evt.mousePosition;
-            mouspos.x = (evt.mousePosition.x - previewRect.x) * scaleFactor;
-            mouspos.y = (previewRect.height - (evt.mousePosition.y - previewRect.y)) * scaleFactor;
-            ray = m_PreviewUtility.camera.ScreenPointToRay(mouspos);
+            relativePos.y = 1f - relativePos.y;
 
-            return ray;
+            Vector3 viewportPoint = new Vector3(relativePos.x, relativePos.y, 0);
+            return m_PreviewUtility.camera.ViewportPointToRay(viewportPoint);
         }
         //-----------------------------------------------------
         protected void HandleMouseDown(Event evt, int id, Rect previewRect)
@@ -1121,9 +1126,9 @@ namespace Framework.ED
             if (!previewRect.Contains(evt.mousePosition)) return;
             if (!previewRect.Contains(m_MouseFirstPress)) return;
 
-            if (OnMoseMoveCB != null)
+            if (OnMouseMoveCB != null)
             {
-                OnMoseMoveCB(GetRay(evt, previewRect), Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect)), evt );
+                OnMouseMoveCB(GetRay(evt, previewRect), Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect)), evt );
             }
         }
         //-----------------------------------------------------
@@ -1381,17 +1386,19 @@ namespace Framework.ED
         //-----------------------------------------------------
         protected Vector3 ConvertMousePosition(Vector3 mousePosition, Rect previewRect)
         {
-            float scaleFactor = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
-
-            Vector3 mouspos = mousePosition;
-            mouspos.x = (mousePosition.x - previewRect.x) * scaleFactor;
-            mouspos.y = (previewRect.height - (mousePosition.y - previewRect.y)) * scaleFactor;
-            return mouspos;
+            return new Vector3(mousePosition.x - previewRect.x, previewRect.height- (mousePosition.y - previewRect.y), 0);
         }
         //-----------------------------------------------------
         protected Vector3 Change2DTo3DPos(Vector3 mousePosition)
         {
-            Ray ray = m_PreviewUtility.camera.ScreenPointToRay(mousePosition);
+            Camera cam = m_PreviewUtility.camera;
+            Vector2 relativePos = new Vector2(
+                (mousePosition.x) / m_Rect.width,
+                (mousePosition.y) / m_Rect.height
+            );
+
+            Vector3 viewportPoint = new Vector3(relativePos.x, relativePos.y, 0);
+            var ray = m_PreviewUtility.camera.ViewportPointToRay(viewportPoint);
 
             Camera camera = m_PreviewUtility.camera;
 
