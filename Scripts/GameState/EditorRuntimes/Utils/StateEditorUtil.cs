@@ -65,6 +65,7 @@ namespace Framework.State.Editor
         private static Dictionary<string, System.Type> ms_StateWorldTypes = new Dictionary<string, System.Type>();
         private static Dictionary<int, System.Type> ms_StateWorldTypeIds = new Dictionary<int, System.Type>();
         private static Dictionary<int, string> ms_StateWorldTypeNames = new Dictionary<int, string>();
+        private static Dictionary<System.Type, System.Type> ms_StateWorldTypeEditorTypes = new Dictionary<Type, Type>();
         //-----------------------------------------------------
         public static System.Type GetStateWorldType(int id)
         {
@@ -111,6 +112,14 @@ namespace Framework.State.Editor
             return ms_StateWorldTypeIds;
         }
         //-----------------------------------------------------
+        internal static System.Type GetTypeEditorType(System.Type type)
+        {
+            InitTypes();
+            if (ms_StateWorldTypeEditorTypes.TryGetValue(type, out var editorType))
+                return editorType;
+            return null;
+        }
+        //-----------------------------------------------------
         internal static void ReInitTypes()
         {
             ms_bInitTypeed = false;
@@ -124,6 +133,7 @@ namespace Framework.State.Editor
             ms_StateWorldTypes.Clear();
             ms_StateWorldTypeIds.Clear();
             ms_StateWorldTypeNames.Clear();
+            ms_StateWorldTypeEditorTypes.Clear();
             foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
             {
                 Type[] types = null;
@@ -162,6 +172,20 @@ namespace Framework.State.Editor
                         ms_StateWorldTypeIds[clsId] = tp;
 
                         ms_StateWorldTypeNames[clsId] = name;
+                    }
+
+                    if(tp.IsSubclassOf(typeof(AGameEditor)) && tp.IsDefined(typeof(CustomEditor)))
+                    {
+                        var attr = tp.GetCustomAttribute<CustomEditor>();
+                        var field = attr.GetType().GetField("m_InspectedType", BindingFlags.Instance | BindingFlags.NonPublic);
+                        if (field != null)
+                        {
+                            var typeObj = field.GetValue(attr);
+                            if (typeObj != null && typeObj is Type)
+                            {
+                                ms_StateWorldTypeEditorTypes[(Type)typeObj] = tp;
+                            }
+                        }
                     }
                 }
             }

@@ -201,30 +201,36 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void OnDrawGameLevel(GameLevelData stateData)
         {
-            using (new GUILabelWidthScope(70))
+            EditorGUI.BeginChangeCheck();
+            stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
+            if (EditorGUI.EndChangeCheck())
             {
-                EditorGUI.BeginChangeCheck();
-                stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    UndoRegister(false);
-                }
-                GameLevelDataProvider.Draw(new GUIContent("游戏数据类型:"), stateData.dataType, (clsId, index) =>
-                {
-                    UndoRegister(false);
-                    stateData.dataType = clsId;
-                });
+                UndoRegister(false);
+            }
+            GameLevelDataProvider.Draw(new GUIContent("游戏数据类型:"), stateData.dataType, (clsId, index) =>
+            {
+                UndoRegister(false);
+                stateData.dataType = clsId;
+            });
 
-                GUILayout.Label("描述:");
-                EditorGUI.BeginChangeCheck();
-                stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
-                if (EditorGUI.EndChangeCheck())
+            GUILayout.Label("描述:");
+            EditorGUI.BeginChangeCheck();
+            stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
+            if (EditorGUI.EndChangeCheck())
+            {
+                UndoRegister(false);
+            }
+            var cfgData = stateData.GetGameData<AGameCfgData>();
+            if (cfgData != null)
+            {
+                Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
+                if (cfgData.GetEditor() != null)
                 {
-                    UndoRegister(false);
+                    cfgData.GetEditor().OnInspectorGUI();
                 }
-                var cfgData = stateData.GetGameData<AGameCfgData>();
-                if (cfgData != null)
-                    Framework.ED.InspectorDrawUtil.DrawProperty(cfgData, null);
+                else
+                    Framework.ED.InspectorDrawUtil.DrawProperty(cfgData,null);
+                Framework.ED.InspectorDrawUtil.EndChangeCheck();
             }
         }
     }

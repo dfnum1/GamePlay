@@ -693,6 +693,12 @@ namespace Framework.ED
                 m_FloorMaterial.mainTexture = m_FloorTexture;
         }
         //-----------------------------------------------------
+        public void SetFloorTextureScale(Vector2 scale)
+        {
+            if(m_FloorMaterial)
+                m_FloorMaterial.mainTextureScale = scale;
+        }
+        //-----------------------------------------------------
         private bool HasStaticPreview()
         {
             if (target == null)

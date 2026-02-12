@@ -8,8 +8,10 @@
 using JsonUtility = ExternEngine.JsonUtility;
 #endif
 using Framework.Core;
+
 #if UNITY_EDITOR
 using Framework.State.Editor;
+using UnityEditor;
 #endif
 using UnityEngine;
 
@@ -34,7 +36,66 @@ namespace Framework.State.Runtime
         {
             return JsonUtility.ToJson(this);
         }
+#if UNITY_EDITOR
+        private AGameEditor m_pEditor = null;
+        internal AGameEditor GetEditor()
+        {
+            if (m_pEditor == null)
+            {
+                var editorType = StateEditorUtil.GetTypeEditorType(this.GetType());
+                if (editorType != null)
+                {
+                    m_pEditor = (AGameEditor)System.Activator.CreateInstance(editorType);
+                }
+            }
+            if (m_pEditor != null)
+                m_pEditor.SetData(this);
+            return m_pEditor;
+        }
+#endif
     }
+    //------------------------------------------------
+    //! 游戏数据体编辑器
+    //------------------------------------------------
+#if UNITY_EDITOR
+    public class AGameEditor
+    {
+        protected AGameCfgData m_pData;
+        //------------------------------------------------
+        internal void SetData(AGameCfgData pData)
+        {
+            m_pData = pData;
+        }
+        //------------------------------------------------
+        public T GetData<T>() where T : AGameCfgData
+        {
+            return m_pData as T;
+        }
+        //------------------------------------------------
+        public virtual void OnInspectorGUI()
+        {
+            Framework.ED.InspectorDrawUtil.DrawProperty(m_pData, null);
+        }
+        //------------------------------------------------
+        public virtual void OnSceneView(SceneView view)
+        {
+        }
+        //------------------------------------------------
+        public virtual void OnPreviewEnable(Framework.ED.TargetPreview preview)
+        {
+
+        }
+        //------------------------------------------------
+        public virtual void OnPreviewDisable(Framework.ED.TargetPreview preview)
+        {
+
+        }
+        //------------------------------------------------
+        public virtual void OnPreviewView(Framework.ED.TargetPreview preview)
+        {
+        }
+    }
+#endif
     //------------------------------------------------
     //! 游戏数据体
     //------------------------------------------------

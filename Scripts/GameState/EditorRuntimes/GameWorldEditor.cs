@@ -30,7 +30,7 @@ namespace Framework.State.Editor
         }
 
         Rect m_PreviewRect;
-
+        Rect m_ToolBarRect;
         float m_fToolSize = 25;
         Rect m_InspectorRect;
         Vector2 m_InspectorScoller;
@@ -98,6 +98,8 @@ namespace Framework.State.Editor
             {
                 OnChangeSelect(Selection.activeObject);
             }
+
+            GetEditorGame();
         }
         //--------------------------------------------------------
         protected override void OnInnerDisable()
@@ -127,6 +129,11 @@ namespace Framework.State.Editor
         public Rect TimelineRect
         {
             get { return m_AIRect; }
+        }
+        //--------------------------------------------------------
+        public Rect ToolBarRect
+        {
+            get { return m_ToolBarRect; }
         }
         //--------------------------------------------------------
         public GUIStyle TileStyle
@@ -199,7 +206,7 @@ namespace Framework.State.Editor
             {
                 if (m_ViewLeftRate.bOpen)
                 {
-                    var btnRect = new Rect(m_AssetRect.xMax - 21, m_AssetRect.y + 1, 20, 20);
+                    var btnRect = new Rect(m_AssetRect.xMax - 21, m_AssetRect.y + 28, 20, 20);
                     if (GUI.Button(btnRect, EditorGUIUtility.TrIconContent("StepLeftButton").image) || CheckBtnRectClick(btnRect))
                     {
                         m_ViewLeftRate.bOpen = false;
@@ -317,6 +324,10 @@ namespace Framework.State.Editor
             m_ViewHeightRate.rate = Mathf.Clamp(m_ViewHeightRate.rate, 0.25f, 0.9f);
             float heightRate = m_ViewHeightRate.bOpen ? m_ViewHeightRate.rate : 0;
 
+            m_ToolBarRect.x = 0;
+            m_ToolBarRect.y = 0;
+            m_ToolBarRect.width = this.position.width;
+            m_ToolBarRect.height = m_fToolSize;
 
             m_AssetRect.y = m_InspectorRect.y = m_fToolSize;
             m_AssetRect.width = this.position.width * leftRate;

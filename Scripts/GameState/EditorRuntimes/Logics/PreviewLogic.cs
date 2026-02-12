@@ -6,20 +6,19 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.ED;
+using Framework.State.Runtime;
 using UnityEditor;
 using UnityEngine;
 
 namespace Framework.State.Editor
 {
     [EditorBinder(typeof(GameWorldEditor), "PreviewRect")]
-    public class PreviewLogic : AEditorLogic
+    public class PreviewLogic : AStateEditorLogic
     {
         TargetPreview m_Preview;
         GUIStyle m_PreviewStyle;
-
-
-        //test
-        GameObject m_RoleTest = null;
+        bool m_bPreviewDataInit = false;
+        IGameWorldItem m_pGameworldItem = null;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
@@ -35,24 +34,58 @@ namespace Framework.State.Editor
             m_Preview.bLeftMouseForbidMove = true;
             m_Preview.SetFloorTexture(Framework.ED.EditorUtils.GetFloorTexture());
 
-            //test
-            m_Preview.AddPreview(m_RoleTest);
-            m_Preview.OnDrawAfterCB += OnDraw;
+            m_bPreviewDataInit = false;
         }
         //--------------------------------------------------------
         protected override void OnDisable()
         {
-            if (m_RoleTest != null)
+            var worldData = GetWorldData();
+            if (worldData != null)
             {
-                GameObject.DestroyImmediate(m_RoleTest);
-                m_RoleTest = null;
+                AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+                if (cfgData != null)
+                {
+                    cfgData.GetEditor()?.OnPreviewDisable(m_Preview);
+                }
             }
             if (m_Preview != null) m_Preview.Destroy();
             m_Preview = null;
+            m_bPreviewDataInit = false;
+        }
+        //--------------------------------------------------------
+        public override void OnGameItemSelected(IGameWorldItem pGameItem)
+        {
+            m_pGameworldItem = pGameItem;
         }
         //--------------------------------------------------------
         void OnDraw(int controllerId, Camera camera, Event evt)
         {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData == null)
+                return;
+
+            if(!m_bPreviewDataInit)
+            {
+                cfgData.GetEditor()?.OnPreviewEnable(m_Preview);
+                m_bPreviewDataInit = true;
+            }
+            cfgData.GetEditor()?.OnPreviewView(m_Preview);
+        }
+        //--------------------------------------------------------
+        public override void OnSceneView(SceneView sceneView)
+        {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData == null)
+                return;
+            cfgData.GetEditor()?.OnSceneView(sceneView);
         }
         //--------------------------------------------------------
         protected override void OnGUI()

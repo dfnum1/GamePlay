@@ -44,6 +44,13 @@ namespace Framework.State.Editor
                 Application.OpenURL("https://docs.qq.com/doc/DTHpDaENHVUJGeVB6");
             }
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginArea(new Rect(GetRect().width - 120,0, 120, GetRect().height));
+            if (GUILayout.Button("编辑器偏好设置", new GUILayoutOption[] { GUILayout.Width(120) }))
+            {
+                EditorPreferences.OpenUserPreferences();
+            }
+            GUILayout.EndArea();
         }
     }
 }

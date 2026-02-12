@@ -54,8 +54,8 @@ namespace Framework.State.Editor
         public void DrawGrid(Rect rect, float zoom, Vector2 panOffset)
         {
             Vector2 center = rect.size / 2f;
-            Texture2D gridTex = EditorPreferences.GetSettings().gridTexture;
-            Texture2D crossTex = EditorPreferences.GetSettings().crossTexture;
+            Texture2D gridTex = Framework.AT.Editor.EditorPreferences.GetSettings().gridTexture;
+            Texture2D crossTex = Framework.AT.Editor.EditorPreferences.GetSettings().crossTexture;
 
             // Offset from origin in tile units
             float xOffset = -(center.x * zoom + panOffset.x) / gridTex.width;

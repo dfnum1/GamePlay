@@ -5,6 +5,8 @@
 描    述:	游戏世界句柄
 *********************************************************************/
 using Framework.Core;
+using Framework.State.Editor;
+using System;
 using System.Collections.Generic;
 namespace Framework.State.Runtime
 {
@@ -43,7 +45,13 @@ namespace Framework.State.Runtime
                 if (handleObj == null) return null;
                 return handleObj as T;
             }
+#if UNITY_EDITOR
+            var type = StateEditorUtil.GetStateWorldType(typeId);
+            if (type == null) return null;
+            return Activator.CreateInstance(type) as T;
+#else
             return null;
+#endif
         }
     }
 }

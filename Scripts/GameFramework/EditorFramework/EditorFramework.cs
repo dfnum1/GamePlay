@@ -21,11 +21,6 @@ using UnityEngine.Rendering;
 namespace Framework.ED
 {
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Class)]
-    public class EditorGameModuleAttribute : Attribute
-    {
-    }
-    //-----------------------------------------------------
     class EditorGame : IGame
     {
         ScriptableObject[] m_Datas = null;
@@ -162,7 +157,7 @@ namespace Framework.ED
                         System.Type tp = types[i];
                         if (tp == null)
                             continue;
-                        if (tp.IsDefined(typeof(EditorGameModuleAttribute), false) && tp.IsSubclassOf(typeof(EditorFramework)))
+                        if (tp.IsSubclassOf(typeof(EditorFramework)))
                         {
                             ms_EditorGameModule = tp;
                             break;

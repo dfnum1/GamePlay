@@ -17,7 +17,7 @@ using UnityEngine.UIElements;
 namespace Framework.State.Editor
 {
     [EditorBinder(typeof(GameWorldEditor))]
-    public class UndoLogic : AStateEditorLogic
+    public class UndoLogic : AStateEditorLogic, UndoHandler
     {
         struct StackData
         {
@@ -77,6 +77,11 @@ namespace Framework.State.Editor
                     bStack = true;
                 }
             }
+        }
+        //--------------------------------------------------------
+        public void RegisterUndoData(object data)
+        {
+            LockUndoData(data, false);
         }
     }
 }

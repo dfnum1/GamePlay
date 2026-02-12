@@ -10,6 +10,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System;
 using Framework.ED;
+using System.Reflection;
 
 namespace Framework.State.Editor
 {
@@ -30,92 +31,9 @@ namespace Framework.State.Editor
         [System.Serializable]
         public class Settings : ISerializationCallbackReceiver
         {
-            public int FrameRate = 30;
-            public float playbackSpeedScale = 1;
             public string generatorCodePath = "Assets/OpenScripts/GameApp/GameWorld";
-            public float animationRunStandardDistance = 7;
-            public float animationRunStandardTime = 0.8f;
-            public float animationRunStandardSpeed = 1;
-
-            [SerializeField]
-            public Color colorClipFont = new Color(0.569f, 0.580f, 0.588f, 1.0f);
-
-            [SerializeField]
-            public Color clipBckg = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-
-            [SerializeField]
-            public Color clipSelectedBckg = new Color(0.7f, 0.7f, 0.7f, 1.0f);
-
-            [SerializeField]
-            public Color clipBorderColor = new Color(0.4f, 0.4f, 0.4f, 1.0f);
-
-            [SerializeField]
-            public Color clipEaseBckgColor = new Color(0.4f, 0.4f, 0.4f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendIn = new Color(0.286f, 0.306f, 0.329f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendInSelected = new Color(0.408f, 0.427f, 0.478f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendOut = new Color(0.286f, 0.306f, 0.329f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendOutSelected = new Color(0.408f, 0.427f, 0.478f, 1.0f);
-
-            [SerializeField]
-            public Color colorRecordingClipOutline = new Color(1, 0, 0, 0.9f);
-            [SerializeField]
-            public Color colorOverClip = new Color(1, 0, 0, 0.7f);
-
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
-            public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value; _gridTexture = null; _crossTexture = null; } }
-
-            [SerializeField]
-            private Color32 _gridBgColor = new Color(0.55f, 0.55f, 0.55f);
-            [SerializeField]
-            private Color _linkLineColor = Color.white;
-
-            [SerializeField]
-            private float _linkLineWidth = 5;
-            public Color32 gridBgColor { get { return _gridBgColor; } set { _gridBgColor = value; _gridTexture = null; } }
-
-            public Color linkLineColor { get { return _linkLineColor; } set { _linkLineColor = value; } }
-
-            public float linkLineWidth { get { return _linkLineWidth; } set { _linkLineWidth = value; } }
-
-            [Obsolete("Use maxZoom instead")]
-            public float zoomOutLimit { get { return maxZoom; } set { maxZoom = value; } }
-
-            [UnityEngine.Serialization.FormerlySerializedAs("zoomOutLimit")]
-            public float maxZoom = 5f;
-            public float minZoom = 1f;
-            public Color32 highlightColor = new Color32(255, 255, 255, 255);
-            public Color32 excudeColor = new Color32(255, 0, 0, 148);
-            public Color32 nodeBgColor = new Color32(255, 255, 255, 148);
-            public bool gridSnap = true;
-            public bool autoSave = true;
-            public bool zoomToMouse = true;
-            public bool portTooltips = true;
-            private Texture2D _gridTexture;
-            public Texture2D gridTexture
-            {
-                get
-                {
-                    if (_gridTexture == null) _gridTexture = EditorUtils.GenerateGridTexture(gridLineColor, gridBgColor);
-                    return _gridTexture;
-                }
-            }
-            private Texture2D _crossTexture;
-            public Texture2D crossTexture
-            {
-                get
-                {
-                    if (_crossTexture == null) _crossTexture = EditorUtils.GenerateCrossTexture(gridLineColor);
-                    return _crossTexture;
-                }
-            }
+            public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value;} }
 
             [SerializeField] private string typeColorsData = "";
             [NonSerialized] public Dictionary<string, Color> typeColors = new Dictionary<string, Color>();
@@ -153,7 +71,12 @@ namespace Framework.State.Editor
             return settings[lastKey];
         }
 
-//#if UNITY_2019_1_OR_NEWER
+        public static void OpenUserPreferences()
+        {
+            SettingsService.OpenUserPreferences("Preferences/GameWorldEditor");
+        }
+
+        //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
             SettingsProvider provider = new SettingsProvider("Preferences/GameWorldEditor", SettingsScope.User) {
@@ -178,47 +101,50 @@ namespace Framework.State.Editor
             }
         }
 
-        static string[] ms_vFramePop = { "30", "45", "60" };
         private static void SystemSettingsGUI(string key, Settings settings)
         {
             //Label
             EditorGUILayout.LabelField("System", EditorStyles.boldLabel);
             int index = 0;
-            for(int i =0; i < ms_vFramePop.Length; ++i)
-            {
-                if (ms_vFramePop[i] == settings.FrameRate.ToString())
-                {
-                    index = i;
-                    break;
-                }
-            }
-            settings.playbackSpeedScale = EditorGUILayout.Slider("EditScale", settings.playbackSpeedScale, 0.1f, 2.0f);
-            index = EditorGUILayout.Popup("FrameRate", index, ms_vFramePop);
-            settings.FrameRate = int.Parse(ms_vFramePop[index]);
             string lastPath = settings.generatorCodePath;
             lastPath = EditorGUILayout.TextField("Generator Code Path", settings.generatorCodePath);
             if(lastPath != settings.generatorCodePath)
             {
-             //   if(!string.IsNullOrEmpty(settings.generatorCodePath) && System.IO.Directory.Exists(settings.generatorCodePath))
-            //    {
-            //        System.IO.Directory.Delete(settings.generatorCodePath,true);
-           //     }
                 settings.generatorCodePath = lastPath;
             }
             bool bChange = false;
             if (GUI.changed) bChange = true;
 
 
-            var fields = settings.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var fields = settings.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             for(int i =0; i < fields.Length; ++i)
             {
-                if (fields[i].Name == "FrameRate")
+                if(fields[i].IsPrivate)
+                {
+                    if(!fields[i].IsDefined(typeof(SerializeField),false))
+                    {
+                        continue;
+                    }
+                }
+                if (fields[i].IsDefined(typeof(HeaderAttribute), false))
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField(fields[i].GetCustomAttribute<HeaderAttribute>().header, EditorStyles.boldLabel);
                     continue;
-                if (fields[i].Name == "playbackSpeedScale")
-                    continue;
+                }
                 if (fields[i].FieldType == typeof(Color))
                 {
                     Color col = (Color)fields[i].GetValue(settings);
+                    EditorGUI.BeginChangeCheck();
+                    col = EditorGUILayout.ColorField(fields[i].Name, col);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        fields[i].SetValue(settings, col);
+                    }
+                }
+                else if (fields[i].FieldType == typeof(Color32))
+                {
+                    Color32 col = (Color32)fields[i].GetValue(settings);
                     EditorGUI.BeginChangeCheck();
                     col = EditorGUILayout.ColorField(fields[i].Name, col);
                     if (EditorGUI.EndChangeCheck())
