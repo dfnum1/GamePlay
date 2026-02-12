@@ -29,16 +29,93 @@ namespace Framework.Guide.Editor
         {
             Vector2 mousePos = Event.current.mousePosition;
 
-            m_vConnectionsSets.Clear();
+            m_vNodeConnectedSets.Clear();
+            m_vPortConnectionsSets.Clear();
             Color col = GUI.color;
             foreach (var db in m_vActioNodes)
             {
-                DrawConnection(db.Value);
+                DrawConnectionNode(db.Value);
+            }
+            foreach (var db in m_vActioNodes)
+            {
+                DrawConnectionPort(db.Value);
             }
             GUI.color = col;
         }
         //------------------------------------------------------
-        void DrawConnection(GraphNode node)
+        void DrawConnectionNode(GraphNode node)
+        {
+            int guid = node.GetGUID();
+            //node link
+            if (node.bLinkOut)
+            {
+                Rect fromRect;
+                if (!m_portConnectionPoints.TryGetValue(node.linkOutPort.GetGUID(), out fromRect)) return;
+                Color connectionColor = GuidePreferences.GetSettings().linkLineColor;
+                float wdith = GuidePreferences.GetSettings().linkLineWidth;
+                for (int i = 0; i < node.Links.Count; ++i)
+                {
+                    GraphNode grapNode = node.Links[i];
+                    if (!grapNode.bLinkIn) continue;
+                    if (grapNode.GetGUID() == node.GetGUID()) continue;
+                    Rect toRect;
+                    if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
+
+                    List<Vector2> gridPoints = new List<Vector2>();
+                    gridPoints.Add(fromRect.center);
+                    gridPoints.Add(toRect.center);
+                    DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
+                    m_vNodeConnectedSets.Add(node.GetGUID());
+                    m_vNodeConnectedSets.Add(grapNode.GetGUID());
+                }
+            }
+
+           // if( (node.bindNode is SeqNode) && (node.bindNode as SeqNode).IsAutoNext())
+            {
+                for (int i = 0; i < node.vExternPorts.Count; ++i)
+                {
+                    if (node.vExternPorts[i].direction != EPortIO.LinkOut) continue;
+                    Rect fromRect;
+                    if (!m_portConnectionPoints.TryGetValue(node.vExternPorts[i].GetGUID(), out fromRect)) return;
+                    Color connectionColor = node.vExternPorts[i].GetColor();
+                    float wdith = GuidePreferences.GetSettings().linkLineWidth;
+                    for (int j = 0; j < node.vExternPorts[i].vLinks.Count; ++j)
+                    {
+                        GraphNode grapNode = node.vExternPorts[i].vLinks[j];
+                        if (!grapNode.bLinkIn) continue;
+                        if (grapNode.GetGUID() == node.GetGUID()) continue;
+                        Rect toRect;
+                        if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
+
+                        List<Vector2> gridPoints = new List<Vector2>();
+                        gridPoints.Add(fromRect.center);
+                        gridPoints.Add(toRect.center);
+                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
+                        m_vNodeConnectedSets.Add(node.GetGUID());
+                        m_vNodeConnectedSets.Add(grapNode.GetGUID());
+                    }
+
+                    for (int j = 0; j < node.vExternPorts[i].vSignFailedLinks.Count; ++j)
+                    {
+                        GraphNode grapNode = node.vExternPorts[i].vSignFailedLinks[j];
+                        if (!grapNode.bLinkIn) continue;
+                        if (grapNode.GetGUID() == node.GetGUID()) continue;
+                        Rect toRect;
+                        if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
+
+                        List<Vector2> gridPoints = new List<Vector2>();
+                        gridPoints.Add(fromRect.center);
+                        gridPoints.Add(toRect.center);
+                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
+                        m_vNodeConnectedSets.Add(node.GetGUID());
+                        m_vNodeConnectedSets.Add(grapNode.GetGUID());
+                    }
+                }
+            }
+            
+        }
+        //------------------------------------------------------
+        void DrawConnectionPort(GraphNode node)
         {
             int guid = node.GetGUID();
             for (int i = 0; i < node.Port.Count; ++i)
@@ -68,17 +145,23 @@ namespace Framework.Guide.Editor
                         if (!m_portConnectionPoints.TryGetValue(linkPort.GetGUID(), out toRect)) continue;
 
                         System.Int64 key = Mathf.Min(linkPort.GetGUID(), node.Port[i].GetGUID()) << 32 | Mathf.Max(linkPort.GetGUID(), node.Port[i].GetGUID());
-                        if (m_vConnectionsSets.Contains(key)) continue;
+                        if (m_vPortConnectionsSets.Contains(key)) continue;
 
                         List<Vector2> gridPoints = new List<Vector2>();
                         gridPoints.Add(toRect.center);
                         gridPoints.Add(fromRect.center);
+
+                        if (!HasLinkPortConnectNode(indb.Value) || !HasLinkPortConnectNode(node))
+                        {
+                            connectionColor = GuidePreferences.GetSettings().unLinkNodeLineColor;
+                        }
+
                         DrawNoodle(connectionColor, gridPoints);
 
-                        m_vConnectionsSets.Add(key);
+                        m_vPortConnectionsSets.Add(key);
                     }
                 }
-                else if( port is ArgvPort )
+                else if (port is ArgvPort)
                 {
                     ArgvPort argvPort = (ArgvPort)port;
 
@@ -96,10 +179,10 @@ namespace Framework.Guide.Editor
                         if (!m_portConnectionPoints.TryGetValue(linkPort.GetGUID(), out toRect)) continue;
 
                         System.Int64 key = Mathf.Min(linkPort.GetGUID(), node.Port[i].GetGUID()) << 32 | Mathf.Max(linkPort.GetGUID(), node.Port[i].GetGUID());
-                        if (m_vConnectionsSets.Contains(key)) continue;
+                        if (m_vPortConnectionsSets.Contains(key)) continue;
 
                         List<Vector2> gridPoints = new List<Vector2>();
-                        if(node.Port[i].IsInput())
+                        if (node.Port[i].IsInput())
                         {
                             gridPoints.Add(toRect.center);
                             gridPoints.Add(fromRect.center);
@@ -109,73 +192,16 @@ namespace Framework.Guide.Editor
                             gridPoints.Add(fromRect.center);
                             gridPoints.Add(toRect.center);
                         }
+                        if (!HasLinkPortConnectNode(indb.Value) || !HasLinkPortConnectNode(node))
+                        {
+                            connectionColor = GuidePreferences.GetSettings().unLinkNodeLineColor;
+                        }
                         DrawNoodle(connectionColor, gridPoints);
 
-                        m_vConnectionsSets.Add(key);
+                        m_vPortConnectionsSets.Add(key);
                     }
                 }
             }
-            //node link
-            if (node.bLinkOut)
-            {
-                Rect fromRect;
-                if (!m_portConnectionPoints.TryGetValue(node.linkOutPort.GetGUID(), out fromRect)) return;
-                Color connectionColor = GuidePreferences.GetSettings().linkLineColor;
-                float wdith = GuidePreferences.GetSettings().linkLineWidth;
-                for (int i = 0; i < node.Links.Count; ++i)
-                {
-                    GraphNode grapNode = node.Links[i];
-                    if (!grapNode.bLinkIn) continue;
-                    if (grapNode.GetGUID() == node.GetGUID()) continue;
-                    Rect toRect;
-                    if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
-
-                    List<Vector2> gridPoints = new List<Vector2>();
-                    gridPoints.Add(fromRect.center);
-                    gridPoints.Add(toRect.center);
-                    DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Count, wdith);
-                }
-            }
-
-           // if( (node.bindNode is SeqNode) && (node.bindNode as SeqNode).IsAutoNext())
-            {
-                for (int i = 0; i < node.vExternPorts.Count; ++i)
-                {
-                    if (node.vExternPorts[i].direction != EPortIO.LinkOut) continue;
-                    Rect fromRect;
-                    if (!m_portConnectionPoints.TryGetValue(node.vExternPorts[i].GetGUID(), out fromRect)) return;
-                    Color connectionColor = node.vExternPorts[i].GetColor();
-                    float wdith = GuidePreferences.GetSettings().linkLineWidth;
-                    for (int j = 0; j < node.vExternPorts[i].vLinks.Count; ++j)
-                    {
-                        GraphNode grapNode = node.vExternPorts[i].vLinks[j];
-                        if (!grapNode.bLinkIn) continue;
-                        if (grapNode.GetGUID() == node.GetGUID()) continue;
-                        Rect toRect;
-                        if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
-
-                        List<Vector2> gridPoints = new List<Vector2>();
-                        gridPoints.Add(fromRect.center);
-                        gridPoints.Add(toRect.center);
-                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
-                    }
-
-                    for (int j = 0; j < node.vExternPorts[i].vSignFailedLinks.Count; ++j)
-                    {
-                        GraphNode grapNode = node.vExternPorts[i].vSignFailedLinks[j];
-                        if (!grapNode.bLinkIn) continue;
-                        if (grapNode.GetGUID() == node.GetGUID()) continue;
-                        Rect toRect;
-                        if (!m_portConnectionPoints.TryGetValue(grapNode.linkInPort.GetGUID(), out toRect)) continue;
-
-                        List<Vector2> gridPoints = new List<Vector2>();
-                        gridPoints.Add(fromRect.center);
-                        gridPoints.Add(toRect.center);
-                        DrawNoodle(connectionColor, gridPoints, GuidePreferences.NoodleType.Angled, wdith);
-                    }
-                }
-            }
-            
         }
         //------------------------------------------------------
         void DrawDraggedConnection()

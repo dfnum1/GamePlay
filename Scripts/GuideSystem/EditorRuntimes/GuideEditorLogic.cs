@@ -49,7 +49,8 @@ namespace Framework.Guide.Editor
         public HashSet<int> lastportConnectionPoints = new HashSet<int>();
         public Dictionary<int, Rect> portConnectionPoints { get { return m_portConnectionPoints; } }
         private Dictionary<int, Rect> m_portConnectionPoints = new Dictionary<int, Rect>();
-        private HashSet<System.Int64> m_vConnectionsSets = new HashSet<System.Int64>();
+        private HashSet<System.Int64> m_vPortConnectionsSets = new HashSet<System.Int64>();
+        private HashSet<int> m_vNodeConnectedSets = new HashSet<int>();
         public bool IsDraggingPort { get { return draggedOutputGuid != -1; } }
         public bool IsHoveringPort { get { return hoveredPortGuid != -1; } }
         public bool IsHoveringNode { get { return hoveredNode !=null; } }
@@ -114,6 +115,11 @@ namespace Framework.Guide.Editor
                 Save(false);
             m_bDeleteSelected = false;
             pCurrentGroup = null;
+        }
+        //------------------------------------------------------
+        internal bool HasLinkPortConnectNode(GraphNode node)
+        {
+            return m_vNodeConnectedSets.Contains(node.GetGUID());
         }
         //------------------------------------------------------
         public void OnGUI()
@@ -1031,7 +1037,8 @@ namespace Framework.Guide.Editor
             draggedOutputReroutes.Clear();
             lastportConnectionPoints.Clear();
             m_portConnectionPoints.Clear();
-            m_vConnectionsSets.Clear();
+            m_vPortConnectionsSets.Clear();
+            m_vNodeConnectedSets.Clear();
 
             isDoubleClick = false;
 
@@ -1303,6 +1310,17 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         public GraphNode FindLastNodeAndNoNextLink()
         {
+            if(m_SelectionCache!=null && m_SelectionCache.Count>0)
+            {
+                for(int i = m_SelectionCache.Count-1; i >=0; --i)
+                {
+                    var node = m_SelectionCache[i];
+                    if (node.bLinkOut && node.linkOutPort.baseNode != null &&
+                        (node.linkOutPort.baseNode.Links == null || node.linkOutPort.baseNode.Links.Count <= 0))
+                        return node;
+                }
+                return m_SelectionCache[m_SelectionCache.Count - 1];
+            }
             for (int i = m_vActioNodes.Count - 1; i >= 0; --i)
             {
                 var node = m_vActioNodes.ElementAt(i).Value;

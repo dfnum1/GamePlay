@@ -99,7 +99,11 @@ namespace Framework.Guide.Editor
         //------------------------------------------------------
         public Color GetTint()
         {
-            return GuidePreferences.GetSettings().nodeBgColor;
+            if(GuideSystemEditor.Instance.HasLinkPortConnectNode(this))
+            {
+                return GuidePreferences.GetSettings().nodeBgColor;
+            }
+            return GuidePreferences.GetSettings().unLinkNodeBgColor;
         }
         //------------------------------------------------------
         public void OnHeaderGUI()
@@ -124,7 +128,14 @@ namespace Framework.Guide.Editor
             if (GuideSystem.getInstance().vTrackingNodes.Contains(bindNode))
                 tileName += "¤";
             CalcSize.x = GuideEditorResources.styles.nodeHeader.CalcSize(new GUIContent(tileName)).x+80+ widthOffset;
-            GUILayout.Label(tileName, GuideEditorResources.styles.nodeHeader, GUILayout.Height(30));
+
+            GUIContent name = new GUIContent(tileName);
+            if (!GuideSystemEditor.Instance.HasLinkPortConnectNode(this))
+            {
+                name.image = GuideEditorResources.LoadTexture("GuideSystem/nolink.png");
+            }
+            GUILayout.Label(name, GuideEditorResources.styles.nodeHeader, GUILayout.Height(30));
+
         }
         //------------------------------------------------------
         public void OnBodyGUI()

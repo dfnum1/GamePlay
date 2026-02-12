@@ -61,6 +61,8 @@ namespace Framework.Guide.Editor
             public Color32 highlightColor = new Color32(255, 255, 255, 255);
             public Color32 excudeColor = new Color32(255, 0, 0, 148);
             public Color32 nodeBgColor = new Color32(63, 63, 63, 148);
+            public Color32 unLinkNodeBgColor = new Color32(30, 30, 30, 188);
+            public Color32 unLinkNodeLineColor = new Color32(1, 0, 0, 250);
             public bool gridSnap = true;
             public bool autoSave = true;
             public bool zoomToMouse = true;
@@ -203,6 +205,8 @@ namespace Framework.Guide.Editor
             settings.highlightColor = EditorGUILayout.ColorField("Selection", settings.highlightColor);
             settings.excudeColor = EditorGUILayout.ColorField("Excude", settings.excudeColor);
             settings.nodeBgColor = EditorGUILayout.ColorField("NodeBG", settings.nodeBgColor);
+            settings.unLinkNodeBgColor = EditorGUILayout.ColorField("NoLinkNodeBG", settings.unLinkNodeBgColor);
+            settings.unLinkNodeLineColor = EditorGUILayout.ColorField("NoLinkNodeLine", settings.unLinkNodeLineColor);
             settings.noodleType = (NoodleType)EditorGUILayout.EnumPopup("Noodle type", (Enum)settings.noodleType);
             settings.portTooltips = EditorGUILayout.Toggle("Port Tooltips", settings.portTooltips);
             if (GUI.changed)

@@ -957,6 +957,11 @@ namespace Framework.Guide.Editor
             if (!bDoing) m_pLogic.OnStopDoingGuide();
         }
         //------------------------------------------------------
+        internal bool HasLinkPortConnectNode(GraphNode node)
+        {
+            return m_pLogic.HasLinkPortConnectNode(node);
+        }
+        //------------------------------------------------------
         public void CreateCtlAction(object var)
         {
             EControllType ctl = EControllType.New;
