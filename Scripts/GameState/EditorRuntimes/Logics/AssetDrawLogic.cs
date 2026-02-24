@@ -16,6 +16,16 @@ namespace Framework.State.Editor
     [EditorBinder(typeof(GameWorldEditor), "AssetRect", -1)]
     public class AssetDrawLogic : AStateEditorLogic
     {
+        public class GameLogicItem : IGameWorldItem
+        {
+            public int classId;
+            public System.Type classType;
+            public GameLogicItem(int classId)
+            {
+                this.classId = classId;
+                this.classType = StateEditorUtil.GetStateWorldType(classId);
+            }
+        }
         public class GameElementItem : Framework.ED.TreeAssetView.ItemData
         {
             public IGameWorldItem bindData;
@@ -27,14 +37,37 @@ namespace Framework.State.Editor
             }
             public override Texture2D itemIcon()
             {
-                if(bindData!=null && bindData.GetType().IsDefined(typeof(StateIconAttribute)))
+                if (bindData is GameLogicItem)
                 {
-                    var iconAttr = bindData.GetType().GetCustomAttribute<StateIconAttribute>();
-                    if(iconAttr!=null &&!string.IsNullOrEmpty(iconAttr.name))
+                    GameLogicItem item = bindData as GameLogicItem;
+                    if (item.classType.IsDefined(typeof(StateIconAttribute)))
                     {
-                        m_pIcon=Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(iconAttr.name);
+                        var iconAttr = item.classType.GetCustomAttribute<StateIconAttribute>();
+                        if (iconAttr != null && !string.IsNullOrEmpty(iconAttr.name))
+                        {
+                            m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(iconAttr.name);
+                        }
+                    }
+                    if (m_pIcon == null)
+                    {
+                        if(StateEditorUtil.IsStateWorldType<AStateLogic>(item.classId))
+                            m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameWorld/statelogic.png");
+                        else
+                            m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameWorld/modelogic.png");
                     }
                 }
+                else
+                {
+                    if (bindData != null && bindData.GetType().IsDefined(typeof(StateIconAttribute)))
+                    {
+                        var iconAttr = bindData.GetType().GetCustomAttribute<StateIconAttribute>();
+                        if (iconAttr != null && !string.IsNullOrEmpty(iconAttr.name))
+                        {
+                            m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(iconAttr.name);
+                        }
+                    }
+                }
+
                 return m_pIcon;
             }
             public string displayName
@@ -69,6 +102,7 @@ namespace Framework.State.Editor
             m_pGameEleTree = new TreeAssetView(new string[] { "" });
             m_pGameEleTree.SetRowHeight(25);
             m_pGameEleTree.buildMutiColumnDepth = true;
+            m_pGameEleTree.DepthIndentWidth = 10;
             m_pGameEleTree.ShowAlternatingRowBackgrounds(false);
             m_pGameEleTree.Reload();
             m_pGameEleTree.OnCellDraw += OnGameElementDraw;
@@ -166,9 +200,23 @@ namespace Framework.State.Editor
                     foreach(var db in worldObj.modeDatas)
                     {
                         m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = db, name = db.name, depth = 1 });
+                        if(db.modeLogics!=null)
+                        {
+                            foreach(var logic in db.modeLogics)
+                            {
+                                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = new GameLogicItem(logic), name = StateEditorUtil.GetStateWorldTypeName(logic), depth = 2 });
+                            }
+                        }
                     }
                 }
-                if(worldObj.gameLevel == null)
+                if (worldObj.gameStateData.stateLogics != null)
+                {
+                    foreach (var logic in worldObj.gameStateData.stateLogics)
+                    {
+                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = new GameLogicItem(logic), name = StateEditorUtil.GetStateWorldTypeName(logic), depth = 1 });
+                    }
+                }
+                if (worldObj.gameLevel == null)
                 {
                     worldObj.gameLevel = new GameLevelData();
                     worldObj.gameLevel.name = "游戏玩法配置数据";

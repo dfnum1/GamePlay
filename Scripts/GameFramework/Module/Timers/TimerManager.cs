@@ -15,20 +15,10 @@ namespace Framework.Core
         bool IsTimerValid();
     }
     //------------------------------------------------------
-    public class TimerManager /*: AModule*/
+    public class TimerManager : AModule
     {
         public delegate bool EventFunction(int nEventHash, IUserData param);
-        static Stack<TimerEvent>            ms_vPools = new Stack<TimerEvent>(32);
-        static TimerManager                 ms_Instance = null;
-        public static TimerManager getInstance()
-        {
-            if (ms_Instance == null)
-            {
-                ms_Instance = new TimerManager();
-                ms_Instance.Awake();
-            }
-            return ms_Instance;
-        }
+        Stack<TimerEvent>                   m_vPools = new Stack<TimerEvent>(32);
 
         protected long                      m_lRuntime = 0;
         protected long                      m_lRuntimeUnScale = 0;
@@ -45,7 +35,7 @@ namespace Framework.Core
         HashSet<IBaseTimerEvent>            m_vDestroyed = null;
 
         //------------------------------------------------------
-        public /*override*/ void Awake()
+        protected override void OnAwake()
         {
             m_vTimerEvents = new Dictionary<string, IBaseTimerEvent>(16);
             m_vDestroyed = new HashSet<IBaseTimerEvent>(8);
@@ -67,7 +57,7 @@ namespace Framework.Core
             m_nAutoHash = 0;
         }
         //------------------------------------------------------
-        public /*override*/ void Destroy()
+        protected override void OnDestroy()
         {
             Clear();
         }
@@ -106,7 +96,7 @@ namespace Framework.Core
             return m_nDiffSeconds;
         }
         //------------------------------------------------------
-        internal void Update(long lRuntime, long lUnScaleRunTime, bool bProcess = true)
+        void Update(long lRuntime, long lUnScaleRunTime, bool bProcess = true)
         {
             if(m_dwStartGameTime > 0 && m_dwCurrentSeverTime > 0)
             {
@@ -141,12 +131,12 @@ namespace Framework.Core
             m_vDestroyed.Clear();
         }
         //------------------------------------------------------
-        public bool FindTimer(string strEvent)
+        bool FindTimer(string strEvent)
         {
             return IsTimerEvent(strEvent);
         }
         //------------------------------------------------------
-        public void RemoveTimer(string strEvent)
+        void RemoveTimer(string strEvent)
         {
             if (string.IsNullOrEmpty(strEvent)) return;
             IBaseTimerEvent pEvent;
@@ -167,14 +157,14 @@ namespace Framework.Core
             timer.Clear();
             if (timer is TimerEvent)
             {
-                if (ms_vPools.Count < 32) ms_vPools.Push(timer as TimerEvent);
+                if (m_vPools.Count < 32) m_vPools.Push(timer as TimerEvent);
             }
         }
         //------------------------------------------------------
         private TimerEvent NewPool(ITimerTicker pTicker, TimerManager.EventFunction Function, IUserData param)
         {
             TimerEvent timer = null;
-            if (ms_vPools.Count > 0) timer = ms_vPools.Pop();
+            if (m_vPools.Count > 0) timer = m_vPools.Pop();
             else timer = new TimerEvent();
 
             timer.Clear();
@@ -252,9 +242,9 @@ namespace Framework.Core
             m_vTimerEvents.Clear();
         }
         //------------------------------------------------------
-        public static void Process(long lRuntime, long lUnScaleRunTime, bool bProcess = true)
+        public void Process(long lRuntime, long lUnScaleRunTime, bool bProcess = true)
         {
-            getInstance().Update(lRuntime, lUnScaleRunTime, bProcess);
+            Update(lRuntime, lUnScaleRunTime, bProcess);
         }
         //------------------------------------------------------
         /**********************************************************************************************************
@@ -266,32 +256,24 @@ namespace Framework.Core
              如一秒定时,这次耗时1.5时,下次会在0.5秒时回调.若这次卡了用时3.5秒.将连续回调3次,之后0.5秒回调第四次.
              但,如果处理耗时间太长,或暂时时间过长,会出现连续回调多次或卡机状态. 慎用!!!
         **********************************************************************************************************/
-        public static IBaseTimerEvent RegisterTimer(string strEventName, ITimerTicker pTicker, long Interval, long ExeTimes = -1, bool bDelta = false, bool bTimeScale = true, IUserData param = null, bool bReplace = false)
+        public IBaseTimerEvent RegisterTimer(string strEventName, ITimerTicker pTicker, long Interval, long ExeTimes = -1, bool bDelta = false, bool bTimeScale = true, IUserData param = null, bool bReplace = false)
         {
-            return getInstance().AddTimer(strEventName, pTicker, null, Interval, ExeTimes, bDelta, bTimeScale, param, bReplace);
+            return AddTimer(strEventName, pTicker, null, Interval, ExeTimes, bDelta, bTimeScale, param, bReplace);
         }
         //------------------------------------------------------
-        public static IBaseTimerEvent RegisterTimer(string strEventName,TimerManager.EventFunction Function, long Interval, long ExeTimes = -1, bool bDelta = false, bool bTimeScale = true, IUserData param = null, bool bReplace = false)
+        public IBaseTimerEvent RegisterTimer(string strEventName,TimerManager.EventFunction Function, long Interval, long ExeTimes = -1, bool bDelta = false, bool bTimeScale = true, IUserData param = null, bool bReplace = false)
         {
-            return getInstance().AddTimer(strEventName, null, Function, Interval, ExeTimes, bDelta, bTimeScale, param, bReplace);
+            return AddTimer(strEventName, null, Function, Interval, ExeTimes, bDelta, bTimeScale, param, bReplace);
         }
         //------------------------------------------------------
-        public static void UnRegisterTimer( string strEventName)
+        public void UnRegisterTimer( string strEventName)
         {
-            if (ms_Instance == null)
-            {
-                return;
-            }
-            ms_Instance.RemoveTimer(strEventName);
+            RemoveTimer(strEventName);
         }
         //------------------------------------------------------
-        public static bool HasTimer(string strEventName)
+        public bool HasTimer(string strEventName)
         {
-            if (ms_Instance == null)
-            {
-                return false;
-            }
-            return ms_Instance.FindTimer(strEventName);
+            return FindTimer(strEventName);
         }
     }
 }

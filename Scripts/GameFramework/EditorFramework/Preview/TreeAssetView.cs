@@ -573,10 +573,15 @@ namespace Framework.ED
             Color oldColor = GUI.color;
             CenterRectUsingSingleLineHeight(ref cellRect);
 
-            if(column == 0 && buildMutiColumnDepth && item.hasChildren)
+            if(column == 0 && buildMutiColumnDepth)
             {
-                cellRect.x += DepthIndentWidth;
-                cellRect.width -= DepthIndentWidth;
+                float offsetX = DepthIndentWidth * item.depth;
+                if(item.hasChildren)
+                {
+                    offsetX += 16;
+                }
+                cellRect.x += offsetX;
+                cellRect.width -= offsetX;
             }
 
             item.displayName = item.data.name;

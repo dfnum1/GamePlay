@@ -38,7 +38,7 @@ namespace Framework.State.Runtime
         }
 #if UNITY_EDITOR
         private AGameEditor m_pEditor = null;
-        internal AGameEditor GetEditor()
+        internal AGameEditor GetEditor(EditorWindow pEditorWindow = null)
         {
             if (m_pEditor == null)
             {
@@ -49,7 +49,10 @@ namespace Framework.State.Runtime
                 }
             }
             if (m_pEditor != null)
+            {
                 m_pEditor.SetData(this);
+                m_pEditor.SetEditor(pEditorWindow);
+            }
             return m_pEditor;
         }
 #endif
@@ -61,10 +64,16 @@ namespace Framework.State.Runtime
     public class AGameEditor
     {
         protected AGameCfgData m_pData;
+        protected EditorWindow m_pEditor;
         //------------------------------------------------
         internal void SetData(AGameCfgData pData)
         {
             m_pData = pData;
+        }
+        //------------------------------------------------
+        internal void SetEditor(EditorWindow pData)
+        {
+            m_pEditor = pData;
         }
         //------------------------------------------------
         public T GetData<T>() where T : AGameCfgData
@@ -79,6 +88,16 @@ namespace Framework.State.Runtime
         //------------------------------------------------
         public virtual void OnSceneView(SceneView view)
         {
+        }
+        //------------------------------------------------
+        public virtual void OnEvent(Event evt)
+        {
+
+        }
+        //------------------------------------------------
+        public virtual void OnGUI(Rect rect)
+        {
+
         }
         //------------------------------------------------
         public virtual void OnPreviewEnable(Framework.ED.TargetPreview preview)

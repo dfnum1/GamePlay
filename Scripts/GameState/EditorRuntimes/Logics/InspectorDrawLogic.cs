@@ -228,7 +228,7 @@ namespace Framework.State.Editor
                 Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
                 if (cfgData.GetEditor() != null)
                 {
-                    cfgData.GetEditor().OnInspectorGUI();
+                    cfgData.GetEditor(GetOwner()).OnInspectorGUI();
                 }
                 else
                     Framework.ED.InspectorDrawUtil.DrawProperty(cfgData,null);
