@@ -303,7 +303,7 @@ namespace Framework.ED
             Destroy();
         }
         //-----------------------------------------------------
-        public void DrawMesh(Mesh mesh, Matrix4x4 matrix, Material mat, int subMeshIndex)
+        public void DrawMesh(Mesh mesh, Matrix4x4 matrix, Material mat, int subMeshIndex = 0)
         {
             if (m_PreviewUtility != null)
                 m_PreviewUtility.DrawMesh(mesh, matrix, mat, subMeshIndex);
@@ -499,7 +499,7 @@ namespace Framework.ED
                 m_ViewTool = ViewTool.None;
             }
 
-            m_PreviewUtility.BeginPreview(rect2, background);
+            m_PreviewUtility.BeginPreview(rect2, m_defaultStyle);
                
             DoRenderPreview(controlID, current);
 
@@ -799,15 +799,16 @@ namespace Framework.ED
 
             Matrix4x4 oldMatrix = Handles.matrix;
             Handles.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
-            Vector2 mousePos = evt.mousePosition;
+            Handles.SetCamera(m_PreviewUtility.camera);
+                       Vector2 mousePos = evt.mousePosition;
             Rect screenRect = EditorGUIUtility.GUIToScreenRect(m_Rect);
             if (pOwnerWindow)
             {
                 float scaleFactor = m_PreviewUtility.GetScaleFactor(m_Rect.width, m_Rect.height);
-                Vector2 mouseOffset = new Vector2(screenRect.xMin, screenRect.yMin) - new Vector2(pOwnerWindow.position.xMin, pOwnerWindow.position.yMin);
+                Vector2 mouseOffset = new Vector2(screenRect.xMin, screenRect.yMin)- new Vector2(pOwnerWindow.position.xMin, pOwnerWindow.position.yMin);
                 evt.mousePosition -= mouseOffset;
                 Vector2 mouseLocal = evt.mousePosition * scaleFactor;
-                evt.mousePosition = mouseLocal;
+          //      evt.mousePosition = mouseLocal;
             }
             UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
             Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
@@ -1088,21 +1089,14 @@ namespace Framework.ED
         //-----------------------------------------------------
         public Ray GetRay(Vector2 mousePosition, Rect previewRect)
         {
+            var mouse = EditorGUIUtility.PointsToPixels(mousePosition);
             var pixel = EditorGUIUtility.PointsToPixels(previewRect);
-
-            float scale = m_PreviewUtility.GetScaleFactor(previewRect.width, previewRect.height);
             Rect pixelRect = m_PreviewUtility.camera.pixelRect;
-            float scaleX = previewRect.width / pixelRect.width;
-            float scaleY = previewRect.height / pixelRect.height;
-            Vector2 relativePos = new Vector2(
-                (mousePosition.x - pixel.x) / pixel.width,
-                (mousePosition.y - pixel.y) / pixel.height
-            );
-
-            relativePos.y = 1f - relativePos.y;
-
-            Vector3 viewportPoint = new Vector3(relativePos.x, relativePos.y, 0);
-            return m_PreviewUtility.camera.ViewportPointToRay(viewportPoint);
+            Vector3 mouseLocal = new Vector3((mouse.x - pixel.x- pixelRect.x*0.5f), (previewRect.height - (mouse.y - pixel.y + pixelRect.y * 0.5f)), 0);
+            mouseLocal.z = 0;// Vector3.Distance(bodyPosition, m_PreviewUtility.camera.transform.position);
+            mouseLocal.x /= pixelRect.width;
+            mouseLocal.y /= pixelRect.height;
+            return m_PreviewUtility.camera.ViewportPointToRay(mouseLocal);
         }
         //-----------------------------------------------------
         protected void HandleMouseDown(Event evt, int id, Rect previewRect)
@@ -1121,7 +1115,8 @@ namespace Framework.ED
 
                 if (OnMouseDownCB != null)
                 {
-                    OnMouseDownCB(GetRay(evt, previewRect), Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect)), evt);
+                    Vector3 wordPos = Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect));
+                    OnMouseDownCB(GetRay(evt, previewRect), wordPos, evt);
                 }
             }
         }
@@ -1133,7 +1128,8 @@ namespace Framework.ED
 
             if (OnMouseMoveCB != null)
             {
-                OnMouseMoveCB(GetRay(evt, previewRect), Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect)), evt );
+                Vector3 wordPos = Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect));
+                OnMouseMoveCB(GetRay(evt, previewRect), wordPos, evt );
             }
         }
         //-----------------------------------------------------
@@ -1148,9 +1144,8 @@ namespace Framework.ED
 
                 if (OnMosueUpCB != null)
                 {
-                    Vector3 vPos = m_PreviewUtility.camera.ScreenToWorldPoint(evt.mousePosition);
-                    vPos = GetCurrentMouseWorldPosition(evt, m_Rect);
-                    OnMosueUpCB(GetRay(evt, previewRect), vPos, evt);
+                    Vector3 wordPos = Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect));
+                    OnMosueUpCB(GetRay(evt, previewRect), wordPos, evt);
                 }
             }
         }
@@ -1163,9 +1158,8 @@ namespace Framework.ED
 
                 if (OnMoseHitCB != null)
                 {
-                    Vector3 vPos = m_PreviewUtility.camera.ScreenToWorldPoint(evt.mousePosition);
-                    vPos = GetCurrentMouseWorldPosition(evt, m_Rect);
-                    OnMoseHitCB(GetRay(evt, previewRect), vPos, evt);
+                    Vector3 wordPos = Change2DTo3DPos(ConvertMousePosition(evt.mousePosition, previewRect));
+                    OnMoseHitCB(GetRay(evt, previewRect), wordPos, evt);
                 }
             }
         }

@@ -94,6 +94,70 @@ namespace Framework.State.Runtime
         public virtual void OnPreviewView(Framework.ED.TargetPreview preview)
         {
         }
+        //------------------------------------------------
+        protected void DestroyObj(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            Framework.ED.EditorUtils.Destroy(obj);
+        }
+        //------------------------------------------------
+        protected Mesh CreateSquareMesh(float size = 1f)
+        {
+            Mesh mesh = new Mesh();
+            float half = size * 0.5f;
+            Vector3[] vertices = new Vector3[]
+            {
+                new Vector3(-half, 0, -half),
+                new Vector3(-half, 0,  half),
+                new Vector3( half, 0,  half),
+                new Vector3( half, 0, -half)
+            };
+            int[] triangles = new int[]
+            {
+                0, 1, 2,
+                0, 2, 3
+            };
+            Vector2[] uv = new Vector2[]
+            {
+                new Vector2(0, 0),
+                new Vector2(0, 1),
+                new Vector2(1, 1),
+                new Vector2(1, 0)
+            };
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.uv = uv;
+            mesh.RecalculateNormals();
+            return mesh;
+        }
+        //------------------------------------------------
+        protected Material CreateTransparentMaterial()
+        {
+            Shader shader = null;
+            bool isURP = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline != null &&
+                         UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline.GetType().Name.Contains("Universal");
+
+            if (isURP)
+            {
+                // URP半透Shader
+                shader = Shader.Find("Universal Render Pipeline/Unlit");
+            }
+            else
+            {
+                // 标准半透Shader
+                shader = Shader.Find("Unlit/Transparent");
+                if (shader == null)
+                    shader = Shader.Find("Legacy Shaders/Transparent/Diffuse");
+            }
+
+            Material pMaterial = new Material(shader);
+            pMaterial.color = new Color(0, 1, 0, 0.3f); // 半透明绿色
+            pMaterial.SetFloat("_Surface", 1); // 如果是URP Unlit，设置为透明
+            pMaterial.SetFloat("_Blend", 3);   // 混合模式（可选，视Shader而定）
+            pMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);   // 混合模式（可选，视Shader而定）
+            pMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);   // 混合模式（可选，视Shader而定）
+            return pMaterial;
+        }
     }
 #endif
     //------------------------------------------------
