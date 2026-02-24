@@ -620,7 +620,7 @@ namespace Framework.ED
                 for (int i = 0; i < 32; ++i) cull |= (1 << i);
                 m_PreviewUtility.camera.cullingMask = cull;// 1 << PreviewCullingLayer;
                 m_PreviewUtility.camera.useOcclusionCulling = false;
-
+                m_PreviewUtility.camera.cameraType = CameraType.Preview;
                 this.m_PreviewUtility.camera.allowHDR = true;
                 this.m_PreviewUtility.camera.allowMSAA = true;
                 m_PreviewUtility.ambientColor = new Color(1, 1, 1, 1);
@@ -796,30 +796,39 @@ namespace Framework.ED
 
 
             SetPreviewCharacterEnabled(true, m_ShowReference);
+            Vector2 mousePos = evt.mousePosition;
 
-            Matrix4x4 oldMatrix = Handles.matrix;
-            Handles.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
-            Handles.SetCamera(m_PreviewUtility.camera);
-                       Vector2 mousePos = evt.mousePosition;
             Rect screenRect = EditorGUIUtility.GUIToScreenRect(m_Rect);
             if (pOwnerWindow)
             {
                 float scaleFactor = m_PreviewUtility.GetScaleFactor(m_Rect.width, m_Rect.height);
-                Vector2 mouseOffset = new Vector2(screenRect.xMin, screenRect.yMin)- new Vector2(pOwnerWindow.position.xMin, pOwnerWindow.position.yMin);
+                Vector2 mouseOffset = new Vector2(screenRect.xMin, screenRect.yMin) - new Vector2(pOwnerWindow.position.xMin, pOwnerWindow.position.yMin);
                 evt.mousePosition -= mouseOffset;
-                Vector2 mouseLocal = evt.mousePosition * scaleFactor;
-          //      evt.mousePosition = mouseLocal;
+              //  Vector2 mouseLocal = evt.mousePosition * scaleFactor;
+                //      evt.mousePosition = mouseLocal;
             }
+
             UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
-            OnDrawBefore(contollerId, evt);
-            Handles.zTest = zTest;
+            Matrix4x4 oldMatrix = Handles.matrix;
+            using (new Handles.DrawingScope(Matrix4x4.identity))
+            {
+                Handles.SetCamera(m_PreviewUtility.camera);
 
-            this.m_PreviewUtility.Render(true, true);
+                Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+                OnDrawBefore(contollerId, evt);
+                Handles.zTest = zTest;
+            }
 
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
-            OnDrawAfter(contollerId, evt);
-            Handles.zTest = zTest;
+
+            this.m_PreviewUtility.Render(true, false);
+            using (new Handles.DrawingScope(Matrix4x4.identity))
+            {
+                Handles.SetCamera(m_PreviewUtility.camera);
+                Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+                OnDrawAfter(contollerId, evt);
+                Handles.zTest = zTest;
+            }
+
             SetPreviewCharacterEnabled(false, false);
             TeardownPreviewLightingAndFx(oldFog);
 
