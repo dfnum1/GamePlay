@@ -176,7 +176,7 @@ namespace Framework.AT.Editor
                                 }
                                 methodCnt++;
                                 exportData.methodCount[fields[m].Name] = methodCnt;
-                                exportData.usingCode = CheckUsing(meths[m], exportData.usingCode);
+                                exportData.usingCode = CheckUsing(fields[m], exportData.usingCode);
 
                                 ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
                                 exportMth.info = fields[m];
@@ -224,6 +224,7 @@ namespace Framework.AT.Editor
             if(export.usingCode.Length>0)
             {
                 code.AppendLine(export.usingCode);
+                code.AppendLine("#endif");
             }
             if (export.type.Namespace != null)
             {
@@ -918,6 +919,25 @@ namespace Framework.AT.Editor
                                 usingCode += usingEq += "\r\n";
                         }
                     }
+                }
+            }
+            return usingCode;
+        }
+        //-----------------------------------------------------
+        static string CheckUsing(FieldInfo method, string usingCode)
+        {
+            if (usingCode == null) usingCode = "";
+            if (method.FieldType != null && SupportExportATType(method.FieldType))
+            {
+                if (method.FieldType.Namespace.Contains("ExternEngine") && method.FieldType.Name.StartsWith("F"))
+                {
+                    if (string.IsNullOrEmpty(usingCode))
+                    {
+                        usingCode += "#if USE_FIXEDMATH\r\nusing ExternEngine;\r\n#else\r\n";
+                    }
+                    string usingEq = $"using {method.FieldType.Name}=UnityEngine.{method.FieldType.Name.Substring(1)};";
+                    if (!usingCode.Contains(usingEq))
+                        usingCode += usingEq += "\r\n";
                 }
             }
             return usingCode;
