@@ -19,7 +19,7 @@ namespace Framework.ED
 {
     public class EditorUtils
     {
-        const string PACKAGE_NAME = "com.iggrd1.gameplay";
+        const string PACKAGE_NAME = "com.rd1.center.gameplay";
         private static bool ms_LoadUnityPluginCheck = false;
         private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
         //-----------------------------------------------------

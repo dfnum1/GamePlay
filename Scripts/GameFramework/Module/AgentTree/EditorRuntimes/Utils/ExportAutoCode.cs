@@ -837,8 +837,10 @@ namespace Framework.AT.Editor
             code.AppendLine("namespace Framework.AT.Runtime");
             code.AppendLine("{");
             code.AppendLine("\t[Framework.Base.EditorSetupInit]");
-            if (bInternal) code.AppendLine("\tinternal class ATRegisterInternalHandler");
-            else code.AppendLine("\tinternal class ATRegisterHandler");
+
+            string name = "ATRegisterHandler";
+            if (bInternal) name = "ATRegisterInternalHandler";
+            code.AppendLine("\tinternal class " + name);
             code.AppendLine("\t{");
             code.AppendLine("\t\t//-----------------------------------------------------");
             code.AppendLine("\t\tpublic static void Init()");
@@ -870,7 +872,7 @@ namespace Framework.AT.Editor
             code.AppendLine("\t}");
             code.AppendLine("}");
 
-            string fullPath = Application.dataPath + "/" + EXPORT_PATH + "ATRegisterHandler.cs";
+            string fullPath = Application.dataPath + "/" + EXPORT_PATH + name + ".cs";
             if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
