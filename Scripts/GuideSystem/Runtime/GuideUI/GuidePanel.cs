@@ -1187,6 +1187,7 @@ namespace Framework.Guide
             }
             finger.rotation = Quaternion.Euler(angle);
             finger.localPosition += new Vector3(offset.x, offset.y, 0);
+            m_bResetFingerActive = false;
         }
         //-------------------------------------------
         public void SetFinger(EFingerType type, Vector3 angle, Vector3 offset)
@@ -1200,6 +1201,7 @@ namespace Framework.Guide
             }
             m_FingerOffset = offset;
             finger.rotation = Quaternion.Euler(angle);
+            m_bResetFingerActive = false;
         }
         //-------------------------------------------
         public void ClickZoom(EFingerType type, Vector3 angle, Vector3 pos, bool is3D, float radius, bool bMask)
@@ -1212,6 +1214,7 @@ namespace Framework.Guide
                 return;
             }
             finger.rotation = Quaternion.Euler(angle);
+            m_bResetFingerActive = false;
             m_ClickZoomPosition = pos;
             if (is3D)
             {
