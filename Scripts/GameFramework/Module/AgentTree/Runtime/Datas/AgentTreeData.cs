@@ -17,6 +17,7 @@ namespace Framework.AT.Runtime
     [System.Serializable]
     public class AgentTreeData
     {
+        public bool        enable = true;
         public GroupNode[] groupNodes;
         public EnterTask[] tasks;
         public ActionNode[] actions;
@@ -187,6 +188,19 @@ namespace Framework.AT.Runtime
             Init(true);
             if (toJson) return JsonUtility.ToJson(this, true);
             return null;
+        }
+        //-----------------------------------------------------
+        internal void Clear()
+        {
+            tasks = null;
+            actions = null;
+            events = null;
+            parallelConditions = null;
+            groupNodes = null;
+            varGuids = new VaribaleSerizlizeGuidData();
+            if (m_vVariables != null) m_vVariables.Clear();
+            if (m_vNodes != null) m_vNodes.Clear();
+            if (m_vVarOwnerNodes != null) m_vVarOwnerNodes.Clear();
         }
 #endif
     }

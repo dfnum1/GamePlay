@@ -39,7 +39,7 @@ namespace Framework.State.Runtime
     //! 游戏蓝图数据
     //------------------------------------------------------
     [StateIcon("AT/AgentTree"), System.Serializable]
-    public class GameStateATData : IGameWorldItem
+    public class GameWorldATData : IGameWorldItem
     {
         public AgentTreeData worldAgentTree = new AgentTreeData();
     }
@@ -49,7 +49,7 @@ namespace Framework.State.Runtime
     [System.Serializable]
     public class GameWorldData
     {
-        public GameStateATData atData;
+        public GameWorldATData atData;
         public GameStateData gameStateData = new GameStateData();
         public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
         public GameLevelData gameLevel;

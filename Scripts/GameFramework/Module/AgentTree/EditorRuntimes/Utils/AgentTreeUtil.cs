@@ -603,8 +603,6 @@ namespace Framework.AT.Editor
             if (!bHasTips)
                 return;
             UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
-            UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
-            UnityEngine.Debug.LogWarning("请注意，以下AT句柄务必需要在游戏框架中调用，编辑器模式下自动调用！！！");
             foreach (var db in ms_vInitCall)
             {
                 if (db.DeclaringType.Name.Contains("ATRegisterInternalHandler"))

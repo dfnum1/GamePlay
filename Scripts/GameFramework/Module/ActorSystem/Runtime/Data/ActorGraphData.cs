@@ -103,6 +103,7 @@ namespace Framework.ActorSystem.Runtime
     {
         public Bounds boundBox;
         [Disable] public List<ActorTimelineAction> timelineActions = new List<ActorTimelineAction>(4);
+        public AT.Runtime.AgentTreeData ATData;
 
         private bool m_bInited = false;
         //-----------------------------------------------------

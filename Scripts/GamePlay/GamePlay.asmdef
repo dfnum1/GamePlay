@@ -16,13 +16,19 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "USE_FIXEDMATH"
+        "USE_FIXEDMATH",
+        "USE_CUTSCENE"
     ],
     "versionDefines": [
         {
             "name": "com.rd1.center.gameplay",
             "expression": "",
             "define": "USE_FIXEDMATH"
+        },
+        {
+            "name": "com.rd1.center.gameplay",
+            "expression": "",
+            "define": "USE_CUTSCENE"
         }
     ],
     "noEngineReferences": false

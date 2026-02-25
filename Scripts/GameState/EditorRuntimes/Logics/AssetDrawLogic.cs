@@ -94,6 +94,7 @@ namespace Framework.State.Editor
         static string[] TABS = new string[] { "游戏元素", "Agent图书馆" };
         ETab m_eTab = ETab.GameElement;
 
+        bool m_bItemRightPop = false;
         Framework.ED.TreeAssetView m_pGameEleTree = null;
         Framework.ED.TreeAssetView.ItemData m_pSelectGameElement = null;
         //--------------------------------------------------------
@@ -259,11 +260,15 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void OnGameViewRightClick()
         {
+            if (m_bItemRightPop)
+                return;
             PopMenu(null);
+            m_bItemRightPop = false;
         }
         //--------------------------------------------------------
         void OnGameElementRightClick(Framework.ED.TreeAssetView.ItemData itemData)
         {
+            m_bItemRightPop = true;
             var gameItem = itemData as GameElementItem;
             PopMenu(gameItem.bindData);
         }

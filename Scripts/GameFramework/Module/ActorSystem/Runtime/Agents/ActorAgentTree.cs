@@ -18,11 +18,11 @@ namespace Framework.ActorSystem.Runtime
             return m_pAgentTree;
         }
         //--------------------------------------------------------
-        protected override void OnLoadedAble(ActorContext component)
+        protected override void OnLoadActorGraphData(ActorGraphData component)
         {
-            if(component.pContextData!=null && component.pContextData is AActorComponent)
+            if(component.ATData!=null)
             {
-                LoadAT(((AActorComponent)component.pContextData).ATData);
+                LoadAT(component.ATData);
             }
         }
         //--------------------------------------------------------

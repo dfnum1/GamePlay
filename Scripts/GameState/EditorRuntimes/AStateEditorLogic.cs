@@ -20,6 +20,11 @@ namespace Framework.State.Editor
             return obj as T;
         }
         //-----------------------------------------------------
+        public UnityEngine.Object GetUniObject()
+        {
+            return GetOwner().GetCurrentObj() as UnityEngine.Object;
+        }
+        //-----------------------------------------------------
         public virtual void OnGameItemSelected(IGameWorldItem pGameItem)
         {
         }

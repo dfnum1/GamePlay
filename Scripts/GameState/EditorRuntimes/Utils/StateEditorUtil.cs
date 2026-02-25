@@ -172,17 +172,12 @@ namespace Framework.State.Editor
                         ms_StateWorldTypeNames[clsId] = name;
                     }
 
-                    if(tp.IsSubclassOf(typeof(AGameEditor)) && tp.IsDefined(typeof(CustomEditor)))
+                    if(tp.IsSubclassOf(typeof(AGameEditor)) && tp.IsDefined(typeof(StateCustomEditorAttribute)))
                     {
-                        var attr = tp.GetCustomAttribute<CustomEditor>();
-                        var field = attr.GetType().GetField("m_InspectedType", BindingFlags.Instance | BindingFlags.NonPublic);
-                        if (field != null)
+                        var attr = tp.GetCustomAttribute<StateCustomEditorAttribute>();
+                        if (attr.type != null)
                         {
-                            var typeObj = field.GetValue(attr);
-                            if (typeObj != null && typeObj is Type)
-                            {
-                                ms_StateWorldTypeEditorTypes[(Type)typeObj] = tp;
-                            }
+                            ms_StateWorldTypeEditorTypes[attr.type] = tp;
                         }
                     }
                 }

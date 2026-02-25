@@ -71,6 +71,16 @@ namespace Framework.ActorSystem.Runtime
             OnLoadedAble(component);
         }
         //--------------------------------------------------------
+        internal void LoadActorGraphData(ActorGraphData pGraphData)
+        {
+            OnLoadActorGraphData(pGraphData);
+        }
+        //--------------------------------------------------------
+        protected virtual void OnLoadActorGraphData(ActorGraphData pGraphData)
+        {
+
+        }
+        //--------------------------------------------------------
         protected virtual void OnLoadedAble(ActorContext component) { }
         internal virtual void DoFlagDirty(EActorFlag flag, bool IsUsed)
         {

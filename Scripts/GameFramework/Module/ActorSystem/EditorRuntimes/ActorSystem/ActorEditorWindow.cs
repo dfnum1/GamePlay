@@ -181,11 +181,21 @@ namespace Framework.ActorSystem.Editor
         protected override void OnStart()
         {
             m_pActor = null;
+            GameObject pInstance = null;
             if (m_pActorComp)
             {
-                var pInstance = GameObject.Instantiate<GameObject>(m_pActorComp.gameObject);
+                pInstance = GameObject.Instantiate<GameObject>(m_pActorComp.gameObject);
+            }
+            if (pInstance == null)
+            {
+                this.ShowNotificationWarning("没有选择具体编辑单位");
+                pInstance = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                Framework.ED.EditorUtils.AddUnityScriptComponent<AActorComponent>(pInstance);
+                pInstance.hideFlags |= HideFlags.DontSave;
+            }
+            {
                 var pComp = pInstance.GetComponent<AActorComponent>();
-                pComp.SetBindPrefab(m_pActorComp.gameObject);
+                if(m_pActorComp) pComp.SetBindPrefab(m_pActorComp.gameObject);
 
                 Actor pActorInstance = null;
                 pActorInstance = GetActorManager().CreateActor(null, null, -9999);
@@ -197,27 +207,28 @@ namespace Framework.ActorSystem.Editor
                 pActorInstance.EnableLogic(true);
                 pActorInstance.EnableRVO(false);
                 pActorInstance.SetAttackGroup(0);
-                SelectActor(pActorInstance);
-                m_pActor = pActorInstance;
-                m_pActor.SetPosition(m_ActorPosition);
-                m_pActor.SetEulerAngle(m_ActorEulerAngle);
+                pActorInstance.SetPosition(m_ActorPosition);
+                pActorInstance.SetEulerAngle(m_ActorEulerAngle);
 #if USE_CUTSCENE
                 m_pCutsceneInstance = pActorInstance.GetActorGraph().GetCutsceneInstance();
                 m_pCutsceneInstance.RegisterCallback(this);
                 pActorInstance.GetActorGraph().SetAutoUpdate(false);
 #endif
-                m_pDummySkill.SetSkillSystem(m_pActor.GetSkillSystem());
+                m_pDummySkill.SetSkillSystem(pActorInstance.GetSkillSystem());
                 m_pDummySkill.SetLevel(1);
                 m_pDummySkill.SetActived(true);
 
-                m_pActor.GetActorGraph().AddStartActionCallback(OnStartAction);
-                m_pActor.GetActorGraph().AddChangeActionCallback(OnChangeAction);
+                pActorInstance.GetActorGraph().AddStartActionCallback(OnStartAction);
+                pActorInstance.GetActorGraph().AddChangeActionCallback(OnChangeAction);
+
+                SelectActor(pActorInstance);
             }
 
             if (m_pTarget==null)
             {
                 m_pTarget = GetActorManager().CreateActor(null, null, -9998);
                 m_pTarget.OnCreated();
+                m_pTarget.SetAttackGroup(1);
                 m_pTarget.SetPosition(m_TargetPosition);
                 m_pTarget.SetEulerAngle(m_TargetEulerAngle);
                 m_pTarget.SetBound(Vector3.one * -0.5f, Vector3.one * 0.5f);
@@ -300,10 +311,13 @@ namespace Framework.ActorSystem.Editor
             }
             if (component == null)
                 return;
+            var graphData = m_pActor.GetGraphData();
+            if (graphData == null)
+                return;
 
             if (m_pSkillEditor != null)
             {
-                if (m_pSkillEditor.GetATData() == component.ATData)
+                if (m_pSkillEditor.GetATData() == graphData.ATData)
                 {
                     m_pSkillEditor.Focus();
                     return;
@@ -312,10 +326,10 @@ namespace Framework.ActorSystem.Editor
             }
             if(m_pActor!=null)
             {
-                m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(component.ATData);
+                m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(graphData.ATData);
             }
-             m_pSkillEditor = AgentTreeWindow.Open(component.ATData, component, m_pActor.GetAgent<ActorAgentTree>().GetAT(), (data) =>{
-                 component.ATData = data;
+             m_pSkillEditor = AgentTreeWindow.Open(graphData.ATData, component, m_pActor.GetAgent<ActorAgentTree>().GetAT(), (data) =>{
+                 graphData.ATData = data;
              });
         }
         //--------------------------------------------------------
@@ -534,6 +548,7 @@ namespace Framework.ActorSystem.Editor
         //--------------------------------------------------------
         public void SelectActor(Actor pActor)
         {
+            m_pActor = pActor;
             var actors = GetLogics();
             for(int i =0; i < actors.Count; ++i)
             {

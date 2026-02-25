@@ -5,6 +5,7 @@
 描    述:	数据面板逻辑
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.AT.Editor;
 using Framework.ED;
 using Framework.State.Runtime;
 using System.Collections.Generic;
@@ -76,6 +77,14 @@ namespace Framework.State.Editor
                 else if (m_pGameworldItem is GameLevelData)
                 {
                     OnDrawGameLevel(m_pGameworldItem as GameLevelData);
+                }
+                else if (m_pGameworldItem is GameWorldATData)
+                {
+                    OnDrawGameATDAta(m_pGameworldItem as GameWorldATData);
+                }
+                else if (m_pGameworldItem is GameAgentData)
+                {
+                    OnDrawGameAgent(m_pGameworldItem as GameAgentData);
                 }
             }
             else
@@ -226,6 +235,7 @@ namespace Framework.State.Editor
             if (cfgData != null)
             {
                 Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
+                Framework.ED.InspectorDrawUtil.SetOwnerWindow(GetOwner());
                 if (cfgData.GetEditor() != null)
                 {
                     cfgData.GetEditor(GetOwner()).OnInspectorGUI();
@@ -234,6 +244,24 @@ namespace Framework.State.Editor
                     Framework.ED.InspectorDrawUtil.DrawProperty(cfgData,null);
                 Framework.ED.InspectorDrawUtil.EndChangeCheck();
             }
+        }
+        //--------------------------------------------------------
+        void OnDrawGameATDAta(GameWorldATData atData)
+        {
+            Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
+            Framework.ED.InspectorDrawUtil.SetOwnerObject(GetUniObject());
+            Framework.ED.InspectorDrawUtil.SetOwnerWindow(GetOwner());
+            Framework.ED.InspectorDrawUtil.DrawProperty(atData, null);
+            Framework.ED.InspectorDrawUtil.EndChangeCheck();
+        }
+        //--------------------------------------------------------
+        void OnDrawGameAgent(GameAgentData atData)
+        {
+            Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
+            Framework.ED.InspectorDrawUtil.SetOwnerObject(GetUniObject());
+            Framework.ED.InspectorDrawUtil.SetOwnerWindow(GetOwner());
+            Framework.ED.InspectorDrawUtil.DrawProperty(atData, null);
+            Framework.ED.InspectorDrawUtil.EndChangeCheck();
         }
     }
 }

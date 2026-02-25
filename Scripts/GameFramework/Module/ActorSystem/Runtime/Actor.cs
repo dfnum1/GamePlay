@@ -214,7 +214,14 @@ namespace Framework.ActorSystem.Runtime
             {
                 SetBound(graphData.boundBox.min, graphData.boundBox.max);
             }
-            GetAgent<ActorGraphicAgent>(true).OnLoadActorGraphData(graphData);
+            GetAgent<ActorGraphicAgent>(true);
+            if (m_vAgents != null)
+            {
+                for (int i = 0; i < m_vAgents.Count; ++i)
+                {
+                    m_vAgents[i].LoadActorGraphData(graphData);
+                }
+            }
         }
         //--------------------------------------------------------
         protected virtual void OnObjectAble(ActorContext userData)

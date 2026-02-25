@@ -28,7 +28,6 @@ namespace Framework.ActorSystem.Runtime
         [HideInInspector] public List<ActorCommonAction> commonActions = new List<ActorCommonAction>(2);
         [DrawProps.Disable] public List<ActorAvatarMask> avatarMasks = new List<ActorAvatarMask>(2);
         public TextAsset ActionGraphData = null;
-        public AT.Runtime.AgentTreeData ATData;
 
         private Transform m_pTransform;
 #if UNITY_EDITOR

@@ -131,7 +131,7 @@ namespace Framework.ActorSystem.Editor
                 return; // ∑¿÷πŒﬁ–ß«¯”Ú
 
             GUILayout.BeginArea(viewRect);
-            GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(viewRect.width), GUILayout.Height(25) });
+            GUILayout.BeginHorizontal(new GUILayoutOption[] { GUILayout.Width(viewRect.width-10), GUILayout.Height(25) });
             Color backColor = GUI.color;
             for(int i =0; i < TABS.Length; ++i)
             {
@@ -157,9 +157,9 @@ namespace Framework.ActorSystem.Editor
                 else if (m_Tab == ETab.CommonAction) DrawCommonAction(infoView);
                 else if (m_Tab == ETab.TimelineAction) DrawTimelineAction(infoView);
             }
-            catch//(System.Exception ex)
+            catch(System.Exception ex)
             {
-           //     Debug.LogException(ex);
+                Debug.LogException(ex);
             }
             EditorGUILayout.EndScrollView();
             GUILayout.EndArea();

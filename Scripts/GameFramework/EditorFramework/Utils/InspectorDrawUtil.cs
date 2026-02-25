@@ -93,6 +93,35 @@ namespace Framework.ED
         static bool ms_bChangeChecked = false;
         static bool ms_bInnerCallUndo = false;
         static UndoHandler ms_UndoHandler = null;
+        static UnityEngine.Object ms_OwnerObject = null;
+        static EditorWindow ms_OwnerWindow = null;
+        //-----------------------------------------------------
+        public static void SetOwnerObject(UnityEngine.Object pOwner)
+        {
+            ms_OwnerObject = pOwner;
+            if(pOwner!=null)
+            {
+                EditorApplication.delayCall += ClearOwner;
+
+            }
+        }
+        //-----------------------------------------------------
+        public static void SetOwnerWindow(EditorWindow pOwner)
+        {
+            ms_OwnerWindow = pOwner;
+            if (pOwner != null)
+            {
+                EditorApplication.delayCall += ClearOwner;
+            }
+        }
+        //-----------------------------------------------------
+        static void ClearOwner()
+        {
+            ms_OwnerObject = null;
+            ms_OwnerWindow = null;
+            EditorApplication.delayCall -= ClearOwner;
+        }
+        //-----------------------------------------------------
         public static void CheckInspector()
         {
             if (ms_PluginInspectors.Count > 0 || m_bInitedCheckInspector) return;
@@ -471,6 +500,7 @@ namespace Framework.ED
         {
             ms_UndoHandler = handle;
             ms_bChangeChecked = false;
+            ClearOwner();
         }
         //-----------------------------------------------------
         public static bool EndChangeCheck()
@@ -478,6 +508,7 @@ namespace Framework.ED
             bool bChange = ms_bChangeChecked;
             ms_bChangeChecked = false;
             ms_UndoHandler = null;
+            ClearOwner();
             return bChange;
         }
         //-----------------------------------------------------
@@ -1599,51 +1630,64 @@ namespace Framework.ED
                         finfo.SetValue(data, curve);
                         GUILayout.EndHorizontal();
                     }
-                    //else if (finfo.FieldType == typeof(Framework.Plugin.AT.AAgentTreeData))
-                    //{
-                    //    GUILayout.BeginHorizontal();
-                    //    Framework.Plugin.AT.AAgentTreeData pAT = (Framework.Plugin.AT.AAgentTreeData)EditorGUILayout.ObjectField(displayNameContent, (Framework.Plugin.AT.AAgentTreeData)finfo.GetValue(data), finfo.FieldType);
-                    //    finfo.SetValue(data, pAT);
-                    //    if (GUILayout.Button("编辑"))
-                    //    {
-                    //        Framework.Plugin.AT.AgentTreeEditor.Editor(pAT, (UnityEngine.Object)data);
-                    //    }
-                    //    GUILayout.EndHorizontal();
-                    //}
-                    //else if (finfo.FieldType == typeof(Framework.Plugin.AT.AgentTreeCoreData))
-                    //{
-                    //    GUILayout.BeginHorizontal();
-                    //    Framework.Plugin.AT.AgentTreeCoreData atData = (Framework.Plugin.AT.AgentTreeCoreData)finfo.GetValue(data);
-                    //    atData.bEnable = EditorGUILayout.Toggle("是否启用", atData.bEnable);
-                    //    finfo.SetValue(data, atData);
-                    //    if (GUILayout.Button("编辑"))
-                    //    {
-                    //        Framework.Plugin.AT.AgentTreeEditor.Editor(atData, (UnityEngine.Object)data);
-                    //    }
-                    //    if (GUILayout.Button("复制"))
-                    //    {
-                    //        ms_pCopyData = null;
-                    //        try
-                    //        {
-                    //            ms_pCopyData = JsonUtility.FromJson<Framework.Plugin.AT.AgentTreeCoreData>(JsonUtility.ToJson(atData));
-                    //        }
-                    //        catch
-                    //        {
+                    else if (finfo.FieldType == typeof(Framework.AT.Runtime.AAgentTreeObject))
+                    {
+                        GUILayout.BeginHorizontal();
+                        Framework.AT.Runtime.AAgentTreeObject pAT = (Framework.AT.Runtime.AAgentTreeObject)EditorGUILayout.ObjectField(displayNameContent, (Framework.AT.Runtime.AAgentTreeObject)finfo.GetValue(data), finfo.FieldType,false);
+                        finfo.SetValue(data, pAT);
+                        if (GUILayout.Button("蓝图编辑"))
+                        {
+                            var window = Framework.AT.Editor.AgentTreeWindow.Open(pAT.atData, pAT);
+                            if(window!=null && window is EditorWindowBase)
+                            {
+                                ((EditorWindowBase)window).SetOwnerWindow(ms_OwnerWindow);
+                            }
+                        }
+                        GUILayout.EndHorizontal();
+                    }
+                    else if (finfo.FieldType == typeof(Framework.AT.Runtime.AgentTreeData))
+                    {
+                        GUILayout.BeginHorizontal();
+                        Framework.AT.Runtime.AgentTreeData atData = (Framework.AT.Runtime.AgentTreeData)finfo.GetValue(data);
+                        if (atData == null) atData = new AT.Runtime.AgentTreeData();
+                        atData.enable = EditorGUILayout.Toggle("启用蓝图", atData.enable);
+                        finfo.SetValue(data, atData);
+                        EditorGUI.BeginDisabledGroup(!atData.enable);
+                        if (GUILayout.Button("编辑"))
+                        {
+                            EditorWindow window = null;
+                            if(ms_OwnerObject!=null) window = Framework.AT.Editor.AgentTreeWindow.Open(atData, ms_OwnerObject);
+                            else window = Framework.AT.Editor.AgentTreeWindow.Open(atData, data);
+                            if (window != null && window is EditorWindowBase)
+                            {
+                                ((EditorWindowBase)window).SetOwnerWindow(ms_OwnerWindow);
+                            }
+                        }
+                        if (GUILayout.Button("复制"))
+                        {
+                            ms_pCopyData = null;
+                            try
+                            {
+                                ms_pCopyData = JsonUtility.FromJson<Framework.AT.Runtime.AgentTreeData>(JsonUtility.ToJson(atData));
+                            }
+                            catch
+                            {
 
-                    //        }
-                    //    }
-                    //    if (ms_pCopyData!=null && ms_pCopyData is Framework.Plugin.AT.AgentTreeCoreData && ms_pCopyData != atData && GUILayout.Button("黏贴"))
-                    //    {
-                    //        finfo.SetValue(data, (Framework.Plugin.AT.AgentTreeCoreData)ms_pCopyData);
-                    //        ms_pCopyData = null;
-                    //    }
-                    //    if (GUILayout.Button("清理"))
-                    //    {
-                    //        if (EditorUtility.DisplayDialog("提示", "是否清理", "清理", "再想想"))
-                    //            atData.Clear();
-                    //    }
-                    //    GUILayout.EndHorizontal();
-                    //}
+                            }
+                        }
+                        if (ms_pCopyData != null && ms_pCopyData is Framework.AT.Runtime.AgentTreeData && ms_pCopyData != atData && GUILayout.Button("黏贴"))
+                        {
+                            finfo.SetValue(data, (Framework.AT.Runtime.AgentTreeData)ms_pCopyData);
+                            ms_pCopyData = null;
+                        }
+                        if (GUILayout.Button("清理"))
+                        {
+                            if (EditorUtility.DisplayDialog("提示", "是否清理", "清理", "再想想"))
+                                atData.Clear();
+                        }
+                        EditorGUI.EndDisabledGroup();
+                        GUILayout.EndHorizontal();
+                    }
                     else if (finfo.FieldType == typeof(Texture2D))
                     {
                         var obj = (Texture2D)EditorGUILayout.ObjectField(displayNameContent, (Texture2D)finfo.GetValue(data), finfo.FieldType, false);

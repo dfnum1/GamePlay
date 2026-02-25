@@ -83,7 +83,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void OnLoadActorGraphData(ActorGraphData pGraphData)
+        protected override void OnLoadActorGraphData(ActorGraphData pGraphData)
         {
             if (m_GraphData == pGraphData)
                 return;

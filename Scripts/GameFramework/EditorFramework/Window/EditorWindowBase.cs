@@ -14,6 +14,7 @@ namespace Framework.ED
 {
     public abstract class EditorWindowBase : EditorWindow
     {
+        EditorWindow                                    m_pOwnerWindow = null;
         private bool                                    m_bStarted = false;
         private bool                                    m_bRuntimingOpened = false;
         protected EditorTimer                           m_pTimer = new EditorTimer();
@@ -24,6 +25,10 @@ namespace Framework.ED
         protected System.Object                         m_pCurrentObj;
         private List<AEditorLogic>                      m_vLogics = new List<AEditorLogic>();
         private Dictionary<System.Type, AEditorLogic>   m_vLogicKV = new Dictionary<System.Type, AEditorLogic>();
+
+        public System.Action<EditorWindow> OnDestroyed;
+        public System.Action<EditorWindow> OnEnabled;
+        public System.Action<EditorWindow> OnDisabled;
         //--------------------------------------------------------
         public List<AEditorLogic> GetLogics()
         {
@@ -54,6 +59,25 @@ namespace Framework.ED
             return m_pCurrentObj;
         }
         //--------------------------------------------------------
+        public void SetOwnerWindow(EditorWindow window)
+        {
+            m_pOwnerWindow = window;
+            if (m_pOwnerWindow != null)
+            {
+                EditorWindowBase windowBase = m_pOwnerWindow as EditorWindowBase;
+                if (windowBase != null)
+                {
+                    windowBase.OnDestroyed += (win) =>
+                    {
+                        if (win == m_pOwnerWindow)
+                        {
+                            Close();
+                        }
+                    };
+                }
+            }
+        }
+        //--------------------------------------------------------
         void OnEnable()
         {
             EditorWindowMgr.RegisterWindow(this);
@@ -67,6 +91,7 @@ namespace Framework.ED
                 m_vLogics[i].Enable();
 
             m_bStarted = false;
+            if (OnEnabled != null) OnEnabled(this);
         }
         //--------------------------------------------------------
         void OnDisable()
@@ -81,6 +106,7 @@ namespace Framework.ED
             m_pCurrentObj = null;
             if (m_pEditorGame != null) m_pEditorGame.Destroy();
             m_pEditorGame = null;
+            if (OnDisabled != null) OnDisabled(this);
         }
         //--------------------------------------------------------
         private void OnDestroy()
@@ -89,6 +115,8 @@ namespace Framework.ED
             for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Destroy();
             OnInnerDestroy();
+            if (OnDestroyed != null) OnDestroyed(this);
+            m_pOwnerWindow = null;
         }
         //--------------------------------------------------------
         protected virtual void OnInnerEnable() { }
