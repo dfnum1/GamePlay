@@ -37,11 +37,13 @@ namespace Framework.Core
         private IGame       m_pGame;
         public IGame        gameStartup { get { return m_pGame; } }
 
-        private bool m_bInited = false;
-        private bool m_bAwaked = false;
-        private bool m_bStarted = false;
-        protected long m_lRuntime = 0;
-        protected long m_lRuntimeUnScale = 0;
+        private bool        m_bInited = false;
+        private bool        m_bAwaked = false;
+        private bool        m_bStarted = false;
+        protected long      m_lRuntime = 0;
+        protected long      m_lRuntimeUnScale = 0;
+
+        protected FrameworkShareCache           m_ShaderCache;
 
         private Dictionary<int, AModule>        m_vTypeModdules = new Dictionary<int, AModule>(32);
         private List<AModule>                   m_vModdules = new List<AModule>(32);
@@ -114,6 +116,15 @@ namespace Framework.Core
             OnStart();
         }
         protected abstract void OnStart();
+        //------------------------------------------------------
+        public FrameworkShareCache FrameworkShareCache 
+        {
+            get 
+            {
+                if (m_ShaderCache == null) m_ShaderCache = new FrameworkShareCache(this);
+                return m_ShaderCache;
+            }
+        }
         //------------------------------------------------------
         public T GetModule<T>() where T : AModule
         {

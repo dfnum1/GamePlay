@@ -225,7 +225,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void Update(float fDeltaTime)
+        internal void Update(FFloat fDeltaTime)
         {
             if (m_HpAttrType > 0)
             {

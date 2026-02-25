@@ -8,7 +8,11 @@ using Framework.AT.Runtime;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+#endif
 namespace Framework.State.Runtime
 {
     [ATInteralExport("游戏世界", -6, icon: "GameWorld/gameworld")]
@@ -17,6 +21,7 @@ namespace Framework.State.Runtime
         private AState      m_pGameState;
         private List<AMode> m_vGameModes;
         GameWorldData       m_pWorldObject;
+        private AgentTree   m_pAgentTree = null;
         //--------------------------------------------------------
         public void CreateWorld(GameWorldData pObject)
         {
@@ -26,12 +31,20 @@ namespace Framework.State.Runtime
             m_pWorldObject = pObject;
             if (m_pWorldObject == null)
                 return;
-
+            if (m_pWorldObject.atData != null && m_pWorldObject.atData.worldAgentTree!=null)
+            {
+                m_pAgentTree = m_pFramework.FrameworkShareCache.MallocAgentTree(m_pWorldObject.atData.worldAgentTree);
+                if(m_pAgentTree!=null)
+                {
+                    m_pAgentTree.AddOwnerClass(this);
+                }
+            }
             m_pGameState = GameWorldHandler.Malloc<AState>(m_pWorldObject.gameStateData.stateType);
             if (m_pGameState != null)
             {
                 m_pGameState.CleanAPIStatus();
                 m_pGameState.SetGameWorld(this);
+
                 m_pGameState.CreateLogics(m_pWorldObject.gameStateData.stateLogics);
 
                 if (m_pWorldObject.modeDatas != null)
@@ -70,6 +83,7 @@ namespace Framework.State.Runtime
         {
             if (m_pGameState == null) return;
             m_pGameState.Awake();
+            if(m_pAgentTree!=null) m_pAgentTree.Start();
         }
         //--------------------------------------------------------
         [ATMethod("预备游戏状态")]
@@ -91,6 +105,7 @@ namespace Framework.State.Runtime
         {
             if (m_pGameState == null) return;
             m_pGameState.Active(bActive);
+            if (m_pAgentTree != null) m_pAgentTree.Enable(bActive);
         }
         //--------------------------------------------------------
         public bool SetActiveMode<T>() where T : AMode
@@ -110,6 +125,12 @@ namespace Framework.State.Runtime
         [ATMethod("清理游戏世界")]
         public void ClearWorld()
         {
+            if (m_pAgentTree != null)
+            {
+                m_pAgentTree.Exit();
+                m_pAgentTree.Free();
+                m_pAgentTree = null;
+            }
             m_pWorldObject = null;
             if (m_vGameModes!=null)
             {
@@ -123,12 +144,13 @@ namespace Framework.State.Runtime
             m_pGameState = null;
         }
         //--------------------------------------------------------
-        protected override void OnUpdate(float fFrameTime)
+        protected override void OnUpdate(FFloat fFrameTime)
         {
             if(m_pGameState!=null)
             {
                 m_pGameState.Update(fFrameTime);
             }
+            if (m_pAgentTree != null) m_pAgentTree.Update(fFrameTime);
         }
     }
 }

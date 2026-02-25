@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	基于Sprite的序列帧动画管理类
 *********************************************************************/
+using ExternEngine;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
@@ -220,7 +221,7 @@ namespace Framework.SpriteSeq
             return false;
         }
         //--------------------------------------------------------
-        protected override void OnUpdate(float fFrame)
+        protected override void OnUpdate(FFloat fFrame)
         {
             Render(deltaTime:fFrame);
         }

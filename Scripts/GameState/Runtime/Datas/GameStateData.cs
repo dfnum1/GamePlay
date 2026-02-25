@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	游戏状态数据体
 *********************************************************************/
+using Framework.AT.Runtime;
 using System.Collections.Generic;
 namespace Framework.State.Runtime
 {
@@ -16,7 +17,7 @@ namespace Framework.State.Runtime
         public int modeType;
         public List<int> modeLogics;
 #if UNITY_EDITOR
-        public string name;
+        public string name="玩法模式";
         public string strDesc = "";
 #endif
     }
@@ -30,14 +31,25 @@ namespace Framework.State.Runtime
         public int activeMode;
         public List<int> stateLogics;
 #if UNITY_EDITOR
-        public string name;
+        public string name="游戏状态";
         public string strDesc = "";
 #endif
     }
     //------------------------------------------------------
+    //! 游戏蓝图数据
+    //------------------------------------------------------
+    [StateIcon("AT/AgentTree"), System.Serializable]
+    public class GameStateATData : IGameWorldItem
+    {
+        public AgentTreeData worldAgentTree = new AgentTreeData();
+    }
+    //------------------------------------------------------
+    //! 游戏世界数据体
+    //------------------------------------------------------
     [System.Serializable]
     public class GameWorldData
     {
+        public GameStateATData atData;
         public GameStateData gameStateData = new GameStateData();
         public List<GameStateModeData> modeDatas = new List<GameStateModeData>(2);
         public GameLevelData gameLevel;

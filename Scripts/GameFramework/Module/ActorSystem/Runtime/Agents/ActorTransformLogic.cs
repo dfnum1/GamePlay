@@ -280,7 +280,7 @@ namespace Framework.ActorSystem.Runtime
             return m_pActor.GetActorParameter().GetSpeed();
         }
         //-------------------------------------------------
-        protected override void OnUpdate(float fDelta)
+        protected override void OnUpdate(FFloat fDelta)
         {
             if (m_pActor.IsKilled())
                 return;

@@ -97,17 +97,9 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public static Texture2D LoadIcon(string icon)
         {
-            Texture2D tex = null;
-            string path = AgentTreeUtil.BuildInstallPath();
-            if (!string.IsNullOrEmpty(path))
-            {
-                tex = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(path, icon + ".png"));
-            }
-            if (tex == null)
-            {
-                tex = EditorGUIUtility.LoadRequired(icon) as Texture2D;
-            }
-            return tex;
+            if (!icon.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                icon += ".png";
+            return Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(icon + ".png");
         }
         //-----------------------------------------------------
         internal static void Init(bool bForce = false)

@@ -1139,7 +1139,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        internal void Update(float fFrame)
+        internal void Update(FFloat fFrame)
         {
             if (IsFlag(EActorFlag.Destroy))
                 return;
@@ -1164,7 +1164,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        protected virtual void OnUpdate(float fFrame)
+        protected virtual void OnUpdate(FFloat fFrame)
         {
 
         }

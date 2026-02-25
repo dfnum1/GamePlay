@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	动作表现类
 *********************************************************************/
+using ExternEngine;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
@@ -463,7 +464,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //--------------------------------------------------------
-        protected override void OnUpdate(float fDelta)
+        protected override void OnUpdate(FFloat fDelta)
         {
             base.OnUpdate(fDelta);
             if (!m_pPlayableGraph.IsValid())

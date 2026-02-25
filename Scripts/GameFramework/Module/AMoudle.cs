@@ -4,7 +4,11 @@
 作    者:	HappLI
 描    述:	基础模块类
 *********************************************************************/
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+#endif
 namespace Framework.Core
 {
     public abstract class AModule : IUserData
@@ -28,12 +32,12 @@ namespace Framework.Core
             OnStart();
         }
         //-------------------------------------------------
-        public void Update(float fFrame)
+        public void Update(FFloat fFrame)
         {
             OnUpdate(fFrame);
         }
         //-------------------------------------------------
-        protected virtual void OnUpdate(float fFrame) { }
+        protected virtual void OnUpdate(FFloat fFrame) { }
         //-------------------------------------------------
         public AFramework GetFramework()
         {

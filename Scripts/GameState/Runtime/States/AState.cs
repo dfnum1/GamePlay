@@ -6,7 +6,11 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+#endif
 namespace Framework.State.Runtime
 {
     internal enum EAPICallStatus
@@ -183,7 +187,7 @@ namespace Framework.State.Runtime
             return m_pActiveMode;
         }
         //----------------------------------------------------------------
-        internal void Update(float fFrameTime)
+        internal void Update(FFloat fFrameTime)
         {
             if (m_pWorld == null || !IsAPIStatus(EAPICallStatus.CanUpdateFlag))
                 return;
@@ -223,7 +227,7 @@ namespace Framework.State.Runtime
         protected virtual void OnPreStart() { }
         protected virtual void OnStart() { }
         protected virtual void OnActive(bool bActive) { }
-        protected virtual void OnUpdate(float fFrameTime) { }
+        protected virtual void OnUpdate(FFloat fFrameTime) { }
         protected virtual void OnDestroy() { }
     }
 }

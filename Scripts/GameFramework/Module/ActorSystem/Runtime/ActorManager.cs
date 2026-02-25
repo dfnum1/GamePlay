@@ -553,7 +553,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
-        protected override void OnUpdate(float fFrame)
+        protected override void OnUpdate(FFloat fFrame)
         {
             if (m_ProjectileManager != null)
                 m_ProjectileManager.Update(fFrame);

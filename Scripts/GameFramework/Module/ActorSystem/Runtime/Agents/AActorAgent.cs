@@ -5,6 +5,8 @@
 作    者:	HappLI
 描    述:	Actor 逻辑行为基类
 *********************************************************************/
+using ExternEngine;
+using Framework.Core;
 using UnityEngine;
 
 namespace Framework.ActorSystem.Runtime
@@ -31,6 +33,12 @@ namespace Framework.ActorSystem.Runtime
         public void SetActor(Actor pActor)
         {
             m_pActor = pActor;
+        }
+        //--------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pActor == null) return null;
+            return m_pActor.GetFramework();
         }
         //--------------------------------------------------------
         public ActorContext GetAble()
@@ -91,12 +99,12 @@ namespace Framework.ActorSystem.Runtime
 
         }
         //--------------------------------------------------------
-        public void Update(float fDelta)
+        public void Update(FFloat fDelta)
         {
             OnUpdate(fDelta);
         }
         //--------------------------------------------------------
-        protected virtual void OnUpdate(float fDelta) { }
+        protected virtual void OnUpdate(FFloat fDelta) { }
         //--------------------------------------------------------
         public void Clear()
         {

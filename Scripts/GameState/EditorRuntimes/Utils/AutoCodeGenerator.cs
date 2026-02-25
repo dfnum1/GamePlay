@@ -23,10 +23,10 @@ namespace Framework.State.Editor
             }
             if(!string.IsNullOrEmpty(root))AutoCode(root, outerStates, "GameStateTypeRegistry");
             if (!Framework.ED.EditorUtils.IsInstallFromPackage())
-                AutoCode(INTER_EXPORT_PATH, outerStates, "GameStateInnerTypeRegistry");
+                AutoCode(INTER_EXPORT_PATH, outerStates, "GameStateInnerTypeRegistry", "internal");
         }
         //-----------------------------------------------------
-        internal static void AutoCode(string root, Dictionary<int, System.Type> stateTypes, string className)
+        internal static void AutoCode(string root, Dictionary<int, System.Type> stateTypes, string className, string classLabel ="public")
         {
             StringBuilder code = new StringBuilder();
             code.AppendLine("// This code is auto-generated. Do not modify.");
@@ -34,7 +34,7 @@ namespace Framework.State.Editor
             code.AppendLine("namespace Framework.State.Runtime");
             code.AppendLine("{");
             code.AppendLine("\t[Framework.Base.EditorSetupInit]");
-            code.AppendLine("    public static class " + className);
+            code.AppendLine($"   {classLabel} static class " + className);
             code.AppendLine("    {");
             code.AppendLine("        public static void Init()");
             code.AppendLine("        {");

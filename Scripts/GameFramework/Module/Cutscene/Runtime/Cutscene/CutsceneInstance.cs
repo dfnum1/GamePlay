@@ -210,8 +210,7 @@ namespace Framework.Cutscene.Runtime
             }
             if (graphData.agentTree != null && graphData.agentTree.IsValid())
             {
-                m_pAgentTree = AgentTreePool.MallocAgentTree();
-                if(GetFramework()!=null) m_pAgentTree.SetATManager(GetFramework().GetModule<AgentTreeManager>());
+                m_pAgentTree = AgentTreePool.MallocAgentTree(GetFramework());
                 //    m_pAgentTree.SetCutscene(this);
                 if (!m_pAgentTree.Create(graphData.agentTree))
                 {

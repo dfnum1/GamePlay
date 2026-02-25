@@ -185,7 +185,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        public void Update(float fFrameTime)
+        public void Update(FFloat fFrameTime)
         {
             for (int i = 0; i < m_vPrepareBounds.Count; ++i)
             {

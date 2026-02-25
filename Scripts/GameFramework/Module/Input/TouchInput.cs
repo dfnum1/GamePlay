@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	输入模块
 *********************************************************************/
+using ExternEngine;
 using UnityEngine;
 
 namespace Framework.Core
@@ -105,7 +106,7 @@ namespace Framework.Core
             m_nForbidTouchCnt = 0;
         }
         //-------------------------------------------------
-        protected override void OnUpdate(float fFrameTime)
+        protected override void OnUpdate(FFloat fFrameTime)
         {
             if (m_nForbidTouchCnt > 0) return;
             if(Input.touchCount >0)

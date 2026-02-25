@@ -194,6 +194,10 @@ namespace Framework.State.Editor
             if (worldObj != null)
             {
                 int id = 0;
+                if(worldObj.atData !=null)
+                {
+                    m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.atData, name = "逻辑蓝图", depth = 0 });
+                }
                 m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameStateData, name = worldObj.gameStateData.name, depth =0 });
                 if(worldObj.modeDatas!=null)
                 {

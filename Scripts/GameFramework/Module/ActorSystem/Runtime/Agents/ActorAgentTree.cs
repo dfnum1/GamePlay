@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	行为树逻辑Agent
 *********************************************************************/
+using ExternEngine;
 using Framework.AT.Runtime;
 using UnityEngine.Playables;
 namespace Framework.ActorSystem.Runtime
@@ -34,8 +35,7 @@ namespace Framework.ActorSystem.Runtime
                     AgentTreePool.FreeAgentTree(m_pAgentTree);
                     m_pAgentTree = null;
                 }
-                m_pAgentTree = AgentTreePool.MallocAgentTree(atData);
-                m_pAgentTree.SetATManager(GetActor().GetFramework().GetModule<AgentTreeManager>());
+                m_pAgentTree = AgentTreePool.MallocAgentTree(atData, GetFramework());
                 if (m_pAgentTree != null)
                 {
                     m_pAgentTree.AddOwnerClass(m_pActor);
@@ -75,7 +75,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
-        protected override void OnUpdate(float fDelta)
+        protected override void OnUpdate(FFloat fDelta)
         {
             base.OnUpdate(fDelta);
             if (m_pAgentTree != null) m_pAgentTree.Update(fDelta);

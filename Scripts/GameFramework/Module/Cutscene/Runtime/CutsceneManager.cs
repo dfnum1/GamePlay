@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	过场动画管理器
 *********************************************************************/
+using ExternEngine;
 using Framework.AT.Runtime;
 using Framework.Core;
 using System.Collections.Generic;
@@ -579,12 +580,12 @@ namespace Framework.Cutscene.Runtime
             }
         }
         //-----------------------------------------------------
-        protected override void OnUpdate(float fFrame)
+        protected override void OnUpdate(FFloat fFrame)
         {
             Update(fFrame);
         }
         //-----------------------------------------------------
-        public void Update(float deltaTime, CutsceneInstance pIngore = null)
+        public void Update(FFloat deltaTime, CutsceneInstance pIngore = null)
         {
             if (m_vCutscenes == null)
                 return;

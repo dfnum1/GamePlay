@@ -4,29 +4,26 @@
 作    者:	HappLI
 描    述:	行为树pool
 *********************************************************************/
-using System.Collections.Generic;
+using Framework.Core;
 
 namespace Framework.AT.Runtime
 {
-    internal class AgentTreePool
+    public static class AgentTreePool
     {
-        private static int MAX_POOL = 32;
-        private static Stack<AgentTree> ms_vAgentTreePool = null;
         //-----------------------------------------------------
-        internal static AgentTree MallocAgentTree()
+        internal static AgentTree MallocAgentTree(AFramework pFramework)
         {
-            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count > 0)
-                return ms_vAgentTreePool.Pop();
-            return new AgentTree();
+            AgentTree pAT = null;
+            if (pFramework != null) pAT = pFramework.FrameworkShareCache.MallocAgentTree();
+            else pAT = new AgentTree();
+            if(pFramework!=null) pAT.SetATManager(pFramework.GetModule<AgentTreeManager>());
+            return pAT;
         }
         //-----------------------------------------------------
-        internal static AgentTree MallocAgentTree(AgentTreeData pATData)
+        internal static AgentTree MallocAgentTree(AgentTreeData pATData, AFramework pFramework)
         {
-            if (pATData == null) return null;
-            AgentTree pAT = null;
-            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count > 0)
-                pAT = ms_vAgentTreePool.Pop();
-            pAT =  new AgentTree();
+            if (pATData == null || !pATData.IsValid()) return null;
+            AgentTree pAT = MallocAgentTree(pFramework);
             if (pAT.Create(pATData))
                 return pAT;
             FreeAgentTree(pAT);
@@ -36,11 +33,18 @@ namespace Framework.AT.Runtime
         internal static void FreeAgentTree(AgentTree agentTree)
         {
             if (agentTree == null) return;
-            agentTree.Destroy();
-            if (ms_vAgentTreePool != null && ms_vAgentTreePool.Count >= MAX_POOL)
+            var frameWork = agentTree.GetFramework();
+            if(frameWork!=null)
+            {
+                frameWork.FrameworkShareCache.FreeAgentTree(agentTree);
                 return;
-            if (ms_vAgentTreePool == null) ms_vAgentTreePool = new Stack<AgentTree>(MAX_POOL);
-            ms_vAgentTreePool.Push(agentTree);
+            }
+            agentTree.Destroy();
+        }
+        //-----------------------------------------------------
+        public static void Free(this AgentTree pAt)
+        {
+            FreeAgentTree(pAt);
         }
     }
 }

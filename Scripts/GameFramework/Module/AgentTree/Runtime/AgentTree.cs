@@ -7,6 +7,7 @@
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace Framework.AT.Runtime
 {
     public partial class AgentTree
@@ -65,6 +66,12 @@ namespace Framework.AT.Runtime
         internal void SetATManager(AgentTreeManager pManager)
         {
             m_pATManager = pManager;
+        }
+        //-----------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pATManager == null) return null;
+            return m_pATManager.GetFramework();
         }
         //------------------------------------------------------
         public T GetModule<T>() where T : AModule
@@ -349,7 +356,7 @@ namespace Framework.AT.Runtime
             return true;
         }
         //-----------------------------------------------------
-        internal bool Update(float deltaTime)
+        public bool Update(float deltaTime)
         {
             if (!m_bEnable) return true;
             if (m_vTickExecuting != null && m_vTickExecuting.Count <= 0)
@@ -656,6 +663,6 @@ namespace Framework.AT.Runtime
             if (m_vCallback != null) m_vCallback.Clear();
             if (m_OwnerClass != null) m_OwnerClass.Clear();
             if (m_OwnerParentClass != null) m_OwnerParentClass.Clear();
-        }
+        }   
     }
 }

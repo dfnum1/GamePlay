@@ -649,7 +649,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        protected override void OnUpdate(float fFrameTime)
+        protected override void OnUpdate(FFloat fFrameTime)
         {
             if (m_pSytstem.IsPause() || m_pSytstem.IsLogicLock())
                 fFrameTime = 0;
