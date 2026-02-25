@@ -311,6 +311,7 @@ namespace Framework.State.Editor
                                 modeData.modeType = cls;
                                 modeData.name = StateEditorUtil.GetStateWorldTypeName(cls);
                                 worldData.modeDatas.Add(modeData);
+                                RefreshGameElements();
                             }
                         }, -1);
                     }, new MenuContextData(bindData, Event.current.mousePosition));
@@ -332,12 +333,16 @@ namespace Framework.State.Editor
                                     //! 添加undo
                                     GameStateModeData gameData = data.bindData as GameStateModeData;
                                     worldData.modeDatas.Remove(gameData);
+                                    RefreshGameElements();
                                 }
                             }
                         }
                     }, new MenuContextData(bindData, Event.current.mousePosition));
                 }
             }
+            menu.AddItem(new GUIContent("刷新"), false, () => {
+                RefreshGameElements();
+            });
             menu.ShowAsContext();
         }
     }

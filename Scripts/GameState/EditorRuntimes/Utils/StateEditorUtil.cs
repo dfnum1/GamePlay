@@ -262,6 +262,7 @@ namespace Framework.State.Editor
         //-----------------------------------------------------
         public static List<int> DrawModeLogics(AStateEditorLogic logic, string label, List<int> vLogics)
         {
+            if (vLogics == null) vLogics = new List<int>();
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
             if (GUILayout.Button("Ìí¼ÓÂß¼­"))
@@ -270,7 +271,6 @@ namespace Framework.State.Editor
                 vLogics.Add(0);
             }
             GUILayout.EndHorizontal();
-
             for (int i = 0; i < vLogics.Count; ++i)
             {
                 GUILayout.BeginHorizontal();
