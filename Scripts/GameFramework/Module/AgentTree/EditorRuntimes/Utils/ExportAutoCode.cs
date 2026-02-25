@@ -48,11 +48,34 @@ namespace Framework.AT.Editor
         [MenuItem("GamePlay/编译蓝图脚本")]
         public static void ExportInternalAT()
         {
-            ExportATMothed(true);
+            //! 判断是否为dll 模式，如果为dll，则说明为upm 包发布的package，则只检测外部导出，否则检测内部导出
+            string path = Framework.ED.EditorUtils.GetInstallPath();
+            if(string.IsNullOrEmpty(path))
+            {
+                EditorUtility.DisplayDialog("提示","未找到安装路径，无法导出蓝图脚本！", "好的");
+                return;
+            }
+            string dllPath1 = Path.Combine(path, "Runtime/Plugins/GameFramework.dll");
+            string dllPath2 = Path.Combine(path, "Runtime/Plugins/GameFrameworkEditor.dll");
+            if(File.Exists(dllPath1) && File.Exists(dllPath2))
+            {
+                ExportATMothed(false);
+            }
+            else
+                ExportATMothed(true);
         }
         //-----------------------------------------------------
         static void ExportATMothed(bool bInternal)
         {
+            if(!bInternal)
+            {
+                if(string.IsNullOrEmpty(EditorPreferences.GetSettings().generatorCodePath))
+                {
+                    EditorUtility.DisplayDialog("提示", "请先在编辑器设置中设置代码生成路径！", "好的");
+                    return;
+                }
+                return;
+            }
             ms_vExports.Clear();
             ms_vRefTypes.Clear();
             ms_vRefTypes.Add(typeof(IUserData));
@@ -116,7 +139,11 @@ namespace Framework.AT.Editor
                                     {
                                         exportData.guid = BuildHashCode(tp);
                                     }
-                                    exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    if(bInternal)
+                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    else
+                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
+                                    
                                     exportData.type = tp;
                                     exportData.exportAttr = exportAttr;
                                     ms_vExports.Add(typeName, exportData);
@@ -165,7 +192,10 @@ namespace Framework.AT.Editor
                                     {
                                         exportData.guid = BuildHashCode(tp);
                                     }
-                                    exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    if(bInternal)
+                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    else
+                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
                                     exportData.type = tp;
                                     exportData.exportAttr = exportAttr;
                                     ms_vExports.Add(typeName, exportData);
@@ -206,6 +236,11 @@ namespace Framework.AT.Editor
                 if(bInternal)
                 {
                     if (!(db.Value.exportAttr is ATInteralExportAttribute))
+                        continue;
+                }
+                else
+                {
+                    if ((db.Value.exportAttr is ATInteralExportAttribute))
                         continue;
                 }
                 ExportCode(db.Value);
