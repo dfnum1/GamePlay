@@ -384,28 +384,48 @@ namespace Framework.Core
         //------------------------------------------------------
         public virtual bool OnLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
         {
+#if UNITY_EDITOR
             var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.Object>(name);
             if (onLoaded != null) onLoaded(obj);
-            return obj!=null;
+            return obj != null;
+#else
+            Debug.LogWarning("业务层没有实现资源加载，请联系程序实现业务");
+            return false;
+#endif
         }
         //------------------------------------------------------
         public virtual bool OnUnloadAsset(UnityEngine.Object pAsset)
         {
+#if UNITY_EDITOR
+            Framework.ED.EditorUtils.Destroy(pAsset);
+#else
+            Debug.LogWarning("业务层没有实现资源卸载，请联系程序实现业务");
+#endif
             return false;
         }
         //------------------------------------------------------
         public virtual bool OnSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
         {
+#if UNITY_EDITOR
             var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.GameObject>(name);
             if (onLoaded != null && obj) onLoaded(GameObject.Instantiate(obj));
 
             return obj!=null;
+#else
+            Debug.LogWarning("业务层没有实现实例化，请联系程序实现业务");
+            return false;
+#endif
         }
         //------------------------------------------------------
         public virtual bool OnDespawnInstance(GameObject pInstance, string name = null)
         {
+#if UNITY_EDITOR
             Framework.ED.EditorUtils.Destroy(pInstance);
             return true;
+#else
+            Debug.LogWarning("业务层没有实现实例化删除，请联系程序实现业务");
+            return false;
+#endif
         }
         //------------------------------------------------------
         public virtual void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)
@@ -471,6 +491,6 @@ namespace Framework.Core
         {
             Debug.LogWarning("业务层没有实现基于寻路的路径移动，请联系程序实现业务");
         }
-        #endregion
+#endregion
     }
 }

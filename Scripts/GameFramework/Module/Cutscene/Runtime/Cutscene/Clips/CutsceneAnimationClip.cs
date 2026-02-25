@@ -4,7 +4,9 @@
 作    者:	HappLI
 描    述:	CutsceneAnimationClip
 *********************************************************************/
+#if UNITY_EDITOR
 using Framework.Cutscene.Editor;
+#endif
 using Framework.DrawProps;
 using UnityEngine;
 

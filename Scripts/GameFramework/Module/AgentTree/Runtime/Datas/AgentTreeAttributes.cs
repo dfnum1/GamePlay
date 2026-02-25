@@ -4,9 +4,7 @@
 作    者:	HappLI
 描    述:	变量
 *********************************************************************/
-using Framework.AT.Editor;
 using System;
-using UnityEngine;
 
 namespace Framework.AT.Runtime
 {

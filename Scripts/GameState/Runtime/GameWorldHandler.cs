@@ -5,9 +5,11 @@
 描    述:	游戏世界句柄
 *********************************************************************/
 using Framework.Core;
-using Framework.State.Editor;
 using System;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using Framework.State.Editor;
+#endif
 namespace Framework.State.Runtime
 {
     public class GameWorldHandler
