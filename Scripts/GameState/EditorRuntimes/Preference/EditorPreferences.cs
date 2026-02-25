@@ -32,7 +32,7 @@ namespace Framework.State.Editor
         public class Settings : ISerializationCallbackReceiver
         {
             public string tablePath = "../../gametable";
-            public string generatorCodePath = "Assets/OpenScripts/GameApp/GameWorld";
+            public string generatorCodePath = "";
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
             public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value;} }
 
@@ -80,7 +80,7 @@ namespace Framework.State.Editor
         //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GameWorldEditor", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/游戏偏好设置", SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;

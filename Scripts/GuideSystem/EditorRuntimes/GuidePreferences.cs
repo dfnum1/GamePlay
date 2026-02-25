@@ -134,7 +134,7 @@ namespace Framework.Guide.Editor
 #if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateNodeSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GuideSystemEditor", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/引导偏好设置", SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
                 keywords = new HashSet<string>(new [] { "enter", "node", "editor", "graph", "connections", "noodles", "ports" })
             };

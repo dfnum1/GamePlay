@@ -178,7 +178,7 @@ namespace Framework.Cutscene.Editor
 //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/CutsceneEditor", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/过场偏好设置", SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;
