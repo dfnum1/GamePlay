@@ -207,6 +207,20 @@ namespace Framework.ED
             return GetPackagePath(PACKAGE_NAME);
         }
         //-----------------------------------------------------
+        public static bool IsInstallFromPackage()
+        {
+            string path = Framework.ED.EditorUtils.GetInstallPath();
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+            string dllPath1 = Path.Combine(path, "Runtime/Plugins/GameFramework.dll");
+            string dllPath2 = Path.Combine(path, "Runtime/Plugins/GameFrameworkEditor.dll");
+            if (File.Exists(dllPath1) && File.Exists(dllPath2))
+                return true;
+            return false;
+        }
+        //-----------------------------------------------------
         public static string GetInstallEditorResourcePath()
         {
             string path = GetPackageAssetPath(PACKAGE_NAME);

@@ -22,7 +22,8 @@ namespace Framework.State.Editor
                     outerStates[db.Key] = db.Value;
             }
             if(!string.IsNullOrEmpty(root))AutoCode(root, outerStates, "GameStateTypeRegistry");
-            AutoCode(INTER_EXPORT_PATH, outerStates, "GameStateInnerTypeRegistry");
+            if (!Framework.ED.EditorUtils.IsInstallFromPackage())
+                AutoCode(INTER_EXPORT_PATH, outerStates, "GameStateInnerTypeRegistry");
         }
         //-----------------------------------------------------
         internal static void AutoCode(string root, Dictionary<int, System.Type> stateTypes, string className)

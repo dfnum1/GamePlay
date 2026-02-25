@@ -55,9 +55,7 @@ namespace Framework.AT.Editor
                 EditorUtility.DisplayDialog("提示","未找到安装路径，无法导出蓝图脚本！", "好的");
                 return;
             }
-            string dllPath1 = Path.Combine(path, "Runtime/Plugins/GameFramework.dll");
-            string dllPath2 = Path.Combine(path, "Runtime/Plugins/GameFrameworkEditor.dll");
-            if(File.Exists(dllPath1) && File.Exists(dllPath2))
+            if(Framework.ED.EditorUtils.IsInstallFromPackage())
             {
                 ExportATMothed(false);
             }

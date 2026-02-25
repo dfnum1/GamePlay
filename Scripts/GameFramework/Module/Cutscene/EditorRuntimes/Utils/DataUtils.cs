@@ -1134,7 +1134,7 @@ public static class DataUtilsAutoGenerator
         string path = EditorPreferences.GetSettings().generatorCodePath;
         if (string.IsNullOrEmpty(path))
         {
-            Debug.LogError("请先在编辑器[Edit -> Preferences... -> CutsceneEditor]设置中配置代码生成路径");
+            Debug.LogError("请先在编辑器[Edit -> Preferences... -> 过场偏好设置]设置中配置代码生成路径");
             return;
         }
         string outputPath = Path.Combine(path,"Generated/CreateDataerDelegate.gen.cs");

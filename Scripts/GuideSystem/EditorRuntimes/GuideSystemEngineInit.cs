@@ -28,7 +28,7 @@ namespace Framework.Guide.Editor
             }
             else
             {
-                Debug.LogError("请先在编辑器[Edit -> Preferences... -> GuideSystemEditor]设置中配置代码生成路径");
+                Debug.LogWarning("请先在编辑器[Edit -> Preferences... -> 引导偏好设置]设置中配置代码生成路径");
                 return;
             }
         }
