@@ -1086,10 +1086,12 @@ namespace Framework.Cutscene.Editor
                 else
                     m_pCutscene.Evaluate(m_fPlayTime);
 
-                if (status == EPlayableStatus.Start && m_fPlayTime >= GetDuration())
+                if (status == EPlayableStatus.Start && m_fPlayTime >= GetDuration() + delta)
                 {
-              //      m_fPlayTime = 0.0f;
+                    //      m_fPlayTime = 0.0f;
+                    m_pCutscene.Update(0);
                     m_pCutscene.Stop();
+                    m_fPlayTime = GetDuration();
                 }
             }
         }

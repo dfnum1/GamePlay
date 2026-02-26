@@ -856,6 +856,7 @@ namespace Framework.Cutscene.Runtime
             }
             FrameData defFrame = FrameData.DEF;
             defFrame.ownerTrack = this;
+            defFrame.curTime = m_pOwner.GetTime();
             if (clipData.eStatus == EDriverStatus.Enter ||
                 clipData.eStatus == EDriverStatus.Framing)
             {

@@ -307,7 +307,7 @@ namespace Framework.Cutscene.Runtime
                 }
             }
             m_eStatus = EPlayableStatus.Stop;
-            m_fPlayTime = 0.0f;
+        //    m_fPlayTime = 0.0f;
             OnDirtyStatus();
             OnPlayableStop();
         }
@@ -427,11 +427,13 @@ namespace Framework.Cutscene.Runtime
         void UpdateFrame(float fDelta)
         {
             m_fPlayTime += fDelta;
+            bool bOverTime = false;
             if (m_fPlayTime > m_fDuration)
             {
+                bOverTime = true;
                 m_fPlayTime = m_fDuration;
-                Stop(true);
-                return;
+                //    Stop(true);
+                //   return;
             }
             m_pFrameData.curTime = m_fPlayTime;
             m_pFrameData.totalDuration = GetDuration();
@@ -444,7 +446,7 @@ namespace Framework.Cutscene.Runtime
                 if (!track.Update(ref m_pFrameData))
                     isOverAll = false;
             }
-            if(isOverAll)
+            if (isOverAll || bOverTime)
             {
                 Stop(true);
             }
@@ -963,11 +965,12 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void Clear()
         {
-            m_fPlayTime = 0.0f;
-            m_fDuration = 0.0f;
             m_fAccumoulator = 0.0f;
             ObjectBinderUtils.OnBinderCutsceneObject -= OnBinderCutsceneObject;
             ClearTracks();
+
+            m_fPlayTime = 0.0f;
+            m_fDuration = 0.0f;
 
             m_BindData = null;
             m_BindData = null;

@@ -8,6 +8,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Reflection;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 
@@ -349,6 +350,23 @@ namespace Framework.ED
         {
             EditorGUI.indentLevel--;
             GUILayout.EndHorizontal();
+        }
+    }
+    //------------------------------------------------------
+    //!GUIHorizontalIndentScope
+    //------------------------------------------------------
+    public struct HandleZtestScope : IDisposable
+    {
+        UnityEngine.Rendering.CompareFunction old;
+        public HandleZtestScope(UnityEngine.Rendering.CompareFunction f)
+        {
+            old = Handles.zTest;
+            Handles.zTest = f;
+        }
+
+        public void Dispose()
+        {
+            Handles.zTest = old;
         }
     }
 }

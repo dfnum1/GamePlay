@@ -20,7 +20,7 @@ namespace Framework.DrawProps
         {
 #if UNITY_EDITOR
             this.fieldName = fieldName;
-            this.fieldValue.Add(fieldValue.ToLower());
+            if (fieldValue != null) this.fieldValue.AddRange(fieldValue.ToLower().Split(new char[] { ',', '|', ';' }));
             this.IsContain = IsContain;
 #endif
         }

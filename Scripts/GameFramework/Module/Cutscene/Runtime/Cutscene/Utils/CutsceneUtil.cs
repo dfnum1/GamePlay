@@ -141,5 +141,36 @@ namespace Framework.Cutscene.Runtime
                 }
             }
         }
+        //------------------------------------------------------
+        public static RtgEasing CreateTweenEasing(EEaseType type)
+        {
+            switch (type)
+            {
+                case EEaseType.RTG_LINEAR:
+                    return new RtgLinear();
+                case EEaseType.RTG_SINE:
+                    return new RtgSine();
+                case EEaseType.RTG_QUINT:
+                    return new RtgQuint();
+                case EEaseType.RTG_QUART:
+                    return new RtgQuart();
+                case EEaseType.RTG_QUAD:
+                    return new RtgQuad();
+                case EEaseType.RTG_EXPO:
+                    return new RtgExpo();
+                case EEaseType.RTG_ELASTIC:
+                    return new RtgElastic();
+                case EEaseType.RTG_CUBIC:
+                    return new RtgCubic();
+                case EEaseType.RTG_CIRC:
+                    return new RtgCirc();
+                case EEaseType.RTG_BOUNCE:
+                    return new RtgBounce();
+                case EEaseType.RTG_BACK:
+                    return new RtgBack();
+                default:
+                    return new RtgLinear();
+            }
+        }
     }
 }

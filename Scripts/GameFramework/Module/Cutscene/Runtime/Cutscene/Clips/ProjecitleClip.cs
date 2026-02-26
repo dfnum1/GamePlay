@@ -18,14 +18,14 @@ using Framework.Cutscene.Editor;
 #endif
 namespace Framework.Cutscene.Runtime
 {
-    [System.Serializable, CutsceneClip("弹道Clip"), CutsceneDisable("Framework.ActorSystem.Runtime.Actor")]
+    [System.Serializable, CutsceneClip("弹道Clip")]
     public class ProjecitleClip : IBaseClip
     {
         [Display("基本属性")] public BaseClipProp baseProp;
 
         [Display("开始预制体"), StringViewPlugin("OnDrawSelectPrefabInspector")]
         public string startPrefab;
-        [Display("发射挂点"),RowFieldInspector("OnSelectBindSlot")] public string startBindSlot;
+        [Display("发射挂点"), RowFieldInspector("OnSelectBindSlot")] public string startBindSlot;
         [Display("发射位置偏移"), DisplayNameByField("startBindSlot", "null", "发射位置")] public Vector3 startPosition;
         [Display("发射旋转偏移"), DisplayNameByField("startBindSlot", "null", "发射旋转")] public Vector3 startRotate;
         [Display("发射缩放")] public Vector3 startScale = Vector3.one;
@@ -110,7 +110,7 @@ namespace Framework.Cutscene.Runtime
             Vector3 targetPos = Vector3.zero;
             sourceObj.GetParamPosition(ref sourcePos);
             targetObj.GetParamPosition(ref targetPos);
-            if (!string.IsNullOrEmpty(this.startBindSlot) && sourceTrans!=null)
+            if (!string.IsNullOrEmpty(this.startBindSlot) && sourceTrans != null)
             {
                 startTrans = sourceTrans.Find(this.startBindSlot);
                 if (startTrans != null)
@@ -149,7 +149,7 @@ namespace Framework.Cutscene.Runtime
                     this.endPosition = newPos - targetPos;
                 }
             }
- 
+
             Handles.SphereHandleCap(0, startPos, Quaternion.identity, 0.1f, EventType.Repaint);
             Handles.SphereHandleCap(0, endPos, Quaternion.identity, 0.1f, EventType.Repaint);
 
@@ -177,7 +177,7 @@ namespace Framework.Cutscene.Runtime
         }
         //-----------------------------------------------------
         [NonSerialized] List<string> m_vStartBindPops = new List<string>();
-        [NonSerialized]private Transform m_pStartLastTransfrom = null;
+        [NonSerialized] private Transform m_pStartLastTransfrom = null;
         public void OnSelectBindSlot(System.Object pOwner, System.Reflection.FieldInfo fieldInfo)
         {
             if (fieldInfo.Name != "startBindSlot")
@@ -193,8 +193,8 @@ namespace Framework.Cutscene.Runtime
             List<string> vBindPops = null;
             Transform lastTransform = null;
 
-                lastTransform = m_pStartLastTransfrom;
-                vBindPops = m_vStartBindPops;
+            lastTransform = m_pStartLastTransfrom;
+            vBindPops = m_vStartBindPops;
             if (lastTransform != objTrans)
             {
                 lastTransform = objTrans;
@@ -213,8 +213,8 @@ namespace Framework.Cutscene.Runtime
 
             int nSelect = m_vStartBindPops.IndexOf(bindNode);
             if (nSelect < 0 || string.IsNullOrEmpty(bindNode)) nSelect = 0;
-            nSelect = EditorGUILayout.Popup("", nSelect, vBindPops.ToArray(),new GUILayoutOption[] { GUILayout.Width(80) });
-            if(nSelect >=0 && nSelect < vBindPops.Count)
+            nSelect = EditorGUILayout.Popup("", nSelect, vBindPops.ToArray(), new GUILayoutOption[] { GUILayout.Width(80) });
+            if (nSelect >= 0 && nSelect < vBindPops.Count)
             {
                 bindNode = vBindPops[nSelect];
             }
@@ -236,8 +236,8 @@ namespace Framework.Cutscene.Runtime
 
             List<string> vBindPops = null;
             Transform lastTransform = null;
-                lastTransform = m_pEndLastTransfrom;
-                vBindPops = m_vEndBindPops;
+            lastTransform = m_pEndLastTransfrom;
+            vBindPops = m_vEndBindPops;
             if (lastTransform != objTrans)
             {
                 lastTransform = objTrans;
@@ -316,7 +316,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public GameObject GetGameObject(int state)
         {
-            switch(state)
+            switch (state)
             {
                 case 0: return m_StartInstance;
                 case 1: return m_LaunchInstance;
@@ -327,7 +327,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public Transform GetBindTransform(int state)
         {
-            switch(state)
+            switch (state)
             {
                 case 0: return m_StartBindTrans;
                 case 2: return m_EndBindTrans;
@@ -337,7 +337,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void SetGameObject(int state, GameObject obj, ParticleSystem[] particles)
         {
-            switch(state)
+            switch (state)
             {
                 case 0:
                     m_StartInstance = obj;
@@ -377,7 +377,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void OnInstanceStart(GameObject pObj)
         {
-            OnInstance(pObj,0);
+            OnInstance(pObj, 0);
         }
         //-----------------------------------------------------
         void OnInstanceLaunch(GameObject pObj)
@@ -434,7 +434,7 @@ namespace Framework.Cutscene.Runtime
             var transform = go.transform;
 
 
-            if(clip!=null)
+            if (clip != null)
             {
                 if (state == 0)
                 {
@@ -602,10 +602,10 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public override bool OnCreateClip(CutsceneTrack pTrack, IBaseClip clip)
         {
-         //   ProjecitleClip parClip = clip.Cast<ProjecitleClip>();
-        //    SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
-        //    SpawnInstance(parClip.startPrefab, OnInstanceLaunch, parClip.asyncLoad);
-        //    SpawnInstance(parClip.startPrefab, OnInstanceEnd, parClip.asyncLoad);
+            //   ProjecitleClip parClip = clip.Cast<ProjecitleClip>();
+            //    SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
+            //    SpawnInstance(parClip.startPrefab, OnInstanceLaunch, parClip.asyncLoad);
+            //    SpawnInstance(parClip.startPrefab, OnInstanceEnd, parClip.asyncLoad);
             return base.OnCreateClip(pTrack, clip);
         }
         //-----------------------------------------------------
@@ -622,7 +622,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public override bool OnClipLeave(CutsceneTrack pTrack, FrameData clip)
         {
-            if(!clip.IsLeaveIn())
+            if (!clip.IsLeaveIn())
             {
                 if (m_EndInstance)
                 {
@@ -669,12 +669,12 @@ namespace Framework.Cutscene.Runtime
                 var transform = m_LaunchInstance.transform;
                 float t = frameData.curTime / parClip.GetDuration();
                 Vector3 startPos = parClip.startPosition;
-                if(m_StartBindTrans) startPos = m_StartBindTrans.position + parClip.startPosition;
+                if (m_StartBindTrans) startPos = m_StartBindTrans.position + parClip.startPosition;
                 else
                 {
                     var obj = pTrack.GetBindLastCutsceneObject();
                     Vector3 tempPos = Vector3.zero;
-                    if (obj !=null && obj.GetParamPosition(ref tempPos))
+                    if (obj != null && obj.GetParamPosition(ref tempPos))
                     {
                         startPos = tempPos + parClip.startPosition;
                     }
@@ -691,14 +691,14 @@ namespace Framework.Cutscene.Runtime
                     }
                 }
 
-                    Vector3 pos = Bezier(startPos, startPos + parClip.startTan, endPos + parClip.endTan, endPos, t);
+                Vector3 pos = Bezier(startPos, startPos + parClip.startTan, endPos + parClip.endTan, endPos, t);
                 transform.localPosition = pos;
-                if (parClip.launchRotate != null && parClip.launchRotate.length>0)
+                if (parClip.launchRotate != null && parClip.launchRotate.length > 0)
                 {
                     float rot = parClip.launchRotate.Evaluate(t);
                     transform.Rotate(Vector3.up, rot, Space.Self);
                 }
-                if (parClip.launchScale != null && parClip.launchScale.length>0)
+                if (parClip.launchScale != null && parClip.launchScale.length > 0)
                 {
                     float scale = parClip.launchScale.Evaluate(t);
                     transform.localScale = Vector3.one * scale;
@@ -718,7 +718,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         private void DestroyParticle(int state)
         {
-            switch(state)
+            switch (state)
             {
                 case 0:
                     {

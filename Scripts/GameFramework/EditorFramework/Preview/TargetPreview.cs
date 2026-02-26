@@ -839,7 +839,6 @@ namespace Framework.ED
         private void OnDrawBefore(int controllerId, Event evt)
         {
             Handles.SetCamera(m_PreviewUtility.camera);
-
             if (OnDrawBeforeCB != null)
                 OnDrawBeforeCB(controllerId, m_PreviewUtility.camera, evt);
         }

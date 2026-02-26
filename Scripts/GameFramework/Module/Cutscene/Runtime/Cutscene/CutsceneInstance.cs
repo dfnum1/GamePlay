@@ -473,7 +473,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public ICutsceneObject GetGroupBindLastCutsceneObject(ushort groupId)
         {
-            if (m_pPlayable == null)
+            if (m_pPlayable == null || groupId < 0 || groupId >= ushort.MaxValue)
             {
                 return null;
             }
