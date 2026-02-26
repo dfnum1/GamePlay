@@ -477,7 +477,7 @@ namespace Framework.ED
             {
                 return;
             }
-
+            Matrix4x4 oldHandlesMatrix = Handles.matrix;
             if (m_defaultStyle == null)
                 m_defaultStyle = new GUIStyle(EditorStyles.textField);
 
@@ -498,10 +498,9 @@ namespace Framework.ED
             {
                 m_ViewTool = ViewTool.None;
             }
-
             m_PreviewUtility.BeginPreview(rect2, m_defaultStyle);
                
-            DoRenderPreview(controlID, current);
+            DoRenderPreview(controlID, current, oldHandlesMatrix);
 
             int controlID2 = GUIUtility.GetControlID(m_PreviewSceneHint, FocusType.Passive);
             Handles.SetCamera(GetCamera());
@@ -716,7 +715,7 @@ namespace Framework.ED
 #endif
         }
         //-----------------------------------------------------
-        private void DoRenderPreview(int contollerId, Event evt)
+        private void DoRenderPreview(int contollerId, Event evt, Matrix4x4 handleMatrix)
         {
 
             //   Color backgroundColor = m_PreviewUtility.camera.backgroundColor;
@@ -809,10 +808,10 @@ namespace Framework.ED
             }
 
             UnityEngine.Rendering.CompareFunction zTest = Handles.zTest;
-            Matrix4x4 oldMatrix = Handles.matrix;
-            using (new Handles.DrawingScope(Matrix4x4.identity))
+         //   using (new Handles.DrawingScope(Matrix4x4.identity))
             {
                 Handles.SetCamera(m_PreviewUtility.camera);
+                Handles.matrix =handleMatrix;
 
                 Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
                 OnDrawBefore(contollerId, evt);
@@ -821,9 +820,10 @@ namespace Framework.ED
 
 
             this.m_PreviewUtility.Render(true, false);
-            using (new Handles.DrawingScope(Matrix4x4.identity))
+       //     using (new Handles.DrawingScope(Matrix4x4.identity))
             {
                 Handles.SetCamera(m_PreviewUtility.camera);
+                Handles.matrix =handleMatrix;
                 Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
                 OnDrawAfter(contollerId, evt);
                 Handles.zTest = zTest;

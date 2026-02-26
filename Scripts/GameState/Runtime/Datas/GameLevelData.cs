@@ -86,6 +86,11 @@ namespace Framework.State.Runtime
             Framework.ED.InspectorDrawUtil.DrawProperty(m_pData, null);
         }
         //------------------------------------------------
+        public virtual void OnUpdate(float deltaTime)
+        {
+
+        }
+        //------------------------------------------------
         public virtual void OnSceneView(SceneView view)
         {
         }
@@ -111,6 +116,10 @@ namespace Framework.State.Runtime
         }
         //------------------------------------------------
         public virtual void OnPreviewView(Framework.ED.TargetPreview preview)
+        {
+        }
+        //------------------------------------------------
+        public virtual void OnBeforePreviewView(Framework.ED.TargetPreview preview)
         {
         }
         //------------------------------------------------

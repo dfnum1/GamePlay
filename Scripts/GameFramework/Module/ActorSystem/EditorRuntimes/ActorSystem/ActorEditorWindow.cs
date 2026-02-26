@@ -130,8 +130,8 @@ namespace Framework.ActorSystem.Editor
             this.autoRepaintOnSceneChange = true;
             this.wantsLessLayoutEvents = true;
 
-            m_ViewLeftRate = 0.25f;
-            m_ViewRightRate = 0.75f;
+            m_ViewLeftRate = 0.27f;
+            m_ViewRightRate = 0.73f;
             m_ViewHeightRate = 0.65f;
 
             m_TileStyle = new GUIStyle();
