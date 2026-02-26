@@ -364,6 +364,16 @@ namespace Framework.Cutscene.Editor
                         Handles.EndGUI();
                         break;
                     }
+					btnRect = new Rect(guiPos.x + 10, guiPos.y - 10+48, 80, 24);
+					if (editTest && GUI.Button(btnRect, "设置"))
+                    {
+						editTest.position = pt.position;
+						editTest.eulerAngles = pt.eulerAngle;
+						editTest.localScale = pt.scale;
+
+                        Handles.EndGUI();
+                        break;
+                    }
                     Handles.EndGUI();
                 }
 

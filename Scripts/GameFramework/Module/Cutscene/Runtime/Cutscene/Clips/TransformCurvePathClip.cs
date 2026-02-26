@@ -25,6 +25,7 @@ namespace Framework.Cutscene.Runtime
         [Display("位置")] public bool posToggle = true;
         [Display("地表高度")] public bool terrianHeight = false;
         [Display("路径点")] public PathPoint[] pathPoints; //路径点
+        [Display("速度缩放")] public AnimationCurve speed;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {
@@ -79,9 +80,9 @@ namespace Framework.Cutscene.Runtime
                     for (int i = 0; i < this.pathPoints.Length; i++)
                     {
                         GUILayout.Label("路径点[" + (i + 1) + "]");
-                        if (posToggle) this.pathPoints[i].position = EditorGUILayout.Vector3Field("路径点", this.pathPoints[i].position);
-                        if (rotToggle) this.pathPoints[i].eulerAngle = EditorGUILayout.Vector3Field("角度", this.pathPoints[i].eulerAngle);
-                        if (scaleToggle) this.pathPoints[i].scale = EditorGUILayout.Vector3Field("缩放", this.pathPoints[i].scale);
+                        if(posToggle) this.pathPoints[i].position = EditorGUILayout.Vector3Field("路径点", this.pathPoints[i].position);
+                        if(rotToggle) this.pathPoints[i].eulerAngle = EditorGUILayout.Vector3Field("角度", this.pathPoints[i].eulerAngle);
+                        if(scaleToggle) this.pathPoints[i].scale = EditorGUILayout.Vector3Field("缩放", this.pathPoints[i].scale);
                     }
                     EditorGUI.indentLevel--;
                 }
@@ -118,9 +119,11 @@ namespace Framework.Cutscene.Runtime
 
         private PathCurve m_pCurve;
         bool m_bController = false;
+        float m_fSpeedTime = 0;
         //-----------------------------------------------------
         public override void OnDestroy()
         {
+            m_fSpeedTime = 0;
             m_pCurve.Dispose();
 
             if (m_bController)
@@ -136,6 +139,7 @@ namespace Framework.Cutscene.Runtime
         {
             m_pHoldObject = null;
             m_pTransform = null;
+            m_fSpeedTime = 0;
             CheckBindObj(pTrack, clip);
             var clipData = clip.clip.Cast<TransformCurvePathClip>();
             var points = clipData.pathPoints;
@@ -182,6 +186,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public override bool OnClipLeave(CutsceneTrack pTrack, FrameData clip)
         {
+            m_fSpeedTime = 0;
             var bindObj = pTrack.GetBindLastCutsceneObject();
             if (bindObj != null)
                 bindObj.SetParamHold(false);
@@ -223,6 +228,16 @@ namespace Framework.Cutscene.Runtime
             CheckBindObj(pTrack, frameData);
             float duration = clipData.GetDuration();
             float t = Mathf.Clamp01(frameData.subTime / Mathf.Max(duration, 0.01f));
+            if (clipData.speed != null && clipData.speed.length > 0)
+            {
+                if(frameData.eStatus == EPlayableStatus.Start)
+                {
+                    t = Mathf.Clamp01(m_fSpeedTime / Mathf.Max(duration, 0.01f));
+                    float speedFactor = clipData.speed.Evaluate(t);
+                    m_fSpeedTime += frameData.deltaTime * speedFactor;
+                    t = Mathf.Clamp01(m_fSpeedTime / Mathf.Max(duration, 0.01f));
+                }
+            }
 
             if (m_pCurve.Evaluate(t, out var point, clipData.pathForward))
             {
@@ -230,14 +245,14 @@ namespace Framework.Cutscene.Runtime
                 {
                     if (clipData.posToggle) m_pTransform.position = point.position;
                     if (clipData.scaleToggle) m_pTransform.localScale = point.scale;
-                    if(point.useRot && clipData.rotToggle) m_pTransform.rotation = point.rot;
+                    if (point.useRot && clipData.rotToggle) m_pTransform.rotation = point.rot;
                 }
                 if (m_pHoldObject != null)
                 {
                     m_pHoldObject.SetParamHold(true);
                     if (clipData.posToggle) m_pHoldObject.SetParamPosition(point.position);
                     if (point.useRot && clipData.rotToggle) m_pHoldObject.SetParamQuaternion(point.rot);
-                    if(clipData.scaleToggle) m_pHoldObject.SetParamScale(point.scale);
+                    if (clipData.scaleToggle) m_pHoldObject.SetParamScale(point.scale);
                     if (clipData.terrianHeight) m_pHoldObject.SetParamTerrainHeightCheck();
                 }
             }
