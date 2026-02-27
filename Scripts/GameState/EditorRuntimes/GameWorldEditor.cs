@@ -365,16 +365,21 @@ namespace Framework.State.Editor
 
         }
         //-----------------------------------------------------
-        protected override void OnInnerEvent(Event evt)
-        {
-        }
-        //-----------------------------------------------------
         internal void OnGameItemSelected(IGameWorldItem pGameItem)
         {
             var logics = GetLogics<AStateEditorLogic>();
             foreach(var db in logics)
             {
                 db.OnGameItemSelected(pGameItem);
+            }
+        }
+        //--------------------------------------------------------
+        internal void OnUndoAction(System.Object pObj, bool bDirty)
+        {
+            var logics = GetLogics<AStateEditorLogic>();
+            foreach (var db in logics)
+            {
+                db.OnUndoAction(pObj, bDirty);
             }
         }
     }

@@ -65,6 +65,7 @@ namespace Framework.State.Runtime
     {
         protected AGameCfgData m_pData;
         protected EditorWindow m_pEditor;
+        private ED.UndoHandler m_Undo;
         //------------------------------------------------
         internal void SetData(AGameCfgData pData)
         {
@@ -76,6 +77,11 @@ namespace Framework.State.Runtime
             m_pEditor = pData;
         }
         //------------------------------------------------
+        internal void SetUndoHandle(ED.UndoHandler handler)
+        {
+            m_Undo = handler;
+        }
+        //------------------------------------------------
         public T GetData<T>() where T : AGameCfgData
         {
             return m_pData as T;
@@ -84,6 +90,17 @@ namespace Framework.State.Runtime
         public virtual void OnInspectorGUI()
         {
             Framework.ED.InspectorDrawUtil.DrawProperty(m_pData, null);
+        }
+        //------------------------------------------------
+        protected void RegisterUndo(System.Object pData, bool bDirty = false)
+        {
+            if (m_Undo == null) return;
+            m_Undo.RegisterUndoData(pData);
+        }
+        //------------------------------------------------
+        public virtual void OnUndoAction(System.Object pObj, bool bDirty)
+        {
+
         }
         //------------------------------------------------
         public virtual void OnUpdate(float deltaTime)

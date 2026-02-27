@@ -1139,7 +1139,7 @@ namespace Framework.Guide.Editor
                     break;
                 case EControllType.Editor:
                     {
-                        SettingsService.OpenUserPreferences("Preferences/GuideSystemEditor");
+                        GuidePreferences.OpenUserPreferences();
                     }
                     break;
                 case EControllType.Expand:

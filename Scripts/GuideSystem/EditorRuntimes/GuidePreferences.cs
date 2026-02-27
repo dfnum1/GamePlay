@@ -131,6 +131,11 @@ namespace Framework.Guide.Editor
             }
         }
 
+        public static void OpenUserPreferences()
+        {
+            SettingsService.OpenUserPreferences("Preferences/GamePlay/引导偏好设置");
+        }
+
 #if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateNodeSettingsProvider() {

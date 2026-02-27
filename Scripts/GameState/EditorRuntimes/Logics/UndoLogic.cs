@@ -76,12 +76,8 @@ namespace Framework.State.Editor
             bool bStack = false;
             if (!string.IsNullOrEmpty(obj.json))
             {
-                if (obj.data is GameWorldData)
-                {
-                    GameWorldData graphData = (GameWorldData)obj.data;
-                    JsonUtility.FromJson<GameWorldData>(obj.json);
-                    bStack = true;
-                }
+                GetOwner<GameWorldEditor>().OnUndoAction(JsonUtility.FromJson(obj.json, obj.data.GetType()), obj.isDirtyData);
+                bStack = true;
             }
         }
         //--------------------------------------------------------

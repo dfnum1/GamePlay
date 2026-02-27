@@ -68,13 +68,39 @@ namespace Framework.State.Editor
             AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
             if (cfgData == null)
                 return;
+            OnInitCustomEditor();
 
-            if(!m_bPreviewDataInit)
+            cfgData.GetEditor(GetOwner())?.OnPreviewView(m_Preview);
+        }
+        //--------------------------------------------------------
+        void OnInitCustomEditor()
+        {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData == null)
+                return;
+
+            if (!m_bPreviewDataInit)
             {
                 cfgData.GetEditor(GetOwner())?.OnPreviewEnable(m_Preview);
                 m_bPreviewDataInit = true;
+                cfgData.GetEditor()?.SetUndoHandle(GetLogic<UndoLogic>());
             }
-            cfgData.GetEditor(GetOwner())?.OnPreviewView(m_Preview);
+        }
+        //-----------------------------------------------------
+        public override void OnUndoAction(System.Object pObj, bool bDirty)
+        {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData == null)
+                return;
+            cfgData.GetEditor(GetOwner())?.OnUndoAction(pObj, bDirty);
         }
         //--------------------------------------------------------
         protected override void OnUpdate(float delta)

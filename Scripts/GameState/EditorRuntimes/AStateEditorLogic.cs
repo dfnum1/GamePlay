@@ -29,6 +29,11 @@ namespace Framework.State.Editor
         {
         }
         //-----------------------------------------------------
+        public virtual void OnUndoAction(System.Object pObj, bool bDirty)
+        {
+
+        }
+        //-----------------------------------------------------
         public GameWorldData GetWorldData()
         {
             var worldObj = GetObject<AGameWorldObject>();

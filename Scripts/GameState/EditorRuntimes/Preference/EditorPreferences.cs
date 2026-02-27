@@ -74,7 +74,7 @@ namespace Framework.State.Editor
 
         public static void OpenUserPreferences()
         {
-            SettingsService.OpenUserPreferences("Preferences/GameWorldEditor");
+            SettingsService.OpenUserPreferences("Preferences/GamePlay/游戏偏好设置");
         }
 
         //#if UNITY_2019_1_OR_NEWER
