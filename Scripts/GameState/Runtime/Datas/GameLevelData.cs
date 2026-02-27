@@ -119,8 +119,9 @@ namespace Framework.State.Runtime
         {
         }
         //------------------------------------------------
-        public virtual void OnBeforePreviewView(Framework.ED.TargetPreview preview)
+        public virtual void OnSaveChanges()
         {
+
         }
         //------------------------------------------------
         protected void DestroyObj(UnityEngine.Object obj)

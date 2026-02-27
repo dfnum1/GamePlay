@@ -780,7 +780,7 @@ namespace Framework.ED
             Quaternion identity = Quaternion.identity;
             Vector3 position = new Vector3(0f, 0f, 0f);
             if (m_ReferenceInstance != null) position = m_ReferenceInstance.transform.position;
-            if(m_FloorPlane)
+            if(m_FloorPlane && m_bShowFloor>0)
             {
                 Material floorMaterial = m_FloorMaterial;
                 if (floorMaterial != null)
@@ -1144,7 +1144,7 @@ namespace Framework.ED
         protected void HandleMouseUp(Event evt, int id, Rect previewRect)
         {
             m_ViewTool = ViewTool.None;
-            if (GUIUtility.hotControl == id)
+     //       if (GUIUtility.hotControl == id)
             {
                 GUIUtility.hotControl = 0;
                 EditorGUIUtility.SetWantsMouseJumping(0);

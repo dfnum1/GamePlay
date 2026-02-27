@@ -167,6 +167,14 @@ namespace Framework.State.Editor
             }
         }
         //--------------------------------------------------------
+        public override void OnSaveChanges()
+        {
+            base.OnSaveChanges();
+            if (GetWorldData() == null)
+                return;
+            GetWorldData().Serialize();
+        }
+        //--------------------------------------------------------
         public override void OnChangeSelect(object pData)
         {
             base.OnChangeSelect(pData);

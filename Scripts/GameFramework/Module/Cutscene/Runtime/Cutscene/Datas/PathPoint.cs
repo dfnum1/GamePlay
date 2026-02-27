@@ -37,15 +37,27 @@ namespace Framework.Cutscene.Runtime
         PathPoint[] m_vPoints;
         private List<float> m_SegmentLengths;
         private float m_TotalLength;
-        private const int SampleCount = 30;
-        public void Set(PathPoint[] vPoints)
+        private const int SampleCount = 60;
+        private const int SPEED_SAMPLE = 100;
+        private List<float> m_SpeedIntegralTable;
+        public void Set(PathPoint[] vPoints, AnimationCurve speed = null)
         {
             m_vPoints = vPoints;
             m_SegmentLengths = null;
             m_TotalLength = 0;
 
-            if(vPoints!=null && vPoints.Length>2)
+            m_SpeedIntegralTable = null;
+
+            if (vPoints != null && vPoints.Length > 2)
+            {
                 CalculateCurveLengths(vPoints);
+            }
+			BuildSpeedIntegralTable(speed);
+        }
+        //-----------------------------------------------------
+        public float GetTotalLength()
+        {
+            return m_TotalLength;
         }
         //-----------------------------------------------------
         public bool Evaluate(float time, float duration, out Point point, bool bPathFoward = false)
@@ -58,6 +70,8 @@ namespace Framework.Cutscene.Runtime
             point = Point.DEF;
             normalTime = Mathf.Clamp01(normalTime);
             if (m_vPoints == null) return false;
+
+            normalTime = GetSpeedCurveT(normalTime);
 
             if (m_vPoints.Length == 1)
             {
@@ -198,6 +212,64 @@ namespace Framework.Cutscene.Runtime
             }
         }
         //-----------------------------------------------------
+        private void BuildSpeedIntegralTable(AnimationCurve speedCurve)
+        {
+            if(m_SpeedIntegralTable!=null)
+            {
+                UnityEngine.Pool.ListPool<float>.Release(m_SpeedIntegralTable);
+                m_SpeedIntegralTable = null;
+            }
+            if (speedCurve == null || speedCurve.length <= 0)
+                return;
+
+            if (m_SpeedIntegralTable == null)
+            {
+                m_SpeedIntegralTable = UnityEngine.Pool.ListPool<float>.Get();
+            }
+			m_SpeedIntegralTable.Clear();
+            float total = 0f;
+            m_SpeedIntegralTable.Add(0);
+            for (int i = 1; i <= SPEED_SAMPLE; i++)
+            {
+                float t = i / (float)SPEED_SAMPLE;
+                // 采样速度曲线
+                float speed = speedCurve.Evaluate(t);
+                total += speed;
+                m_SpeedIntegralTable.Add(total);
+            }
+            float maxValue = m_SpeedIntegralTable[SPEED_SAMPLE];
+            if (maxValue > 0.0001f)
+            {
+                for (int i = 0; i <= SPEED_SAMPLE; i++)
+                {
+                    m_SpeedIntegralTable[i] /= maxValue;
+                }
+            }
+            else
+            {
+                UnityEngine.Pool.ListPool<float>.Release(m_SpeedIntegralTable);
+                m_SpeedIntegralTable = null;
+            }
+        }
+        //-----------------------------------------------------
+        private float GetSpeedCurveT(float t)
+        {
+            if (t <= 0f) return 0f;
+            if (t >= 1f) return 1f;
+            if (m_SpeedIntegralTable == null)
+                return t;
+
+            // 线性插值查表
+            float indexF = t * SPEED_SAMPLE;
+            int index = Mathf.FloorToInt(indexF);
+            int nextIndex = Mathf.Min(index + 1, SPEED_SAMPLE);
+            float lerpFactor = indexF - index;
+			if(index<0 || index>= m_SpeedIntegralTable.Count || nextIndex<0 || nextIndex>= m_SpeedIntegralTable.Count)
+				return t;
+
+            return Mathf.Lerp(m_SpeedIntegralTable[index], m_SpeedIntegralTable[nextIndex], lerpFactor);
+        }
+        //-----------------------------------------------------
         private void GetUniformT(PathPoint[] points, float distance, out int segIdx, out float localT)
         {
             segIdx = -1;
@@ -258,6 +330,11 @@ namespace Framework.Cutscene.Runtime
             {
                 UnityEngine.Pool.ListPool<float>.Release(m_SegmentLengths);
                 m_SegmentLengths = null;
+            }
+            if (m_SpeedIntegralTable != null)
+            {
+                UnityEngine.Pool.ListPool<float>.Release(m_SpeedIntegralTable);
+                m_SpeedIntegralTable = null;
             }
         }
     }

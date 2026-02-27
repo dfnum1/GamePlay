@@ -17,6 +17,7 @@ namespace Framework.Cutscene.Editor
     {
         private static Stack<List<PathPoint>> s_vStacks = new Stack<List<PathPoint>>();
         private static List<PathPoint> s_vPaths;
+        private static AnimationCurve s_Speed = null;
         private static System.Action<List<PathPoint>> s_OnChanged;
         private static bool s_Editing = false;
         private static int s_SelectedIndex = -1;
@@ -39,9 +40,10 @@ namespace Framework.Cutscene.Editor
         private static Quaternion s_GroupHandleRot = Quaternion.identity;
         private static bool s_GroupHandleInit = false;
         //-----------------------------------------------------
-        public static void StartEdit(PathPoint[] vPaths, System.Action<IList<PathPoint>> onChanged = null, float duration = 3)
+        public static void StartEdit(PathPoint[] vPaths, AnimationCurve speed, System.Action<IList<PathPoint>> onChanged = null, float duration = 3)
         {
             s_PreviewDuration = duration;
+            s_Speed = speed;
             s_vPaths = vPaths != null ? new List<PathPoint>(vPaths) : new List<PathPoint>();
             s_OnChanged = onChanged;
             s_Editing = true;
@@ -87,6 +89,7 @@ namespace Framework.Cutscene.Editor
             }
             s_Editing = false;
             s_vPaths = null;
+            s_Speed = null;
             s_OnChanged = null;
             s_SelectedIndex = -1;
             s_Previewing = false;
@@ -364,8 +367,12 @@ namespace Framework.Cutscene.Editor
                         Handles.EndGUI();
                         break;
                     }
-					btnRect = new Rect(guiPos.x + 10, guiPos.y - 10+48, 80, 24);
-					if (editTest && GUI.Button(btnRect, "设置"))
+                    if (editTest != null)
+                    {
+                        btnRect = new Rect(guiPos.x + 10, guiPos.y - 10 + 48, 80, 24);
+                        guiPos.y = guiPos.y - 10 + 48;
+                    }
+                    if (editTest && GUI.Button(btnRect, "设置"))
                     {
 						editTest.position = pt.position;
 						editTest.eulerAngles = pt.eulerAngle;
@@ -373,6 +380,44 @@ namespace Framework.Cutscene.Editor
 
                         Handles.EndGUI();
                         break;
+                    }
+                    if(s_SelectedIndex == i)
+                    {
+                        // 在前面插入
+                        if (i > 0)
+                        {
+                            guiPos.y += 24;
+                            btnRect = new Rect(guiPos.x + 10, guiPos.y, 80, 24);
+                            if (GUI.Button(btnRect, "在前面插入"))
+                            {
+                                var ptNew = LockPoint(sceneView, out var bSucceed, true);
+                                if (bSucceed)
+                                {
+                                    s_vStacks.Push(new List<PathPoint>(s_vPaths.ToArray()));
+                                    s_vPaths.Insert(i, ptNew);
+                                    s_GroupHandlePos = GetCenterPoint();
+                                    s_OnChanged?.Invoke(s_vPaths);
+                                }
+                                Handles.EndGUI();
+                                break;
+                            }
+                        }
+                        // 在后面插入
+                        guiPos.y += 24;
+                        btnRect = new Rect(guiPos.x + 10, guiPos.y, 80, 24);
+                        if (GUI.Button(btnRect, "在后面插入"))
+                        {
+                            var ptNew = LockPoint(sceneView, out var bSucceed, true);
+                            if (bSucceed)
+                            {
+                                s_vStacks.Push(new List<PathPoint>(s_vPaths.ToArray()));
+                                s_vPaths.Insert(i + 1, ptNew);
+                                s_GroupHandlePos = GetCenterPoint();
+                                s_OnChanged?.Invoke(s_vPaths);
+                            }
+                            Handles.EndGUI();
+                            break;
+                        }
                     }
                     Handles.EndGUI();
                 }
@@ -514,9 +559,10 @@ namespace Framework.Cutscene.Editor
         {
             s_Previewing = true;
             s_PreviewTime = 0f;
-            s_PreviewDuration = Mathf.Max(3f, s_vPaths.Count * 1.5f);
+            if(s_PreviewDuration<=0)
+                s_PreviewDuration = Mathf.Max(3f, s_vPaths.Count * 1.5f);
 
-            m_PathCurve.Set(s_vPaths.ToArray());
+            m_PathCurve.Set(s_vPaths.ToArray(), s_Speed);
 
             EditorApplication.update -= OnPreviewUpdate;
             EditorApplication.update += OnPreviewUpdate;

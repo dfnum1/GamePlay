@@ -25,29 +25,30 @@ namespace Framework.Cutscene.Runtime
 
         [Display("开始预制体"), StringViewPlugin("OnDrawSelectPrefabInspector")]
         public string startPrefab;
-        [Display("发射挂点"), RowFieldInspector("OnSelectBindSlot")] public string startBindSlot;
+        [Display("发射挂点"),RowFieldInspector("OnSelectBindSlot")] public string startBindSlot;
         [Display("发射位置偏移"), DisplayNameByField("startBindSlot", "null", "发射位置")] public Vector3 startPosition;
         [Display("发射旋转偏移"), DisplayNameByField("startBindSlot", "null", "发射旋转")] public Vector3 startRotate;
         [Display("发射缩放")] public Vector3 startScale = Vector3.one;
         [Display("发射点曲率")] public Vector3 startTan = Vector3.zero;
 
-
         [Display("发射中预制"), StringViewPlugin("OnDrawSelectPrefabInspector")]
         public string luanchingPrefab;
+		[Display("发射中-缩放")] public Vector3 scaleLaunch = Vector3.one;
         [Display("发射中-自旋转")] public AnimationCurve launchRotate;
         [Display("发射中-自缩放")] public AnimationCurve launchScale;
 
 
         [Display("结束预制体"), StringViewPlugin("OnDrawSelectPrefabInspector")]
         public string endPrefab;
-        [Display("结束挂点"), RowFieldInspector("OnSelectEndBindSlot")] public string endBindSlot;
+        [Display("结束挂点"), RowFieldInspector("OnSelectEndBindSlot"), StateByField("targetGroup", "65535", false)] public string endBindSlot;
         [Display("结束位置偏移"), DisplayNameByField("endBindSlot", "null", "结束位置")] public Vector3 endPosition;
-        [Display("结束旋转偏移"), DisplayNameByField("endBindSlot", "null", "结束旋转")] public Vector3 endRotate;
+        [Display("结束旋转偏移"), DisplayNameByField("endBindSlot", "null", "结束旋转"), StateByField("targetGroup", "65535", false)] public Vector3 endRotate;
         [Display("结束缩放")] public Vector3 endScale = Vector3.one;
         [Display("结束点曲率")] public Vector3 endTan = Vector3.zero;
 
         [Display("弹道目标"), RowFieldInspector("OnCutsceneGroupSelect")]
         public ushort targetGroup; //跟组
+        [Display("更新目标"), StateByField("targetGroup", "65535")] public bool updateTarget = true;
 
         [Display("异步加载")] public bool asyncLoad = true;
         //-----------------------------------------------------
@@ -90,18 +91,48 @@ namespace Framework.Cutscene.Runtime
         {
             return baseProp.GetBlend(bIn);
         }
+        //-----------------------------------------------------
+        public bool IsTargetTrackGroup()
+        {
+            return targetGroup >= 0 && targetGroup < ushort.MaxValue;
+        }
 #if UNITY_EDITOR
         //-----------------------------------------------------
         public void OnSceneView(SceneView sceneView)
         {
             if (baseProp.ownerTrackObject == null)
                 return;
+
+            ProjecitleDriver pDriver = null;
+            var projectilrDirvers = baseProp.ownerTrackObject.GetCacheTrackDriversByType(typeof(ProjecitleDriver));
+            if(projectilrDirvers!=null)
+            {
+                foreach(var db in projectilrDirvers)
+                {
+                    if(db.pDater == this)
+                    {
+                        pDriver = db.pDriver as ProjecitleDriver;
+                        break;
+                    }
+                }
+            }
+            if (pDriver != null)
+            {
+                if (pDriver.DrawLaunchCurvePath(this))
+                    return;
+            }
+
+            if (baseProp.ownerTrackObject.GetCutscene().GetStatus() == EPlayableStatus.Start)
+                return;
+
             var sourceObj = baseProp.ownerTrackObject.GetBindLastCutsceneObject();
-            var targetObj = baseProp.ownerTrackObject.GetCutscene().GetGroupBindLastCutsceneObject(targetGroup);
-            if (sourceObj == null || targetObj == null)
+            ICutsceneObject targetObj = null;
+            if (IsTargetTrackGroup())
+                targetObj = baseProp.ownerTrackObject.GetCutscene().GetGroupBindLastCutsceneObject(targetGroup);
+            if (sourceObj == null)
                 return;
             var sourceTrans = sourceObj.GetUniyTransform();
-            var targetTrans = targetObj.GetUniyTransform();
+            Transform targetTrans = null;
             Vector3 startPos = Vector3.zero;
             Vector3 endPos = Vector3.zero;
             Transform startTrans = null;
@@ -109,7 +140,18 @@ namespace Framework.Cutscene.Runtime
             Vector3 sourcePos = Vector3.zero;
             Vector3 targetPos = Vector3.zero;
             sourceObj.GetParamPosition(ref sourcePos);
-            targetObj.GetParamPosition(ref targetPos);
+            if (IsTargetTrackGroup())
+            {
+                if (targetObj != null)
+                {
+                    targetTrans = targetObj.GetUniyTransform();
+                    targetObj.GetParamPosition(ref targetPos);
+                }
+            }
+            else
+            {
+                targetPos = Vector3.zero;
+            }
             if (!string.IsNullOrEmpty(this.startBindSlot) && sourceTrans != null)
             {
                 startTrans = sourceTrans.Find(this.startBindSlot);
@@ -149,9 +191,11 @@ namespace Framework.Cutscene.Runtime
                     this.endPosition = newPos - targetPos;
                 }
             }
-
+ 
             Handles.SphereHandleCap(0, startPos, Quaternion.identity, 0.1f, EventType.Repaint);
             Handles.SphereHandleCap(0, endPos, Quaternion.identity, 0.1f, EventType.Repaint);
+            Handles.Label(endPos, new GUIContent("目标位置"));
+            Handles.Label(startPos, new GUIContent("发射位置"));
 
             Vector3 startTanPos = startPos + this.startTan;
             Vector3 endTanPos = endPos + this.endTan;
@@ -173,11 +217,11 @@ namespace Framework.Cutscene.Runtime
                 }
             }
 
-            Handles.DrawBezier(startPos, endPos, startTanPos, endTanPos, Color.green, null, 5f);
+            Handles.DrawBezier(startPos, endPos, startTanPos, endTanPos, Color.green, null, 2f);
         }
         //-----------------------------------------------------
         [NonSerialized] List<string> m_vStartBindPops = new List<string>();
-        [NonSerialized] private Transform m_pStartLastTransfrom = null;
+        [NonSerialized]private Transform m_pStartLastTransfrom = null;
         public void OnSelectBindSlot(System.Object pOwner, System.Reflection.FieldInfo fieldInfo)
         {
             if (fieldInfo.Name != "startBindSlot")
@@ -193,8 +237,8 @@ namespace Framework.Cutscene.Runtime
             List<string> vBindPops = null;
             Transform lastTransform = null;
 
-            lastTransform = m_pStartLastTransfrom;
-            vBindPops = m_vStartBindPops;
+                lastTransform = m_pStartLastTransfrom;
+                vBindPops = m_vStartBindPops;
             if (lastTransform != objTrans)
             {
                 lastTransform = objTrans;
@@ -213,8 +257,8 @@ namespace Framework.Cutscene.Runtime
 
             int nSelect = m_vStartBindPops.IndexOf(bindNode);
             if (nSelect < 0 || string.IsNullOrEmpty(bindNode)) nSelect = 0;
-            nSelect = EditorGUILayout.Popup("", nSelect, vBindPops.ToArray(), new GUILayoutOption[] { GUILayout.Width(80) });
-            if (nSelect >= 0 && nSelect < vBindPops.Count)
+            nSelect = EditorGUILayout.Popup("", nSelect, vBindPops.ToArray(),new GUILayoutOption[] { GUILayout.Width(80) });
+            if(nSelect >=0 && nSelect < vBindPops.Count)
             {
                 bindNode = vBindPops[nSelect];
             }
@@ -236,8 +280,8 @@ namespace Framework.Cutscene.Runtime
 
             List<string> vBindPops = null;
             Transform lastTransform = null;
-            lastTransform = m_pEndLastTransfrom;
-            vBindPops = m_vEndBindPops;
+                lastTransform = m_pEndLastTransfrom;
+                vBindPops = m_vEndBindPops;
             if (lastTransform != objTrans)
             {
                 lastTransform = objTrans;
@@ -301,7 +345,14 @@ namespace Framework.Cutscene.Runtime
         private string m_lastStartBindNode = null;
         private string m_lastEndBindNode = null;
 
+        private bool m_bStartLaucnchPostionGrab = false;
+        private Vector3 m_StartLuanchPosition = Vector3.zero;
+
+        private bool m_bEndLaucnchPostionGrab = false;
+        private Vector3 m_EndLuanchPosition = Vector3.zero;
+
 #if UNITY_EDITOR
+        bool m_bFrameing = false;
         private ParticleSystem[] m_StartParticles;
         private ParticleSystem[] m_LaunchParticles;
         private ParticleSystem[] m_EndParticles;
@@ -316,7 +367,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public GameObject GetGameObject(int state)
         {
-            switch (state)
+            switch(state)
             {
                 case 0: return m_StartInstance;
                 case 1: return m_LaunchInstance;
@@ -327,7 +378,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public Transform GetBindTransform(int state)
         {
-            switch (state)
+            switch(state)
             {
                 case 0: return m_StartBindTrans;
                 case 2: return m_EndBindTrans;
@@ -337,7 +388,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void SetGameObject(int state, GameObject obj, ParticleSystem[] particles)
         {
-            switch (state)
+            switch(state)
             {
                 case 0:
                     m_StartInstance = obj;
@@ -377,7 +428,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void OnInstanceStart(GameObject pObj)
         {
-            OnInstance(pObj, 0);
+            OnInstance(pObj,0);
         }
         //-----------------------------------------------------
         void OnInstanceLaunch(GameObject pObj)
@@ -434,7 +485,7 @@ namespace Framework.Cutscene.Runtime
             var transform = go.transform;
 
 
-            if (clip != null)
+            if(clip!=null)
             {
                 if (state == 0)
                 {
@@ -602,27 +653,38 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public override bool OnCreateClip(CutsceneTrack pTrack, IBaseClip clip)
         {
-            //   ProjecitleClip parClip = clip.Cast<ProjecitleClip>();
-            //    SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
-            //    SpawnInstance(parClip.startPrefab, OnInstanceLaunch, parClip.asyncLoad);
-            //    SpawnInstance(parClip.startPrefab, OnInstanceEnd, parClip.asyncLoad);
+            m_bStartLaucnchPostionGrab = false;
+            m_StartLuanchPosition = Vector3.zero;
+            m_bEndLaucnchPostionGrab = false;
+            m_EndLuanchPosition = Vector3.zero;
+         //   ProjecitleClip parClip = clip.Cast<ProjecitleClip>();
+         //    SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
+         //    SpawnInstance(parClip.startPrefab, OnInstanceLaunch, parClip.asyncLoad);
+         //    SpawnInstance(parClip.startPrefab, OnInstanceEnd, parClip.asyncLoad);
             return base.OnCreateClip(pTrack, clip);
         }
         //-----------------------------------------------------
         public override bool OnClipEnter(CutsceneTrack pTrack, FrameData clip)
         {
+            m_bStartLaucnchPostionGrab = false;
+            m_StartLuanchPosition = Vector3.zero;
+            m_bEndLaucnchPostionGrab = false;
+            m_EndLuanchPosition = Vector3.zero;
             ProjecitleClip parClip = clip.clip.Cast<ProjecitleClip>();
             CheckStartBindTransform(pTrack, parClip);
             CheckEndBindTransform(pTrack, parClip);
             SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
             SpawnInstance(parClip.luanchingPrefab, OnInstanceLaunch, parClip.asyncLoad);
             SpawnInstance(parClip.endPrefab, OnInstanceEnd, parClip.asyncLoad);
+#if UNITY_EDITOR
+            m_bFrameing = true;
+#endif
             return true;
         }
         //-----------------------------------------------------
         public override bool OnClipLeave(CutsceneTrack pTrack, FrameData clip)
         {
-            if (!clip.IsLeaveIn())
+            if(!clip.IsLeaveIn())
             {
                 if (m_EndInstance)
                 {
@@ -634,6 +696,9 @@ namespace Framework.Cutscene.Runtime
                 DestroyParticle(0);
                 DestroyParticle(1);
             }
+#if UNITY_EDITOR
+            m_bFrameing = false;
+#endif
             return true;
         }
         //-----------------------------------------------------
@@ -667,45 +732,137 @@ namespace Framework.Cutscene.Runtime
             if (m_LaunchInstance)
             {
                 var transform = m_LaunchInstance.transform;
-                float t = frameData.curTime / parClip.GetDuration();
+                float t = frameData.subTime / parClip.GetDuration();
                 Vector3 startPos = parClip.startPosition;
-                if (m_StartBindTrans) startPos = m_StartBindTrans.position + parClip.startPosition;
+                if(m_bStartLaucnchPostionGrab)
+                {
+                    startPos = m_StartLuanchPosition;
+                }
                 else
                 {
-                    var obj = pTrack.GetBindLastCutsceneObject();
-                    Vector3 tempPos = Vector3.zero;
-                    if (obj != null && obj.GetParamPosition(ref tempPos))
+                    if (m_StartBindTrans)
                     {
-                        startPos = tempPos + parClip.startPosition;
+                        startPos = m_StartBindTrans.position + parClip.startPosition;
+                        m_StartLuanchPosition = startPos;
+                        m_bStartLaucnchPostionGrab = true;
+                    }
+                    else
+                    {
+                        var obj = pTrack.GetBindLastCutsceneObject();
+                        Vector3 tempPos = Vector3.zero;
+                        if (obj != null && obj.GetParamPosition(ref tempPos))
+                        {
+                            startPos = tempPos + parClip.startPosition;
+                            m_StartLuanchPosition = startPos;
+                            m_bStartLaucnchPostionGrab = true;
+                        }
                     }
                 }
                 Vector3 endPos = parClip.endPosition;
-                if (m_EndBindTrans) endPos = m_EndBindTrans.position + parClip.endPosition;
-                else
+                if (m_EndBindTrans)
                 {
-                    var obj = pTrack.GetCutscene().GetGroupBindLastCutsceneObject(parClip.targetGroup);
-                    Vector3 tempPos = Vector3.zero;
-                    if (obj != null && obj.GetParamPosition(ref tempPos))
+                    if(parClip.updateTarget)
                     {
-                        endPos = tempPos + parClip.endPosition;
+                        endPos = m_EndBindTrans.position + parClip.endPosition;
+                        m_EndLuanchPosition = endPos;
+                        m_bEndLaucnchPostionGrab = true;
+                    }
+                    else
+                    {
+                        if(m_bEndLaucnchPostionGrab)
+                        {
+                            endPos = m_EndLuanchPosition;
+                        }
+                        else
+                        {
+                            endPos = m_EndBindTrans.position + parClip.endPosition;
+                            m_EndLuanchPosition = endPos;
+                            m_bEndLaucnchPostionGrab = true;
+                        }
                     }
                 }
-
+                else
+                {
+                    if (parClip.updateTarget)
+                    {
+                        if(parClip.IsTargetTrackGroup())
+                        {
+                            var obj = pTrack.GetCutscene().GetGroupBindLastCutsceneObject(parClip.targetGroup);
+                            Vector3 tempPos = Vector3.zero;
+                            if (obj != null && obj.GetParamPosition(ref tempPos))
+                            {
+                                endPos = tempPos + parClip.endPosition;
+                                m_EndLuanchPosition = endPos;
+                                m_bEndLaucnchPostionGrab = true;
+                            }
+                        }
+                        else
+                        {
+                            m_EndLuanchPosition = endPos;
+                            m_bEndLaucnchPostionGrab = true;
+                        }
+                    }
+                    else
+                    {
+                        if(m_bEndLaucnchPostionGrab)
+                        {
+                            endPos = m_EndLuanchPosition;
+                        }
+                        else
+                        {
+                            if (parClip.IsTargetTrackGroup())
+                            {
+                                var obj = pTrack.GetCutscene().GetGroupBindLastCutsceneObject(parClip.targetGroup);
+                                Vector3 tempPos = Vector3.zero;
+                                if (obj != null && obj.GetParamPosition(ref tempPos))
+                                {
+                                    endPos = tempPos + parClip.endPosition;
+                                    m_EndLuanchPosition = endPos;
+                                    m_bEndLaucnchPostionGrab = true;
+                                }
+                            }
+                            else
+                            {
+                                m_EndLuanchPosition = endPos;
+                                m_bEndLaucnchPostionGrab = true;
+                            }
+                        }
+                    }
+                }
                 Vector3 pos = Bezier(startPos, startPos + parClip.startTan, endPos + parClip.endTan, endPos, t);
                 transform.localPosition = pos;
-                if (parClip.launchRotate != null && parClip.launchRotate.length > 0)
+                if (parClip.launchRotate != null && parClip.launchRotate.length>0)
                 {
                     float rot = parClip.launchRotate.Evaluate(t);
                     transform.Rotate(Vector3.up, rot, Space.Self);
                 }
-                if (parClip.launchScale != null && parClip.launchScale.length > 0)
+				Vector3 scaleLaunch = parClip.scaleLaunch;
+                if (parClip.launchScale != null && parClip.launchScale.length>0)
                 {
-                    float scale = parClip.launchScale.Evaluate(t);
-                    transform.localScale = Vector3.one * scale;
+                    scaleLaunch *= parClip.launchScale.Evaluate(t);
                 }
+				transform.localScale = scaleLaunch;
             }
             return true;
         }
+#if UNITY_EDITOR
+        //-----------------------------------------------------
+        internal bool DrawLaunchCurvePath(ProjecitleClip clip)
+        {
+            if (!m_bFrameing)
+                return false;
+
+            if(m_bStartLaucnchPostionGrab && m_bEndLaucnchPostionGrab)
+            {
+                Vector3 startTanPos = m_StartLuanchPosition + clip.startTan;
+                Vector3 endTanPos = m_EndLuanchPosition + clip.endTan;
+                Handles.DrawBezier(m_StartLuanchPosition, m_EndLuanchPosition, startTanPos, endTanPos, Color.yellow, null, 2f);
+            }
+            if (Getcutscne().GetStatus() == EPlayableStatus.Start)
+                return true;
+            return false;
+        }
+#endif
         //-----------------------------------------------------
         private Vector3 Bezier(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
@@ -718,7 +875,7 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         private void DestroyParticle(int state)
         {
-            switch (state)
+            switch(state)
             {
                 case 0:
                     {

@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.AT.Runtime;
 using System.Collections.Generic;
+using UnityEngine;
 namespace Framework.State.Runtime
 {
     //------------------------------------------------
@@ -55,6 +56,18 @@ namespace Framework.State.Runtime
         public GameLevelData gameLevel;
         public GameVariables warVariables = new GameVariables();
         public List<GameAgentData> warAgents = new List<GameAgentData>();
+#if UNITY_EDITOR
+        internal void Deserialize()
+        {
+            if (gameLevel != null)
+                gameLevel.Deserialize();
+        }
+        internal string Serialize()
+        {
+            if(gameLevel!=null) gameLevel.Serialize();
+            return JsonUtility.ToJson(this, true);
+        }
+#endif
     }
 }
 

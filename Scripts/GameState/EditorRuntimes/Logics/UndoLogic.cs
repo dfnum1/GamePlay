@@ -28,7 +28,13 @@ namespace Framework.State.Editor
             {
                 this.isDirtyData = isDirtyData;
                 this.data = data;
-                this.json = JsonUtility.ToJson(data);
+                var serializeMethod = data.GetType().GetMethod("Serialize", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                if(serializeMethod == null || serializeMethod.ReflectedType !=typeof(string))
+                    this.json = JsonUtility.ToJson(data);
+                else
+                {
+                    this.json = (string)serializeMethod.Invoke(data, null);
+                }
             }
         }
         Stack<StackData> m_vUndos = new Stack<StackData>();

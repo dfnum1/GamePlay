@@ -31,7 +31,6 @@ namespace Framework.State.Editor
             m_Preview.Initialize(roots);
             m_Preview.SetPreviewInstance(roots[0] as GameObject);
             m_Preview.OnDrawAfterCB = this.OnDraw;
-            m_Preview.OnDrawBeforeCB = this.OnBeforeDraw;
             m_Preview.bLeftMouseForbidMove = true;
             m_Preview.bLeftMouseForbidRotate = true;
             m_Preview.SetFloorTexture(Framework.ED.EditorUtils.GetFloorTexture());
@@ -58,24 +57,6 @@ namespace Framework.State.Editor
         public override void OnGameItemSelected(IGameWorldItem pGameItem)
         {
             m_pGameworldItem = pGameItem;
-        }
-        //--------------------------------------------------------
-        void OnBeforeDraw(int controllerId, Camera camera, Event evt)
-        {
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
-                return;
-
-            if (!m_bPreviewDataInit)
-            {
-                cfgData.GetEditor(GetOwner())?.OnPreviewEnable(m_Preview);
-                m_bPreviewDataInit = true;
-            }
-            cfgData.GetEditor(GetOwner())?.OnBeforePreviewView(m_Preview);
         }
         //--------------------------------------------------------
         void OnDraw(int controllerId, Camera camera, Event evt)
@@ -118,6 +99,18 @@ namespace Framework.State.Editor
             if (cfgData == null)
                 return;
             cfgData.GetEditor(GetOwner())?.OnSceneView(sceneView);
+        }
+        //--------------------------------------------------------
+        public override void OnSaveChanges()
+        {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData == null)
+                return;
+            cfgData.GetEditor(GetOwner())?.OnSaveChanges();
         }
         //--------------------------------------------------------
         protected override void OnGUI()

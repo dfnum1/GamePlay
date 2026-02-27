@@ -98,7 +98,7 @@ namespace Framework.Cutscene.Runtime
             }
             if (GUILayout.Button("编辑运行曲线"))
             {
-                CurvePathEditor.StartEdit(pathPoints, (paths) => {
+                CurvePathEditor.StartEdit(pathPoints,speed, (paths) => {
                     pathPoints = paths.ToArray();
                 }, GetDuration());
             }
@@ -143,7 +143,7 @@ namespace Framework.Cutscene.Runtime
             CheckBindObj(pTrack, clip);
             var clipData = clip.clip.Cast<TransformCurvePathClip>();
             var points = clipData.pathPoints;
-            m_pCurve.Set(points);
+            m_pCurve.Set(points, clipData.speed);
             return true;
         }
         //-----------------------------------------------------
@@ -228,17 +228,6 @@ namespace Framework.Cutscene.Runtime
             CheckBindObj(pTrack, frameData);
             float duration = clipData.GetDuration();
             float t = Mathf.Clamp01(frameData.subTime / Mathf.Max(duration, 0.01f));
-            if (clipData.speed != null && clipData.speed.length > 0)
-            {
-                if(frameData.eStatus == EPlayableStatus.Start)
-                {
-                    t = Mathf.Clamp01(m_fSpeedTime / Mathf.Max(duration, 0.01f));
-                    float speedFactor = clipData.speed.Evaluate(t);
-                    m_fSpeedTime += frameData.deltaTime * speedFactor;
-                    t = Mathf.Clamp01(m_fSpeedTime / Mathf.Max(duration, 0.01f));
-                }
-            }
-
             if (m_pCurve.Evaluate(t, out var point, clipData.pathForward))
             {
                 if (m_pTransform)
