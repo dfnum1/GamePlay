@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using Framework.Core;
+using Framework.ED;
 using Framework.State.Runtime;
 using System;
 using System.Collections.Generic;
@@ -49,10 +50,11 @@ namespace Framework.State.Editor
             {
                 if (ms_PanelTileStyle == null)
                 {
-                    ms_PanelTileStyle = new GUIStyle();
-                    ms_PanelTileStyle.fontSize = 13;
+                    ms_PanelTileStyle = new GUIStyle(GUI.skin.label);
+                    ms_PanelTileStyle.fontSize += 3;
                     ms_PanelTileStyle.normal.textColor = Color.white;
                     ms_PanelTileStyle.alignment = TextAnchor.MiddleCenter;
+                    ms_PanelTileStyle.fontStyle = FontStyle.Bold;
 
                 }
                 return ms_PanelTileStyle;
@@ -184,15 +186,87 @@ namespace Framework.State.Editor
             }
         }
         //-----------------------------------------------------
-        public static List<int> DrawStateLogics(AStateEditorLogic logic, string label, List<int> vLogics)
+        internal static bool IsExistLogics(int clsId, List<GameStateLogicData> vLogics)
         {
-            if (vLogics == null) vLogics = new List<int>();
+            for (int j = 0; j < vLogics.Count; ++j)
+            {
+                if (vLogics[j].logicType == clsId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        //-----------------------------------------------------
+        public static void DrawStateLogic(GameStateLogicData stateLogic, List<GameStateLogicData> vLogics = null, System.Action<int> action = null)
+        {
+            var enable = EditorGUILayout.Toggle("是否启用", stateLogic.enabled);
+            if(enable!= stateLogic.enabled)
+            {
+                if (action != null) action(1);
+                stateLogic.enabled = enable;
+            }
+            int index = -1;
+            if (vLogics != null) index = vLogics.IndexOf(stateLogic);
+            if (IsStateWorldType<AStateLogic>(stateLogic.logicType))
+            {
+                GameStateLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (indx, clasId) =>
+                {
+                    if(IsExistLogics(clasId, vLogics))
+                    {
+                        EditorUtility.DisplayDialog("提示", "该逻辑组件已被配置", "好的");
+                    }
+                    else
+                    {
+                        if(stateLogic.logicType != clasId)
+                        {
+                            if (action != null) action(1);
+                            stateLogic.logicType = clasId;
+                        }
+                    }
+                }, index, false);
+            }
+            else if (IsStateWorldType<AModeLogic>(stateLogic.logicType))
+            {
+                GameModeLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (indx, clasId) =>
+                {
+                    if (IsExistLogics(clasId, vLogics))
+                    {
+                        EditorUtility.DisplayDialog("提示", "该逻辑组件已被配置", "好的");
+                    }
+                    else
+                    {
+                        if (stateLogic.logicType != clasId)
+                        {
+                            if (action != null) action(1);
+                            stateLogic.logicType = clasId;
+                        }
+                    }
+                }, index, false);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("逻辑组件[" + stateLogic.logicType + "] 不存在!!!", MessageType.Error);
+            }
+            if(vLogics !=null && GUILayout.Button("删除逻辑"))
+            {
+                if(EditorUtility.DisplayDialog("提示", "确定删除该逻辑组件?","删除", "再想想"))
+                {
+                    vLogics.Remove(stateLogic);
+                    if (action != null) action(2);
+                }
+            }
+        }
+        //-----------------------------------------------------
+        public static List<GameStateLogicData> DrawStateLogics(AStateEditorLogic logic, string label, List<GameStateLogicData> vLogics)
+        {
+            if (vLogics == null) vLogics = new List<GameStateLogicData>();
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
             if(GUILayout.Button("添加逻辑"))
             {
                 logic.UndoRegister(true);
-                vLogics.Add(0);
+                vLogics.Add(new GameStateLogicData());
             }
             GUILayout.EndHorizontal();
 
@@ -201,20 +275,30 @@ namespace Framework.State.Editor
                 GUILayout.BeginHorizontal();
                 EditorGUI.indentLevel++;
                 {
-                    int clasType = vLogics[i];
-                    if (!IsStateWorldType<AStateLogic>(vLogics[i]))
+                    var clasType = vLogics[i];
+                    if (!IsStateWorldType<AStateLogic>(vLogics[i].logicType))
                     {
-                        clasType = 0;
+                        clasType.logicType = 0;
                     }
                     GameStateLogicProvider.Draw(new GUIContent("逻辑[" + i + "]"), clasType, (clsId, index) => {
                         if (index >= 0 && index < vLogics.Count)
                         {
-                            if (!vLogics.Contains(clsId))
+                            bool isExist = false;
+                            for(int j =0; j < vLogics.Count; ++j)
                             {
-                                if(vLogics[index] != clsId)
+                                if (vLogics[j].logicType == clsId)
+                                {
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if (!isExist)
+                            {
+                                if(vLogics[index].logicType != clsId)
                                 {
                                     logic.UndoRegister(false);
-                                    vLogics[index] = clsId;
+                                    vLogics[index].logicType = clsId;
+                                    logic.OnRefreshData(logic.GetWorldData());
                                 }
                             }
                             else
@@ -227,6 +311,7 @@ namespace Framework.State.Editor
                         {
                             logic.UndoRegister(true);
                             vLogics.RemoveAt(i);
+                            logic.OnRefreshData(logic.GetWorldData());
                             --i;
                         }
                     }
@@ -236,9 +321,10 @@ namespace Framework.State.Editor
                         {
                             //! 交换位置
                             logic.UndoRegister(false);
-                            int temp = vLogics[i - 1];
+                            var temp = vLogics[i - 1];
                             vLogics[i - 1] = vLogics[i];
                             vLogics[i] = temp;
+                            logic.OnRefreshData(logic.GetWorldData());
                         }
                     }
                     if (i < vLogics.Count - 1)
@@ -247,9 +333,10 @@ namespace Framework.State.Editor
                         {
                             //! 交换位置
                             logic.UndoRegister(false);
-                            int temp = vLogics[i + 1];
+                            var temp = vLogics[i + 1];
                             vLogics[i + 1] = vLogics[i];
                             vLogics[i] = temp;
+                            logic.OnRefreshData(logic.GetWorldData());
                         }
                     }
                 }
@@ -260,15 +347,15 @@ namespace Framework.State.Editor
             return vLogics;
         }
         //-----------------------------------------------------
-        public static List<int> DrawModeLogics(AStateEditorLogic logic, string label, List<int> vLogics)
+        public static List<GameStateLogicData> DrawModeLogics(AStateEditorLogic logic, string label, List<GameStateLogicData> vLogics)
         {
-            if (vLogics == null) vLogics = new List<int>();
+            if (vLogics == null) vLogics = new List<GameStateLogicData>();
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
             if (GUILayout.Button("添加逻辑"))
             {
                 logic.UndoRegister(true);
-                vLogics.Add(0);
+                vLogics.Add(new GameStateLogicData());
             }
             GUILayout.EndHorizontal();
             for (int i = 0; i < vLogics.Count; ++i)
@@ -276,21 +363,30 @@ namespace Framework.State.Editor
                 GUILayout.BeginHorizontal();
                 EditorGUI.indentLevel++;
                 {
-                    int clasType = vLogics[i];
-                    if (!IsStateWorldType<AModeLogic>(vLogics[i]))
+                    var clasType = vLogics[i];
+                    if (!IsStateWorldType<AModeLogic>(vLogics[i].logicType))
                     {
-                        clasType = 0;
+                        clasType.logicType = 0;
                     }
                     GameModeLogicProvider.Draw(new GUIContent("逻辑[" + i + "]"), clasType, (clsId, index) => {
-                        if (vLogics == null) vLogics = new List<int>();
                         if (index >= 0 && index < vLogics.Count)
                         {
-                            if (!vLogics.Contains(clsId))
+                            bool isExist = false;
+                            for (int j = 0; j < vLogics.Count; ++j)
                             {
-                                if (vLogics[index] != clsId)
+                                if (vLogics[j].logicType == clsId)
+                                {
+                                    isExist = true;
+                                    break;
+                                }
+                            }
+                            if (!isExist)
+                            {
+                                if (vLogics[index].logicType != clsId)
                                 {
                                     logic.UndoRegister(false);
-                                    vLogics[index] = clsId;
+                                    vLogics[index].logicType = clsId;
+                                    logic.OnRefreshData(logic.GetWorldData());
                                 }
                             }
                             else
@@ -312,9 +408,10 @@ namespace Framework.State.Editor
                         {
                             //! 交换位置
                             logic.UndoRegister(false);
-                            int temp = vLogics[i - 1];
+                            var temp = vLogics[i - 1];
                             vLogics[i - 1] = vLogics[i];
                             vLogics[i] = temp;
+                            logic.OnRefreshData(logic.GetWorldData());
                         }
                     }
                     if (i < vLogics.Count - 1)
@@ -323,9 +420,10 @@ namespace Framework.State.Editor
                         {
                             //! 交换位置
                             logic.UndoRegister(false);
-                            int temp = vLogics[i + 1];
+                            var temp = vLogics[i + 1];
                             vLogics[i + 1] = vLogics[i];
                             vLogics[i] = temp;
+                            logic.OnRefreshData(logic.GetWorldData());
                         }
                     }
                 }

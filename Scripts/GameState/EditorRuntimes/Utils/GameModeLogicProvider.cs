@@ -15,15 +15,15 @@ namespace Framework.State.Editor
         public System.Action<System.Type, int> onSelect;
         private int m_nUserIndex = -1;
         //-----------------------------------------------------
-        public static void Draw(GUIContent label, int classId, System.Action<int,int> callback, int userIndex=-1)
+        public static void Draw(GUIContent label, GameStateLogicData classId, System.Action<int,int> callback, int userIndex=-1,bool bShowEnable = true)
         {
-            var stateType = StateEditorUtil.GetStateWorldType(classId);
+            var stateType = StateEditorUtil.GetStateWorldType(classId.logicType);
             string name = "未选择模式逻辑组件";
             Color useColor = GUI.color;
             Color color = GUI.color;
             if (stateType == null)
             {
-                if (classId == 0) useColor = Color.yellow;
+                if (classId.logicType == 0) useColor = Color.yellow;
                 else
                 {
                     name = "模式逻辑组件丢失";
@@ -42,6 +42,7 @@ namespace Framework.State.Editor
             }
             GUILayout.BeginHorizontal();
             if (label != null && !string.IsNullOrEmpty(label.text)) GUILayout.Label(label, GUILayout.MaxWidth(GUI.skin.label.CalcSize(label).x + 10));
+            if(bShowEnable) classId.enabled = EditorGUILayout.ToggleLeft("", classId.enabled, GUILayout.Width(30));
             GUI.color = useColor;
             if (GUILayout.Button(name))
             {
@@ -54,6 +55,10 @@ namespace Framework.State.Editor
                 {
                     callback(0, userIndex);
                 }
+            }
+            if(!StateEditorUtil.IsStateWorldType<AModeLogic>(classId.logicType))
+            {
+                EditorGUILayout.HelpBox("不是模式逻辑组件", MessageType.Error);
             }
             GUILayout.EndHorizontal();
         }

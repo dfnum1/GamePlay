@@ -65,6 +65,11 @@ namespace Framework.Pathfinding.Runtime
             m_unitHeight = height;
         }
         //-------------------------------------------
+        public void SetIngoreBlockTypeFlags(int flags)
+        {
+            m_ignoredBlockTypes = flags;
+        }
+        //-------------------------------------------
         // 添加忽略的阻挡类型
         public void AddIgnoredBlockType(int blockType)
         {
@@ -236,22 +241,25 @@ namespace Framework.Pathfinding.Runtime
         // 检查单位体积是否可以通过
         private bool IsUnitCanFit(int x, int z)
         {
-            for (int i = 0; i < m_unitWidth; i++)
-            {
-                for (int j = 0; j < m_unitHeight; j++)
-                {
-                    int checkX = x + i;
-                    int checkZ = z + j;
+            int halfW = m_unitWidth / 2;
+            int halfH = m_unitHeight / 2;
+            int minX = x - halfW;
+            int maxX = x + (m_unitWidth % 2 == 0 ? halfW - 1 : halfW);
+            int minZ = z - halfH;
+            int maxZ = z + (m_unitHeight % 2 == 0 ? halfH - 1 : halfH);
 
-                    if (checkX < 0 || checkX >= m_map.Width || checkZ < 0 || checkZ >= m_map.Height)
+            for (int i = minX; i <= maxX; i++)
+            {
+                for (int j = minZ; j <= maxZ; j++)
+                {
+                    if (i < 0 || i >= m_map.Width || j < 0 || j >= m_map.Height)
                         return false;
 
-                    Grid grid = m_map.GetGrid(checkX, checkZ);
-                if (!grid.IsWalkable && !IsBlockTypeIgnored(grid.BlockType))
-                    return false;
+                    Grid grid = m_map.GetGrid(i, j);
+                    if (!grid.IsWalkable && !IsBlockTypeIgnored(grid.BlockType))
+                        return false;
                 }
             }
-
             return true;
         }
         //-------------------------------------------

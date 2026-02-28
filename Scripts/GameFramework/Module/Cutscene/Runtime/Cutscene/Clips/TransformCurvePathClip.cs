@@ -25,7 +25,7 @@ namespace Framework.Cutscene.Runtime
         [Display("位置")] public bool posToggle = true;
         [Display("地表高度")] public bool terrianHeight = false;
         [Display("路径点")] public PathPoint[] pathPoints; //路径点
-        [Display("速度缩放")] public AnimationCurve speed;
+        [Display("速度控制", "横向时间0-1,纵向值为每秒行走多少距离")] public AnimationCurve speed;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {

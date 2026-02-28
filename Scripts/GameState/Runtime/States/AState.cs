@@ -59,7 +59,7 @@ namespace Framework.State.Runtime
                 m_nAPICallStatus |= (byte)eStatus;
         }
         //----------------------------------------------------------------
-        internal void CreateLogics(List<int> logicTypeIds)
+        internal void CreateLogics(List<GameStateLogicData> logicTypeIds)
         {
             if(m_vLogics!=null)
             {
@@ -73,7 +73,8 @@ namespace Framework.State.Runtime
                 return;
             foreach(var db in logicTypeIds)
             {
-                var pLogic = GameWorldHandler.Malloc<AStateLogic>(db);
+                if (!db.enabled) continue;
+                var pLogic = GameWorldHandler.Malloc<AStateLogic>(db.logicType);
                 if (pLogic != null)
                 {
                     if (m_vLogics == null) m_vLogics = new List<AStateLogic>(logicTypeIds.Count);

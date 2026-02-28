@@ -6,6 +6,7 @@
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
+using System.Runtime.CompilerServices;
 #else
 using FFloat = System.Single;
 using FVector2 = UnityEngine.Vector2;
@@ -22,19 +23,7 @@ namespace Framework.Pathfinding.Runtime
 
         public Map(int width, int height, float cellSize = 1f)
         {
-            m_width = width;
-            m_height = height;
-            m_cellSize = cellSize;
-            m_grids = new Grid[width, height];
-
-            // 初始化所有格子
-            for (int x = 0; x < width; x++)
-            {
-                for (int z = 0; z < height; z++)
-                {
-                    m_grids[x, z] = new Grid(x, z);
-                }
-            }
+            SetSize(width, height, cellSize);
         }
         //-------------------------------------------
         public int Width { get { return m_width; } }
@@ -48,6 +37,25 @@ namespace Framework.Pathfinding.Runtime
             return m_grids[x, z];
         }
         //-------------------------------------------
+        public void SetSize(int width, int height, FFloat cellsize)
+        {
+            if(m_width != width || m_height != height)
+            {
+                m_grids = new Grid[width, height];
+
+                for (int x = 0; x < width; x++)
+                {
+                    for (int z = 0; z < height; z++)
+                    {
+                        m_grids[x, z] = new Grid(x, z);
+                    }
+                }
+            }
+            m_width = width;
+            m_height = height;
+            m_cellSize = cellsize;
+        }
+        //-------------------------------------------
         public void SetGrid(int x, int z, FFloat y, FFloat cost, int blockType)
         {
             if (x < 0 || x >= m_width || z < 0 || z >= m_height)
@@ -57,6 +65,21 @@ namespace Framework.Pathfinding.Runtime
             grid.Y = y;
             grid.Cost = cost;
             grid.BlockType = blockType;
+        }
+        //-------------------------------------------
+        public void Clear()
+        {
+            if (m_grids == null) return;
+            for (int x = 0; x < m_width; ++x)
+            {
+                for (int z = 0; z < m_height; ++z)
+                {
+                    var grid = m_grids[x, z];
+                    grid.Y = 0f;
+                    grid.Cost = 1f;
+                    grid.BlockType = (int)EBlockType.Walkable;
+                }
+            }
         }
     }
 }

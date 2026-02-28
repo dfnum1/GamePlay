@@ -382,6 +382,26 @@ namespace Framework.State.Editor
                 db.OnUndoAction(pObj, bDirty);
             }
         }
+        //--------------------------------------------------------
+        public override void OnRefreshData(object pObject)
+        {
+            if(pObject is GameWorldData)
+            {
+                var curObj = GetCurrentObj();
+                if (curObj != null)
+                {
+                    if(curObj is AGameWorldObject)
+                    {
+                        ((AGameWorldObject)curObj).gameWorldData = pObject as GameWorldData;
+                    }
+                    else if(curObj is GameWorldData)
+                    {
+                        m_pCurrentObj = pObject;
+                    }
+                }
+            }
+            base.OnRefreshData(pObject);
+        }
     }
 }
 

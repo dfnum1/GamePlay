@@ -14,17 +14,17 @@ namespace Framework.ED
 {
     public abstract class EditorWindowBase : EditorWindow
     {
-        EditorWindow                                    m_pOwnerWindow = null;
-        private bool                                    m_bStarted = false;
-        private bool                                    m_bRuntimingOpened = false;
-        protected EditorTimer                           m_pTimer = new EditorTimer();
+        EditorWindow m_pOwnerWindow = null;
+        private bool m_bStarted = false;
+        private bool m_bRuntimingOpened = false;
+        protected EditorTimer m_pTimer = new EditorTimer();
 
-        private Framework.Core.AFramework               m_pEditorGame = null;
+        private Framework.Core.AFramework m_pEditorGame = null;
 
 
-        protected System.Object                         m_pCurrentObj;
-        private List<AEditorLogic>                      m_vLogics = new List<AEditorLogic>();
-        private Dictionary<System.Type, AEditorLogic>   m_vLogicKV = new Dictionary<System.Type, AEditorLogic>();
+        protected System.Object m_pCurrentObj;
+        private List<AEditorLogic> m_vLogics = new List<AEditorLogic>();
+        private Dictionary<System.Type, AEditorLogic> m_vLogicKV = new Dictionary<System.Type, AEditorLogic>();
 
         public System.Action<EditorWindow> OnDestroyed;
         public System.Action<EditorWindow> OnEnabled;
@@ -100,7 +100,7 @@ namespace Framework.ED
             SceneView.duringSceneGui -= OnSceneView;
 
             OnInnerDisable();
-            for (int i =0; i < m_vLogics.Count; ++i)
+            for (int i = 0; i < m_vLogics.Count; ++i)
                 m_vLogics[i].Disable();
             m_bRuntimingOpened = false;
             m_pCurrentObj = null;
@@ -218,7 +218,8 @@ namespace Framework.ED
         {
             if (m_vLogicKV.ContainsKey(logic.GetType())) return;
             m_vLogics.Add(logic);
-            m_vLogics.Sort((l1, l2) => {
+            m_vLogics.Sort((l1, l2) =>
+            {
                 EditorBinderAttribute attr1 = l1.GetType().GetCustomAttribute<EditorBinderAttribute>();
                 EditorBinderAttribute attr2 = l2.GetType().GetCustomAttribute<EditorBinderAttribute>();
                 return attr2.order - attr1.order;
@@ -288,6 +289,14 @@ namespace Framework.ED
             for (int i = 0; i < m_vLogics.Count; ++i)
             {
                 m_vLogics[i].OnChangeSelect(pObject);
+            }
+        }
+        //--------------------------------------------------------
+        public virtual void OnRefreshData(System.Object pObject)
+        {
+            for (int i = 0; i < m_vLogics.Count; ++i)
+            {
+                m_vLogics[i].OnRefreshData(pObject);
             }
         }
     }

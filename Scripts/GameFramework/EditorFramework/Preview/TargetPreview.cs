@@ -256,6 +256,8 @@ namespace Framework.ED
 
         GUIStyle m_defaultStyle = null;
 
+        private int m_nDrawControllId = 0;
+
         private float m_bShowFloor = 0.5f;
         public float showFloor
         {
@@ -281,6 +283,11 @@ namespace Framework.ED
                 if (onGetTargetPosition != null) return onGetTargetPosition();
                 return (m_PreviewInstance != null) ? m_PreviewInstance.transform.position : Vector3.zero;
             }
+        }
+        //-----------------------------------------------------
+        public int controllID
+        {
+            get { return m_nDrawControllId; }
         }
         //-----------------------------------------------------
         public GameObject roleObject
@@ -499,7 +506,7 @@ namespace Framework.ED
                 m_ViewTool = ViewTool.None;
             }
             m_PreviewUtility.BeginPreview(rect2, m_defaultStyle);
-               
+            m_nDrawControllId = controlID;
             DoRenderPreview(controlID, current, oldHandlesMatrix);
 
             int controlID2 = GUIUtility.GetControlID(m_PreviewSceneHint, FocusType.Passive);
@@ -1144,11 +1151,16 @@ namespace Framework.ED
         protected void HandleMouseUp(Event evt, int id, Rect previewRect)
         {
             m_ViewTool = ViewTool.None;
-     //       if (GUIUtility.hotControl == id)
+          // if (GUIUtility.hotControl == id)
             {
-                GUIUtility.hotControl = 0;
-                EditorGUIUtility.SetWantsMouseJumping(0);
-                if (bBreakEvent) evt.Use();
+                int curId = GUIUtility.hotControl;
+                if (curId == id)
+                {
+                    EditorGUIUtility.SetWantsMouseJumping(0);
+                    GUIUtility.hotControl = 0;
+                }
+                if (bBreakEvent && curId == id) evt.Use();
+                
 
                 if (OnMosueUpCB != null)
                 {

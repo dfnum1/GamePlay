@@ -16,16 +16,6 @@ namespace Framework.State.Editor
     [EditorBinder(typeof(GameWorldEditor), "AssetRect", -1)]
     public class AssetDrawLogic : AStateEditorLogic
     {
-        public class GameLogicItem : IGameWorldItem
-        {
-            public int classId;
-            public System.Type classType;
-            public GameLogicItem(int classId)
-            {
-                this.classId = classId;
-                this.classType = StateEditorUtil.GetStateWorldType(classId);
-            }
-        }
         public class GameElementItem : Framework.ED.TreeAssetView.ItemData
         {
             public IGameWorldItem bindData;
@@ -37,12 +27,12 @@ namespace Framework.State.Editor
             }
             public override Texture2D itemIcon()
             {
-                if (bindData is GameLogicItem)
+                if (bindData is GameStateLogicData)
                 {
-                    GameLogicItem item = bindData as GameLogicItem;
-                    if (item.classType.IsDefined(typeof(StateIconAttribute)))
+                    GameStateLogicData item = bindData as GameStateLogicData;
+                    if (item.GetType().IsDefined(typeof(StateIconAttribute)))
                     {
-                        var iconAttr = item.classType.GetCustomAttribute<StateIconAttribute>();
+                        var iconAttr = item.GetType().GetCustomAttribute<StateIconAttribute>();
                         if (iconAttr != null && !string.IsNullOrEmpty(iconAttr.name))
                         {
                             m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(iconAttr.name);
@@ -50,7 +40,7 @@ namespace Framework.State.Editor
                     }
                     if (m_pIcon == null)
                     {
-                        if(StateEditorUtil.IsStateWorldType<AStateLogic>(item.classId))
+                        if(StateEditorUtil.IsStateWorldType<AStateLogic>(item.logicType))
                             m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameWorld/statelogic.png");
                         else
                             m_pIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("GameWorld/modelogic.png");
@@ -113,6 +103,7 @@ namespace Framework.State.Editor
             m_pGameEleTree.OnViewRightClick += OnGameViewRightClick;
             RefreshGameElements();
         }
+
         //--------------------------------------------------------
         protected override void OnGUI()
         {
@@ -193,6 +184,25 @@ namespace Framework.State.Editor
                 return;
         }
         //--------------------------------------------------------
+        public override void OnRefreshData(object pData)
+        {
+            base.OnRefreshData(pData);
+            RefreshGameElements();
+
+            var worldObj = GetObject<AGameWorldObject>();
+            if (worldObj == null || worldObj.gameWorldData == null || worldObj.gameWorldData.gameLevel== null)
+                return;
+
+            var cfgData = worldObj.gameWorldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData != null)
+            {
+                if (cfgData.GetEditor() != null)
+                {
+                    cfgData.GetEditor(GetOwner()).OnRefreshData(pData);
+                }
+            }
+        }
+        //--------------------------------------------------------
         void RefreshGameElements()
         {
             if (m_pGameEleTree == null)
@@ -217,7 +227,7 @@ namespace Framework.State.Editor
                         {
                             foreach(var logic in db.modeLogics)
                             {
-                                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = new GameLogicItem(logic), name = StateEditorUtil.GetStateWorldTypeName(logic), depth = 2 });
+                                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 2 });
                             }
                         }
                     }
@@ -226,7 +236,7 @@ namespace Framework.State.Editor
                 {
                     foreach (var logic in worldObj.gameStateData.stateLogics)
                     {
-                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = new GameLogicItem(logic), name = StateEditorUtil.GetStateWorldTypeName(logic), depth = 1 });
+                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 1 });
                     }
                 }
                 if (worldObj.gameLevel == null)
@@ -247,6 +257,12 @@ namespace Framework.State.Editor
             {
                 GameElementItem item = rowData.itemData.data as GameElementItem;
                 float iconSize = rowData.rowRect.height;
+                
+                if(item.bindData!=null && item.bindData is GameStateLogicData)
+                {
+                    EditorGUI.BeginDisabledGroup(!((GameStateLogicData)item.bindData).enabled);
+                }
+
                 if (rowData.itemData.icon == null)
                     rowData.itemData.icon = item.itemIcon();
                 if (rowData.itemData.icon != null)
@@ -254,6 +270,10 @@ namespace Framework.State.Editor
                     GUI.DrawTexture(new Rect(rowData.rowRect.xMin + 5, rowData.rowRect.y + (rowData.rowRect.height - iconSize) / 2, iconSize, iconSize), rowData.itemData.icon);
                 }
                 EditorGUI.LabelField(new Rect(rowData.rowRect.xMin + iconSize+10, rowData.rowRect.y, rowData.rowRect.width- iconSize-10, rowData.rowRect.height), item.displayName);
+                if (item.bindData != null && item.bindData is GameStateLogicData)
+                {
+                    EditorGUI.EndDisabledGroup();
+                }
                 return true;
             }
             return false;
@@ -342,6 +362,43 @@ namespace Framework.State.Editor
                                     GameStateModeData gameData = data.bindData as GameStateModeData;
                                     worldData.modeDatas.Remove(gameData);
                                     RefreshGameElements();
+                                }
+                            }
+                        }
+                    }, new MenuContextData(bindData, Event.current.mousePosition));
+                }
+                if (bindData is GameStateLogicData)
+                {
+                    //! 弹出右键菜单创建游戏模式
+                    menu.AddItem(new GUIContent("删除逻辑"), false, (menuData) => {
+                        MenuContextData data = (MenuContextData)menuData;
+                        if (data.bindData != null)
+                        {
+                            var worldData = GetWorldData();
+                            if (worldData.modeDatas != null)
+                            {
+                                if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
+                                {
+                                    GameStateLogicData logic = data.bindData as GameStateLogicData;
+                                    if(worldData.gameStateData.stateLogics!=null && worldData.gameStateData.stateLogics.Contains(logic))
+                                    {
+                                        UndoRegister(true);
+                                        worldData.gameStateData.stateLogics.Remove(logic);
+                                        RefreshGameElements();
+                                    }
+                                    if (worldData.modeDatas != null && worldData.gameStateData.stateLogics.Contains(logic))
+                                    {
+                                        foreach(var mode in worldData.modeDatas)
+                                        {
+                                            if(mode.modeLogics!=null && mode.modeLogics.Contains(logic))
+                                            {
+                                                UndoRegister(true);
+                                                mode.modeLogics.Remove(logic);
+                                                RefreshGameElements();
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

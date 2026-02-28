@@ -19,19 +19,23 @@ namespace Framework.Guide.Editor
             s_CustomIcon = GuideEditorResources.LoadTexture("GuideSystem/GuideSystem.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;
 
-            //! auto code
-            // 你可以自定义生成文件路径
-            string path = GuidePreferences.GetSettings().generatorCodePath;
-            if (!string.IsNullOrEmpty(path))
+            if(EditorFrameworkPreferences.GetSettings().autoCodeGen)
             {
-                string outputPath = Path.Combine(path, "GuideWrapper.cs");
-                GuideAutoCode.AutoCode(outputPath);
+                //! auto code
+                // 你可以自定义生成文件路径
+                string path = GuidePreferences.GetSettings().generatorCodePath;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    string outputPath = Path.Combine(path, "GuideWrapper.cs");
+                    GuideAutoCode.AutoCode(outputPath);
+                }
+                else
+                {
+                    Debug.LogWarning("请先在编辑器[Edit -> Preferences... -> 引导偏好设置]设置中配置代码生成路径");
+                    return;
+                }
             }
-            else
-            {
-                Debug.LogWarning("请先在编辑器[Edit -> Preferences... -> 引导偏好设置]设置中配置代码生成路径");
-                return;
-            }
+
         }
         //-----------------------------------------------------
         static void OnProjectWindowItemGUI(string guid, Rect selectionRect)

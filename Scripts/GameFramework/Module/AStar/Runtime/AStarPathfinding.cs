@@ -61,7 +61,6 @@ namespace Framework.Pathfinding.Runtime
         {
             return new PathCache(maxCacheSize, cacheLifetime);
         }
-
         //-------------------------------------------
         // 创建LOD系统
         public LODSystem CreateLODSystem(Map map)

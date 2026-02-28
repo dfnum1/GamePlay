@@ -8,6 +8,8 @@
 using JsonUtility = ExternEngine.JsonUtility;
 #endif
 using Framework.Core;
+using Framework.ED;
+
 
 #if UNITY_EDITOR
 using Framework.State.Editor;
@@ -63,13 +65,23 @@ namespace Framework.State.Runtime
 #if UNITY_EDITOR
     public class AGameEditor
     {
+        public delegate void OnToolBarMenu(System.Object data);
         protected AGameCfgData m_pData;
         protected EditorWindow m_pEditor;
         private ED.UndoHandler m_Undo;
+        internal System.Action<string, OnToolBarMenu, System.Object> OnAddToolBar;
+        internal System.Action<string> OnRemoveToolBar;
         //------------------------------------------------
         internal void SetData(AGameCfgData pData)
         {
             m_pData = pData;
+        }
+        //------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pEditor == null || !(m_pEditor is EditorWindowBase))
+                return null;
+            return ((EditorWindowBase)m_pEditor).GetEditorGame();
         }
         //------------------------------------------------
         internal void SetEditor(EditorWindow pData)
@@ -92,10 +104,25 @@ namespace Framework.State.Runtime
             Framework.ED.InspectorDrawUtil.DrawProperty(m_pData, null);
         }
         //------------------------------------------------
+        public virtual void OnRefreshData(object pData)
+        {
+
+        }
+        //------------------------------------------------
         protected void RegisterUndo(System.Object pData, bool bDirty = false)
         {
             if (m_Undo == null) return;
             m_Undo.RegisterUndoData(pData);
+        }
+        //------------------------------------------------
+        protected void AddToolBar(string name, OnToolBarMenu func, System.Object pData = null)
+        {
+            if (OnAddToolBar != null) OnAddToolBar(name, func, pData);
+        }
+        //------------------------------------------------
+        protected void RemoveToolBar(string name)
+        {
+            if (OnRemoveToolBar != null) OnRemoveToolBar(name);
         }
         //------------------------------------------------
         public virtual void OnUndoAction(System.Object pObj, bool bDirty)
@@ -120,6 +147,11 @@ namespace Framework.State.Runtime
         public virtual void OnGUI(Rect rect)
         {
 
+        }
+        //------------------------------------------------
+        public virtual bool OnInspectorGUI(Rect rect)
+        {
+            return false;
         }
         //------------------------------------------------
         public virtual void OnPreviewEnable(Framework.ED.TargetPreview preview)

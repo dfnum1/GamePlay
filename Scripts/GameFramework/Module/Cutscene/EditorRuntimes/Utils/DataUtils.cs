@@ -8,6 +8,7 @@
 using Framework.Cutscene.Editor;
 using Framework.Cutscene.Runtime;
 using Framework.DrawProps;
+using Framework.ED;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1130,15 +1131,18 @@ public static class DataUtilsAutoGenerator
 {
     static DataUtilsAutoGenerator()
     {
-        // 你可以自定义生成文件路径
-        string path = EditorPreferences.GetSettings().generatorCodePath;
-        if (string.IsNullOrEmpty(path))
+        if (EditorFrameworkPreferences.GetSettings().autoCodeGen)
         {
-            Debug.LogError("请先在编辑器[Edit -> Preferences... -> 过场偏好设置]设置中配置代码生成路径");
-            return;
+            // 你可以自定义生成文件路径
+            string path = EditorPreferences.GetSettings().generatorCodePath;
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.LogError("请先在编辑器[Edit -> Preferences... -> 过场偏好设置]设置中配置代码生成路径");
+                return;
+            }
+            string outputPath = Path.Combine(path, "CreateDataerDelegate.gen.cs");
+            Framework.Cutscene.Editor.DataUtils.GeneratorCode(outputPath);
         }
-        string outputPath = Path.Combine(path,"Generated/CreateDataerDelegate.gen.cs");
-        Framework.Cutscene.Editor.DataUtils.GeneratorCode(outputPath);
     }
 }
 

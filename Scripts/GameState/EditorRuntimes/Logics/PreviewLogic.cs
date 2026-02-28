@@ -87,8 +87,24 @@ namespace Framework.State.Editor
             {
                 cfgData.GetEditor(GetOwner())?.OnPreviewEnable(m_Preview);
                 m_bPreviewDataInit = true;
-                cfgData.GetEditor()?.SetUndoHandle(GetLogic<UndoLogic>());
+                var editor = cfgData.GetEditor();
+                if(editor!=null)
+                {
+                    editor.SetUndoHandle(GetLogic<UndoLogic>());
+                    editor.OnAddToolBar = OnAddToolBar;
+                    editor.OnRemoveToolBar = OnRemoveToolBar;
+                }
             }
+        }
+        //-----------------------------------------------------
+        void OnAddToolBar(string name, AGameEditor.OnToolBarMenu menu, System.Object pData)
+        {
+            GetLogic<ToolBarDrawLogic>()?.AddToolBar(name, menu, pData);
+        }
+        //-----------------------------------------------------
+        void OnRemoveToolBar(string name)
+        {
+            GetLogic<ToolBarDrawLogic>()?.RemoveToolBar(name);
         }
         //-----------------------------------------------------
         public override void OnUndoAction(System.Object pObj, bool bDirty)

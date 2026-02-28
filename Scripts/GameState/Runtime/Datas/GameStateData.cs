@@ -12,11 +12,20 @@ namespace Framework.State.Runtime
     //------------------------------------------------
     //! 游戏状态下模式数据体
     //------------------------------------------------
+    [System.Serializable]
+    public class GameStateLogicData : IGameWorldItem
+    {
+        public int logicType;
+        public bool enabled;
+    }
+    //------------------------------------------------
+    //! 游戏状态下模式数据体
+    //------------------------------------------------
     [StateIcon("GameWorld/gamemode"),System.Serializable]
     public class GameStateModeData : IGameWorldItem
     {
         public int modeType;
-        public List<int> modeLogics;
+        public List<GameStateLogicData> modeLogics;
 #if UNITY_EDITOR
         public string name="玩法模式";
         public string strDesc = "";
@@ -30,7 +39,7 @@ namespace Framework.State.Runtime
     {
         public int stateType;
         public int activeMode;
-        public List<int> stateLogics;
+        public List<GameStateLogicData> stateLogics;
 #if UNITY_EDITOR
         public string name="游戏状态";
         public string strDesc = "";

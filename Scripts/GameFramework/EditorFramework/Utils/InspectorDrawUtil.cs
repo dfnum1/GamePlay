@@ -95,6 +95,7 @@ namespace Framework.ED
         static UndoHandler ms_UndoHandler = null;
         static UnityEngine.Object ms_OwnerObject = null;
         static EditorWindow ms_OwnerWindow = null;
+        static GUIStyle ms_TileStyle = null;
         //-----------------------------------------------------
         public static void SetOwnerObject(UnityEngine.Object pOwner)
         {
@@ -1789,12 +1790,23 @@ namespace Framework.ED
                     }
                     else
                     {
+                        if(ms_TileStyle == null)
+                        {
+                            ms_TileStyle = new GUIStyle(GUI.skin.label);
+                            ms_TileStyle.alignment = TextAnchor.MiddleCenter;
+                            ms_TileStyle.fontSize += 2;
+                            ms_TileStyle.fontStyle = FontStyle.Bold;
+                        }
+                        EditorGUILayout.Space();
                         if (finfo.IsDefined(typeof(DisplayAttribute)))
                         {
-                            EditorGUILayout.LabelField(displayNameContent);
-                            //	var rect = GUILayoutUtility.GetLastRect();
-                            //	UIDrawUtils.DrawColorLine(new Vector2(rect.x, rect.y), new Vector2(rect.xMax, rect.y), Color.white);
+                            EditorGUILayout.LabelField(displayNameContent, ms_TileStyle);
+                            var rect = GUILayoutUtility.GetLastRect();
+                            UIDrawUtils.DrawColorLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.xMax, rect.yMax), Color.gray);
                         }
+                        else
+                            EditorGUILayout.LabelField(finfo.Name, ms_TileStyle);
+
                         System.Object objValue = finfo.GetValue(data);
                         MethodInfo method = finfo.FieldType.GetMethod("OnInspector");
                         if (method != null && objValue != null)

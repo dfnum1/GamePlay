@@ -7,6 +7,8 @@
 #if UNITY_EDITOR
 using Framework.ED;
 using Framework.State.Runtime;
+using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -16,6 +18,46 @@ namespace Framework.State.Editor
     [EditorBinder(typeof(GameWorldEditor), "ToolBarRect")]
     public class ToolBarDrawLogic : AEditorLogic
     {
+        struct ToolBar
+        {
+            public string name;
+            public AGameEditor.OnToolBarMenu menu;
+            public System.Object callParam;
+        }
+        List<ToolBar> m_vToolBar = new List<ToolBar>();
+        //--------------------------------------------------------
+        public void AddToolBar(string name, AGameEditor.OnToolBarMenu menu, System.Object callParam = null)
+        {
+            if (string.IsNullOrEmpty(name) || menu == null)
+                return;
+            for(int i =0; i < m_vToolBar.Count; ++i)
+            {
+                var menuTmp = m_vToolBar[i];
+                if (m_vToolBar[i].name.CompareTo(name) ==0)
+                {
+                    menuTmp.menu = menu;
+                    menuTmp.callParam = callParam;
+                    m_vToolBar[i] = menuTmp;
+                    return;
+                }
+            }
+            m_vToolBar.Add(new ToolBar() { name = name, menu = menu, callParam = callParam });
+        }
+        //--------------------------------------------------------
+        public void RemoveToolBar(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return;
+            for (int i = 0; i < m_vToolBar.Count; ++i)
+            {
+                var menuTmp = m_vToolBar[i];
+                if (m_vToolBar[i].name.CompareTo(name) == 0)
+                {
+                    m_vToolBar.RemoveAt(i);
+                    return;
+                }
+            }
+        }
         //--------------------------------------------------------
         protected override void OnGUI()
         {
@@ -38,6 +80,13 @@ namespace Framework.State.Editor
             if(GUILayout.Button("保存", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
                 GetOwner().SaveChanges();
+            }
+            foreach(var db in m_vToolBar)
+            {
+                if (GUILayout.Button(db.name, new GUILayoutOption[] { GUILayout.Width(GUI.skin.label.CalcSize(new GUIContent(db.name)).x + 10) }))
+                {
+                    db.menu.Invoke(db.callParam);
+                }
             }
             if (GUILayout.Button("文档说明", new GUILayoutOption[] { GUILayout.Width(80) }))
             {

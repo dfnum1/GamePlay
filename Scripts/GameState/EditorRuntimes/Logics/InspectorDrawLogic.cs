@@ -52,45 +52,65 @@ namespace Framework.State.Editor
             var worldData = GetWorldData();
             if (worldData == null)
                 return;
+
             var window = GetOwner<GameWorldEditor>();
             GUILayout.BeginArea(new Rect(rect.x, rect.y + 20, rect.width, rect.height - 20));
             m_Scoller = GUILayout.BeginScrollView(m_Scoller);
-            if (m_pGameworldItem != null)
+
+            bool bSkipGUI = false;
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            if (cfgData != null)
             {
-                m_vModePops.Clear();
-                if (worldData.modeDatas != null)
+                var editor = cfgData.GetEditor(GetOwner());
+                if (editor != null && editor.OnInspectorGUI(rect))
                 {
-                    foreach(var db in worldData.modeDatas)
+                    bSkipGUI = true;
+                }
+            }
+            if(!bSkipGUI)
+            {
+                if (m_pGameworldItem != null)
+                {
+                    m_vModePops.Clear();
+                    if (worldData.modeDatas != null)
                     {
-                        m_vModePops.Add(db.name);
+                        foreach (var db in worldData.modeDatas)
+                        {
+                            m_vModePops.Add(db.name);
+                        }
+                    }
+
+                    if (m_pGameworldItem is GameStateData)
+                    {
+                        OnDrawGameState(m_pGameworldItem as GameStateData);
+                    }
+                    else if (m_pGameworldItem is GameStateModeData)
+                    {
+                        OnDrawGameMode(m_pGameworldItem as GameStateModeData);
+                    }
+                    else if (m_pGameworldItem is GameLevelData)
+                    {
+                        OnDrawGameLevel(m_pGameworldItem as GameLevelData);
+                    }
+                    else if (m_pGameworldItem is GameWorldATData)
+                    {
+                        OnDrawGameATDAta(m_pGameworldItem as GameWorldATData);
+                    }
+                    else if (m_pGameworldItem is GameAgentData)
+                    {
+                        OnDrawGameAgent(m_pGameworldItem as GameAgentData);
+                    }
+                    else if (m_pGameworldItem is GameStateLogicData)
+                    {
+                        OnDrawGameStateLogic(m_pGameworldItem as GameStateLogicData);
                     }
                 }
-
-                if (m_pGameworldItem is GameStateData)
+                else
                 {
-                    OnDrawGameState(m_pGameworldItem as GameStateData);
-                }
-                else if (m_pGameworldItem is GameStateModeData)
-                {
-                    OnDrawGameMode(m_pGameworldItem as GameStateModeData);
-                }
-                else if (m_pGameworldItem is GameLevelData)
-                {
-                    OnDrawGameLevel(m_pGameworldItem as GameLevelData);
-                }
-                else if (m_pGameworldItem is GameWorldATData)
-                {
-                    OnDrawGameATDAta(m_pGameworldItem as GameWorldATData);
-                }
-                else if (m_pGameworldItem is GameAgentData)
-                {
-                    OnDrawGameAgent(m_pGameworldItem as GameAgentData);
+                    GUILayout.Label("未选择任何对象", StateEditorUtil.panelTitleStyle);
                 }
             }
-            else
-            {
-                GUILayout.Label("未选择任何对象", StateEditorUtil.panelTitleStyle);
-            }
+            
             GUILayout.EndScrollView();
 
             GUILayout.EndArea();
@@ -262,6 +282,38 @@ namespace Framework.State.Editor
             Framework.ED.InspectorDrawUtil.SetOwnerWindow(GetOwner());
             Framework.ED.InspectorDrawUtil.DrawProperty(atData, null);
             Framework.ED.InspectorDrawUtil.EndChangeCheck();
+        }
+        //--------------------------------------------------------
+        void OnDrawGameStateLogic(GameStateLogicData logicData)
+        {
+            List<GameStateLogicData> vLogics = null;
+            var cfgData = GetWorldData();
+            if (cfgData != null)
+            {
+                if(cfgData.gameStateData!=null && cfgData.gameStateData.stateLogics!=null)
+                {
+                    if(cfgData.gameStateData.stateLogics.Contains(logicData))
+                    {
+                        vLogics = cfgData.gameStateData.stateLogics;
+                    }
+                }
+                if(cfgData.modeDatas!=null)
+                {
+                    foreach(var db in cfgData.modeDatas)
+                    {
+                        if(db.modeLogics!=null && db.modeLogics.Contains(logicData))
+                        {
+                            vLogics = db.modeLogics;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            StateEditorUtil.DrawStateLogic(logicData, vLogics, (action) => {
+                if (action == 2) GetOwner().OnRefreshData(cfgData);
+                else UndoRegister(true);
+            });
         }
     }
 }

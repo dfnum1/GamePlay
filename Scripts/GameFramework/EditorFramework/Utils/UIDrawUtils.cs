@@ -369,5 +369,22 @@ namespace Framework.ED
             Handles.zTest = old;
         }
     }
+    //------------------------------------------------------
+    //!HandleColorScope
+    //------------------------------------------------------
+    public struct HandleColorScope : IDisposable
+    {
+        Color old;
+        public HandleColorScope(Color f)
+        {
+            old = Handles.color;
+            Handles.color = f;
+        }
+
+        public void Dispose()
+        {
+            Handles.color = old;
+        }
+    }
 }
 #endif
