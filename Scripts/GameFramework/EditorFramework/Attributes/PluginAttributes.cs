@@ -37,4 +37,19 @@ namespace Framework.DrawProps
 #endif
         }
     }
+    //-----------------------------------------------------
+    public class PluginEditorWindowAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        public string widnowName;
+        public string method;
+#endif
+        public PluginEditorWindowAttribute(string widnowName, string method = "OpenEditor")
+        {
+#if UNITY_EDITOR
+            this.widnowName = widnowName;
+            this.method = method;
+#endif
+        }
+    }
 }

@@ -43,11 +43,11 @@ namespace Framework.Cutscene.Editor
             Vector2 localPos = evt.mousePosition;
             localPos.y -= m_pLogic.GetRect().yMin + m_pLogic.timelineRect.y + TimelineDrawLogic.TimeRulerAreaHeight;
             localPos.x -= m_pLogic.GetRect().xMin;
-            localPos += m_pTreeView.state.scrollPos;
             if (!m_pLogic.leftRect.Contains(localPos))
             {
                 return;
             }
+            localPos += m_pTreeView.state.scrollPos;
             if (evt.type == EventType.MouseDown && evt.button == 0)
             {
                 var hitItem = GetHitTreeItem(localPos);
@@ -98,6 +98,7 @@ namespace Framework.Cutscene.Editor
                     m_pLogic.leftRect.width - 8,
                     m_pTreeView.GetRowHeight()
                 );
+          //      dragRect.position += m_pTreeView.GetScrollPos();
                 EditorGUI.DrawRect(dragRect, new Color(0.2f, 0.6f, 1f, 0.5f));
                 GUI.Label(dragRect, m_DragItem.name, EditorStyles.boldLabel);
 
@@ -206,7 +207,7 @@ namespace Framework.Cutscene.Editor
                 m_ArrowRect = Rect.zero;
                 m_ShowJoinGroup = false;
             }
-            m_ArrowRect.position += Vector2.up * (m_pLogic.GetRect().yMin + m_pLogic.timelineRect.y + TimelineDrawLogic.TimeRulerAreaHeight);
+            m_ArrowRect.position += Vector2.up * (m_pLogic.GetRect().yMin + m_pLogic.timelineRect.y + TimelineDrawLogic.TimeRulerAreaHeight) - m_pTreeView.GetScrollPos();
             m_ArrowRect.position += Vector2.right * m_pLogic.GetRect().xMin;
         }
         //-----------------------------------------------------
@@ -253,9 +254,9 @@ namespace Framework.Cutscene.Editor
             Vector2 localPos = mousePos;
             //   Rect rect = new Rect(localPos, new Vector2(m_pLogic.leftRect.width, m_pTreeView.GetRowHeight()/2));
             var dragRect = new Rect(
-                           localPos.x + 4 + m_pTreeView.DepthIndentWidth,
+                           localPos.x + 12 + m_pTreeView.DepthIndentWidth,
                            localPos.y - m_pTreeView.GetRowHeight() / 2,
-                           m_pLogic.leftRect.width - 8 - m_pTreeView.DepthIndentWidth,
+                           m_pLogic.leftRect.width - 24 - m_pTreeView.DepthIndentWidth,
                            m_pTreeView.GetRowHeight());
             foreach (var db in datas)
             {

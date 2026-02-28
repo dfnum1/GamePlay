@@ -1,10 +1,11 @@
 #if UNITY_EDITOR
 /********************************************************************
-生成日期:		11:07:2020
-类    名: 	TreeAssetView
+生成日期:	25:7:2019   14:35
+类    名: 	EditorKits
 作    者:	HappLI
 描    述:	树形视图列表
 *********************************************************************/
+
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,31 +13,11 @@ using UnityEngine;
 using UnityEditor.IMGUI.Controls;
 using System.Linq;
 
-namespace Framework.ED
+namespace Framework.Data.ED
 {
     //-------------------------------------------
-    public class TreeAssetView : TreeView
+    public class FormAssetView : TreeView
     {
-        //-------------------------------------------
-        public struct DragAndDropData
-        {
-            public int dragAndDropPosition;
-            public TreeItemData parentItem;
-            public TreeItemData current;
-            public int insertAtIndex;
-        }
-        //-------------------------------------------
-        public struct RowArgvData
-        {
-            public TreeItemData itemData;
-            public string label;
-            public Rect rowRect;
-            public int row;
-            public int column;
-            public bool selected;
-            public bool focused;
-            public bool isRenaming;
-        }
         //-------------------------------------------
         public class ItemData
         {
@@ -64,7 +45,7 @@ namespace Framework.ED
         public sealed class TreeItemData : TreeViewItem
         {
             private ItemData m_data;
-            public ItemData data
+            internal ItemData data
             {
                 get { return m_data; }
             }
@@ -142,150 +123,37 @@ namespace Framework.ED
             retVal[1].autoResize = true;
             return retVal;
         }
-        public delegate bool OnCellDrawEvent(RowArgvData argvData);
-        public delegate bool OnItemDrag(TreeItemData data);
-        public delegate void OnItemDragDrop(DragAndDropData data);
+        public delegate bool OnCellDrawEvent(Rect r, TreeItemData t, int c, bool s, bool f);
+        public delegate bool OnItemDrag(ItemData data);
         public delegate List<TreeItemData> OnSortColumEvent(List<TreeItemData> vDatas, MultiColumnHeader header, int c);
 
         public OnCellDrawEvent OnCellDraw = null;
 
-        public bool bDragItemGesture = true;
         public bool buildMutiColumnDepth = false;
-        public float DepthIndentWidth
-        {
-            get { return depthIndentWidth; }
-            set { depthIndentWidth = value; }
-        }
-        public bool scrollWhellIgnore = false;
 
-        public Rect             discardRect = new Rect(0, 0, 0, 0);
         public Action<ItemData> OnRemoved = null;
         public Action<ItemData> OnSelectChange = null;
         public Action<ItemData> OnItemDoubleClick = null;
-        public Action<ItemData> OnItemRightClick = null;
-        public Action           OnViewRightClick = null;
         public OnItemDrag OnDragItem = null;
-        public OnItemDragDrop OnDragDrop = null;
         public OnSortColumEvent OnSortColum = null;
         List<ItemData> m_SourceAssets = new List<ItemData>();
-        //--------------------------------------------------------
-        public TreeAssetView(TreeViewState state, MultiColumnHeaderState mchs) : base(state, new MultiColumnHeader(mchs))
+        //--------------------------------------------------
+        internal FormAssetView(TreeViewState state, MultiColumnHeaderState mchs) : base(state, new MultiColumnHeader(mchs))
         {
-            this.ShowAlternatingRowBackgrounds(true);
             showBorder = true;
             showAlternatingRowBackgrounds = true;
             multiColumnHeader.sortingChanged += OnSortingChanged;
         }
-        //--------------------------------------------------------
-        public TreeAssetView(List<string> colums) : base(new UnityEditor.IMGUI.Controls.TreeViewState())
-        {
-            this.ShowAlternatingRowBackgrounds(true);
-            if (colums!=null && colums.Count>0)
-            {
-                MultiColumnHeaderState.Column[] headerColums = new MultiColumnHeaderState.Column[colums.Count];
-                for(int i =0; i < colums.Count; ++i)
-                {
-                    MultiColumnHeaderState.Column headItem = new MultiColumnHeaderState.Column();
-                    headItem.headerContent = new GUIContent(colums[i], "");
-                    headItem.headerTextAlignment = TextAlignment.Left;
-                    headItem.canSort = false;
-                    headItem.autoResize = true;
-                    headerColums[i] = headItem;
-                }
-                var headerState = new MultiColumnHeaderState(headerColums);
-                this.multiColumnHeader = new MultiColumnHeader(headerState);
-            }
-        }
-        //--------------------------------------------------------
-        public TreeAssetView(string[] colums) : base(new UnityEditor.IMGUI.Controls.TreeViewState(), new MultiColumnHeader(null))
-        {
-            this.ShowAlternatingRowBackgrounds(true);
-            if (colums != null && colums.Length > 0)
-            {
-                MultiColumnHeaderState.Column[] headerColums = new MultiColumnHeaderState.Column[colums.Length];
-                for (int i = 0; i < colums.Length; ++i)
-                {
-                    MultiColumnHeaderState.Column headItem = new MultiColumnHeaderState.Column();
-                    headItem.headerContent = new GUIContent(colums[i], "");
-                    headItem.headerTextAlignment = TextAlignment.Left;
-                    headItem.canSort = false;
-                    headItem.autoResize = true;
-                    headerColums[i] = headItem;
-                }
-                var headerState = new MultiColumnHeaderState(headerColums);
-                this.multiColumnHeader.state = headerState;
-            }
-        }
-        //--------------------------------------------------------
-        public TreeAssetView(TreeViewState state) : base(state)
+        //--------------------------------------------------
+        internal FormAssetView(TreeViewState state) : base(state)
         {
             showBorder = true;
             showAlternatingRowBackgrounds = true;
         }
-        //--------------------------------------------------------
-        public MultiColumnHeaderState.Column GetColumn(int index)
-        {
-            return this.multiColumnHeader.GetColumn(index);
-        }
-        //--------------------------------------------------------
-        public bool ShowScrollVerticalBar
-        {
-            get { return showingVerticalScrollBar; }
-        }
-        //--------------------------------------------------------
-        public bool ShowingHorizontalScrollBar
-        {
-            get { return showingHorizontalScrollBar; }
-        }
-        //--------------------------------------------------------
-        public float GetContentHeight()
-        {
-            return this.totalHeight;
-        }
-        //--------------------------------------------------------
-        public Vector2 GetScrollPos()
-        {
-            return this.state.scrollPos;
-        }
-        //--------------------------------------------------------
-        RowArgvData BuildArgv(RowGUIArgs args, int column =0, TreeItemData itemData = null)
-        {
-            RowArgvData data = new RowArgvData();
-            data.column = column;
-            data.row = args.row;
-            data.itemData = args.item as TreeItemData;
-            if(itemData!=null) data.itemData = itemData;
-            data.label = args.label;
-            data.selected = args.selected;
-            data.focused = args.focused;
-            data.isRenaming = args.isRenaming;
-            data.rowRect = args.rowRect;
-            return data;
-        }
-        //--------------------------------------------------------
-        public void SetCellMargin(float margin)
-        {
-            cellMargin = margin;
-        }
-        //--------------------------------------------------------
+        //-------------------------------------------
         public void SetRowHeight(float height)
         {
             rowHeight = height;
-        }
-        //-------------------------------------------
-        public float GetRowHeight()
-        {
-            return rowHeight;
-        }
-        //-------------------------------------------
-        public Rect GetRowRectEx(int row)
-        {
-            return base.GetRowRect(row);
-        }
-        //-------------------------------------------
-        public Rect GetRect()
-        {
-            return base.treeViewRect;
         }
         //-------------------------------------------
         public void ShowBorder(bool bShowBorder)
@@ -297,7 +165,7 @@ namespace Framework.ED
         {
             showAlternatingRowBackgrounds = bShowAlternatingRowBackgrounds;
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             if (multiColumnHeader == null)
@@ -311,14 +179,14 @@ namespace Framework.ED
                 return rows;
             }
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override TreeViewItem BuildRoot()
         {
             if (multiColumnHeader == null)
                 return CreateTree(m_SourceAssets);
             return CreateListTreeView(m_SourceAssets);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         internal TreeItemData CreateTree(IEnumerable<ItemData> selectedBundles)
         {
             var root = new TreeItemData(-1,-1, "root");
@@ -331,7 +199,7 @@ namespace Framework.ED
             SetupParentsAndChildrenFromDepths(root, vList);
             return root;
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         internal TreeItemData CreateListTreeView(IEnumerable<ItemData> selectedBundles)
         {
             var root = new TreeItemData(-1, -1, "root");
@@ -357,38 +225,28 @@ namespace Framework.ED
             }
             return root;
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         public List<ItemData> GetDatas()
         {
             return m_SourceAssets;
         }
         //--------------------------------------------------
-        public ItemData GetItem(int id)
-        {
-            for (int i = 0; i < m_SourceAssets.Count; ++i)
-            {
-                if (m_SourceAssets[i].id == id)
-                    return m_SourceAssets[i];
-            }
-            return null;
-        }
-        //--------------------------------------------------------
         public void BeginTreeData()
         {
             m_SourceAssets.Clear();
             SetSelection(new List<int>());
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         public void AddData(ItemData data)
         {
             m_SourceAssets.Add(data);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         public void EndTreeData()
         {
             Reload();
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         internal TreeItemData AddToNode(ItemData asset, TreeItemData node)
         {
             if (!node.ContainsChild(asset))
@@ -400,12 +258,7 @@ namespace Framework.ED
             }
             return null;
         }
-        //--------------------------------------------------------
-        public TreeItemData GetRoot()
-        {
-            return rootItem as TreeItemData;
-        }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override void DoubleClickedItem(int id)
         {
             var assetItem = FindItem(id, rootItem) as TreeItemData;
@@ -424,18 +277,7 @@ namespace Framework.ED
                 if (OnItemDoubleClick != null) OnItemDoubleClick(assetItem.data);
             }
         }
-        //--------------------------------------------------------
-        protected override void ContextClickedItem(int id)
-        {
-            var assetItem = FindItem(id, rootItem) as TreeItemData;
-            if (OnItemRightClick != null) OnItemRightClick(assetItem!=null?assetItem.data:null);
-        }
-        //--------------------------------------------------------
-        protected override void ContextClicked()
-        {
-            if (OnViewRightClick != null) OnViewRightClick();
-        }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override void SelectionChanged(IList<int> selectedIds)
         {
             if (selectedIds == null)
@@ -466,12 +308,12 @@ namespace Framework.ED
             if(selectedObjects.Count>0)
                 Selection.objects = selectedObjects.ToArray();
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         void OnSortingChanged(MultiColumnHeader multiColumnHeader)
         {
             SortIfNeeded(rootItem, GetRows());
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         void SortIfNeeded(TreeViewItem root, IList<TreeViewItem> rows)
         {
             if (rows.Count <= 1)
@@ -488,7 +330,7 @@ namespace Framework.ED
 
             Repaint();
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         void SortByColumn()
         {
             if (multiColumnHeader == null) return;
@@ -526,21 +368,21 @@ namespace Framework.ED
 
             }
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         IOrderedEnumerable<TreeItemData> InitialOrder(IEnumerable<TreeItemData> myTypes, int[] columnList)
         {
             if (multiColumnHeader == null) return myTypes.OrderBy(l => l.id);
             bool ascending = multiColumnHeader.IsSortedAscending(columnList[0]);
             return myTypes.OrderBy(l => l.id);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         private void ReloadAndSelect(IList<int> hashCodes)
         {
             Reload();
             SetSelection(hashCodes);
             SelectionChanged(hashCodes);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override void RowGUI(RowGUIArgs args)
         {
             if (multiColumnHeader == null)
@@ -551,7 +393,7 @@ namespace Framework.ED
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
                 CellGUI(args.GetCellRect(i), args.item as TreeItemData, args.GetColumn(i), ref args);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         private void CellRowGUI(ref RowGUIArgs args)
         {
             TreeItemData data = args.item as TreeItemData;
@@ -559,7 +401,7 @@ namespace Framework.ED
             GUI.color = data.itemColor;
             if (OnCellDraw != null)
             {
-                if (OnCellDraw(BuildArgv(args)))
+                if (OnCellDraw(args.rowRect, data, 0, args.selected, args.focused))
                 {
                     GUI.color = oldColor;
                     return;
@@ -572,7 +414,7 @@ namespace Framework.ED
             base.RowGUI(args);
             GUI.color = oldColor;
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         private void CellGUI(Rect cellRect, TreeItemData item, int column, ref RowGUIArgs args)
         {
             Color oldColor = GUI.color;
@@ -580,13 +422,8 @@ namespace Framework.ED
 
             if(column == 0 && buildMutiColumnDepth)
             {
-                float offsetX = DepthIndentWidth * item.depth;
-                if(item.hasChildren)
-                {
-                    offsetX += 16;
-                }
-                cellRect.x += offsetX;
-                cellRect.width -= offsetX;
+                cellRect.x += 20;
+                cellRect.width -= 20;
             }
 
             item.displayName = item.data.name;
@@ -594,9 +431,7 @@ namespace Framework.ED
             GUI.color = item.itemColor;
             if(OnCellDraw !=null)
             {
-                var callArgv = BuildArgv(args, column);
-                callArgv.rowRect = cellRect;
-                if (OnCellDraw(callArgv))
+                if (OnCellDraw(cellRect, item, column, args.selected, args.focused))
                 {
                     GUI.color = oldColor;
                     return;
@@ -626,16 +461,7 @@ namespace Framework.ED
             }
             GUI.color = oldColor;
         }
-        //--------------------------------------------------------
-        public void SetExpanded(ItemData data, bool bExpand)
-        {
-            foreach(var db in m_SourceAssets)
-            {
-                if (db ==data)
-                    SetExpanded(db.id, bExpand);
-            }
-        }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         public void Remove(TreeItemData item)
         {
             if(item!=null)
@@ -645,7 +471,7 @@ namespace Framework.ED
                 Reload();
             }
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         public void Remove(ItemData item)
         {
             if (item != null)
@@ -655,59 +481,18 @@ namespace Framework.ED
                 Reload();
             }
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override bool CanStartDrag(CanStartDragArgs args)
         {
             if (OnDragItem == null) return false;
-            if(bDragItemGesture)
-            {
-                if (OnDragItem((TreeItemData)args.draggedItem))
-                {
-                    DragAndDrop.PrepareStartDrag();
-                    DragAndDrop.SetGenericData("tree_drag_item", args.draggedItem);
-                    DragAndDrop.StartDrag(args.draggedItem.displayName);
-                    return true;
-                }
-            }
-            return OnDragItem((TreeItemData)args.draggedItem);
+            return OnDragItem(((TreeItemData)args.draggedItem).data);
         }
-        //--------------------------------------------------------
+        //--------------------------------------------------
         protected override void SetupDragAndDrop(SetupDragAndDropArgs args)
         {
 
         }
-        //--------------------------------------------------
-        protected override DragAndDropVisualMode HandleDragAndDrop(DragAndDropArgs args)
-        {
-            if (args.performDrop)
-            {
-                DragAndDropData data = new DragAndDropData();
-                data.dragAndDropPosition = (int)args.dragAndDropPosition;
-                data.parentItem = args.parentItem as TreeItemData;
-                data.insertAtIndex = (int)args.insertAtIndex;
-                data.current = DragAndDrop.GetGenericData("tree_drag_item") as TreeItemData;
-                if (OnDragDrop != null) OnDragDrop(data);
-            }
-
-            return DragAndDropVisualMode.Generic;
-        }
-        //--------------------------------------------------------
-        public override void OnGUI(Rect rect)
-        {
-            if (scrollWhellIgnore)
-            {
-                if (Event.current.type == EventType.ScrollWheel && GetRect().Contains(Event.current.mousePosition))
-                {
-                    return;
-                }
-            }
-            if(discardRect.size.sqrMagnitude>0 && discardRect.Contains(Event.current.mousePosition))
-            {
-                if (Event.current.type <= EventType.MouseDrag)
-                    return;
-            }
-            base.OnGUI(rect);
-        }
     }
 }
+
 #endif

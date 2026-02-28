@@ -34,6 +34,9 @@ namespace Framework.ED
         {
             [Display("代码自动化")]public bool autoCodeGen = true;
             [Display("二进制序列化代码生成路径")] public string binaryGeneratedPatch = "";
+            [Display("配置表c#代码生成路径")] public string tableCsGeneratedPatch = "";
+            [Display("配置表c++代码生成路径")] public string tableCppGeneratedPatch = "";
+            [Display("配置表c#服务器代码生成路径")] public string tableCsServerGeneratedPatch = "";
 
             public void OnAfterDeserialize()
             {
@@ -73,6 +76,11 @@ namespace Framework.ED
             {
                 ResetPrefs();
             }
+        }
+
+        public static void OpenUserPreferences()
+        {
+            SettingsService.OpenUserPreferences("Preferences/GamePlay");
         }
 
         /// <summary> Load prefs if they exist. Create if they don't </summary>

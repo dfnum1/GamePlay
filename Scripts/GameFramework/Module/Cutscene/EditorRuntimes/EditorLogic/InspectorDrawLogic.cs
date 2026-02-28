@@ -96,8 +96,25 @@ namespace Framework.Cutscene.Editor
             if (m_pSelectGroup != null)
             {
                 int cutBinder = m_pSelectGroup.binderId;
-                var obj = ObjectBinderUtils.GetBinder(m_pSelectGroup.binderId).GetBinder();
+                bool isMutiGroupId = false;
+                if (GetAsset(false) != null && GetAsset(false).IsCheckMultiGroupId(m_pSelectGroup))
+                {
+                    isMutiGroupId = true;
+                }
+                    var obj = ObjectBinderUtils.GetBinder(m_pSelectGroup.binderId).GetBinder();
                 EditorGUI.BeginChangeCheck();
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("组Id:" +  m_pSelectGroup.id);
+                if (isMutiGroupId && GUILayout.Button("重新分配id"))
+                {
+                    m_pSelectGroup.id = GetAsset(false).GeneratorGroupId();
+                }
+
+                GUILayout.EndHorizontal();
+                if (isMutiGroupId)
+                {
+                    EditorGUILayout.HelpBox("组Id 重复了", MessageType.Error);
+                }
                 obj = (ACutsceneObjectBinder)EditorGUILayout.ObjectField("组绑定对象", obj, typeof(ACutsceneObjectBinder), true);
                 bool changed = EditorGUI.EndChangeCheck();
                 if (obj != null)

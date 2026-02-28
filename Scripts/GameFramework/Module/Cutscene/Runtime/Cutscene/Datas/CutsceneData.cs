@@ -417,6 +417,23 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
+        public bool IsCheckMultiGroupId( Group check)
+        {
+            if (check != null && groups != null)
+            {
+                int hit = 0;
+                foreach (var group in groups)
+                {
+                    if (check == group)
+                        continue;
+                    if (group.id == check.id)
+                        hit++;
+                }
+                return hit > 1;
+            }
+            return false;
+        }
+        //-----------------------------------------------------
         public float GetDuration()
         {
             float duration = 0.0f;

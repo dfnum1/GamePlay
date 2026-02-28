@@ -116,7 +116,7 @@ namespace Framework.ED
                         EditorSetupInitAttribute initAttri = tp.GetCustomAttribute<EditorSetupInitAttribute>();
                         if (!string.IsNullOrEmpty(initAttri.method))
                         {
-                            var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
+                            var initCall = tp.GetMethod(initAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
                             if (initCall != null)
                                 initCall.Invoke(null, null);
                         }

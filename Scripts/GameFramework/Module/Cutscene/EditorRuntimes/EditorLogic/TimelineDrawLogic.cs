@@ -141,6 +141,8 @@ namespace Framework.Cutscene.Editor
         bool m_bDragedAction = false;
         float m_fDragStartTime = 0.0f;
 
+        bool m_bDragOffsetTimeAllGroup = false;
+
         List<IDraw> m_vGroupOffsetTimes = new List<IDraw>();
         float m_fGroupDragOffsetTime = 0;
 
@@ -193,6 +195,11 @@ namespace Framework.Cutscene.Editor
             get { return m_TimeAreaShownRange; }
         }
         //--------------------------------------------------------
+        public float scollViewY
+        {
+            get { return m_pTimelineTree!=null?m_pTimelineTree.GetScrollPos().y:0; }
+        }
+        //--------------------------------------------------------
         public Vector2 ToWindowSpace(Vector2 position)
         {
             position -= m_pTimelineTree.state.scrollPos;
@@ -220,7 +227,7 @@ namespace Framework.Cutscene.Editor
             m_pCutscene = GetOwner<ACutsceneEditor>().GetCutsceneInstance();
             m_pTimelineTree = new TreeAssetView(new string[] { "Track", "" });
             var colomn0 = m_pTimelineTree.GetColumn(0);
-            colomn0.width = colomn0.minWidth = 200;
+            colomn0.width = colomn0.minWidth = 230;
             colomn0.maxWidth = 650;
             m_pTimelineTree.bDragItemGesture = false;
             m_pTimelineTree.buildMutiColumnDepth = true;
@@ -852,6 +859,35 @@ namespace Framework.Cutscene.Editor
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField("搜索", GUILayout.Width(30));
                     m_strSearchDraw = EditorGUILayout.TextField(m_strSearchDraw);
+                    if (GUILayout.Button("↓", GUILayout.Width(20)))
+                    {
+                        //帮我实现下，获取当前选中的剪辑
+                        List<IDataer> vDataers = new List<IDataer>();
+                        List<string> vNames = new List<string>();
+                        foreach (var gp in GetAsset(false).groups)
+                        {
+                            foreach(var track in gp.tracks)
+                            {
+                                if(track.clips!=null)
+                                {
+                                    foreach (var cl in track.clips)
+                                    {
+                                        vDataers.Add(cl);
+                                        vNames.Add(cl.GetName());
+                                    }
+                                }
+      
+                                if(track.events!=null)
+                                {
+                                    foreach (var cl in track.events)
+                                    {
+                                        vDataers.Add(cl);
+                                        vNames.Add(cl.GetName());
+                                    }
+                                }
+                            }
+                        }
+                    }
                     EditorGUILayout.EndHorizontal();
                     GUILayout.EndArea();
                 }
@@ -1533,8 +1569,8 @@ namespace Framework.Cutscene.Editor
 
                 CutsceneData.Group group = new CutsceneData.Group();
                 group.isGroup = true;
-                group.id = curData.GeneratorGroupId();
                 group.OnDeserialize(m_pStandByCopy.json);
+                group.id = curData.GeneratorGroupId();
                 group.name += "(Clone)";
                 curData.groups.Add(group);
                 RefreshTimeGraph(curData);
@@ -1908,28 +1944,35 @@ namespace Framework.Cutscene.Editor
                     return;
                 List<int> vSelects = new List<int>(selects);
                 var datas = m_pTimelineTree.GetDatas();
-                foreach (var db in datas)
+                if(m_bDragOffsetTimeAllGroup)
                 {
-                    if (db is EmptyItemLine) continue;
-                    var data1 = db as TreeItem;
-                    if (data1 is TimelineTrackGroup)
+                    foreach (var db in datas)
                     {
-                        m_pDragDraw.AddSelectGroup(data1 as TimelineTrackGroup);
-                    }
-                }
-
-                foreach (var db in datas)
-                {
-                    if (db is EmptyItemLine) continue;
-                    var data1 = db as TreeItem;
-                    if (data1 is TimelineTrack)
-                    {
-                        if(((TimelineTrack)data1).ownerGroup == group)
+                        if (db is EmptyItemLine) continue;
+                        var data1 = db as TreeItem;
+                        if (data1 is TimelineTrackGroup)
                         {
-                            vSelects.Add(data1.id);
+                            m_pDragDraw.AddSelectGroup(data1 as TimelineTrackGroup);
                         }
                     }
                 }
+                else
+                {
+                    m_pDragDraw.AddSelectGroup(group);
+                }
+
+                    foreach (var db in datas)
+                    {
+                        if (db is EmptyItemLine) continue;
+                        var data1 = db as TreeItem;
+                        if (data1 is TimelineTrack)
+                        {
+                            if (((TimelineTrack)data1).ownerGroup == group)
+                            {
+                                vSelects.Add(data1.id);
+                            }
+                        }
+                    }
 
                 m_pTimelineTree.SetSelection(vSelects);
             }
@@ -2044,6 +2087,10 @@ namespace Framework.Cutscene.Editor
                     if (GUI.Button(new Rect(cellRc.xMax - 16, cellRc.y + (cellRc.height - 20) / 2, 16, 20), "", EditorStyles.foldoutHeaderIcon))
                     {
                         CreateGroupMenu(trackGroup);
+                    }
+                    if (GetAsset(false) != null && GetAsset(false).IsCheckMultiGroupId(trackGroup.group))
+                    {
+                        EditorGUI.HelpBox(new Rect(cellRc.x, cellRc.y, 30, 30), "", MessageType.Error);
                     }
                 }
                 else if (agvRow.column == 1)
