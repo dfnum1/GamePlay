@@ -37,40 +37,6 @@ namespace Framework.AT.Editor
             public float animationRunStandardTime = 0.8f;
             public float animationRunStandardSpeed = 1;
 
-            [SerializeField]
-            public Color colorClipFont = new Color(0.569f, 0.580f, 0.588f, 1.0f);
-
-            [SerializeField]
-            public Color clipBckg = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-
-            [SerializeField]
-            public Color clipSelectedBckg = new Color(0.7f, 0.7f, 0.7f, 1.0f);
-
-            [SerializeField]
-            public Color clipBorderColor = new Color(0.4f, 0.4f, 0.4f, 1.0f);
-
-            [SerializeField]
-            public Color clipEaseBckgColor = new Color(0.4f, 0.4f, 0.4f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendIn = new Color(0.286f, 0.306f, 0.329f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendInSelected = new Color(0.408f, 0.427f, 0.478f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendOut = new Color(0.286f, 0.306f, 0.329f, 1.0f);
-
-            [SerializeField]
-            public Color clipBlendOutSelected = new Color(0.408f, 0.427f, 0.478f, 1.0f);
-
-            [SerializeField]
-            public Color colorRecordingClipOutline = new Color(1, 0, 0, 0.9f);
-            [SerializeField]
-            public Color colorSearchingClipOutline = Color.yellow;
-            [SerializeField]
-            public Color colorOverClip = new Color(1, 0, 0, 0.7f);
-
             [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
             public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value; _gridTexture = null; _crossTexture = null; } }
 

@@ -71,55 +71,6 @@ namespace Framework.Cutscene.Editor
             public Color colorSearchingClipOutline = Color.yellow;
             [SerializeField]
             public Color colorOverClip = new Color(1, 0, 0, 0.7f);
-
-            [SerializeField] private Color32 _gridLineColor = new Color(0.45f, 0.45f, 0.45f);
-            public Color32 gridLineColor { get { return _gridLineColor; } set { _gridLineColor = value; _gridTexture = null; _crossTexture = null; } }
-
-            [SerializeField]
-            private Color32 _gridBgColor = new Color(0.55f, 0.55f, 0.55f);
-            [SerializeField]
-            private Color _linkLineColor = Color.white;
-
-            [SerializeField]
-            private float _linkLineWidth = 5;
-            public Color32 gridBgColor { get { return _gridBgColor; } set { _gridBgColor = value; _gridTexture = null; } }
-
-            public Color linkLineColor { get { return _linkLineColor; } set { _linkLineColor = value; } }
-
-            public float linkLineWidth { get { return _linkLineWidth; } set { _linkLineWidth = value; } }
-
-            [Obsolete("Use maxZoom instead")]
-            public float zoomOutLimit { get { return maxZoom; } set { maxZoom = value; } }
-
-            [UnityEngine.Serialization.FormerlySerializedAs("zoomOutLimit")]
-            public float maxZoom = 5f;
-            public float minZoom = 1f;
-            public Color32 highlightColor = new Color32(255, 255, 255, 255);
-            public Color32 excudeColor = new Color32(255, 0, 0, 148);
-            public Color32 nodeBgColor = new Color32(255, 255, 255, 148);
-            public bool gridSnap = true;
-            public bool autoSave = true;
-            public bool zoomToMouse = true;
-            public bool portTooltips = true;
-            private Texture2D _gridTexture;
-            public Texture2D gridTexture
-            {
-                get
-                {
-                    if (_gridTexture == null) _gridTexture = EditorUtils.GenerateGridTexture(gridLineColor, gridBgColor);
-                    return _gridTexture;
-                }
-            }
-            private Texture2D _crossTexture;
-            public Texture2D crossTexture
-            {
-                get
-                {
-                    if (_crossTexture == null) _crossTexture = EditorUtils.GenerateCrossTexture(gridLineColor);
-                    return _crossTexture;
-                }
-            }
-
             [SerializeField] private string typeColorsData = "";
             [NonSerialized] public Dictionary<string, Color> typeColors = new Dictionary<string, Color>();
 

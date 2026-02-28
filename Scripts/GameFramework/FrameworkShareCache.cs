@@ -30,9 +30,37 @@ namespace Framework.Core
         AFramework m_pFramework;
         private int m_nAgentPoolCapacity = 32;
         private Stack<AgentTree> m_vAgentTreePool = null;
+        private int m_nTypePoolCapacity = 128;
+        Dictionary<System.IntPtr, Stack<TypeObject>> m_vPools = new Dictionary<System.IntPtr, Stack<TypeObject>>(16);
         internal FrameworkShareCache(AFramework pFramework)
         {
             m_pFramework = pFramework;
+        }
+        //--------------------------------------------------------
+        internal T Malloc<T>() where T : TypeObject, new()
+        {
+            System.IntPtr handle = typeof(T).TypeHandle.Value;
+            if (m_vPools.TryGetValue(handle, out var pool) && pool.Count > 0)
+            {
+                var user = pool.Pop();
+                user.SetFramework(m_pFramework);
+                return user as T;
+            }
+            T newT = new T();
+            newT.SetFramework(m_pFramework);
+            return newT;
+        }
+        //--------------------------------------------------------
+        internal void Free(TypeObject pObj)
+        {
+            System.IntPtr handle = pObj.GetType().TypeHandle.Value;
+            if (!m_vPools.TryGetValue(handle, out var pool))
+            {
+                pool = new Stack<TypeObject>(m_nTypePoolCapacity);
+                m_vPools[handle] = pool;
+            }
+            pObj.Destroy();
+            if (pool.Count < m_nTypePoolCapacity) pool.Push(pObj);
         }
         //-----------------------------------------------------
         public AgentTree MallocAgentTree()

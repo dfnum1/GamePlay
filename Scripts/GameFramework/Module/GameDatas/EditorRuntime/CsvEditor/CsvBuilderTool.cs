@@ -246,6 +246,9 @@ namespace Framework.ED
         {
             if (string.IsNullOrEmpty(rootDir))
                 return;
+            rootDir = rootDir.Replace("\\", "/");
+            if(rootDir.StartsWith("Assets/")) rootDir = rootDir.Substring("Assets/".Length);
+
             string[] KEYS = new string[] { "DATE_TIME", "CLASS_NAME", "DATA_KEY", "PROP_FIELD", "PARSE_FIELD" };
             EditorUtility.DisplayProgressBar("代码生成", "Csv配置表解析代码生成", 0);
             string[] assets = AssetDatabase.FindAssets("t:CsvConfig");

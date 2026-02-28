@@ -97,13 +97,11 @@ namespace Framework.Data
     {
 #if UNITY_EDITOR
         public int version;
-        public string savePath = "";
 #endif
-        public BinaryCodeAttribute(int version, string savePath = "")
+        public BinaryCodeAttribute(int version)
         {
 #if UNITY_EDITOR
             this.version = version;
-            this.savePath = savePath;
 #endif
         }
     }

@@ -6,13 +6,15 @@
 描    述:	二进制序列代码自动生成器
 *********************************************************************/
 
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using System.Reflection;
-using System;
-using System.IO;
 using Framework.Base;
+using Framework.Core;
+using Framework.ED;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace Framework.Data
 {
@@ -34,17 +36,15 @@ namespace Framework.Data
             }
         }
         private static Dictionary<string, ClassBinaryCode> ClassCodeMapping = new Dictionary<string, ClassBinaryCode>();
-        public static string GeneratorCode = "/Scripts/GameDatas/Binary/Generator";
         public static string ServerGeneratorCode = "/../../Server/work_spaces/Game-Common/src/main/java/com/topgame/common/generate_binary_config";
         [MenuItem("GamePlay/二进制代码生成",false, 1001)]
         public static void Build()
         {
-            EditorUtility.DisplayDialog("提示", "暂未开放此功能", "好的");
-            return;
-            if (!Directory.Exists(Application.dataPath + GeneratorCode))
+            if(!EditorFrameworkPreferences.GetSettings().autoCodeGen)
             {
-                Directory.CreateDirectory(Application.dataPath + GeneratorCode);
+                return;
             }
+            string binaryGeneratedPatch = EditorFrameworkPreferences.GetSettings().binaryGeneratedPatch;
             Assembly assembly = null;
             foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -56,7 +56,7 @@ namespace Framework.Data
                     if (tp.IsDefined(typeof(BinaryCodeAttribute), false))
                     {
                         ClassCodeMapping.Clear();
-                        BuildCode(Application.dataPath + GeneratorCode, tp);
+                        BuildCode(binaryGeneratedPatch, tp);
                         if (tp.IsDefined(typeof(BinaryServerCodeAttribute), false))
                         {
                             if (Directory.Exists(Application.dataPath + ServerGeneratorCode))
@@ -486,11 +486,12 @@ namespace Framework.Data
         //------------------------------------------------------
         static void BuildCode(string strPath, System.Type type)
         {
+            if (string.IsNullOrEmpty(strPath))
+                return;
+            strPath = strPath.Replace("\\", "/");
+            if (strPath.StartsWith("Assets/")) strPath = strPath.Substring("Assets/".Length);
+            strPath = Path.Combine(Application.dataPath, strPath).Replace("\\", "/");
             BinaryCodeAttribute attr = (BinaryCodeAttribute)type.GetCustomAttribute(typeof(BinaryCodeAttribute));
-            if(!string.IsNullOrEmpty(attr.savePath) )
-            {
-                strPath = Application.dataPath + "/" + attr.savePath;
-            }
 
             string strMarco = null;
             if (type.IsDefined(typeof(BinaryCodeMarcosAttribute), false))
@@ -542,7 +543,11 @@ namespace Framework.Data
             foreach (var db in ClassCodeMapping)
                 clasCode.verison = Mathf.Max(db.Value.verison, clasCode.verison);
 
-            strPath += "/" + type.Name + "BinaryUtil.cs";
+            strPath = Path.Combine(strPath, type.Name + "BinaryUtil.cs");
+            if(!Directory.Exists(Path.GetDirectoryName(strPath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(strPath));
+            }
             if (File.Exists(strPath))
             {
                 File.Delete(strPath);
@@ -556,7 +561,7 @@ namespace Framework.Data
             }
             code += "using Framework.Core;\r\n";
             code += "using Framework.Data;\r\n";
-            code += "using Framework.Logic;\r\n";
+         //   code += "using Framework.Logic;\r\n";
             code += "namespace " + type.Namespace + "\r\n";
             code += "{\r\n";
             code += "\tpublic class " + type.Name + "BinaryUtil \r\n";
@@ -564,7 +569,7 @@ namespace Framework.Data
 
             if(type.IsAbstract)
             {
-                code += "\t\tpublic static " + className + " Read("+ className + " pPointer, " + "ref BinaryUtil binaryer)\r\n";
+                code += "\t\tpublic static " + className + " Read("+ className + " pPointer, " + "ref BinaryUtil binaryer, AFramework pFramework = null)\r\n";
                 code += "\t\t{\r\n";
                 code += "\t\t\tushort version = binaryer.ToUshort();\r\n\r\n";
                 code += "\t\t\treturn " + clasCode.strReadFunc + "(ref binaryer, ref pPointer, version);\r\n";
@@ -577,23 +582,33 @@ namespace Framework.Data
                     for(int i =0; i < constructorsDec.Count; ++i)
                     {
                         if (string.IsNullOrEmpty(constructorsDec[i]))
-                            code += "\t\tpublic static " + className + " Read(ref BinaryUtil binaryer)\r\n";
+                            code += "\t\tpublic static " + className + " Read(ref BinaryUtil binaryer, AFramework pFramework = null)\r\n";
                         else
                             code += "\t\tpublic static " + className + " Read(ref BinaryUtil binaryer," + constructorsDec[i] + ")\r\n";
                         code += "\t\t{\r\n";
                         code += "\t\t\tushort version = binaryer.ToUshort();\r\n";
-                        code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = new " + type.FullName.Replace("+", ".") + "(" + constructorsCode[i] + ");\r\n";
-                        code += "\t\t\treturn " + clasCode.strReadFunc + "(ref binaryer, ref pointer, version);\r\n";
+                        if(string.IsNullOrEmpty(constructorsCode[i]) && type.IsSubclassOf(typeof(TypeObject)))
+                        {
+                            code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = TypeInstancePool.Malloc<" + type.FullName.Replace("+", ".") + ">(pFramework);\r\n";
+                        }
+                        else
+                            code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = new " + type.FullName.Replace("+", ".") + "(" + constructorsCode[i] + ");\r\n";
+                        code += "\t\t\treturn " + clasCode.strReadFunc + "(ref binaryer, ref pointer, version,pFramework);\r\n";
                         code += "\t\t}\r\n";
                     }
                 }
                 else
                 {          
-                    code += "\t\tpublic static " + className + " Read(ref BinaryUtil binaryer)\r\n";
+                    code += "\t\tpublic static " + className + " Read(ref BinaryUtil binaryer, AFramework pFramework = null)\r\n";
                     code += "\t\t{\r\n";
                     code += "\t\t\tushort version = binaryer.ToUshort();\r\n";
-                    code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = new " + type.FullName.Replace("+", ".") + "();\r\n";
-                    code += "\t\t\treturn " + clasCode.strReadFunc + "(ref binaryer, ref pointer, version);\r\n";
+                    if(type.IsSubclassOf(typeof(TypeObject)))
+                    {
+                        code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = TypeInstancePool.Malloc<" + type.FullName.Replace("+", ".") + ">(pFramework);\r\n";
+                    }
+                    else
+                        code += "\t\t\t" + type.FullName.Replace("+", ".") + " pointer = new " + type.FullName.Replace("+", ".") + "();\r\n";
+                    code += "\t\t\treturn " + clasCode.strReadFunc + "(ref binaryer, ref pointer, version,pFramework);\r\n";
                     code += "\t\t}\r\n";
                 }
             }
@@ -668,21 +683,26 @@ namespace Framework.Data
             {
                 if (db.Value.classType == type && db.Value.classType.IsAbstract)
                 {
-                    code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, " + "ref " + db.Value.GetFullName() + " pointer, ushort version)\r\n";
+                    code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, " + "ref " + db.Value.GetFullName() + " pointer, ushort version, AFramework pFramework = null)\r\n";
                     code += "\t\t{\r\n";
                 }
                 else
                 {
                     if (db.Value.classType == type)
                     {
-                        code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, " + "ref " + db.Value.GetFullName() + " pointer, ushort version)\r\n";
+                        code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, " + "ref " + db.Value.GetFullName() + " pointer, ushort version, AFramework pFramework = null)\r\n";
                         code += "\t\t{\r\n";
                     }
                     else
                     {
-                        code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, ushort version)\r\n";
-                        code += "\t\t{\r\n";
-                        code += "\t\t\t" + db.Value.GetFullName() + " pointer = new " + db.Value.GetFullName() + "();\r\n";
+                        code += "\t\tstatic " + db.Value.GetFullName() + " " + db.Value.strReadFunc + "(ref BinaryUtil binaryer, ushort version, AFramework pFramework = null)\r\n";
+                        code += "\t\t{\r\n"; 
+                        if (db.Value.classType.IsSubclassOf(typeof(TypeObject)))
+                        {
+                            code += "\t\t\t" + db.Value.GetFullName() + " pointer = TypeInstancePool.Malloc< " + db.Value.GetFullName() + ">(pFramework);\r\n";
+                        }
+                        else
+                            code += "\t\t\t" + db.Value.GetFullName() + " pointer = new " + db.Value.GetFullName() + "();\r\n";
                     }
                 }
 
@@ -1056,12 +1076,9 @@ namespace Framework.Data
         //------------------------------------------------------
         static void BuildServerCode(string strPath, System.Type type)
         {
+            return;
             BinaryCodeAttribute attr = (BinaryCodeAttribute)type.GetCustomAttribute(typeof(BinaryCodeAttribute));
             BinaryServerCodeAttribute serverAttr = (BinaryServerCodeAttribute)type.GetCustomAttribute(typeof(BinaryServerCodeAttribute));
-            if (serverAttr!=null && !string.IsNullOrEmpty(serverAttr.savePath))
-            {
-                strPath = Application.dataPath + "/" +attr.savePath;
-            }
 
             ClassBinaryCode clasCode = new ClassBinaryCode();
             clasCode.classType = type;
@@ -1069,7 +1086,7 @@ namespace Framework.Data
             ClassCodeMapping[clasCode.classType.FullName] = clasCode;
             BuildSegmentTypeServerCode(clasCode);
 
-            strPath += "/" + type.Name + ".java";
+            strPath = Path.Combine(strPath, type.Name + ".java");
             if (File.Exists(strPath))
             {
                 File.Delete(strPath);

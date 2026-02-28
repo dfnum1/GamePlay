@@ -35,7 +35,7 @@ namespace Framework.State.Runtime
         //------------------------------------------------
         public virtual string OnSerialize()
         {
-            return JsonUtility.ToJson(this);
+            return JsonUtility.ToJson(this,true);
         }
 #if UNITY_EDITOR
         private AGameEditor m_pEditor = null;
