@@ -21,7 +21,7 @@ namespace Framework.SpriteSeq
     [EditorInitOnload("OnEditorInitOnload")]
     internal class SpriteSequenceEditor : Framework.ED.EditorWindowBase
     {
-        [MenuItem("GamePlay/精灵序列帧动画编辑器", false, 201)]
+        [MenuItem("GamePlay/精灵序列帧动画编辑器", false)]
         public static void OpenWindow()
         {
             SpriteSequenceEditor window = GetWindow<SpriteSequenceEditor>();

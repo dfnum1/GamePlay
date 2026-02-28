@@ -36,7 +36,7 @@ namespace Framework.Data
         private static Dictionary<string, ClassBinaryCode> ClassCodeMapping = new Dictionary<string, ClassBinaryCode>();
         public static string GeneratorCode = "/Scripts/GameDatas/Binary/Generator";
         public static string ServerGeneratorCode = "/../../Server/work_spaces/Game-Common/src/main/java/com/topgame/common/generate_binary_config";
-        [MenuItem("GamePlay/BinaryCoder")]
+        [MenuItem("GamePlay/二进制代码生成",false, 1001)]
         public static void Build()
         {
             EditorUtility.DisplayDialog("提示", "暂未开放此功能", "好的");
