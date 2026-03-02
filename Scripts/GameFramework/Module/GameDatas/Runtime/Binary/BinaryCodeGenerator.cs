@@ -559,6 +559,7 @@ namespace Framework.Data
             {
                 code += "#if " + strMarco + "\r\n";
             }
+            code += "using Framework.Base;\r\n";
             code += "using Framework.Core;\r\n";
             code += "using Framework.Data;\r\n";
          //   code += "using Framework.Logic;\r\n";
@@ -699,7 +700,7 @@ namespace Framework.Data
                         code += "\t\t{\r\n"; 
                         if (db.Value.classType.IsSubclassOf(typeof(TypeObject)))
                         {
-                            code += "\t\t\t" + db.Value.GetFullName() + " pointer = TypeInstancePool.Malloc< " + db.Value.GetFullName() + ">(pFramework);\r\n";
+                            code += "\t\t\t" + db.Value.GetFullName() + " pointer = TypeInstancePool.Malloc<" + db.Value.GetFullName() + ">(pFramework);\r\n";
                         }
                         else
                             code += "\t\t\t" + db.Value.GetFullName() + " pointer = new " + db.Value.GetFullName() + "();\r\n";

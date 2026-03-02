@@ -4,6 +4,8 @@
 作    者:	HappLI
 描    述:	工具类
 *********************************************************************/
+using Framework.Base;
+using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System;
 #if UNITY_EDITOR
@@ -54,6 +56,46 @@ namespace Framework.ActorSystem.Runtime
                 db.SetProjectileDatas(projectiles);
             }
 #endif
+        }
+        //-----------------------------------------------------
+        public static T CreateActor<T>(AFramework pFramework, IActorContextData pData, IVarData userVariable = null, int actorId = 0) where T : Actor,new()
+        {
+            if (pFramework == null) return null;
+            ActorManager pActorMgr = pFramework.GetModule<ActorManager>();
+            if (pActorMgr == null)
+                return null;
+
+            return pActorMgr.CreateActor<T>(pData, userVariable, actorId);
+        }
+        //-----------------------------------------------------
+        public static Actor CreateActor(AFramework pFramework, IActorContextData pData, IVarData userVariable = null, int actorId = 0)
+        {
+            if (pFramework == null) return null;
+            ActorManager pActorMgr = pFramework.GetModule<ActorManager>();
+            if (pActorMgr == null)
+                return null;
+
+            return pActorMgr.CreateActor(pData, userVariable, actorId);
+        }
+        //-----------------------------------------------------
+        public static T AsyncCreateActor<T>(AFramework pFramework, IActorContextData pData, IVarData userVariable = null, int actorId = 0) where T : Actor, new()
+        {
+            if (pFramework == null) return null;
+            ActorManager pActorMgr = pFramework.GetModule<ActorManager>();
+            if (pActorMgr == null)
+                return null;
+
+            return pActorMgr.AsyncCreateActor<T>(pData, userVariable, actorId);
+        }
+        //-----------------------------------------------------
+        public static Actor AsyncCreateActor(AFramework pFramework, IActorContextData pData, IVarData userVariable = null, int actorId = 0)
+        {
+            if (pFramework == null) return null;
+            ActorManager pActorMgr = pFramework.GetModule<ActorManager>();
+            if (pActorMgr == null)
+                return null;
+
+            return pActorMgr.AsyncCreateActor(pData, userVariable, actorId);
         }
         //------------------------------------------------------
 #if UNITY_EDITOR

@@ -11,6 +11,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Base;
+using Framework.Pathfinding.Runtime;
+
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -53,6 +57,7 @@ namespace Framework.Core
         private Dictionary<int, ITouchInput>    m_vAllTouchInputs = new Dictionary<int, ITouchInput>(32);
         private Dictionary<int, IKeyInput>      m_vAllKeyInputs = new Dictionary<int, IKeyInput>(32);
         private Dictionary<int, IPause>         m_vAllPauses = new Dictionary<int, IPause>(32);
+        private List<INavSimplePath>            m_vNavSimplePath = new List<INavSimplePath>(32);
         //------------------------------------------------------
         public void Init(IGame game)
         {
@@ -117,7 +122,7 @@ namespace Framework.Core
         }
         protected abstract void OnStart();
         //------------------------------------------------------
-        public FrameworkShareCache FrameworkShareCache 
+        public FrameworkShareCache ShareCache 
         {
             get 
             {
@@ -133,7 +138,7 @@ namespace Framework.Core
             return null;
         }
         //------------------------------------------------------
-        protected T AddModule<T>() where T : AModule, new()
+        public T AddModule<T>() where T : AModule, new()
         {
             int hash = typeof(T).GetHashCode();
             if (m_vTypeModdules.TryGetValue(hash, out var existModule))
@@ -280,6 +285,10 @@ namespace Framework.Core
             if (touchCb != null)
                 m_vAllTouchInputs[hashCode] = touchCb;
 
+            INavSimplePath pathCb = pointer as INavSimplePath;
+            if (pathCb != null && !m_vNavSimplePath.Contains(pathCb))
+                m_vNavSimplePath.Add(pathCb);
+
             OnRegisterFunction(pointer, hashCode);
         }
         //------------------------------------------------------
@@ -309,6 +318,11 @@ namespace Framework.Core
             ITouchInput touchCb = pointer as ITouchInput;
             if (touchCb != null)
                 m_vAllTouchInputs.Remove(hashCode);
+
+            INavSimplePath pathCb = pointer as INavSimplePath;
+            if (pathCb != null)
+                m_vNavSimplePath.Remove(pathCb);
+
 
             OnUnRegisterFunction(pointer, hashCode);
         }
@@ -356,7 +370,7 @@ namespace Framework.Core
                 db.Value.LateUpdate(fDelta);
 
             OnLateUpdate(fDelta);
-
+            if(m_ShaderCache!=null) m_ShaderCache.ClearCaches();
         }
         protected virtual void OnLateUpdate(float fFrameTime) { }
         //------------------------------------------------------
@@ -478,12 +492,12 @@ namespace Framework.Core
             return false;
         }
         //------------------------------------------------------
-        public virtual bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
+        public virtual bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null)
         {
             return false;
         }
         //------------------------------------------------------
-        public virtual bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
+        public virtual bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IVarData externVar = null)
         {
             return false;
         }
@@ -498,8 +512,13 @@ namespace Framework.Core
             return false;
         }
         //------------------------------------------------------
-        public virtual void OnSimpleFindPath(Actor pActor, Vector3 toPos, float fSpeed, System.Action<List<Vector3>, float> onCallback)
+        public virtual void OnSimpleFindPath(Actor pActor, FVector3 toPos, System.Action<List<FVector3>> onCallback)
         {
+            for(int i =0; i < m_vNavSimplePath.Count; ++i)
+            {
+                if (m_vNavSimplePath[i].OnSimpleFindPath(pActor, toPos, onCallback))
+                    return;
+            }
             Debug.LogWarning("业务层没有实现基于寻路的路径移动，请联系程序实现业务");
         }
 #endregion

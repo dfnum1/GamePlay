@@ -7,6 +7,8 @@
 using Framework.Core;
 using System;
 using System.Collections.Generic;
+using Framework.Base;
+
 #if UNITY_EDITOR
 using Framework.State.Editor;
 #endif
@@ -14,7 +16,7 @@ namespace Framework.State.Runtime
 {
     public class GameWorldHandler
     {
-        public delegate TypeObject OnMallocTypeObject(int typeId);
+        public delegate TypeObject OnMallocTypeObject(AFramework pFramework, int typeId);
 #if UNITY_EDITOR
         static System.Type                          ms_MallocInnter = null;
 #endif
@@ -33,14 +35,14 @@ namespace Framework.State.Runtime
 #endif
         }
         //-----------------------------------------------------
-        internal static T Malloc<T>(int typeId) where T : TypeObject
+        internal static T Malloc<T>(AFramework pFramework,int typeId) where T : TypeObject
         {
             if (ms_MallocHandles.TryGetValue(typeId, out var handle))
             {
 #if UNITY_EDITOR
                 ms_MallocInnter = typeof(T);
 #endif
-                var handleObj = handle(typeId);
+                var handleObj = handle(pFramework,typeId);
 #if UNITY_EDITOR
                 ms_MallocInnter = null;
 #endif

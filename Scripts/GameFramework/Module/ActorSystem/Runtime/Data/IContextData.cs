@@ -11,4 +11,9 @@ namespace Framework.ActorSystem.Runtime
     public interface IContextData : ICutsceneData
     {
     }
+
+    public interface IActorContextData : IContextData
+    {
+        string GetAssetFile();
+    }
 }

@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 using System;
 using System.Collections;
@@ -31,7 +32,7 @@ namespace Framework.Data
         protected int m_nLoadCnt = 0;
         protected int m_nTotalCnt = 0;
         Dictionary<int, Data_Base> m_vDatas = new Dictionary<int, Data_Base>(64);
-        Dictionary<string, BaseData> m_vCustomDatas = null;
+        Dictionary<string, ABaseData> m_vCustomDatas = null;
         public static Action OnLoaded = null;
         public bool bInited { get; set; }
         //-------------------------------------------
@@ -158,22 +159,22 @@ namespace Framework.Data
             }
         }
         //-------------------------------------------
-        public T GetCustomData<T>(string strFile) where T : BaseData
+        public T GetCustomData<T>(string strFile) where T : ABaseData
         {
             if (string.IsNullOrEmpty(strFile)) return default;
             if (m_vCustomDatas != null)
             {
-                BaseData getData = null;
+                ABaseData getData = null;
                 if (m_vCustomDatas.TryGetValue(strFile, out getData))
                     return (T)getData;
             }
             return default;
         }
         //-------------------------------------------
-        public void AddCustomData(string strFile, BaseData userData)
+        public void AddCustomData(string strFile, ABaseData userData)
         {
             if (string.IsNullOrEmpty(strFile) || userData == null) return;
-            if (m_vCustomDatas == null) m_vCustomDatas = new Dictionary<string, BaseData>(64);
+            if (m_vCustomDatas == null) m_vCustomDatas = new Dictionary<string, ABaseData>(64);
             m_vCustomDatas[strFile] = userData;
         }
         //-------------------------------------------
@@ -183,7 +184,7 @@ namespace Framework.Data
             if (m_vCustomDatas != null) m_vCustomDatas.Remove(strFile);
         }
         //-------------------------------------------
-        public void LoadBinary<T>(string strFile, System.Action<IUserData,bool> onCallback, bool bCache = false, bool bAbsFile = false) where T : IUserData
+        public void LoadBinary<T>(string strFile, System.Action<ABaseData, bool> onCallback, bool bCache = false, bool bAbsFile = false) where T : ABaseData
         {
             //AFileSystem fileSystem = FileSystemUtil.GetFileSystem();
             //if(fileSystem == null)

@@ -778,5 +778,10 @@ public static class BaseUtil
 
         return outo;
     }
-
+    //------------------------------------------------------
+    public static int StringID(AFramework framework, string name)
+    {
+        if (framework == null) return 0;
+        return framework.ShareCache.StringID(name);
+    }
 }

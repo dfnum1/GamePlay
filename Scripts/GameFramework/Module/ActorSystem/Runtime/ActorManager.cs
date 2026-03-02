@@ -10,6 +10,10 @@ using Framework.Cutscene.Runtime;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.Application;
+using Framework.Base;
+using System.IO;
+
+
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -31,8 +35,8 @@ namespace Framework.ActorSystem.Runtime
         bool OnSpawnInstance(string name, System.Action<UnityEngine.GameObject> onLoaded, bool bAsync = true);
         bool OnDespawnInstance(GameObject pInstance, string name = null);
 
-        bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null);
-        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null);
+        bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null);
+        bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IVarData externVar = null);
 
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
@@ -184,53 +188,64 @@ namespace Framework.ActorSystem.Runtime
         }
         //-----------------------------------------------------
         [ATMethod("同步创建Actor")]
-        public Actor CreateActor(IContextData pData, IContextData userVariable = null, int nodeID = 0)
+        public Actor CreateActor(IActorContextData pData, IVarData userVariable = null, int actorId = 0)
         {
-            return InnerCreateActor<Actor>(nodeID, pData, false, userVariable);
+            return InnerCreateActor<Actor>(actorId, pData, false, userVariable);
         }
         //-----------------------------------------------------
         [ATMethod("异步创建Actor")]
-        public Actor AsyncCreateActor(int nodeID, IContextData pData, IContextData userVariable = null)
+        public Actor AsyncCreateActor(IActorContextData pData, IVarData userVariable = null, int actorId =0)
         {
-            return InnerCreateActor<Actor>(nodeID, pData, true, userVariable);
+            return InnerCreateActor<Actor>(actorId, pData, true, userVariable);
         }
         //-----------------------------------------------------
-        public T CreateActor<T>(IContextData pData, IContextData userVariable = null, int nodeID = 0) where T : Actor, new()
+        public T CreateActor<T>(IActorContextData pData, IVarData userVariable = null, int actorId = 0) where T : Actor, new()
         {
-            return InnerCreateActor<T>(nodeID, pData, false, userVariable);
+            return InnerCreateActor<T>(actorId, pData, false, userVariable);
         }
         //-----------------------------------------------------
-        public T AsyncCreateActor<T>(int nodeID, IContextData pData, IContextData userVariable = null) where T : Actor, new()
+        public T AsyncCreateActor<T>(IActorContextData pData, IVarData userVariable = null, int actorId=0) where T : Actor, new()
         {
-            return InnerCreateActor<T>(nodeID, pData, true, userVariable);
+            return InnerCreateActor<T>(actorId, pData, true, userVariable);
         }
         //-----------------------------------------------------
-        T InnerCreateActor<T>(int nodeID, IContextData pData, bool bAsync, IContextData userVariable = null) where T : Actor, new()
+        T InnerCreateActor<T>(int actorId, IActorContextData pData, bool bAsync, IVarData userVariable = null) where T : Actor, new()
         {
             T pActor = null;
-            if (pActor == null) pActor = TypeInstancePool.Malloc<T>();
+            if (pActor == null) pActor = TypeInstancePool.Malloc<T>(GetFramework());
             if (pActor == null) return null;
             pActor.SetActorManager(this);
             pActor.OnConstruct();
 
-            if (nodeID == 0)
+            if (actorId == 0)
             {
                 m_nAutoGUID++;
-                nodeID = m_nAutoGUID;
+                actorId = m_nAutoGUID;
             }
             else
             {
-                if (m_vNodes.ContainsKey(nodeID))
+                if (m_vNodes.ContainsKey(actorId))
                 {
                     m_nAutoGUID++;
-                    nodeID = m_nAutoGUID;
+                    actorId = m_nAutoGUID;
                 }
                 else
-                    m_nAutoGUID = Mathf.Max(m_nAutoGUID, nodeID);
+                    m_nAutoGUID = Mathf.Max(m_nAutoGUID, actorId);
             }
             pActor.SetContextData(pData);
-            pActor.SetInstanceID(nodeID);
+            pActor.SetInstanceID(actorId);
             AddActor(pActor);
+
+            if(pData!=null)
+            {
+                string modelFile = pData.GetAssetFile();
+                if(!File.Exists(modelFile))
+                {
+                    GetFramework().OnSpawnInstance(modelFile, (instGo) => {
+                        pActor.SetObjectAble(instGo);
+                    }, bAsync);
+                }
+            }
 
             OnActorStatusCallback(pActor, bAsync ? EActorStatus.AsyncCreate : EActorStatus.Create, userVariable);
             pActor.OnCreated();
@@ -396,7 +411,7 @@ namespace Framework.ActorSystem.Runtime
             return m_CatchNodeSet;
         }
         //-----------------------------------------------------
-        internal bool OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
+        internal bool OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null)
         {
             if (m_vCallbacks == null || pActor == null)
                 return false;
@@ -412,7 +427,7 @@ namespace Framework.ActorSystem.Runtime
             return false;
         }
         //-----------------------------------------------------
-        internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, float oldValue, float newValue, IContextData pTakeData = null)
+        internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, float oldValue, float newValue, IVarData pTakeData = null)
         {
             if (m_vCallbacks == null || pActor == null)
                 return false;

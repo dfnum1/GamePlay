@@ -4,9 +4,24 @@
 作    者:	HappLI
 描    述:	AStar寻路类，实现AStar算法的核心逻辑
 *********************************************************************/
+using ExternEngine;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
+
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
+
 namespace Framework.Pathfinding.Runtime
 {
     // 
@@ -91,6 +106,32 @@ namespace Framework.Pathfinding.Runtime
         public bool IsBlockTypeIgnored(int blockType)
         {
             return (m_ignoredBlockTypes & (1 << blockType)) != 0;
+        }
+        //-------------------------------------------
+        public List<FVector3> FindPath(Vector3 start, Vector3 end)
+        {
+            // 1. 世界坐标转格子索引
+            float cellSize = m_map.CellSize;
+            int startX = Mathf.Clamp((int)(start.x / cellSize), 0, m_map.Width - 1);
+            int startZ = Mathf.Clamp((int)(start.z / cellSize), 0, m_map.Height - 1);
+            int endX = Mathf.Clamp((int)(end.x / cellSize), 0, m_map.Width - 1);
+            int endZ = Mathf.Clamp((int)(end.z / cellSize), 0, m_map.Height - 1);
+
+            // 2. 调用格子寻路
+            var gridPath = FindPath(startX, startZ, endX, endZ);
+            if (gridPath == null || gridPath.Count == 0)
+                return null;
+
+            // 3. 转换为世界坐标路径
+            var path = m_System.GetFramework().ShareCache.CacheFVector3List(gridPath.Count);
+            foreach (var grid in gridPath)
+            {
+                float wx = (grid.X + 0.5f) * cellSize;
+                float wz = (grid.Z + 0.5f) * cellSize;
+                float wy = grid.Y;
+                path.Add(new FVector3(wx, wy, wz));
+            }
+            return path;
         }
         //-------------------------------------------
         // 寻路方法

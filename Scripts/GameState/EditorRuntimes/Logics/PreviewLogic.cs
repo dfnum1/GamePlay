@@ -43,7 +43,7 @@ namespace Framework.State.Editor
             var worldData = GetWorldData();
             if (worldData != null)
             {
-                AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+                AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
                 if (cfgData != null)
                 {
                     cfgData.GetEditor(GetOwner())?.OnPreviewDisable(m_Preview);
@@ -65,7 +65,7 @@ namespace Framework.State.Editor
             if (worldData == null || worldData.gameLevel == null)
                 return;
 
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData == null)
                 return;
             OnInitCustomEditor();
@@ -79,7 +79,7 @@ namespace Framework.State.Editor
             if (worldData == null || worldData.gameLevel == null)
                 return;
 
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData == null)
                 return;
 
@@ -109,50 +109,22 @@ namespace Framework.State.Editor
         //-----------------------------------------------------
         public override void OnUndoAction(System.Object pObj, bool bDirty)
         {
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
-                return;
-            cfgData.GetEditor(GetOwner())?.OnUndoAction(pObj, bDirty);
+           GetLevelCfgEditor()?.OnUndoAction(pObj, bDirty);
         }
         //--------------------------------------------------------
         protected override void OnUpdate(float delta)
         {
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
-                return;
-            cfgData.GetEditor(GetOwner())?.OnUpdate(delta);
+            GetLevelCfgEditor()?.OnUpdate(delta);
         }
         //--------------------------------------------------------
         public override void OnSceneView(SceneView sceneView)
         {
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
-                return;
-            cfgData.GetEditor(GetOwner())?.OnSceneView(sceneView);
+            GetLevelCfgEditor()?.OnSceneView(sceneView);
         }
         //--------------------------------------------------------
         public override void OnSaveChanges()
         {
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
-                return;
-            cfgData.GetEditor(GetOwner())?.OnSaveChanges();
+            GetLevelCfgEditor()?.OnSaveChanges();
         }
         //--------------------------------------------------------
         protected override void OnGUI()
@@ -164,29 +136,30 @@ namespace Framework.State.Editor
                 m_Preview.OnPreviewGUI(window.PreviewRect, m_PreviewStyle);
             }
 
-            var worldData = GetWorldData();
-            if (worldData == null || worldData.gameLevel == null)
-                return;
-
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
-            if (cfgData == null)
+            var editor = GetLevelCfgEditor();
+            if (editor == null)
                 return;
             GUILayout.BeginArea(window.PreviewRect);
-            cfgData.GetEditor(GetOwner())?.OnGUI(new Rect(0,0, window.PreviewRect.width, window.PreviewRect.height));
+            editor.OnGUI(new Rect(0,0, window.PreviewRect.width, window.PreviewRect.height));
             GUILayout.EndArea();
         }
         //--------------------------------------------------------
         protected override void OnEvent(Event evt)
         {
             base.OnEvent(evt);
+            GetLevelCfgEditor()?.OnEvent(evt);
+        }
+        //--------------------------------------------------------
+        public AGameEditor GetLevelCfgEditor()
+        {
             var worldData = GetWorldData();
             if (worldData == null || worldData.gameLevel == null)
-                return;
+                return null;
 
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData == null)
-                return;
-            cfgData.GetEditor(GetOwner())?.OnEvent(evt);
+                return null;
+            return cfgData.GetEditor(GetOwner());
         }
     }
 }

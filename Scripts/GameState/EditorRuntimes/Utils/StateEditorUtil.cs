@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Framework.Base;
 using Framework.Core;
 using Framework.ED;
 using Framework.State.Runtime;
@@ -167,6 +168,27 @@ namespace Framework.State.Editor
                         if (attr != null && !string.IsNullOrEmpty(name))
                             name = attr.name;
 
+                        if(tp.IsSubclassOf(typeof(AState)))
+                        {
+                            if (!tp.IsDefined(typeof(GameStateAttribute), false))
+                                continue;
+                        }
+                        else if (tp.IsSubclassOf(typeof(AStateLogic)))
+                        {
+                            if (!tp.IsDefined(typeof(GameStateLogicAttribute), false))
+                                continue;
+                        }
+                        else if (tp.IsSubclassOf(typeof(AMode)))
+                        {
+                            if (!tp.IsDefined(typeof(GameModeAttribute), false))
+                                continue;
+                        }
+                        else if (tp.IsSubclassOf(typeof(AModeLogic)))
+                        {
+                            if (!tp.IsDefined(typeof(GameModeLogicAttribute), false))
+                                continue;
+                        }
+
                         var clsId = GetTypeClassId(tp);
                         ms_StateWorldTypes[name] = tp;
                         ms_StateWorldTypeIds[clsId] = tp;
@@ -210,7 +232,7 @@ namespace Framework.State.Editor
             if (vLogics != null) index = vLogics.IndexOf(stateLogic);
             if (IsStateWorldType<AStateLogic>(stateLogic.logicType))
             {
-                GameStateLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (indx, clasId) =>
+                GameStateLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (clasId,indx) =>
                 {
                     if(IsExistLogics(clasId, vLogics))
                     {
@@ -228,7 +250,7 @@ namespace Framework.State.Editor
             }
             else if (IsStateWorldType<AModeLogic>(stateLogic.logicType))
             {
-                GameModeLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (indx, clasId) =>
+                GameModeLogicProvider.Draw(new GUIContent("逻辑组件"), stateLogic, (clasId,indx) =>
                 {
                     if (IsExistLogics(clasId, vLogics))
                     {

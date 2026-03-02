@@ -5,9 +5,8 @@
 描    述:	命中帧数据
 *********************************************************************/
 using Framework.AT.Runtime;
-using Framework.Core;
+using Framework.Base;
 using Framework.DrawProps;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework.ActorSystem.Runtime

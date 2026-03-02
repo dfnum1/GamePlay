@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;

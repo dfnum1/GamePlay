@@ -7,6 +7,8 @@
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else

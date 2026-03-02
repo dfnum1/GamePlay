@@ -33,13 +33,13 @@ namespace Framework.State.Runtime
                 return;
             if (m_pWorldObject.atData != null && m_pWorldObject.atData.worldAgentTree!=null)
             {
-                m_pAgentTree = m_pFramework.FrameworkShareCache.MallocAgentTree(m_pWorldObject.atData.worldAgentTree);
+                m_pAgentTree = m_pFramework.ShareCache.MallocAgentTree(m_pWorldObject.atData.worldAgentTree);
                 if(m_pAgentTree!=null)
                 {
                     m_pAgentTree.AddOwnerClass(this);
                 }
             }
-            m_pGameState = GameWorldHandler.Malloc<AState>(m_pWorldObject.gameStateData.stateType);
+            m_pGameState = GameWorldHandler.Malloc<AState>( GetFramework(), m_pWorldObject.gameStateData.stateType);
             if (m_pGameState != null)
             {
                 m_pGameState.CleanAPIStatus();
@@ -54,7 +54,7 @@ namespace Framework.State.Runtime
                     for (int i =0; i < m_pWorldObject.modeDatas.Count; ++i)
                     {
                         var modeData = m_pWorldObject.modeDatas[i];
-                        var pMode = GameWorldHandler.Malloc<AMode>(modeData.modeType);
+                        var pMode = GameWorldHandler.Malloc<AMode>(GetFramework(), modeData.modeType);
                         if (pMode != null)
                         {
                             pMode.SetState(m_pGameState);

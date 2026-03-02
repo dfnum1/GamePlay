@@ -170,7 +170,7 @@ namespace Framework.Data.ED
             var nestedTypes = tableType.GetNestedTypes(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < nestedTypes.Length; ++i)
             {
-                if (nestedTypes[i].IsSubclassOf(typeof(BaseData)))
+                if (nestedTypes[i].IsSubclassOf(typeof(ABaseData)))
                 {
                     dataType = nestedTypes[i];
                     break;

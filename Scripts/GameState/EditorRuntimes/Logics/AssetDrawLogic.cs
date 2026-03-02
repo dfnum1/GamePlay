@@ -193,7 +193,7 @@ namespace Framework.State.Editor
             if (worldObj == null || worldObj.gameWorldData == null || worldObj.gameWorldData.gameLevel== null)
                 return;
 
-            var cfgData = worldObj.gameWorldData.gameLevel.GetGameData<AGameCfgData>();
+            var cfgData = worldObj.gameWorldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData != null)
             {
                 if (cfgData.GetEditor() != null)

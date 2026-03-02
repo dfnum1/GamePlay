@@ -5,15 +5,17 @@
 描    述:	
 *********************************************************************/
 
+using Framework.ActorSystem.Runtime;
+using Framework.Base;
 using Framework.Core;
 
 namespace Framework.Data
 {
-    public class BaseData : IUserData
+    public abstract class ABaseData : IContextData
     {
-        public void Destroy() { }
+        public abstract void Destroy();
     }
-    public class Data_Base : IUserData
+    public class Data_Base : ABaseData
     {
 #if UNITY_EDITOR
         public string strFilePath;
@@ -78,6 +80,6 @@ namespace Framework.Data
             writer.Write(val);
         }
         //-------------------------------------------
-        public void Destroy() { }
+        public override void Destroy() { }
     }
 }

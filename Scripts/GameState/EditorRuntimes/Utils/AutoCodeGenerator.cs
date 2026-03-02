@@ -30,6 +30,7 @@ namespace Framework.State.Editor
         {
             StringBuilder code = new StringBuilder();
             code.AppendLine("// This code is auto-generated. Do not modify.");
+            code.AppendLine("using Framework.Base;");
             code.AppendLine("using Framework.Core;");
             code.AppendLine("namespace Framework.State.Runtime");
             code.AppendLine("{");
@@ -46,13 +47,13 @@ namespace Framework.State.Editor
             if(stateTypes.Count>0)
             {
                 code.AppendLine("        //--------------------------------------------------------");
-                code.AppendLine("        static TypeObject MallocTypeClass(int id)");
+                code.AppendLine("        static TypeObject MallocTypeClass(AFramework pFramework,int clsId)");
                 code.AppendLine("        {");
-                code.AppendLine("            switch(id)");
+                code.AppendLine("            switch(clsId)");
                 code.AppendLine("            {");
                 foreach (var kvp in stateTypes)
                 {
-                    code.AppendLine($"                case {kvp.Key}: return TypeInstancePool.Malloc<{kvp.Value.FullName.Replace("+", ".")}>();");
+                    code.AppendLine($"                case {kvp.Key}: return TypeInstancePool.Malloc<{kvp.Value.FullName.Replace("+", ".")}>(pFramework);");
                 }
                 code.AppendLine("                default: return null;");
                 code.AppendLine("            }");

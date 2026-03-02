@@ -58,7 +58,7 @@ namespace Framework.State.Editor
             m_Scoller = GUILayout.BeginScrollView(m_Scoller);
 
             bool bSkipGUI = false;
-            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>();
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData != null)
             {
                 var editor = cfgData.GetEditor(GetOwner());
@@ -251,7 +251,7 @@ namespace Framework.State.Editor
             {
                 UndoRegister(false);
             }
-            var cfgData = stateData.GetGameData<AGameCfgData>();
+            var cfgData = stateData.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData != null)
             {
                 Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());

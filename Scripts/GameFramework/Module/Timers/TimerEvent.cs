@@ -5,6 +5,8 @@
 描    述:	
 *********************************************************************/
 
+using Framework.Base;
+
 namespace Framework.Core
 {
     public interface IBaseTimerEvent : IUserData

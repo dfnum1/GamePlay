@@ -4,9 +4,10 @@
 作    者:	HappLI
 描    述:	对象类型池子
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 
-namespace Framework.Core
+namespace Framework.Base
 {
     public abstract class TypeObject : IUserData
     {
@@ -20,6 +21,11 @@ namespace Framework.Core
             m_pFramework = pFramework;
         }
         public virtual void Destroy() { }
+
+        public void Free()
+        {
+            TypeInstancePool.Free(this);
+        }
     }
     //--------------------------------------------------------
     public static class TypeInstancePool
@@ -31,7 +37,7 @@ namespace Framework.Core
         {
             if(pFramework!=null)
             {
-                return pFramework.FrameworkShareCache.Malloc<T>();
+                return pFramework.ShareCache.Malloc<T>();
             }
             System.IntPtr handle = typeof(T).TypeHandle.Value;
             if (ms_vPools.TryGetValue(handle, out var pool) && pool.Count > 0)
@@ -45,11 +51,12 @@ namespace Framework.Core
             return newT;
         }
         //--------------------------------------------------------
-        public static void Free(this TypeObject pObj, AFramework pFramework = null)
+        public static void Free(this TypeObject pObj)
         {
-            if (pFramework != null)
+            if (pObj == null) return;
+            if (pObj.GetFramework() != null)
             {
-                pFramework.FrameworkShareCache.Free(pObj);
+                pObj.GetFramework().ShareCache.Free(pObj);
                 return;
             }
             System.IntPtr handle = pObj.GetType().TypeHandle.Value;

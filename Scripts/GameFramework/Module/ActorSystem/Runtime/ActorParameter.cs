@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 #if USE_FIXEDMATH
 using ExternEngine;
+using Framework.Base;
 #else
 using UnityEngine;
 using FFloat = System.Single;
@@ -25,6 +26,7 @@ namespace Framework.ActorSystem.Runtime
     {
         IContextData                            m_pConfigData = null;
         Dictionary<byte, FFloat>                m_vAttributes = new Dictionary<byte, FFloat>(16);
+        Dictionary<int, IUserData>              m_vUserDatas = null;
         Actor                                   m_pActor;
         byte                                    m_HpAttrType = 1;
         byte                                    m_SpeedAttrType = 2;
@@ -32,6 +34,7 @@ namespace Framework.ActorSystem.Runtime
 
         protected byte                          m_nAttackGroup = 0;
         protected int                           m_nGUID = 0;
+        protected uint                          m_nLevel = 1;
         public ActorParameter()
         {
             m_pActor = null;
@@ -45,6 +48,16 @@ namespace Framework.ActorSystem.Runtime
         public int GetGUID()
         {
             return m_nGUID;
+        }
+        //--------------------------------------------------------
+        public void SetLevel(uint level)
+        {
+            m_nLevel = level;
+        }
+        //--------------------------------------------------------
+        public uint GetLevel()
+        {
+            return m_nLevel;
         }
         //--------------------------------------------------------
         public void SetActor(Actor pActor)
@@ -225,6 +238,89 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //--------------------------------------------------------
+        public bool HashUserData(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            if (m_vUserDatas == null) return false;
+            if (m_vUserDatas.ContainsKey(GetFramework().ShareCache.StringID(name)))
+                return true;
+            return false;
+        }
+        //--------------------------------------------------------
+        public bool HashUserData<T>(string name) where T : IUserData
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            if (m_vUserDatas == null) return false;
+            if (m_vUserDatas.TryGetValue(GetFramework().ShareCache.StringID(name), out var tData) && tData is T)
+                return true;
+            return false;
+        }
+        //--------------------------------------------------------
+        public IUserData GetUserData(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return null;
+            if (m_vUserDatas == null) return null;
+            if (m_vUserDatas.TryGetValue(GetFramework().ShareCache.StringID(name), out var userData))
+                return userData;
+            return null;
+        }
+        //--------------------------------------------------------
+        public T GetUserData<T>(string name)where T : IUserData
+        {
+            if (string.IsNullOrEmpty(name)) return default;
+            if (m_vUserDatas == null) return default;
+            if (m_vUserDatas.TryGetValue(GetFramework().ShareCache.StringID(name), out var userData) && userData!=null && userData is T)
+                return (T)userData;
+            return default;
+        }
+        //--------------------------------------------------------
+        public IUserData GetUserData(int nameId)
+        {
+            if (m_vUserDatas == null) return null;
+            if (m_vUserDatas.TryGetValue(nameId, out var userData))
+                return userData;
+            return null;
+        }
+        //--------------------------------------------------------
+        public T GetUserData<T>(int nameId) where T : IUserData
+        {
+            if (m_vUserDatas == null) return default;
+            if (m_vUserDatas.TryGetValue(nameId, out var userData) && userData != null && userData is T)
+                return (T)userData;
+            return default;
+        }
+        //--------------------------------------------------------
+        public int AddUserData(string name, IUserData pData)
+        {
+            if (string.IsNullOrEmpty(name))
+                return 0;
+            int nameId = GetFramework().ShareCache.StringID(name);
+            AddUserData(nameId, pData);
+            return nameId;
+        }
+        //--------------------------------------------------------
+        public void AddUserData(int nameId, IUserData pData)
+        {
+            if (nameId <= 0) return;
+            if (m_vUserDatas == null)
+                m_vUserDatas = new Dictionary<int, IUserData>(4);
+            m_vUserDatas[nameId] = pData;
+        }
+        //--------------------------------------------------------
+        public void RemoveUserData(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return;
+            RemoveUserData(GetFramework().ShareCache.StringID(name));
+        }
+        //--------------------------------------------------------
+        public void RemoveUserData(int nameId)
+        {
+            if (m_vUserDatas == null)
+                return;
+            m_vUserDatas.Remove(nameId);
+        }
+        //--------------------------------------------------------
         internal void Update(FFloat fDeltaTime)
         {
             if (m_HpAttrType > 0)
@@ -239,11 +335,13 @@ namespace Framework.ActorSystem.Runtime
         internal void Clear()
         {
             ClearAttrs();
+            m_nLevel = 1;
             m_HpAttrType = 1;
             m_SpeedAttrType = 2;
             m_pConfigData = null;
             m_nGUID = 0;
             m_nAttackGroup = 0;
+            if (m_vUserDatas != null) m_vUserDatas.Clear();
             if (m_vCallbacks != null) m_vCallbacks.Clear();
         }
         //--------------------------------------------------------

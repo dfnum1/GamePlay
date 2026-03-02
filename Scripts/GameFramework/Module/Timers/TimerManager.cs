@@ -5,6 +5,7 @@
 描    述:	
 *********************************************************************/
 
+using Framework.Base;
 using System.Collections.Generic;
 
 namespace Framework.Core

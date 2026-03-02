@@ -14,7 +14,7 @@ namespace Framework.AT.Runtime
         internal static AgentTree MallocAgentTree(AFramework pFramework)
         {
             AgentTree pAT = null;
-            if (pFramework != null) pAT = pFramework.FrameworkShareCache.MallocAgentTree();
+            if (pFramework != null) pAT = pFramework.ShareCache.MallocAgentTree();
             else pAT = new AgentTree();
             if(pFramework!=null) pAT.SetATManager(pFramework.GetModule<AgentTreeManager>());
             return pAT;
@@ -36,7 +36,7 @@ namespace Framework.AT.Runtime
             var frameWork = agentTree.GetFramework();
             if(frameWork!=null)
             {
-                frameWork.FrameworkShareCache.FreeAgentTree(agentTree);
+                frameWork.ShareCache.FreeAgentTree(agentTree);
                 return;
             }
             agentTree.Destroy();

@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	变量栈
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 using System;
 using UnityEngine;

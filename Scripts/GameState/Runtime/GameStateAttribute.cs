@@ -5,6 +5,7 @@
 描    述:	属性定义
 *********************************************************************/
 
+using System;
 using System.IO;
 
 namespace Framework.State.Runtime
@@ -53,21 +54,20 @@ namespace Framework.State.Runtime
         public int order;
         public System.Type[] limitStates;
 #endif
-        public GameStateLogicAttribute(string name, int order = 0) : base(name)
+        public GameStateLogicAttribute(string name, params System.Type[] limitStateTypes) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
-            this.order = order;
-            limitStates = null;
+            this.order = 0;
+            limitStates = limitStateTypes;
 #endif
         }
-        //------------------------------------------------------------
-        public GameStateLogicAttribute(string name, System.Type[] limitStateTypes, int order = 0) : base(name)
+        public GameStateLogicAttribute(string name, int order, params System.Type[] limitStateTypes) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.order = order;
-            this.limitStates = limitStateTypes;
+            limitStates = limitStateTypes;
 #endif
         }
     }
@@ -101,21 +101,20 @@ namespace Framework.State.Runtime
         public int order;
         public System.Type[] limitModes;
 #endif
-        public GameModeLogicAttribute(string name, int order=0) : base(name)
+        public GameModeLogicAttribute(string name, params Type[] limitModes) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
-            this.order = order;
-            limitModes = null;
+            this.order = 0;
+            this.limitModes = limitModes;
 #endif
         }
-        //------------------------------------------------------------
-        public GameModeLogicAttribute(string name, System.Type[] limitModeTypes, int order = 0) : base(name)
+        public GameModeLogicAttribute(string name, int order, params Type[] limitModes) : base(name)
         {
 #if UNITY_EDITOR
             this.name = name;
             this.order = order;
-            limitModes = limitModeTypes;
+            this.limitModes = limitModes;
 #endif
         }
     }

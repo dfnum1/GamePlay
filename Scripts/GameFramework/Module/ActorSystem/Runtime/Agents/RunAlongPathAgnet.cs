@@ -6,6 +6,10 @@
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
+using Framework.AT.Runtime;
+using Framework.Base;
+
+
 #else
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
@@ -31,6 +35,8 @@ namespace Framework.ActorSystem.Runtime
         protected FFloat            m_fRunAlongPathPointDelta = 0.0f;
         protected FVector3          m_LocalRunAlongPoisiotn = FVector3.zero;
         protected Vector3Track      m_pPathPointTrack = new Vector3Track();
+
+        private Value3Var           m_NavCacheData = new Value3Var();
         //--------------------------------------------------------
         protected override void OnInit()
         {
@@ -96,15 +102,19 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pActor.GetFramework() == null)
                 return;
-            m_pActor.GetFramework().OnSimpleFindPath(m_pActor, toPos, fSpeed, OnSimpleFindPath);
+
+            m_NavCacheData.floatVal0 = fSpeed;
+            m_NavCacheData.intVal1 = bEnsureSucceed ? 1 : 0;
+            m_NavCacheData.intVal2 = bUpdateDirection ? 1 : 0;
+            m_pActor.GetFramework().OnSimpleFindPath(m_pActor, toPos, OnSimpleFindPath);
         }
         //-------------------------------------------------
-        void OnSimpleFindPath(List<Vector3> vPathPoint, float fSpeed)
+        void OnSimpleFindPath(List<FVector3> vPathPoint)
         {
-            RunAlongPathPoint(vPathPoint, fSpeed);
+            RunAlongPathPoint(vPathPoint, m_NavCacheData.floatVal0, m_NavCacheData.intVal1!=0, m_NavCacheData.intVal2!=0);
         }
         //-------------------------------------------------
-        public FFloat RunAlongPathPoint(List<Vector3> vPathPoint, float fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public FFloat RunAlongPathPoint(List<FVector3> vPathPoint, float fSpeed = 0, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             if (fSpeed <= 0) fSpeed = Mathf.Max(0.1f, GetRunSpeed());
             if (vPathPoint.Count > 1)

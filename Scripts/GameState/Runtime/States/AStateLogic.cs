@@ -5,6 +5,8 @@
 描    述:	游戏状态逻辑基类
 *********************************************************************/
 using Framework.Core;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else

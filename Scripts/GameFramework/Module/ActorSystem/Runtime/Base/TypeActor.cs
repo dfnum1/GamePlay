@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	Actor 类型数据
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 
 namespace Framework.ActorSystem.Runtime

@@ -8,6 +8,8 @@ using Framework.Core;
 using System;
 using System.Linq;
 using UnityEngine;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else

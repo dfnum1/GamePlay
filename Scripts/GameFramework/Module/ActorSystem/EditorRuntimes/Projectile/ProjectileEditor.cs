@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Framework.Base;
+
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -443,7 +445,7 @@ namespace Framework.ProjectileSystem.Editor
             return false;
         }
         //-----------------------------------------------------
-        public bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
+        public bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null)
         {
             if (eStatus == EActorStatus.Loaded)
             {
@@ -484,7 +486,7 @@ namespace Framework.ProjectileSystem.Editor
             return false;
         }
         //-----------------------------------------------------
-        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IContextData externVar = null)
+        public bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IVarData externVar = null)
         {
             return false;
         }

@@ -17,6 +17,7 @@ using UnityEngine;
 using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
 using static UnityEngine.GraphicsBuffer;
+using Framework.Base;
 #if USE_SERVER
 using Transform = ExternEngine.Transform;
 #endif
@@ -806,7 +807,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        internal void OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IContextData pTakeData = null)
+        internal void OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null)
         {
         }
     }

@@ -5,6 +5,7 @@
 描    述:	动作表现类
 *********************************************************************/
 using ExternEngine;
+using Framework.Base;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;

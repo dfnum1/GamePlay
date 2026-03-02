@@ -8,6 +8,8 @@
 using JsonUtility = ExternEngine.JsonUtility;
 #endif
 using Framework.Core;
+using Framework.Base;
+
 
 #if UNITY_EDITOR
 using Framework.State.Editor;
@@ -253,11 +255,11 @@ namespace Framework.State.Runtime
 
         AGameCfgData m_pGameData = null;
         //------------------------------------------------
-        public T GetGameData<T>() where T : AGameCfgData
+        public T GetGameData<T>(AFramework pFramework) where T : AGameCfgData
         {
             if(m_pGameData == null)
             {
-                m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(dataType);
+                m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework,dataType);
                 if (m_pGameData != null)
                 {
                     m_pGameData.OnDeserialize(dataContent);
@@ -266,13 +268,13 @@ namespace Framework.State.Runtime
             return m_pGameData as T;
         }
         //------------------------------------------------
-        public void Deserialize()
+        public void Deserialize(AFramework pFramework)
         {
             if(m_pGameData!=null) m_pGameData.Free();
             m_pGameData = null;
             if (dataType == 0)
                 return;
-            m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(dataType);
+            m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework,dataType);
             if (m_pGameData != null)
             {
                 m_pGameData.OnDeserialize(dataContent);

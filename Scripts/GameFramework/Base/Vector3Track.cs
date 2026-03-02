@@ -18,7 +18,7 @@ using FVector3 = UnityEngine.Vector3;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-namespace Framework.Core
+namespace Framework.Base
 {
     public struct RunPoint
     {

@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	Actor单位上下文
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 using UnityEngine;
 namespace Framework.ActorSystem.Runtime

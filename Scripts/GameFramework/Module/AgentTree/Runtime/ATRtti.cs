@@ -12,6 +12,7 @@ using System.Reflection;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Base;
 namespace Framework.AT.Runtime
 {
 	public class ATRtti

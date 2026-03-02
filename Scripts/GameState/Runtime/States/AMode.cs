@@ -6,6 +6,8 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -63,7 +65,7 @@ namespace Framework.State.Runtime
             foreach (var db in logicTypeIds)
             {
                 if (!db.enabled) continue;
-                var pLogic = GameWorldHandler.Malloc<AModeLogic>(db.logicType);
+                var pLogic = GameWorldHandler.Malloc<AModeLogic>(GetFramework(), db.logicType);
                 if (pLogic != null)
                 {
                     if (m_vLogics == null) m_vLogics = new List<AModeLogic>(logicTypeIds.Count);
@@ -147,9 +149,20 @@ namespace Framework.State.Runtime
             return m_pState;
         }
         //----------------------------------------------------------------
+        public T GetState<T>() where T : AState
+        {
+            return m_pState as T;
+        }
+        //----------------------------------------------------------------
         public GameWorld GetGameWorld()
         {
             return m_pState?.GetGameWorld();
+        }
+        //----------------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pState == null) return null;
+            return m_pState.GetFramework();
         }
         //----------------------------------------------------------------
         internal void Update(FFloat fFrameTime)

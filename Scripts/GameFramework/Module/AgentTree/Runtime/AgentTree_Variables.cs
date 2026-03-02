@@ -6,6 +6,8 @@
 *********************************************************************/
 using Framework.Core;
 using UnityEngine;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else

@@ -5,6 +5,8 @@
 描    述:	WorldBoundBox
 *********************************************************************/
 using UnityEngine;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -132,9 +134,9 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         public bool Contain(IntersetionParam intersetion, FVector3 point)
         {
-            return IntersetionUtil.CU_WorldBoxIntersection(intersetion, this, point);
-        //    //TODO....
-        //    return point.x >= m_Min.x && point.x <= m_Max.x && point.y >= m_Min.y && point.y <= m_Max.y && point.z >= m_Min.z && point.z <= m_Max.z;
+            return CU_WorldBoxIntersection(intersetion, this, point);
+            //    //TODO....
+            //    return point.x >= m_Min.x && point.x <= m_Max.x && point.y >= m_Min.y && point.y <= m_Max.y && point.z >= m_Min.z && point.z <= m_Max.z;
         }
         //-------------------------------------------------
         public bool Intersect(IntersetionParam intersetion, FRay ray, out float result)
@@ -212,7 +214,7 @@ namespace Framework.ActorSystem.Runtime
         //-------------------------------------------------
         public bool Intersects(IntersetionParam intersetion, WorldBoundBox boundingBox)
         {
-            return IntersetionUtil.CU_WorldBoxIntersection(intersetion,ref this, ref boundingBox);
+            return CU_WorldBoxIntersection(intersetion, ref this, ref boundingBox);
         }
         //-------------------------------------------------
         public void GetPoints(ref FVector3[] vDirArray, ref FVector3[] vVertexArray)
@@ -232,6 +234,43 @@ namespace Framework.ActorSystem.Runtime
             vVertexArray[5] = vTransCenter - vDirArray[2] * half.x - vDirArray[1] * half.y + vDirArray[0] * half.z;
             vVertexArray[6] = vTransCenter + vDirArray[2] * half.x - vDirArray[1] * half.y - vDirArray[0] * half.z;
             vVertexArray[7] = vTransCenter - vDirArray[2] * half.x - vDirArray[1] * half.y - vDirArray[0] * half.z;
+        }
+        //------------------------------------------------------
+        public static bool CU_WorldBoxIntersection(IntersetionParam frameParams, ref WorldBoundBox box1, ref WorldBoundBox box2)
+        {
+            box1.GetPoints(ref frameParams.vDirArray1, ref frameParams.vVertexArray1);
+            box2.GetPoints(ref frameParams.vDirArray2, ref frameParams.vVertexArray2);
+
+            bool bTest = IntersetionUtil.TestIntersection(frameParams.vDirArray1, frameParams.vDirArray1, frameParams.vVertexArray1, frameParams.vDirArray2, frameParams.vDirArray2, frameParams.vVertexArray2);
+            return bTest;
+        }
+        //------------------------------------------------------
+        public static bool CU_WorldBoxIntersection(IntersetionParam frameParams, WorldBoundBox box, FVector3 point)
+        {
+            FVector3 vMin = box.GetMin(true);
+            FVector3 vMax = box.GetMax(true);
+
+            FVector3 tempMin = FVector3.Min(vMin, vMax);
+            FVector3 tempMax = FVector3.Max(vMin, vMax);
+            if (point.x < tempMin.x || tempMin.x > tempMax.x ||
+                point.y < tempMin.y || tempMin.y > tempMax.y ||
+                point.z < tempMin.z || tempMin.z > tempMax.z)
+                return false;
+
+            return IntersetionUtil.CU_OBBOBBIntersection(frameParams, box.GetCenter(false), box.GetHalf(), box.GetTransform(), point, FVector3.zero, FMatrix4x4.identity);
+        }
+        //-----------------------------------------------------
+        public static bool BoundInView(IntersetionParam frameParams, FMatrix4x4 clipMatrix, WorldBoundBox worldBounds)
+        {
+            worldBounds.GetPoints(ref frameParams.vDirArray1, ref frameParams.vVertexArray1);
+            for (int i = 0; i < frameParams.vVertexArray1.Length; ++i)
+            {
+                if (IntersetionUtil.PositionInView(clipMatrix, frameParams.vVertexArray1[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

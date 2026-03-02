@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Framework.Base;
 
 namespace Framework.ActorSystem.Runtime
 {

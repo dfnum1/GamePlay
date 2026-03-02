@@ -5,6 +5,8 @@
 描    述:	游戏模式逻辑基类
 *********************************************************************/
 using Framework.Core;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -35,10 +37,27 @@ namespace Framework.State.Runtime
             return m_pMode;
         }
         //----------------------------------------------------------------
+        public T GetMode<T>() where T : AMode
+        {
+            return m_pMode as T;
+        }
+        //----------------------------------------------------------------
         public AState GetState()
         {
             if (m_pMode == null) return null;
             return m_pMode.GetState();
+        }
+        //----------------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pMode == null) return null;
+            return m_pMode.GetFramework();
+        }
+        //----------------------------------------------------------------
+        public T GetState<T>() where T : AState
+        {
+            if (m_pMode == null) return null;
+            return m_pMode.GetState<T>();
         }
         //----------------------------------------------------------------
         public GameWorld GetWorld()

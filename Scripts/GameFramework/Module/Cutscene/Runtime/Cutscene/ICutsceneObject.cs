@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	过场基础对象接口
 *********************************************************************/
+using Framework.Base;
 using Framework.Core;
 using System.Runtime.InteropServices;
 using UnityEngine;

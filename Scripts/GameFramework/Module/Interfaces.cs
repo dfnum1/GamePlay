@@ -1,5 +1,20 @@
-﻿using System;
+﻿using Framework.ActorSystem.Runtime;
+using Framework.Base;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 namespace Framework.Core
 {
     public interface IUpdate
@@ -45,5 +60,10 @@ namespace Framework.Core
         bool OnThreadUpdate(float fFrame, IUserData userData = null);
         int GetThread();
         void OnThreadComplete(IUserData userData = null);
+    }
+
+    public interface INavSimplePath
+    {
+        bool OnSimpleFindPath(Actor pActor, FVector3 toPosition, Action<List<FVector3>> vPaths);
     }
 }

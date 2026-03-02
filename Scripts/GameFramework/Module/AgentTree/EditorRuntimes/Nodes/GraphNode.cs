@@ -6,6 +6,7 @@
 *********************************************************************/
 #if UNITY_EDITOR
 using Framework.AT.Runtime;
+using Framework.Base;
 using Framework.Core;
 using Framework.DrawProps;
 using Framework.ED;

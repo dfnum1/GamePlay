@@ -18,6 +18,18 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
+
 namespace Framework.ED
 {
     //-----------------------------------------------------
@@ -170,11 +182,6 @@ namespace Framework.ED
             var instance = Activator.CreateInstance(ms_EditorGameModule, true);
             Core.AFramework aFramework = (Core.AFramework)instance;
             return aFramework;
-        }
-        //------------------------------------------------------
-        public override void OnSimpleFindPath(Actor pActor, Vector3 toPos, float fSpeed, System.Action<List<Vector3>, float> onCallback)
-        {
-            Debug.LogWarning("业务层没有实现基于寻路的路径移动，请联系程序实现业务");
         }
     }
 }

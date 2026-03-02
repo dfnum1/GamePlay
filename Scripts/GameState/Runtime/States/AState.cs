@@ -6,6 +6,10 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using Framework.Base;
+
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -74,9 +78,10 @@ namespace Framework.State.Runtime
             foreach(var db in logicTypeIds)
             {
                 if (!db.enabled) continue;
-                var pLogic = GameWorldHandler.Malloc<AStateLogic>(db.logicType);
+                var pLogic = GameWorldHandler.Malloc<AStateLogic>(GetFramework(), db.logicType);
                 if (pLogic != null)
                 {
+                    GetFramework()?.RegisterFunction(pLogic);
                     if (m_vLogics == null) m_vLogics = new List<AStateLogic>(logicTypeIds.Count);
                     pLogic.SetState(this);
                     m_vLogics.Add(pLogic);
@@ -160,6 +165,12 @@ namespace Framework.State.Runtime
         public GameWorld GetGameWorld()
         {
             return m_pWorld;
+        }
+        //----------------------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pWorld == null) return null;
+            return m_pWorld.GetFramework();
         }
         //----------------------------------------------------------------
         internal void SetGameWorld(GameWorld pWorld)

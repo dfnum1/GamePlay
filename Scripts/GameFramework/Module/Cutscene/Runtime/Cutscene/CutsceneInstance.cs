@@ -5,6 +5,7 @@
 描    述:	过场动画管理器
 *********************************************************************/
 using Framework.AT.Runtime;
+using Framework.Base;
 using Framework.Core;
 using Framework.Cutscne.Runtime;
 using System.Collections.Generic;

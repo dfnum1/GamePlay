@@ -11,7 +11,7 @@ namespace Framework.ActorSystem.Runtime
 {
     //------------------------------------------------------
     [System.Serializable]
-    public class AttackFrameParameter : IContextData
+    public class AttackFrameParameter : IActorContextData
     {
         [Display("受击硬直")]
         public float stuck_time_hit;
@@ -50,6 +50,10 @@ namespace Framework.ActorSystem.Runtime
             target_effect_hit = "";
             sound_hit = "";
             damage = 0;
+        }
+        public virtual string GetAssetFile()
+        {
+            return null;
         }
     }
 }

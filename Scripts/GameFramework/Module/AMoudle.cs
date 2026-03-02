@@ -5,6 +5,7 @@
 描    述:	基础模块类
 *********************************************************************/
 using ExternEngine;
+using Framework.Base;
 
 namespace Framework.Core
 {

@@ -10,6 +10,8 @@ using Framework.Cutscene.Runtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Base;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -72,7 +74,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public ActorParameter GetActorParameter()
         {
-            if (m_pActorParameter == null) m_pActorParameter = TypeInstancePool.Malloc<ActorParameter>();
+            if (m_pActorParameter == null) m_pActorParameter = TypeInstancePool.Malloc<ActorParameter>(GetFramework());
             return m_pActorParameter;
         }
         //--------------------------------------------------------
@@ -408,7 +410,7 @@ namespace Framework.ActorSystem.Runtime
             GetAgent<RunAlongPathAgnet>(true).NavRunTo(toPos, speed, bEnsureSucceed, bUpdateDirection);
         }
         //-------------------------------------------------
-        public float RunAlongPathPoint(List<Vector3> vPoints, float speed = 0.0f, bool bEnsureSucceed = false, bool bUpdateDirection = true)
+        public float RunAlongPathPoint(List<FVector3> vPoints, float speed = 0.0f, bool bEnsureSucceed = false, bool bUpdateDirection = true)
         {
             return GetAgent<RunAlongPathAgnet>(true).RunAlongPathPoint(vPoints, speed, bEnsureSucceed, bUpdateDirection);
         }
@@ -838,7 +840,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_pGraph == null)
             {
-                m_pGraph = TypeInstancePool.Malloc<ActorGraph>();
+                m_pGraph = TypeInstancePool.Malloc<ActorGraph>(GetFramework());
                 m_pGraph.Init(this);
                 m_pGraph.AddStartActionCallback(OnActionStartState);
                 m_pGraph.AddEndActionCallback(OnActionEndState);
@@ -1073,7 +1075,7 @@ namespace Framework.ActorSystem.Runtime
         [ATMethod("获取技能系统")]
         public SkillSystem GetSkillSystem()
         {
-            if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>();
+            if (m_pSkillSystem == null) m_pSkillSystem = TypeInstancePool.Malloc<SkillSystem>(GetFramework());
             m_pSkillSystem.SetActor(this);
             return m_pSkillSystem;
         }
