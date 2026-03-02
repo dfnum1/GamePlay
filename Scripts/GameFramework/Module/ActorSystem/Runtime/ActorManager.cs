@@ -12,6 +12,8 @@ using UnityEngine;
 using static UnityEngine.Application;
 using Framework.Base;
 using System.IO;
+using UnityEngine.Playables;
+
 
 
 
@@ -56,6 +58,8 @@ namespace Framework.ActorSystem.Runtime
         float                                   m_fTerrainHeight = 0;
         int                                     m_nTerrainLayerMask = -1;
 
+        Dictionary<int, AttrCoreData.AttrFormula> m_AttrFormulas = null;
+
         protected IntersetionParam              m_IntersetionParam = null;
         HashSet<HitFrameActor>                  m_vHitFrameCaches;
         List<Actor>                             m_CatchNodeList;
@@ -75,6 +79,14 @@ namespace Framework.ActorSystem.Runtime
         {
             ActorSystemUtil.Register(this);
             m_fTerrainHeight = 0;
+        }
+        //-----------------------------------------------------        
+        public AttrCoreData.AttrFormula GetAttrFormula(int formula)
+        {
+            if (m_AttrFormulas == null) return null;
+            if (m_AttrFormulas.TryGetValue(formula, out var attrFormula))
+                return attrFormula;
+            return null;
         }
         //-----------------------------------------------------        
         [ATMethod("设置空间大小")]
@@ -441,6 +453,19 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         internal bool OnActorSystemActorHitFrame(HitFrameActor hitFrame)
         {
+            if(hitFrame.attack_state_param!=null)
+            {
+                if (hitFrame.target_ptr != null)
+                {
+                    var pFormula = GetAttrFormula(hitFrame.attack_state_param.GetAttrFormulaType());
+                    if (pFormula != null)
+                    {
+                        FFloat finalValue = AttrFormulaUtil.CalcAttrFormula(pFormula, hitFrame.attack_ptr, hitFrame.target_ptr);
+                        hitFrame.target_ptr.SubAttr(pFormula.applayAttr, finalValue);
+                    }
+                }
+            }
+
             if (m_vCallbacks == null)
                 return false;
             foreach (var db in m_vCallbacks)

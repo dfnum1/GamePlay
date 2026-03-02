@@ -5,9 +5,12 @@
 描    述:	属性表达式计算工具
 *********************************************************************/
 using System.Collections.Generic;
-using static Framework.ActorSystem.Runtime.AActorAttrDatas;
 using System;
-
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat = System.Single;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     //-----------------------------------------------------
@@ -15,17 +18,17 @@ namespace Framework.ActorSystem.Runtime
     //-----------------------------------------------------
     public class AttrFormulaUtil
     {
-        static Stack<float> ms_FormulaStack = null;
-        public static float CalcAttrFormula(AttrFormula formula, Actor pAttacker, Actor pTarget)
+        static Stack<FFloat> ms_FormulaStack = null;
+        public static FFloat CalcAttrFormula(AttrCoreData.AttrFormula formula, Actor pAttacker, Actor pTarget)
         {
-            if (ms_FormulaStack == null) ms_FormulaStack = new Stack<float>(2);
+            if (ms_FormulaStack == null) ms_FormulaStack = new Stack<FFloat>(2);
             ms_FormulaStack.Clear();
-            float value = CalcLambdaList(formula.vLambda, pAttacker, pTarget);
+            FFloat value = CalcLambdaList(formula.vLambda, pAttacker, pTarget);
             ms_FormulaStack.Clear();
             return value;
         }
         //-----------------------------------------------------
-        private static float CalcLambdaList(List<AttrFormula.LambdaParam> vLambda, Actor pAttacker, Actor pTarget)
+        private static FFloat CalcLambdaList(List<AttrCoreData.AttrFormula.LambdaParam> vLambda, Actor pAttacker, Actor pTarget)
         {
             if (vLambda == null || vLambda.Count == 0)
                 return 0f;
@@ -47,10 +50,10 @@ namespace Framework.ActorSystem.Runtime
                         case EAttrFormulaType.eMul:
                         case EAttrFormulaType.eDiv:
                             {
-                                float result = 0f;
+                                FFloat result = 0f;
                                 if (lambda.isUnary)
                                 {
-                                    float leftA = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : 0;
+                                    FFloat leftA = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : 0;
                                     result = lambda.type switch
                                     {
                                         EAttrFormulaType.eAdd => leftA + lambda.paramValue0,
@@ -62,8 +65,8 @@ namespace Framework.ActorSystem.Runtime
                                 }
                                 else if (lambda.subLambda != null && lambda.subLambda.Count == 2)
                                 {
-                                    float a = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
-                                    float b = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    FFloat a = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    FFloat b = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
                                     result = lambda.type switch
                                     {
                                         EAttrFormulaType.eAdd => a + b,
@@ -75,8 +78,8 @@ namespace Framework.ActorSystem.Runtime
                                 }
                                 else
                                 {
-                                    float b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
-                                    float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
+                                    FFloat b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
+                                    FFloat a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
                                     result = lambda.type switch
                                     {
                                         EAttrFormulaType.eAdd => a + b,
@@ -93,25 +96,25 @@ namespace Framework.ActorSystem.Runtime
                         case EAttrFormulaType.eMin:
                         case EAttrFormulaType.eMax:
                             {
-                                float result = 0f;
+                                FFloat result = 0f;
                                 if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
                                 {
-                                    float a = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
-                                    float b = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    FFloat a = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    FFloat b = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
                                     switch (lambda.type)
                                     {
-                                        case EAttrFormulaType.ePower: result = (float)Math.Pow(a, b); break;
+                                        case EAttrFormulaType.ePower: result = (FFloat)Math.Pow(a, b); break;
                                         case EAttrFormulaType.eMin: result = Math.Min(a, b); break;
                                         case EAttrFormulaType.eMax: result = Math.Max(a, b); break;
                                     }
                                 }
                                 else
                                 {
-                                    float b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
-                                    float a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
+                                    FFloat b = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
+                                    FFloat a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue1;
                                     switch (lambda.type)
                                     {
-                                        case EAttrFormulaType.ePower: result = (float)Math.Pow(a, b); break;
+                                        case EAttrFormulaType.ePower: result = (FFloat)Math.Pow(a, b); break;
                                         case EAttrFormulaType.eMin: result = Math.Min(a, b); break;
                                         case EAttrFormulaType.eMax: result = Math.Max(a, b); break;
                                     }
@@ -123,16 +126,16 @@ namespace Framework.ActorSystem.Runtime
                         case EAttrFormulaType.eCeil:
                         case EAttrFormulaType.eAbs:
                             {
-                                float a;
+                                FFloat a;
                                 if (lambda.subLambda != null && lambda.subLambda.Count > 0)
                                     a = CalcLambdaList(lambda.subLambda, pAttacker, pTarget);
                                 else
                                     a = ms_FormulaStack.Count > 0 ? ms_FormulaStack.Pop() : lambda.paramValue0;
-                                float result = 0f;
+                                FFloat result = 0f;
                                 switch (lambda.type)
                                 {
-                                    case EAttrFormulaType.eFloor: result = (float)Math.Floor(a); break;
-                                    case EAttrFormulaType.eCeil: result = (float)Math.Ceiling(a); break;
+                                    case EAttrFormulaType.eFloor: result = Math.Floor((float)a); break;
+                                    case EAttrFormulaType.eCeil: result = Math.Ceiling((float)a); break;
                                     case EAttrFormulaType.eAbs: result = Math.Abs(a); break;
                                 }
                                 ms_FormulaStack.Push(result);
@@ -142,8 +145,8 @@ namespace Framework.ActorSystem.Runtime
                             {
                                 if (lambda.subLambda != null && lambda.subLambda.Count >= 2)
                                 {
-                                    float min = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
-                                    float max = CalcLambdaList(new List<AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
+                                    FFloat min = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[0] }, pAttacker, pTarget);
+                                    FFloat max = CalcLambdaList(new List<AttrCoreData.AttrFormula.LambdaParam> { lambda.subLambda[1] }, pAttacker, pTarget);
                                     ms_FormulaStack.Push(UnityEngine.Random.Range(min, max));
                                 }
                                 else
@@ -164,7 +167,7 @@ namespace Framework.ActorSystem.Runtime
                             {
                                 byte attrType = (byte)lambda.paramValue1;
                                 int camp = (int)lambda.paramValue0;
-                                float value = 0f;
+                                FFloat value = 0f;
                                 if (camp == 0 && pAttacker != null)
                                     value = pAttacker.GetAttr(attrType);
                                 else if (camp == 1 && pTarget != null)

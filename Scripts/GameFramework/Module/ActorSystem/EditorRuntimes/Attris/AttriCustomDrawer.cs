@@ -25,7 +25,7 @@ namespace Framework.ActorSystem.Editor
         static List<byte> ms_vAttris =  null;
         static List<string> ms_vAttriPops = null;
 
-        static List<byte> ms_vFormulaTypes = null;
+        static List<int> ms_vFormulaTypes = null;
         static List<string> ms_vFormulaTypePops = null;
 
         static void Init()
@@ -42,7 +42,7 @@ namespace Framework.ActorSystem.Editor
                 {
                     ms_vAttris = new List<byte>();
                     ms_vAttriPops = new List<string>();
-                    ms_vFormulaTypes = new List<byte>();
+                    ms_vFormulaTypes = new List<int>();
                     ms_vFormulaTypePops = new List<string>();
                     for (int i = 0; i < pData.vAttributes.Length; ++i)
                     {

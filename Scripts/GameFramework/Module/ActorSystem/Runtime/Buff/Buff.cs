@@ -19,8 +19,8 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
-    [ATInteralExport("Actor系统/技能", -4, "ActorSystem/actor_skill")]
-    public class Skill : AActorStateInfo
+    [ATInteralExport("Actor系统/Buff", -4, "ActorSystem/actor_buff")]
+    public class Buff : AActorStateInfo
     {
         protected uint              m_nSkillID = 0;
         protected uint              m_nLevel = 0;
@@ -45,7 +45,7 @@ namespace Framework.ActorSystem.Runtime
 
         private bool                m_bPreCanTrigger = false;
         //-----------------------------------------------------
-        public Skill()
+        public Buff()
         {
             m_pOwner = null;
         }

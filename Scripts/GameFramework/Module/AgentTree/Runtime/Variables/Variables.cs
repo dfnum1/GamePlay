@@ -1043,6 +1043,26 @@ namespace Framework.AT.Runtime
                 return new VariableDouble { value = (long)attri.ToValue<double>(0), guid = guid };
             else if (attri.argvType == typeof(float))
                 return new VariableFloat { value = attri.ToValue<float>(0), guid = guid };
+#if USE_FIXEDMATH
+            else if (attri.argvType == typeof(ExternEngine.FFloat))
+                return new VariableFloat { value = attri.ToValue<ExternEngine.FFloat>(0), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FVector2))
+                return new VariableVec2 { value = attri.ToValue<Vector2>(Vector2.zero), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FVector3))
+                return new VariableVec3 { value = attri.ToValue<Vector3>(Vector3.zero), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FVector4))
+                return new VariableVec4 { value = attri.ToValue<Vector4>(Vector4.zero), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FRay))
+                return new VariableRay { value = attri.ToValue<Ray>(new Ray(Vector3.zero, Vector3.forward)), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FQuaternion))
+                return new VariableQuaternion { value = attri.ToValue<Quaternion>(Quaternion.identity), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FRect))
+                return new VariableRect { value = attri.ToValue<Rect>(new Rect(0, 0, 0, 0)), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FBounds))
+                return new VariableBounds { value = attri.ToValue<Bounds>(new Bounds(Vector3.zero, Vector3.zero)), guid = guid };
+            else if (attri.argvType == typeof(ExternEngine.FMatrix4x4))
+                return new VariableMatrix { value = attri.ToValue<Matrix4x4>(Matrix4x4.identity), guid = guid };
+#endif
             else if (attri.argvType == typeof(string))
                 return new VariableString { value = attri.defValue != null ? attri.defValue.ToString() : "", guid = guid };
             else if (attri.argvType == typeof(Vector2))

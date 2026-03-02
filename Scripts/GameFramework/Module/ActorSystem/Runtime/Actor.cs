@@ -1007,7 +1007,7 @@ namespace Framework.ActorSystem.Runtime
         }
         //--------------------------------------------------------
         [ATMethod("减少属性"), ATArgvDrawer("type","DrawAttributePop")]
-        public void SubAttr(byte type, int value, bool bLowerZero = false)
+        public void SubAttr(byte type, FFloat value, bool bLowerZero = false)
         {
             GetActorParameter().SubAttr(type, value, bLowerZero);
         }
@@ -1400,7 +1400,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //------------------------------------------------------
-        [ATMethod("重置逻辑冰冻")]
+        [ATMethod("重置逻辑静止")]
         public void ResetFreeze()
         {
             bool isFreezeCall = IsFreezed();
@@ -1410,7 +1410,7 @@ namespace Framework.ActorSystem.Runtime
                 OnFreezed(IsFreezed());
         }
         //------------------------------------------------------
-        [ATMethod("设置逻辑冰冻")]
+        [ATMethod("设置逻辑静止")]
         public void Freezed(bool bToggle, float fDuration)
         {
             bool isFreezeCall = IsFreezed();

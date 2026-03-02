@@ -17,6 +17,7 @@ namespace Framework.ActorSystem.Runtime
     public abstract class AActorStateInfo : TypeActor
     {
         public virtual uint GetDamageID() { return 0; }
+        public virtual int GetAttrFormulaType() { return 0; }
         public abstract void AddLockTarget(Actor pNode, bool bClear = false);
         public abstract void ClearLockTargets();
         public abstract List<Actor> GetLockTargets(bool isEmptyReLock = true);

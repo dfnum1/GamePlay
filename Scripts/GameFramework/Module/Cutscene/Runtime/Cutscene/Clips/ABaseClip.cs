@@ -32,7 +32,8 @@ namespace Framework.Cutscene.Runtime
 
         eMaterial = 19, //材质属性剪辑
         eProjecitle = 20, //弹道剪辑
-        eTween,
+        eTween = 21,
+        ePostProcess = 22,
 
         eCutsomBegin = 1000,
 	}

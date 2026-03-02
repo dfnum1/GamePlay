@@ -36,10 +36,10 @@ namespace Framework.ActorSystem.Runtime
         [DrawProps.Display("属性")] eActorAttr, //取属性值,参数1-敌/我，参数2-属性类型
     }
     //-----------------------------------------------------
-    //! ActorAttrDatas
+    //! ActorAttrData
     //-----------------------------------------------------
     [System.Serializable]
-    public abstract class AActorAttrDatas : ScriptableObject
+    public class AttrCoreData
     {
         [System.Serializable]
         public struct AttrInfo
@@ -63,7 +63,7 @@ namespace Framework.ActorSystem.Runtime
 #endif
                 public List<LambdaParam> subLambda;
             }
-            public byte labelId;
+            public int labelId;
             public byte applayAttr;
             public string name;
             public List<LambdaParam> vLambda;
@@ -73,6 +73,17 @@ namespace Framework.ActorSystem.Runtime
         }
         public AttrInfo[] vAttributes;
         public AttrFormula[] vFormulas;
+    }
+    //-----------------------------------------------------
+    //! ActorAttrDatas
+    //-----------------------------------------------------
+    [System.Serializable]
+    public abstract class AActorAttrDatas : ScriptableObject
+    {
+        public AttrCoreData.AttrInfo[] vAttributes;
+        public AttrCoreData.AttrFormula[] vFormulas;
+
+        public AttrCoreData data = new AttrCoreData();
     }
 #if UNITY_EDITOR
     [UnityEditor.CustomEditor(typeof(AActorAttrDatas))]

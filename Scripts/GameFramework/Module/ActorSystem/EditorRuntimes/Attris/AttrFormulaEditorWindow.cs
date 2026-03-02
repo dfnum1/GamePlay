@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using static Framework.ActorSystem.Runtime.AActorAttrDatas;
-using static Framework.ActorSystem.Runtime.AActorAttrDatas.AttrFormula;
+using static Framework.ActorSystem.Runtime.AttrCoreData.AttrFormula;
 namespace Framework.ActorSystem.Editor
 {
     public class AttrFormulaEditorWindow : EditorWindowBase
@@ -75,6 +75,12 @@ namespace Framework.ActorSystem.Editor
             window.m_Data = attriData;
             window.titleContent = new GUIContent("属性表达式编辑器", AssetUtil.LoadTexture("ActorSystem/actor_attris.png"));
             window.minSize = new Vector2(800, 500);
+
+            attriData.data = new AttrCoreData();
+            attriData.data.vAttributes = attriData.vAttributes;
+            attriData.data.vFormulas = attriData.vFormulas;
+            EditorUtility.SetDirty(attriData);
+            AssetDatabase.SaveAssetIfDirty(attriData);
         }
         //-----------------------------------------------------
         protected override void OnInnerGUI()
@@ -133,7 +139,7 @@ namespace Framework.ActorSystem.Editor
                 {
                     if (EditorUtility.DisplayDialog("确认删除", "确定要删除该属性吗？", "删除", "取消"))
                     {
-                        var list = new List<AttrInfo>(m_Data.vAttributes);
+                        var list = new List<AttrCoreData.AttrInfo>(m_Data.vAttributes);
                         list.RemoveAt(m_SelectedAttrIndex);
                         m_Data.vAttributes = list.ToArray();
                         m_SelectedAttrIndex = -1;
@@ -146,7 +152,7 @@ namespace Framework.ActorSystem.Editor
                 {
                     if (EditorUtility.DisplayDialog("确认删除", "确定要删除该表达式吗？", "删除", "取消"))
                     {
-                        var list = new List<AttrFormula>(m_Data.vFormulas);
+                        var list = new List<AttrCoreData.AttrFormula>(m_Data.vFormulas);
                         list.RemoveAt(m_SelectedFormulaIndex);
                         m_Data.vFormulas = list.ToArray();
                         m_SelectedFormulaIndex = -1;
@@ -172,7 +178,7 @@ namespace Framework.ActorSystem.Editor
         private void DrawAttrList()
         {
             if (m_Data.vAttributes == null)
-                m_Data.vAttributes = new AttrInfo[0];
+                m_Data.vAttributes = new AttrCoreData.AttrInfo[0];
 
             for (int i = 0; i < m_Data.vAttributes.Length; ++i)
             {
@@ -188,8 +194,8 @@ namespace Framework.ActorSystem.Editor
             }
             if (GUILayout.Button("添加属性"))
             {
-                var list = new List<AttrInfo>(m_Data.vAttributes);
-                var attr = new AttrInfo() { name = "新属性", desc = "" };
+                var list = new List<AttrCoreData.AttrInfo>(m_Data.vAttributes);
+                var attr = new AttrCoreData.AttrInfo() { name = "新属性", desc = "" };
                 byte newAttr = 0;
                 // 自动分配一个未使用的属性类型
                 bool bExist = true;
@@ -216,7 +222,7 @@ namespace Framework.ActorSystem.Editor
         private void DrawFormulaList()
         {
             if (m_Data.vFormulas == null)
-                m_Data.vFormulas = new AttrFormula[0];
+                m_Data.vFormulas = new AttrCoreData.AttrFormula[0];
 
             for (int i = 0; i < m_Data.vFormulas.Length; ++i)
             {
@@ -232,11 +238,34 @@ namespace Framework.ActorSystem.Editor
             }
             if (GUILayout.Button("添加表达式"))
             {
-                var list = new List<AttrFormula>(m_Data.vFormulas);
-                list.Add(new AttrFormula() { name = "新表达式", vLambda = new List<LambdaParam>() });
+                var list = new List<AttrCoreData.AttrFormula>(m_Data.vFormulas);
+                var formula = new AttrCoreData.AttrFormula() { name = "新表达式", vLambda = new List<LambdaParam>() };
+                formula.labelId = NewFormulaID();
+                list.Add(formula);
                 m_Data.vFormulas = list.ToArray();
                 m_SelectedFormulaIndex = m_Data.vFormulas.Length - 1;
             }
+        }
+        //-----------------------------------------------------
+        internal int NewFormulaID()
+        {
+            int id = 1;
+            HashSet<int> vGp = new HashSet<int>();
+            if (m_Data.vFormulas != null)
+            {
+                foreach (var db in m_Data.vFormulas)
+                {
+                    vGp.Add(db.labelId);
+                }
+            }
+            int stackCnt = int.MaxValue-1;
+            while (vGp.Contains(id))
+            {
+                id++;
+                stackCnt--;
+                if (stackCnt <= 0) break;
+            }
+            return id;
         }
         //-----------------------------------------------------
         private void DrawAttrEdit()
@@ -278,6 +307,9 @@ namespace Framework.ActorSystem.Editor
                 return;
             }
             var formula = m_Data.vFormulas[m_SelectedFormulaIndex];
+            EditorGUI.BeginDisabledGroup(true);
+            formula.labelId = (byte)EditorGUILayout.IntField("标签ID", formula.labelId);
+            EditorGUI.EndDisabledGroup();
             formula.name = EditorGUILayout.TextField("表达式名", formula.name);
 
             int curIndex = 0;

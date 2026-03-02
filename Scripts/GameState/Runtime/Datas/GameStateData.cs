@@ -95,7 +95,6 @@ namespace Framework.State.Runtime
                 if (stackCnt <= 0) break;
             }
             return id;
-
         }
 #endif
     }
