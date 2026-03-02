@@ -112,26 +112,26 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(977072972,"同步创建Actor",typeof(Framework.ActorSystem.Runtime.ActorManager),false)]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pData",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"userVariable",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nodeID",false, null,typeof(System.Int32))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pData",false, null,typeof(Framework.ActorSystem.Runtime.IActorContextData))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"userVariable",false, null,typeof(Framework.Base.IVarData))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"actorId",false, null,typeof(System.Int32))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
-		static bool AT_CreateActor(ActorManager pPointerThis,Framework.ActorSystem.Runtime.IActorContextData pData,Framework.Base.IVarData userVariable,System.Int32 nodeID,AgentTree pAgentTree, BaseNode pNode)
+		static bool AT_CreateActor(ActorManager pPointerThis,Framework.ActorSystem.Runtime.IActorContextData pData,Framework.Base.IVarData userVariable,System.Int32 actorId,AgentTree pAgentTree, BaseNode pNode)
 		{
-			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.CreateActor(pData,userVariable,nodeID));
+			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.CreateActor(pData,userVariable,actorId));
 			return true;
 		}
 #if UNITY_EDITOR
 		[ATFunction(1895192195,"异步创建Actor",typeof(Framework.ActorSystem.Runtime.ActorManager),false)]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nodeID",false, null,typeof(System.Int32))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pData",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"userVariable",false, null,typeof(Framework.ActorSystem.Runtime.IContextData))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pData",false, null,typeof(Framework.ActorSystem.Runtime.IActorContextData))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"userVariable",false, null,typeof(Framework.Base.IVarData))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"actorId",false, null,typeof(System.Int32))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
-		static bool AT_AsyncCreateActor(ActorManager pPointerThis,System.Int32 nodeID,Framework.ActorSystem.Runtime.IActorContextData pData, Framework.Base.IVarData userVariable,AgentTree pAgentTree, BaseNode pNode)
+		static bool AT_AsyncCreateActor(ActorManager pPointerThis,Framework.ActorSystem.Runtime.IActorContextData pData,Framework.Base.IVarData userVariable,System.Int32 actorId,AgentTree pAgentTree, BaseNode pNode)
 		{
-			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.AsyncCreateActor(pData,userVariable, nodeID));
+			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.AsyncCreateActor(pData,userVariable,actorId));
 			return true;
 		}
 #if UNITY_EDITOR
@@ -265,7 +265,7 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 3) return true;
 				Framework.ActorSystem.Runtime.ActorManager pModulePointer = pAgentTree.GetModule<Framework.ActorSystem.Runtime.ActorManager>();
 				if(pModulePointer == null) return true;
-				return AT_AsyncCreateActor(pModulePointer,pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IActorContextData>(pNode,2),pAgentTree.GetInportUserData<Framework.Base.IVarData>(pNode,3), pAgentTree, pNode);
+				return AT_AsyncCreateActor(pModulePointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.IActorContextData>(pNode,1),pAgentTree.GetInportUserData<Framework.Base.IVarData>(pNode,2),pAgentTree.GetInportInt(pNode,3), pAgentTree, pNode);
 			}
 			case -1912114985://GetActor
 			{
