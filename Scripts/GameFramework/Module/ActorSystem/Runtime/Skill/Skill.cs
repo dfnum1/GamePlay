@@ -34,10 +34,16 @@ namespace Framework.ActorSystem.Runtime
 
         protected long              m_LastTriggerTime = 0;
         protected int               m_nTriggerCount  =0;
+        protected int               m_nContinueTriggerCount = 0;
         protected int               m_nAttrFormulaType = 0;
+
+        protected byte              m_nCostAttrType = 0;
+        protected FFloat            m_CostAttrValue = 0;
 
         protected bool              m_bActived = false;
         protected SkillSystem       m_pOwner = null;
+
+        private bool                m_bPreCanTrigger = false;
         //-----------------------------------------------------
         public Skill()
         {
@@ -102,6 +108,16 @@ namespace Framework.ActorSystem.Runtime
             m_LastTriggerTime = GetActorManager().GetRunTime();
         }
         //-----------------------------------------------------
+        internal void AddContinueTrigger()
+        {
+            m_nContinueTriggerCount++;
+        }
+        //-----------------------------------------------------
+        internal void ClearContinueTrigger()
+        {
+            m_nContinueTriggerCount = 0;
+        }
+        //-----------------------------------------------------
         public float GetRuntimeNormalCD()
         {
             if (GetConfigCD() <= 0)
@@ -138,6 +154,18 @@ namespace Framework.ActorSystem.Runtime
             return m_pConfigData;
         }
         //-----------------------------------------------------
+        [ATMethod("获取总共触发次数")]
+        public int GetTriggerCount()
+        {
+            return m_nTriggerCount;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取连续触发次数")]
+        public int GetContinueTriggerCount()
+        {
+            return m_nContinueTriggerCount;
+        }
+        //-----------------------------------------------------
         [ATMethod("是否可触发")]
         public bool CanTrigger()
         {
@@ -170,7 +198,7 @@ namespace Framework.ActorSystem.Runtime
             ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
             if(pAT!=null)
             {
-                VariableList argvs = VariableList.Malloc();
+                VariableList argvs = VariableList.Malloc(GetFramework());
                 argvs.AddUserData(this);
                 pAT.ExecuteTask((int)EActorATType.onLockTarget, argvs);
             }
@@ -183,7 +211,23 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         protected virtual bool CheckCanTrigger() 
         {
-            return true;
+            m_bPreCanTrigger = true;
+            Actor pOwner = GetActor();
+            if (pOwner == null) return false;
+            ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
+            if (pAT != null)
+            {
+                VariableList argvs = VariableList.Malloc(GetFramework());
+                argvs.AddUserData(this);
+                pAT.ExecuteTask((int)EActorATType.onPreDoSkillCheck, argvs);
+            }
+            return m_bPreCanTrigger;
+        }
+        //-----------------------------------------------------
+        [ATMethod("更新前置触发判定标志")]
+        public virtual void SetPreCanTrigger(bool bCanTrigger)
+        {
+            m_bPreCanTrigger = bCanTrigger;
         }
         //-----------------------------------------------------
         [ATMethod("获取CD时长(ms)")]
@@ -217,13 +261,37 @@ namespace Framework.ActorSystem.Runtime
             m_nActionTag = nTag;
         }
         //-----------------------------------------------------
-        [ATMethod("获取属性计算公式")]
+        [ATMethod("获取消耗属性"), ATArgvDrawer("#return#", "DrawAttributePop")]
+        public byte GetCostAttrType()
+        {
+            return m_nCostAttrType;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取消耗属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        public void SetCostAttrType(byte type)
+        {
+            m_nCostAttrType = type;
+        }
+        //-----------------------------------------------------
+        [ATMethod("设置消耗值")]
+        public void SetCostAttrType(FFloat value)
+        {
+            m_CostAttrValue = value;
+        }
+        //-----------------------------------------------------
+        [ATMethod("设置消耗值")]
+        public FFloat GetCostAttrValue()
+        {
+            return m_CostAttrValue;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取属性计算公式"), ATArgvDrawer("#return#", "DrawFormulaTypePop")]
         public int GetAttrFormulaType()
         {
             return m_nAttrFormulaType;
         }
         //-----------------------------------------------------
-        [ATMethod("设置属性计算公式")]
+        [ATMethod("设置属性计算公式"), ATArgvDrawer("type", "DrawFormulaTypePop")]
         public void SetAttrFormulaType(int type)
         {
             m_nAttrFormulaType = type;
@@ -234,6 +302,7 @@ namespace Framework.ActorSystem.Runtime
             m_pOwner = null;
             m_pConfigData = null;
             m_bActived = false;
+            m_bPreCanTrigger = false;
             m_nSkillID = 0;
             m_LastTriggerTime = 0;
             m_nTriggerCount = 0;

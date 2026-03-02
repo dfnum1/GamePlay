@@ -212,7 +212,7 @@ namespace Framework.Cutscene.Runtime
             if (graphData.agentTree != null && graphData.agentTree.IsValid())
             {
                 m_pAgentTree = AgentTreePool.MallocAgentTree(GetFramework());
-                //    m_pAgentTree.SetCutscene(this);
+                //    m_pMainAgentTree.SetCutscene(this);
                 if (!m_pAgentTree.Create(graphData.agentTree))
                 {
                     AgentTreePool.FreeAgentTree(m_pAgentTree);
@@ -660,7 +660,7 @@ namespace Framework.Cutscene.Runtime
         {
             if (m_pAgentTree != null)
             {
-                var argvs = VariableList.Malloc();
+                var argvs = VariableList.Malloc(GetFramework());
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayableStopedCallback, argvs);
@@ -678,7 +678,7 @@ namespace Framework.Cutscene.Runtime
         {
             if(m_pAgentTree!=null)
             {
-                var argvs = VariableList.Malloc();
+                var argvs = VariableList.Malloc(GetFramework());
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayablePlayedCallback, argvs);
@@ -696,7 +696,7 @@ namespace Framework.Cutscene.Runtime
         {
             if (m_pAgentTree != null)
             {
-                var argvs = VariableList.Malloc();
+                var argvs = VariableList.Malloc(GetFramework());
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayablePauseCallback, argvs);
@@ -714,7 +714,7 @@ namespace Framework.Cutscene.Runtime
         {
             if (m_pAgentTree != null)
             {
-                var argvs = VariableList.Malloc();
+                var argvs = VariableList.Malloc(GetFramework());
                 argvs.AddInt(GetGUID());
                 argvs.AddInt(playable.GetId());
                 m_pAgentTree.ExecuteTask((int)ECutsceneATTaskType.eCutscenePlayableResumeCallback, argvs);

@@ -19,10 +19,15 @@ using UnityEngine.UIElements;
 namespace Framework.ActorSystem.Editor
 {
     [ATDrawer("DrawAttributePop", "OnDrawAttributePop")]
+    [ATDrawer("DrawFormulaTypePop", "OnDrawFormulaTypePop")]
     public class AttriCustomDrawer
     {
         static List<byte> ms_vAttris =  null;
         static List<string> ms_vAttriPops = null;
+
+        static List<byte> ms_vFormulaTypes = null;
+        static List<string> ms_vFormulaTypePops = null;
+
         static void Init()
         {
             if (ms_vAttris != null && ms_vAttriPops != null)
@@ -37,10 +42,18 @@ namespace Framework.ActorSystem.Editor
                 {
                     ms_vAttris = new List<byte>();
                     ms_vAttriPops = new List<string>();
+                    ms_vFormulaTypes = new List<byte>();
+                    ms_vFormulaTypePops = new List<string>();
                     for (int i = 0; i < pData.vAttributes.Length; ++i)
                     {
                         var pAttri = pData.vAttributes[i];
                         ms_vAttris.Add(pAttri.attr);
+                        ms_vAttriPops.Add(pAttri.name);
+                    }
+                    for (int i = 0; i < pData.vFormulas.Length; ++i)
+                    {
+                        var pAttri = pData.vFormulas[i];
+                        ms_vFormulaTypes.Add(pAttri.labelId);
                         ms_vAttriPops.Add(pAttri.name);
                     }
                 }
@@ -75,6 +88,41 @@ namespace Framework.ActorSystem.Editor
                 if (idx >= 0)
                 {
                     intVar.value = ms_vAttris[idx];
+                    onValueChanged?.Invoke(intVar);
+                }
+            });
+
+            return popup;
+        }
+        //----------------------------------------
+        internal static VisualElement OnDrawFormulaTypePop(ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            if (portValue == null || portValue.GetVariableType() != EVariableType.eInt)
+                return null;
+            Init();
+            bool canEdit = port.attri.canEdit;
+
+            var intVar = (AT.Runtime.VariableInt)portValue;
+            int curIndex = ms_vAttris.IndexOf((byte)intVar.value);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(ms_vFormulaTypePops, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = ms_vFormulaTypePops.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    intVar.value = ms_vFormulaTypes[idx];
                     onValueChanged?.Invoke(intVar);
                 }
             });

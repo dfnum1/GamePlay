@@ -5,6 +5,7 @@
 描    述:	自定义剪辑类型
 *********************************************************************/
 using Framework.AT.Runtime;
+using Framework.Core;
 using Framework.DrawProps;
 using UnityEngine;
 

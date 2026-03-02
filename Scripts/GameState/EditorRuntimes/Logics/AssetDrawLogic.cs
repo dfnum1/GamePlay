@@ -7,6 +7,7 @@
 #if UNITY_EDITOR
 using Framework.ED;
 using Framework.State.Runtime;
+using PlasticGui.Configuration.CloudEdition.Welcome;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -86,7 +87,7 @@ namespace Framework.State.Editor
 
         bool m_bItemRightPop = false;
         Framework.ED.TreeAssetView m_pGameEleTree = null;
-        Framework.ED.TreeAssetView.ItemData m_pSelectGameElement = null;
+        Framework.ED.TreeAssetView m_pAgentLibraryTree = null;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
@@ -101,9 +102,20 @@ namespace Framework.State.Editor
             m_pGameEleTree.OnItemDoubleClick += OnGameElementSelect;
             m_pGameEleTree.OnItemRightClick += OnGameElementRightClick;
             m_pGameEleTree.OnViewRightClick += OnGameViewRightClick;
+
+            m_pAgentLibraryTree = new TreeAssetView(new string[] { "" });
+            m_pAgentLibraryTree.SetRowHeight(25);
+            m_pAgentLibraryTree.buildMutiColumnDepth = true;
+            m_pAgentLibraryTree.DepthIndentWidth = 10;
+            m_pAgentLibraryTree.ShowAlternatingRowBackgrounds(false);
+            m_pAgentLibraryTree.Reload();
+            m_pAgentLibraryTree.OnCellDraw += OnGameElementDraw;
+            m_pAgentLibraryTree.OnSelectChange += OnGameElementSelect;
+            m_pAgentLibraryTree.OnItemDoubleClick += OnGameElementSelect;
+            m_pAgentLibraryTree.OnItemRightClick += OnGameElementRightClick;
+            m_pAgentLibraryTree.OnViewRightClick += OnGameViewRightClick;
             RefreshGameElements();
         }
-
         //--------------------------------------------------------
         protected override void OnGUI()
         {
@@ -179,9 +191,6 @@ namespace Framework.State.Editor
                 m_pGameEleTree.GetColumn(0).width = rect.width-5;
                 m_pGameEleTree.OnGUI(new Rect(0, 0, rect.width, rect.height - 30));
             }
-            var worldObj = GetObject<AGameWorldObject>();
-            if (worldObj == null)
-                return;
         }
         //--------------------------------------------------------
         public override void OnRefreshData(object pData)
@@ -205,50 +214,65 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void RefreshGameElements()
         {
-            if (m_pGameEleTree == null)
-                return;
-
             var worldObj = GetWorldData();
-            m_pGameEleTree.BeginTreeData();
-            if (worldObj != null)
+            if (m_eTab == ETab.GameElement)
             {
-                int id = 0;
-                if(worldObj.atData !=null)
+                if (m_pGameEleTree == null) return;
+                m_pGameEleTree.BeginTreeData();
+                if (worldObj != null)
                 {
-                    m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.atData, name = "逻辑蓝图", depth = 0 });
-                }
-                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameStateData, name = worldObj.gameStateData.name, depth =0 });
-                if(worldObj.modeDatas!=null)
-                {
-                    foreach(var db in worldObj.modeDatas)
+                    int id = 0;
+                    if (worldObj.atData != null)
                     {
-                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = db, name = db.name, depth = 1 });
-                        if(db.modeLogics!=null)
+                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.atData, name = "逻辑蓝图", depth = 0 });
+                    }
+                    m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameStateData, name = worldObj.gameStateData.name, depth = 0 });
+                    if (worldObj.modeDatas != null)
+                    {
+                        foreach (var db in worldObj.modeDatas)
                         {
-                            foreach(var logic in db.modeLogics)
+                            m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = db, name = db.name, depth = 1 });
+                            if (db.modeLogics != null)
                             {
-                                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 2 });
+                                foreach (var logic in db.modeLogics)
+                                {
+                                    m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 2 });
+                                }
                             }
                         }
                     }
-                }
-                if (worldObj.gameStateData.stateLogics != null)
-                {
-                    foreach (var logic in worldObj.gameStateData.stateLogics)
+                    if (worldObj.gameStateData.stateLogics != null)
                     {
-                        m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 1 });
+                        foreach (var logic in worldObj.gameStateData.stateLogics)
+                        {
+                            m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = logic, name = StateEditorUtil.GetStateWorldTypeName(logic.logicType), depth = 1 });
+                        }
+                    }
+                    if (worldObj.gameLevel == null)
+                    {
+                        worldObj.gameLevel = new GameLevelData();
+                        worldObj.gameLevel.name = "游戏玩法配置数据";
+                    }
+                    m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameLevel, name = worldObj.gameLevel.name, depth = 0 });
+                }
+                else
+                    m_pGameEleTree.AddData(new GameElementItem() { id = 0, bindData = new GameStateData() { name = "游戏状态" }, name = "游戏状态" });
+                m_pGameEleTree.EndTreeData();
+            }
+            else if(m_eTab == ETab.AgentLibrary)
+            {
+                if (m_pAgentLibraryTree == null) return;
+                int id = 0;
+                m_pAgentLibraryTree.BeginTreeData();
+                if (worldObj != null && worldObj.warAgents!=null)
+                {
+                    foreach (var db in worldObj.warAgents)
+                    {
+                        m_pAgentLibraryTree.AddData(new GameElementItem() { id = ++id, bindData = db, name = db.name, depth = 1 });
                     }
                 }
-                if (worldObj.gameLevel == null)
-                {
-                    worldObj.gameLevel = new GameLevelData();
-                    worldObj.gameLevel.name = "游戏玩法配置数据";
-                }
-                m_pGameEleTree.AddData(new GameElementItem() { id = ++id, bindData = worldObj.gameLevel, name = worldObj.gameLevel.name, depth = 0 });
+                m_pAgentLibraryTree.EndTreeData();
             }
-            else
-                m_pGameEleTree.AddData(new GameElementItem() { id = 0, bindData = new GameStateData() { name = "游戏状态" }, name = "游戏状态" });
-            m_pGameEleTree.EndTreeData();
         }
         //--------------------------------------------------------
         bool OnGameElementDraw(Framework.ED.TreeAssetView.RowArgvData rowData)
@@ -282,7 +306,6 @@ namespace Framework.State.Editor
         void OnGameElementSelect(Framework.ED.TreeAssetView.ItemData itemData)
         {
             var gameItem = itemData as GameElementItem;
-            m_pSelectGameElement = gameItem;
             GetOwner<GameWorldEditor>()?.OnGameItemSelected(gameItem.bindData);
         }
         //--------------------------------------------------------
@@ -303,112 +326,172 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void DrawGameAgnets(Rect rect)
         {
-
+            if (m_pAgentLibraryTree != null)
+            {
+                m_pAgentLibraryTree.GetColumn(0).width = rect.width - 5;
+                m_pAgentLibraryTree.OnGUI(new Rect(0, 0, rect.width, rect.height - 30));
+            }
         }
         //--------------------------------------------------------
         void PopMenu(System.Object bindData)
         {
             GenericMenu menu = new GenericMenu();
-            if(bindData!=null)
+            if(m_eTab == ETab.GameElement)
             {
-                if (bindData is GameStateData)
+                if (bindData != null)
                 {
-                    //! 弹出右键菜单创建游戏模式
-                    menu.AddItem(new GUIContent("添加玩法模式"), false, (menuData) => {
-                        MenuContextData data = (MenuContextData)menuData;
-                        GameModeTypeProvider.PopSearch(data.mousePosition, (cls, index) =>
-                        {
-                            var worldData = GetWorldData();
-                            if (worldData.modeDatas == null)
+                    if (bindData is GameStateData)
+                    {
+                        //! 弹出右键菜单创建游戏模式
+                        menu.AddItem(new GUIContent("添加玩法模式"), false, (menuData) => {
+                            MenuContextData data = (MenuContextData)menuData;
+                            GameModeTypeProvider.PopSearch(data.mousePosition, (cls, index) =>
                             {
-                                worldData.modeDatas = new System.Collections.Generic.List<GameStateModeData>();
-                            }
-                            bool bHasMode = false;
-                            for (int i = 0; i < worldData.modeDatas.Count; ++i)
-                            {
-                                if (worldData.modeDatas[i].modeType == cls)
+                                var worldData = GetWorldData();
+                                if (worldData.modeDatas == null)
                                 {
-                                    bHasMode = true;
-                                    break;
+                                    worldData.modeDatas = new System.Collections.Generic.List<GameStateModeData>();
+                                }
+                                bool bHasMode = false;
+                                for (int i = 0; i < worldData.modeDatas.Count; ++i)
+                                {
+                                    if (worldData.modeDatas[i].modeType == cls)
+                                    {
+                                        bHasMode = true;
+                                        break;
+                                    }
+                                }
+                                if (!bHasMode)
+                                {
+                                    UndoRegister(true);
+                                    GameStateModeData modeData = new GameStateModeData();
+                                    modeData.modeType = cls;
+                                    modeData.name = StateEditorUtil.GetStateWorldTypeName(cls);
+                                    worldData.modeDatas.Add(modeData);
+                                    RefreshGameElements();
+                                }
+                            }, -1);
+                        }, new MenuContextData(bindData, Event.current.mousePosition));
+
+                    }
+                    if (bindData is GameStateModeData)
+                    {
+                        //! 弹出右键菜单创建游戏模式
+                        menu.AddItem(new GUIContent("删除模式"), false, (menuData) => {
+                            MenuContextData data = (MenuContextData)menuData;
+                            if (data.bindData != null)
+                            {
+                                var worldData = GetWorldData();
+                                if (worldData.modeDatas != null)
+                                {
+                                    if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
+                                    {
+                                        UndoRegister(true);
+                                        //! 添加undo
+                                        GameStateModeData gameData = data.bindData as GameStateModeData;
+                                        worldData.modeDatas.Remove(gameData);
+                                        RefreshGameElements();
+                                    }
                                 }
                             }
-                            if (!bHasMode)
+                        }, new MenuContextData(bindData, Event.current.mousePosition));
+                    }
+                    if (bindData is GameStateLogicData)
+                    {
+                        //! 弹出右键菜单创建游戏模式
+                        menu.AddItem(new GUIContent("删除逻辑"), false, (menuData) => {
+                            MenuContextData data = (MenuContextData)menuData;
+                            if (data.bindData != null)
                             {
-                                UndoRegister(true);
-                                GameStateModeData modeData = new GameStateModeData();
-                                modeData.modeType = cls;
-                                modeData.name = StateEditorUtil.GetStateWorldTypeName(cls);
-                                worldData.modeDatas.Add(modeData);
-                                RefreshGameElements();
+                                var worldData = GetWorldData();
+                                if (worldData.modeDatas != null)
+                                {
+                                    if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
+                                    {
+                                        GameStateLogicData logic = data.bindData as GameStateLogicData;
+                                        if (worldData.gameStateData.stateLogics != null && worldData.gameStateData.stateLogics.Contains(logic))
+                                        {
+                                            UndoRegister(true);
+                                            worldData.gameStateData.stateLogics.Remove(logic);
+                                            RefreshGameElements();
+                                        }
+                                        if (worldData.modeDatas != null && worldData.gameStateData.stateLogics.Contains(logic))
+                                        {
+                                            foreach (var mode in worldData.modeDatas)
+                                            {
+                                                if (mode.modeLogics != null && mode.modeLogics.Contains(logic))
+                                                {
+                                                    UndoRegister(true);
+                                                    mode.modeLogics.Remove(logic);
+                                                    RefreshGameElements();
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        }, -1);
-                    }, new MenuContextData(bindData, Event.current.mousePosition));
-
+                        }, new MenuContextData(bindData, Event.current.mousePosition));
+                    }
                 }
-                if (bindData is GameStateModeData)
+            }
+            else if(m_eTab == ETab.AgentLibrary)
+            {
+                if (bindData is GameAgentData)
                 {
-                    //! 弹出右键菜单创建游戏模式
-                    menu.AddItem(new GUIContent("删除模式"), false, (menuData) => {
+                    menu.AddItem(new GUIContent("删除蓝图"), false, (menuData) => {
                         MenuContextData data = (MenuContextData)menuData;
                         if (data.bindData != null)
                         {
                             var worldData = GetWorldData();
-                            if (worldData.modeDatas != null)
+                            if (worldData.warAgents != null)
                             {
-                                if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
+                                if (EditorUtility.DisplayDialog("提示", "确定是否删除该蓝图逻辑", "删除", "再想想"))
                                 {
                                     UndoRegister(true);
                                     //! 添加undo
-                                    GameStateModeData gameData = data.bindData as GameStateModeData;
-                                    worldData.modeDatas.Remove(gameData);
+                                    GameAgentData gameData = data.bindData as GameAgentData;
+                                    worldData.warAgents.Remove(gameData);
+
+                                    //! 关联的蓝图配置也需要一并删除
+                                    GetLevelCfgEditor()?.OnRemoveWorldItem(gameData);
+
                                     RefreshGameElements();
                                 }
                             }
                         }
                     }, new MenuContextData(bindData, Event.current.mousePosition));
                 }
-                if (bindData is GameStateLogicData)
+                menu.AddItem(new GUIContent("创建蓝图"), false, () =>
                 {
-                    //! 弹出右键菜单创建游戏模式
-                    menu.AddItem(new GUIContent("删除逻辑"), false, (menuData) => {
-                        MenuContextData data = (MenuContextData)menuData;
-                        if (data.bindData != null)
-                        {
-                            var worldData = GetWorldData();
-                            if (worldData.modeDatas != null)
-                            {
-                                if (EditorUtility.DisplayDialog("提示", "确定是否删除该玩法模式", "删除", "再想想"))
-                                {
-                                    GameStateLogicData logic = data.bindData as GameStateLogicData;
-                                    if(worldData.gameStateData.stateLogics!=null && worldData.gameStateData.stateLogics.Contains(logic))
-                                    {
-                                        UndoRegister(true);
-                                        worldData.gameStateData.stateLogics.Remove(logic);
-                                        RefreshGameElements();
-                                    }
-                                    if (worldData.modeDatas != null && worldData.gameStateData.stateLogics.Contains(logic))
-                                    {
-                                        foreach(var mode in worldData.modeDatas)
-                                        {
-                                            if(mode.modeLogics!=null && mode.modeLogics.Contains(logic))
-                                            {
-                                                UndoRegister(true);
-                                                mode.modeLogics.Remove(logic);
-                                                RefreshGameElements();
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }, new MenuContextData(bindData, Event.current.mousePosition));
-                }
+                    UndoRegister(true);
+                    var worldData = GetWorldData();
+                    GameAgentData agentData = new GameAgentData();
+                    agentData.name = "蓝图NEW";
+                    agentData.agentId = worldData.NewWarAgentID();
+                    if (worldData.warAgents == null) worldData.warAgents = new System.Collections.Generic.List<GameAgentData>();
+                    worldData.warAgents.Add(agentData);
+
+                    RefreshGameElements();
+                });
             }
-            menu.AddItem(new GUIContent("刷新"), false, () => {
+            menu.AddItem(new GUIContent("刷新"), false, () =>
+            {
                 RefreshGameElements();
             });
             menu.ShowAsContext();
+        }
+        //--------------------------------------------------------
+        public AGameEditor GetLevelCfgEditor()
+        {
+            var worldData = GetWorldData();
+            if (worldData == null || worldData.gameLevel == null)
+                return null;
+
+            AGameCfgData cfgData = worldData.gameLevel.GetGameData<AGameCfgData>(GetFramework());
+            if (cfgData == null)
+                return null;
+            return cfgData.GetEditor(GetOwner());
         }
     }
 }

@@ -76,6 +76,27 @@ namespace Framework.State.Runtime
             if(gameLevel!=null) gameLevel.Serialize();
             return JsonUtility.ToJson(this, true);
         }
+        internal ushort NewWarAgentID()
+        {
+            ushort id = 1;
+            HashSet<ushort> vGp = new HashSet<ushort>();
+            if (warAgents != null)
+            {
+                foreach (var db in warAgents)
+                {
+                    vGp.Add(db.agentId);
+                }
+            }
+            int stackCnt = 65535;
+            while (vGp.Contains(id))
+            {
+                id++;
+                stackCnt--;
+                if (stackCnt <= 0) break;
+            }
+            return id;
+
+        }
 #endif
     }
 }

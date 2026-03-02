@@ -12,7 +12,9 @@ using Microsoft.International.Converters.PinYinConverter;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 namespace Framework.ED
@@ -298,6 +300,7 @@ namespace Framework.ED
         //------------------------------------------------------
         public static void Destroy(UnityEngine.Object go)
         {
+            if (go == null) return;
             if (Application.isPlaying) UnityEngine.Object.Destroy(go);
             else UnityEngine.Object.DestroyImmediate(go);
         }
@@ -1019,6 +1022,79 @@ namespace Framework.ED
             var method = audioUtilClass.GetMethod("StopAllClips", BindingFlags.Static | BindingFlags.Public);
             if (method == null) return;
             method.Invoke(null, null);
+        }
+        //------------------------------------------------------
+        public static string FindScriptFilePath(Type classType)
+        {
+            if (classType == null)
+                return "";
+            string[] guids = AssetDatabase.FindAssets($"{classType.Name} t:Script");
+            string filePath = null;
+            if (guids.Length == 1)
+            {
+                filePath = AssetDatabase.GUIDToAssetPath(guids[0]);
+            }
+            else
+            {
+                foreach (var g in guids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(g);
+                    if (string.IsNullOrEmpty(path) || !path.EndsWith(".cs"))
+                        continue;
+                    var lines = System.IO.File.ReadAllLines(path);
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains($"class {classType.Name}") || line.Contains($"struct {classType.Name}"))
+                        {
+                            if (string.IsNullOrEmpty(classType.Namespace) || lines.Any(l => l.Contains($"namespace {classType.Namespace}")))
+                            {
+                                filePath = path;
+                                break;
+                            }
+                        }
+                    }
+                    if (filePath != null)
+                        break;
+                }
+            }
+            return filePath;
+        }
+        //------------------------------------------------------
+        public static bool TryGetClassFileInfo(Type classType, out string filePath, out string createDate, out string author, out string desc)
+        {
+            filePath = createDate = author = desc = null;
+            if (classType == null)
+                return false;
+
+            filePath = FindScriptFilePath(classType);
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                return false;
+
+            // 2. 读取文件头部注释
+            var lines = File.ReadAllLines(filePath);
+            var header = string.Join("\n", lines, 0, Math.Min(30, lines.Length)); // 只取前10行
+                                                                                  // 3. 正则提取
+            createDate = Regex.Match(header, @"生成日期[:：]\s*([^\r\n]+)").Groups[1].Value.Trim();
+            author = Regex.Match(header, @"作[\s_]*者[:：]\s*([^\r\n]+)").Groups[1].Value.Trim();
+            // 多行描述匹配
+            var descMatch = Regex.Match(header, @"描[\s_]*述[:：]\s*((?:.|\n)*?)(?:\*{5,}|$)", RegexOptions.Singleline);
+            if (descMatch.Success)
+            {
+                // 拿到原始描述内容
+                var rawDesc = descMatch.Groups[1].Value;
+                // 按行分割，去除每行前后空白和注释符号
+                var descLines = rawDesc.Split('\n')
+                    .Select(l => l.Trim().TrimStart('*').Trim())
+                    .Where(l => !string.IsNullOrEmpty(l))
+                    .ToArray();
+                desc = string.Join("\n", descLines);
+            }
+            else
+            {
+                desc = "";
+            }
+
+            return true;
         }
     }
     //------------------------------------------------------

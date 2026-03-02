@@ -5,17 +5,16 @@
 描    述:	世界逻辑蓝图数据体
 *********************************************************************/
 using Framework.AT.Runtime;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Framework.DrawProps;
 
 namespace Framework.State.Runtime
 {
     public class GameAgentData :IGameWorldItem
     {
-        public int agentId =0;
+        [UnEdit]public ushort agentId =0;
         public AgentTreeData atData;
 #if UNITY_EDITOR
+        public string name = "";
         public string strDesc = "";
 #endif
     }

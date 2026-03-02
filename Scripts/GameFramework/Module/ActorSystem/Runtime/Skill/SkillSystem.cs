@@ -143,10 +143,21 @@ namespace Framework.ActorSystem.Runtime
             {
                 if (pAction != null) m_pOwner.StartActionState(pAction, pStateParam:pSkill);
                 pSkill.SetUsed();
-                if (pAction != null) m_pCurrentSkill = pSkill;
+                if (pAction != null)
+                {
+                    if(m_pCurrentSkill!= pSkill)
+                    {
+                        if (m_pCurrentSkill != null) m_pCurrentSkill.ClearContinueTrigger();
+                    }
+                    m_pCurrentSkill = pSkill;
+                }
                 else
                 {
                     m_nNoActionSkillClear = 0;
+                    if(m_pNoActionCurrentSkill!= pSkill)
+                    {
+                        if (m_pNoActionCurrentSkill != null) m_pNoActionCurrentSkill.ClearContinueTrigger();
+                    }
                     m_pNoActionCurrentSkill = pSkill;
                 }
                 m_pOwner.GetAgent<ActorAgentTree>()?.OnSkill(pSkill);

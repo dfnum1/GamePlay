@@ -76,6 +76,10 @@ namespace Framework.ActorSystem.Runtime
         [Return("技能", typeof(Skill))]
         onLockTarget = 84,
 
+        [AT.Runtime.ATAction("回调/技能释放前置判定", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_pretrigger_check")]
+        [Return("技能", typeof(Skill))]
+        onPreDoSkillCheck = 85,
+
         [AT.Runtime.ATAction("回调/着陆回调",true, false, true), AT.Runtime.ATIcon("ActorSystem/on_ground")] 
         onGround,
     }

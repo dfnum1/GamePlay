@@ -5,6 +5,7 @@
 描    述:	过场动画可播放对象
 *********************************************************************/
 using Framework.AT.Runtime;
+using Framework.Core;
 using System.Collections.Generic;
 using System.Dynamic;
 using UnityEngine;
@@ -75,6 +76,12 @@ namespace Framework.Cutscene.Runtime
         public CutsceneInstance GetCutscene()
         {
             return m_pCutscene;
+        }
+        //-----------------------------------------------------
+        public AFramework GetFramework()
+        {
+            if (m_pCutscene != null) return m_pCutscene.GetFramework();
+            return null;
         }
         //-----------------------------------------------------
         internal bool CanPlayable(EDataType dataType, IDataer pDater)
@@ -619,7 +626,7 @@ namespace Framework.Cutscene.Runtime
             }
             BindTrackData newBind = new BindTrackData();
             newBind.dater = null;
-            newBind.outputDatas = VariableList.Malloc(2);
+            newBind.outputDatas = VariableList.Malloc(GetFramework(),2);
             newBind.outputDatas.AddVariable(pData);
             tracks.Add(newBind);
         }
@@ -649,7 +656,7 @@ namespace Framework.Cutscene.Runtime
             }
             BindTrackData newBind = new BindTrackData();
             newBind.dater = null;
-            newBind.outputDatas = VariableList.Malloc(2);
+            newBind.outputDatas = VariableList.Malloc(GetFramework(), 2);
             newBind.outputDatas.AddVariable(strData);
             tracks.Add(newBind);
         }
@@ -679,7 +686,7 @@ namespace Framework.Cutscene.Runtime
             }
             BindTrackData newBind = new BindTrackData();
             newBind.dater = null;
-            newBind.outputDatas = VariableList.Malloc(2);
+            newBind.outputDatas = VariableList.Malloc(GetFramework(), 2);
             newBind.outputDatas.AddVariable(pData);
             tracks.Add(newBind);
         }
@@ -864,7 +871,7 @@ namespace Framework.Cutscene.Runtime
             }
             else
             {
-                pVarList = VariableList.Malloc(1);
+                pVarList = VariableList.Malloc(GetFramework(), 1);
                 m_vOutputVariables[key] = pVarList;
             }
 
@@ -891,7 +898,7 @@ namespace Framework.Cutscene.Runtime
             }
             else
             {
-                pVarList = VariableList.Malloc(1);
+                pVarList = VariableList.Malloc(GetFramework(), 1);
                 m_vOutputVariables[key] = pVarList;
             }
 
@@ -935,7 +942,7 @@ namespace Framework.Cutscene.Runtime
                         }
                         BindTrackData bind = new BindTrackData();
                         bind.dater = customEvent;
-                        bind.outputDatas =VariableList.Malloc(2);
+                        bind.outputDatas =VariableList.Malloc(GetFramework(), 2);
                         for (int i = 0; i < customEvent.outputVariables.GetVarCount(); ++i)
                         {
                             long key = BuildOutputKey(pEvt,i);

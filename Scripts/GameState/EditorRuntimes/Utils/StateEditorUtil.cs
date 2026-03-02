@@ -36,6 +36,17 @@ namespace Framework.State.Editor
             return ms_installPath;
         }
         //-----------------------------------------------------
+        internal struct TypeHeadDesc
+        {
+            public string author;
+            public string createDate;
+            public string desc;
+            public bool isValid()
+            {
+                return !string.IsNullOrEmpty(desc);
+            }
+        }
+        //-----------------------------------------------------
         internal static int GetTypeClassId(System.Type type)
         {
             string typeName = type.FullName.Replace("+", ".");
@@ -67,6 +78,7 @@ namespace Framework.State.Editor
         private static Dictionary<int, System.Type> ms_StateWorldTypeIds = new Dictionary<int, System.Type>();
         private static Dictionary<int, string> ms_StateWorldTypeNames = new Dictionary<int, string>();
         private static Dictionary<System.Type, System.Type> ms_StateWorldTypeEditorTypes = new Dictionary<Type, Type>();
+        private static Dictionary<int, TypeHeadDesc> ms_StateWorldTypeHeadDesc = new Dictionary<int, TypeHeadDesc>();
         //-----------------------------------------------------
         public static System.Type GetStateWorldType(int id)
         {
@@ -130,6 +142,7 @@ namespace Framework.State.Editor
         {
             if (ms_bInitTypeed)
                 return;
+            ms_StateWorldTypeHeadDesc.Clear();
             ms_bInitTypeed = true;
             ms_StateWorldTypes.Clear();
             ms_StateWorldTypeIds.Clear();
@@ -220,6 +233,48 @@ namespace Framework.State.Editor
             return false;
         }
         //-----------------------------------------------------
+        internal static TypeHeadDesc GetTypeHeadDesc(int classType)
+        {
+            if (ms_StateWorldTypeHeadDesc.TryGetValue(classType, out var typeHead))
+                return typeHead;
+            else
+            {
+                var type = GetStateWorldType(classType);
+                if (type != null)
+                {
+                    if (EditorUtils.TryGetClassFileInfo(type, out var filePath, out var createDate, out var author, out var desc))
+                    {
+                        typeHead = new TypeHeadDesc();
+                        typeHead.author = author;
+                        typeHead.desc = desc;
+                        typeHead.createDate = createDate;
+                        ms_StateWorldTypeHeadDesc[classType] = typeHead;
+                        return typeHead;
+                    }
+                }
+            }
+            return default;
+        }
+        //-----------------------------------------------------
+        internal static void DrawClassTypeHeadDesc(int type,bool drawDesc =true)
+        {
+            var head = GetTypeHeadDesc(type);
+            if (head.isValid())
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                InspectorDrawUtil.DrawHeader("基本信息");
+                GUILayout.Label("创建时间:  " + head.createDate);
+                GUILayout.Label("作        者:  " + head.author);
+                if(drawDesc)
+                {
+                    GUILayout.Label("描        述:");
+                    GUILayout.TextArea(head.desc);
+                }
+
+                EditorGUI.EndDisabledGroup();
+            }
+        }
+        //-----------------------------------------------------
         public static void DrawStateLogic(GameStateLogicData stateLogic, List<GameStateLogicData> vLogics = null, System.Action<int> action = null)
         {
             var enable = EditorGUILayout.Toggle("是否启用", stateLogic.enabled);
@@ -278,6 +333,7 @@ namespace Framework.State.Editor
                     if (action != null) action(2);
                 }
             }
+            DrawClassTypeHeadDesc(stateLogic.logicType);
         }
         //-----------------------------------------------------
         public static List<GameStateLogicData> DrawStateLogics(AStateEditorLogic logic, string label, List<GameStateLogicData> vLogics)

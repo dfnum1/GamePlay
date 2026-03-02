@@ -515,7 +515,7 @@ namespace Framework.AT.Runtime
         {
             if (!m_bEnable || m_vMouseInputTask == null)
                 return false;
-            VariableList argvs = VariableList.Malloc(5);
+            VariableList argvs = VariableList.Malloc(GetFramework(), 5);
             argvs.AddInt((int)mouseType);
             argvs.AddInt((int)touchData.touchID);
             argvs.AddVec2(touchData.position);

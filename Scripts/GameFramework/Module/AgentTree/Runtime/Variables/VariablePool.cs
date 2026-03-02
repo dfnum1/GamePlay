@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:   变量缓冲池
 *********************************************************************/
+using Framework.Core;
 using System.Collections.Generic;
 
 namespace Framework.AT.Runtime
@@ -15,7 +16,7 @@ namespace Framework.AT.Runtime
         static Stack<VariableKV>    ms_vKvs = null;
         static Stack<VariableStack> ms_vStacks = null;
         //-----------------------------------------------------
-        internal static VariableList GetVariableList()
+        internal static VariableList GetVariableList(AFramework pFramework)
         {
             if (ms_vLists!=null && ms_vLists.Count > 0)
                 return ms_vLists.Pop();

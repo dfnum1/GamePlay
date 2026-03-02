@@ -52,12 +52,13 @@ namespace Framework.Cutscene.Runtime
             }
             return null;
         }
+#if UNITY_EDITOR
         //-----------------------------------------------------
         internal static void FillCustomAgentParam(ref Variables variable, ACutsceneCustomAgent.AgentUnit.ParamData[] paramValues)
         {
             if (paramValues.Length > 0)
             {
-                variable.variables = VariableList.Malloc(paramValues.Length);
+                variable.variables = VariableList.Malloc(null,paramValues.Length);
                 for (int j = 0; j < paramValues.Length; ++j)
                 {
                     var param = paramValues[j];
@@ -141,6 +142,7 @@ namespace Framework.Cutscene.Runtime
                 }
             }
         }
+#endif
         //------------------------------------------------------
         public static RtgEasing CreateTweenEasing(EEaseType type)
         {

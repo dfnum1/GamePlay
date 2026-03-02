@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Unity.Burst.Intrinsics;
 using UnityEditor;
 using UnityEngine;
 
@@ -483,7 +484,11 @@ namespace Framework.AT.Editor
             }
             if (hasReturn)
             {
-                functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
+                vDraws.TryGetValue("#return#", out var drawMethod);
+                if (!string.IsNullOrEmpty(drawMethod))
+                    functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                else
+                    functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
             }
             if (paramOutAttrs.Length>0)
             {

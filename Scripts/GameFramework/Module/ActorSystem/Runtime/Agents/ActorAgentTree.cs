@@ -6,16 +6,71 @@
 *********************************************************************/
 using ExternEngine;
 using Framework.AT.Runtime;
+using Framework.Base;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine.Playables;
 namespace Framework.ActorSystem.Runtime
 {
     public class ActorAgentTree : AActorAgent
     {
-        AgentTree m_pAgentTree = null;
+        AgentTree m_pMainAgentTree = null;
+        private List<AgentTree> m_vSubAgentTrees = null;
         //--------------------------------------------------------
-        public AgentTree GetAT()
+        public AgentTree GetMainAT()
         {
-            return m_pAgentTree;
+            return m_pMainAgentTree;
+        }
+        //--------------------------------------------------------
+        public AgentTree AddSubAT(AgentTreeData atData)
+        {
+            if (atData == null)
+                return null;
+            if (m_pMainAgentTree != null && m_pMainAgentTree.GetData() == atData)
+            {
+                Logger.Warning("已经为该Actor 的主蓝图了,不能添加!");
+                return null;
+            }
+            if(m_vSubAgentTrees!=null)
+            {
+                foreach(var db in m_vSubAgentTrees)
+                {
+                    if (db.GetData() == atData)
+                    {
+                        Logger.Warning("该Actor已经包含该蓝图了!");
+                        return db;
+                    }
+                }
+            }
+
+            var pAT = AgentTreePool.MallocAgentTree(atData, GetFramework());
+            if(pAT!=null)
+            {
+                pAT.AddOwnerClass(m_pActor);
+                pAT.Enable(m_pActor.IsActived());
+                pAT.Start();
+                if (m_vSubAgentTrees == null)
+                    m_vSubAgentTrees = new List<AgentTree>(2);
+                m_vSubAgentTrees.Add(pAT);
+            }
+            return pAT;
+        }
+        //--------------------------------------------------------
+        public bool DeleteSubAT(AgentTreeData atData)
+        {
+            if (atData == null) return false;
+            if (m_vSubAgentTrees == null) return false;
+            for(int i =0; i < m_vSubAgentTrees.Count ; ++i)
+            {
+                var pAT = m_vSubAgentTrees[i];
+                if (pAT.GetData() == atData)
+                {
+                    AgentTreePool.FreeAgentTree(pAT);
+                    m_vSubAgentTrees.RemoveAt(i);
+                    return true;
+                }
+            }
+            return false;
         }
         //--------------------------------------------------------
         protected override void OnLoadActorGraphData(ActorGraphData component)
@@ -28,47 +83,75 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         internal void LoadAT(AgentTreeData atData)
         {
-            if (atData != null || (m_pAgentTree != null && m_pAgentTree.GetData() != atData))
+            if (atData != null || (m_pMainAgentTree != null && m_pMainAgentTree.GetData() != atData))
             {
-                if (m_pAgentTree != null)
+                if (m_pMainAgentTree != null)
                 {
-                    AgentTreePool.FreeAgentTree(m_pAgentTree);
-                    m_pAgentTree = null;
+                    AgentTreePool.FreeAgentTree(m_pMainAgentTree);
+                    m_pMainAgentTree = null;
                 }
-                m_pAgentTree = AgentTreePool.MallocAgentTree(atData, GetFramework());
-                if (m_pAgentTree != null)
+                m_pMainAgentTree = AgentTreePool.MallocAgentTree(atData, GetFramework());
+                if (m_pMainAgentTree != null)
                 {
-                    m_pAgentTree.AddOwnerClass(m_pActor);
-                    m_pAgentTree.Enable(true);
+                    m_pMainAgentTree.AddOwnerClass(m_pActor);
+                    m_pMainAgentTree.Enable(m_pActor.IsActived());
+                    m_pMainAgentTree.Start();
                 }
             }
         }
         //--------------------------------------------------------
         public void ExecuteTask(int task, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
         {
-            if (m_pAgentTree == null) return;
-            m_pAgentTree.ExecuteTask(task, vArgvs, bAutoReleaseAgvs);
+            if(m_pMainAgentTree!=null) m_pMainAgentTree.ExecuteTask(task, vArgvs, false);
+            if (m_vSubAgentTrees != null)
+            {
+                foreach (var db in m_vSubAgentTrees)
+                    db.ExecuteTask(task, vArgvs, false);
+            }
+            if (bAutoReleaseAgvs && vArgvs!=null) vArgvs.Release();
         }
         //--------------------------------------------------------
         protected override void OnFlagDirty(EActorFlag flag, bool IsUsed)
         {
-            if (m_pAgentTree == null) return;
+            if (m_pMainAgentTree == null) return;
             switch(flag)
             {
                 case EActorFlag.Active:
                     {
-                        if (IsUsed) m_pAgentTree.Start();
+                        if (m_pMainAgentTree != null)
+                        {
+                            m_pMainAgentTree.Enable(IsUsed);
+                        }
+                        if(m_vSubAgentTrees!=null)
+                        {
+                            foreach (var db in m_vSubAgentTrees)
+                                db.Enable(IsUsed);
+                        }
                     }
                     break;
                 case EActorFlag.Killed:
                     {
                         if (IsUsed)
                         {
-                            m_pAgentTree.ExecuteTask((int)EActorATType.onKilled);
+                            if(m_pMainAgentTree!=null)
+                            {
+                                m_pMainAgentTree.ExecuteTask((int)EActorATType.onKilled);
+                            }
+                            if (m_vSubAgentTrees != null)
+                            {
+                                foreach (var db in m_vSubAgentTrees)
+                                    db.ExecuteTask((int)EActorATType.onKilled);
+                            }
                         }
                         else
                         {
-                            m_pAgentTree.ExecuteTask((int)EActorATType.onRevive);
+                            if (m_pMainAgentTree != null)
+                                m_pMainAgentTree.ExecuteTask((int)EActorATType.onRevive);
+                            if (m_vSubAgentTrees != null)
+                            {
+                                foreach (var db in m_vSubAgentTrees)
+                                    db.ExecuteTask((int)EActorATType.onRevive);
+                            }
                         }
                     }
                     break;
@@ -78,29 +161,52 @@ namespace Framework.ActorSystem.Runtime
         protected override void OnUpdate(FFloat fDelta)
         {
             base.OnUpdate(fDelta);
-            if (m_pAgentTree != null) m_pAgentTree.Update(fDelta);
+            if (m_pMainAgentTree != null) m_pMainAgentTree.Update(fDelta);
+            if(m_vSubAgentTrees!=null)
+            {
+                for(int i =0; i < m_vSubAgentTrees.Count; ++i)
+                {
+                    m_vSubAgentTrees[i].Update(fDelta);
+                }
+            }
         }
         //--------------------------------------------------------
         internal void OnSkill(Skill pSkill)
         {
-            if (m_pAgentTree == null) return;
-            var argvs = VariableList.Malloc();
+            if (m_pMainAgentTree == null && m_vSubAgentTrees == null) return;
+            var argvs = VariableList.Malloc(GetFramework());
             var lockTargets = pSkill.GetLockTargets();
             if(lockTargets.Count>0)
             {
                 argvs.AddUserData(lockTargets[0]);
                 argvs.AddUserData(pSkill);
             }
-            m_pAgentTree.ExecuteTask((int)EActorATType.onAttack);
+            if(m_pMainAgentTree!=null) m_pMainAgentTree.ExecuteTask((int)EActorATType.onAttack, argvs, false);
+            if(m_vSubAgentTrees!=null)
+            {
+                foreach (var db in m_vSubAgentTrees)
+                {
+                    db.ExecuteTask((int)EActorATType.onAttack, argvs,false);
+                }
+            }
+            argvs.Release();
         }
         //--------------------------------------------------------
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            if(m_pAgentTree!=null)
+            if(m_pMainAgentTree!=null)
             {
-                AgentTreePool.FreeAgentTree(m_pAgentTree);
-                m_pAgentTree = null;
+                AgentTreePool.FreeAgentTree(m_pMainAgentTree);
+                m_pMainAgentTree = null;
+            }
+            if(m_vSubAgentTrees!=null)
+            {
+                foreach(var db in m_vSubAgentTrees)
+                {
+                    AgentTreePool.FreeAgentTree(db);
+                }
+                m_vSubAgentTrees.Clear();
             }
         }
 	}

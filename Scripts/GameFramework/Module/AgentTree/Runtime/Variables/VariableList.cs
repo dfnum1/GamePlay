@@ -60,9 +60,9 @@ namespace Framework.AT.Runtime
 
         }
         //-----------------------------------------------------
-        public static VariableList Malloc(int capacity =2)
+        public static VariableList Malloc(AFramework pFramework, int capacity =2)
         {
-            VariableList list= VariablePool.GetVariableList();
+            VariableList list= VariablePool.GetVariableList(pFramework);
             list.m_nCapacity = (byte)Mathf.Clamp(capacity, 1, 255);
             return list;
         }

@@ -78,6 +78,19 @@ namespace Framework.State.Runtime
             }
         }
         //--------------------------------------------------------
+        public AgentTreeData GetAgentTreeData(ushort agentId)
+        {
+            if (agentId ==0 || m_pWorldObject == null) return null;
+            if (m_pWorldObject.warAgents == null)
+                return null;
+            for(int i =0; i < m_pWorldObject.warAgents.Count; ++i)
+            {
+                if (m_pWorldObject.warAgents[i].agentId == agentId)
+                    return m_pWorldObject.warAgents[i].atData;
+            }
+            return null;
+        }
+        //--------------------------------------------------------
         [ATMethod("唤醒游戏状态")]
         public void AwakeState()
         {

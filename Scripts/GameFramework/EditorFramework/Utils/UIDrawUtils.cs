@@ -304,6 +304,21 @@ namespace Framework.ED
         }
     }
     //------------------------------------------------------
+    //!GUIIndentScope
+    //------------------------------------------------------
+    public struct GUIIndentScope : IDisposable
+    {
+        public GUIIndentScope(Color color)
+        {
+            EditorGUI.indentLevel++;
+        }
+
+        public void Dispose()
+        {
+            EditorGUI.indentLevel--;
+        }
+    }
+    //------------------------------------------------------
     //!GUILabelWidthScope
     //------------------------------------------------------
     public struct GUILabelWidthScope : IDisposable

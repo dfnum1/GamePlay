@@ -549,7 +549,7 @@ namespace Framework.Cutscene.Runtime
                             break;
                         case EDriverStatus.Leave:
                             {
-                                if (frameData.curTime >= beginTime && frameData.curTime <= endTime)
+                                if (frameData.curTime >= beginTime && frameData.curTime < endTime)
                                 {
                                     clipData.eStatus = EDriverStatus.Enter;
                                     frameData.clipStatus = clipData.eStatus;

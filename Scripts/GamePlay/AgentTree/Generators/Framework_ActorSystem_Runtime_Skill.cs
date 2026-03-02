@@ -1,5 +1,11 @@
 ﻿//auto generated
 using Framework.AT.Runtime;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat=UnityEngine.Float;
+
+#endif
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
@@ -25,6 +31,26 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_SetLevel(Skill pPointerThis,System.UInt32 nLevel)
 		{
 			pPointerThis.SetLevel(nLevel);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(1656859507,"获取总共触发次数",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
+#endif
+		static bool AT_GetTriggerCount(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportInt(pNode, 0, pPointerThis.GetTriggerCount());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1512669171,"获取连续触发次数",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
+#endif
+		static bool AT_GetContinueTriggerCount(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportInt(pNode, 0, pPointerThis.GetContinueTriggerCount());
 			return true;
 		}
 #if UNITY_EDITOR
@@ -55,6 +81,16 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_ClearLockTargets(Skill pPointerThis)
 		{
 			pPointerThis.ClearLockTargets();
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-129251471,"更新前置触发判定标志",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bCanTrigger",false, null,typeof(System.Boolean))]
+#endif
+		static bool AT_SetPreCanTrigger(Skill pPointerThis,System.Boolean bCanTrigger)
+		{
+			pPointerThis.SetPreCanTrigger(bCanTrigger);
 			return true;
 		}
 #if UNITY_EDITOR
@@ -109,9 +145,49 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(1712241756,"获取消耗属性",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+#endif
+		static bool AT_GetCostAttrType(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportByte(pNode, 0, pPointerThis.GetCostAttrType());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1475328400,"获取消耗属性",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+#endif
+		static bool AT_SetCostAttrType(Skill pPointerThis,System.Byte type)
+		{
+			pPointerThis.SetCostAttrType(type);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1650170339,"设置消耗值",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(ExternEngine.FFloat))]
+#endif
+		static bool AT_SetCostAttrType_1(Skill pPointerThis,ExternEngine.FFloat value)
+		{
+			pPointerThis.SetCostAttrType(value);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(1039273324,"设置消耗值",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(ExternEngine.FFloat))]
+#endif
+		static bool AT_GetCostAttrValue(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.GetCostAttrValue());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(253184896,"获取属性计算公式",typeof(Framework.ActorSystem.Runtime.Skill),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
-		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32),drawMethod:"DrawFormulaTypePop")]
 #endif
 		static bool AT_GetAttrFormulaType(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -121,7 +197,7 @@ namespace Framework.ActorSystem.Runtime
 #if UNITY_EDITOR
 		[ATFunction(706527390,"设置属性计算公式",typeof(Framework.ActorSystem.Runtime.Skill),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Int32))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Int32),drawMethod:"DrawFormulaTypePop")]
 #endif
 		static bool AT_SetAttrFormulaType(Skill pPointerThis,System.Int32 type)
 		{
@@ -154,6 +230,20 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is Skill)) return true;
 				return AT_SetLevel((Skill)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
 			}
+			case 1656859507://GetTriggerCount
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_GetTriggerCount((Skill)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1512669171://GetContinueTriggerCount
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_GetContinueTriggerCount((Skill)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case 1793744141://CanTrigger
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
@@ -174,6 +264,13 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Skill)) return true;
 				return AT_ClearLockTargets((Skill)pUserClass.pPointer);
+			}
+			case -129251471://SetPreCanTrigger
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_SetPreCanTrigger((Skill)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -2041930942://GetConfigCD
 			{
@@ -209,6 +306,34 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 2) return true;
 				if(!(pUserClass.pPointer is Skill)) return true;
 				return AT_SetActionTypeAndTag((Skill)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+			}
+			case 1712241756://GetCostAttrType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_GetCostAttrType((Skill)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1475328400://SetCostAttrType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_SetCostAttrType((Skill)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
+			}
+			case -1650170339://SetCostAttrType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_SetCostAttrType_1((Skill)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
+			}
+			case 1039273324://GetCostAttrValue
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Skill)) return true;
+				return AT_GetCostAttrValue((Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 253184896://GetAttrFormulaType
 			{

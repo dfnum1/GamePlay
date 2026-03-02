@@ -187,6 +187,7 @@ namespace Framework.State.Editor
                 {
                     UndoRegister(false);
                 }
+                StateEditorUtil.DrawClassTypeHeadDesc(stateData.stateType, string.IsNullOrEmpty(stateData.strDesc));
             }
         }
         //--------------------------------------------------------
@@ -227,6 +228,7 @@ namespace Framework.State.Editor
                 {
                     UndoRegister(false);
                 }
+                StateEditorUtil.DrawClassTypeHeadDesc(stateData.modeType,string.IsNullOrEmpty(stateData.strDesc) );
             }
         }
         //--------------------------------------------------------

@@ -547,7 +547,7 @@ namespace Framework.AT.Runtime
             VaribaleSerizlizeData data = UnityEngine.JsonUtility.FromJson<VaribaleSerizlizeData>(serializeData);
             if (data.items != null)
             {
-                variables = VariableList.Malloc(data.items.Length);
+                variables = VariableList.Malloc(null, data.items.Length);
                 for (int i = 0; i < data.items.Length; ++i)
                 {
                     var item = data.items[i];

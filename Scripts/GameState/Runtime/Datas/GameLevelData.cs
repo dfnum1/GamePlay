@@ -174,6 +174,11 @@ namespace Framework.State.Runtime
 
         }
         //------------------------------------------------
+        public virtual void OnRemoveWorldItem(IGameWorldItem item)
+        {
+
+        }
+        //------------------------------------------------
         protected void DestroyObj(UnityEngine.Object obj)
         {
             if (obj == null) return;

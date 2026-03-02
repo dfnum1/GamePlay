@@ -63,6 +63,7 @@ namespace Framework.ActorSystem.Runtime
 #endif
                 public List<LambdaParam> subLambda;
             }
+            public byte labelId;
             public byte applayAttr;
             public string name;
             public List<LambdaParam> vLambda;

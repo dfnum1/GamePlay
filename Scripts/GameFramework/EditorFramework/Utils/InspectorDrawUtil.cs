@@ -418,6 +418,40 @@ namespace Framework.ED
             return nValue;
         }
         //-----------------------------------------------------
+        public static void DrawHeader(string headerName)
+        {
+            if (ms_TileStyle == null)
+            {
+                ms_TileStyle = new GUIStyle(GUI.skin.label);
+                ms_TileStyle.alignment = TextAnchor.MiddleCenter;
+                ms_TileStyle.fontSize += 2;
+                ms_TileStyle.fontStyle = FontStyle.Bold;
+            }
+            EditorGUILayout.Space();
+            if(!string.IsNullOrEmpty(headerName))
+            {
+                EditorGUILayout.LabelField(new GUIContent(headerName), ms_TileStyle);
+            }
+            var rect = GUILayoutUtility.GetLastRect();
+            UIDrawUtils.DrawColorLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.xMax, rect.yMax), Color.gray);
+        }
+        //-----------------------------------------------------
+        public static void DrawHeader(GUIContent headerName)
+        {
+            if (ms_TileStyle == null)
+            {
+                ms_TileStyle = new GUIStyle(GUI.skin.label);
+                ms_TileStyle.alignment = TextAnchor.MiddleCenter;
+                ms_TileStyle.fontSize += 2;
+                ms_TileStyle.fontStyle = FontStyle.Bold;
+            }
+            EditorGUILayout.Space();
+            if (headerName!=null && headerName.text.Length>0)
+                EditorGUILayout.LabelField(headerName, ms_TileStyle);
+            var rect = GUILayoutUtility.GetLastRect();
+            UIDrawUtils.DrawColorLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.xMax, rect.yMax), Color.gray);
+        }
+        //-----------------------------------------------------
         static HashSet<string> ms_vFilterFields = new HashSet<string>();
         static Dictionary<System.Type, int> ms_vTypeOrder = new Dictionary<Type, int>();
         static Stack<List<FieldInfo>> ms_vDrawFields = new Stack<List<FieldInfo>>();
@@ -1790,22 +1824,12 @@ namespace Framework.ED
                     }
                     else
                     {
-                        if(ms_TileStyle == null)
-                        {
-                            ms_TileStyle = new GUIStyle(GUI.skin.label);
-                            ms_TileStyle.alignment = TextAnchor.MiddleCenter;
-                            ms_TileStyle.fontSize += 2;
-                            ms_TileStyle.fontStyle = FontStyle.Bold;
-                        }
-                        EditorGUILayout.Space();
                         if (finfo.IsDefined(typeof(DisplayAttribute)))
                         {
-                            EditorGUILayout.LabelField(displayNameContent, ms_TileStyle);
-                            var rect = GUILayoutUtility.GetLastRect();
-                            UIDrawUtils.DrawColorLine(new Vector2(rect.x, rect.yMax), new Vector2(rect.xMax, rect.yMax), Color.gray);
+                            DrawHeader(displayNameContent);
                         }
                         else
-                            EditorGUILayout.LabelField(finfo.Name, ms_TileStyle);
+                            DrawHeader(finfo.Name);
 
                         System.Object objValue = finfo.GetValue(data);
                         MethodInfo method = finfo.FieldType.GetMethod("OnInspector");
@@ -1976,6 +2000,7 @@ namespace Framework.ED
             }
             return false;
         }
+        //-------------------------------------------------------
         static object DealGeneic(FieldInfo field, GUIContent strDisplayName, IEnumerable list, Type keyType, Type valType, Type tableType, string strTableField)
         {
             bool bNoHeader = field.IsDefined(typeof(DrawProps.NoListHeaderAttribute));

@@ -330,7 +330,7 @@ namespace Framework.ActorSystem.Editor
             {
                 m_pActor.GetAgent<ActorAgentTree>()?.LoadAT(graphData.ATData);
             }
-             m_pSkillEditor = AgentTreeWindow.Open(graphData.ATData, component, m_pActor.GetAgent<ActorAgentTree>().GetAT(), (data) =>{
+             m_pSkillEditor = AgentTreeWindow.Open(graphData.ATData, component, m_pActor.GetAgent<ActorAgentTree>().GetMainAT(), (data) =>{
                  graphData.ATData = data;
              });
         }
@@ -340,9 +340,9 @@ namespace Framework.ActorSystem.Editor
             if(m_bDebugAT && m_pActor!=null && (evt.type == EventType.KeyUp|| evt.type == EventType.KeyDown))
             {
                 var actorAT = m_pActor.GetAgent<ActorAgentTree>();
-                if (actorAT != null && actorAT.GetAT() != null)
+                if (actorAT != null && actorAT.GetMainAT() != null)
                 {
-                    if (actorAT.GetAT().EditorKeyEvent(evt))
+                    if (actorAT.GetMainAT().EditorKeyEvent(evt))
                     {
                         evt.Use();
                     }
@@ -585,10 +585,10 @@ namespace Framework.ActorSystem.Editor
         {
             m_bDebugAT = bDebug;
             var actorAT = m_pActor.GetAgent<ActorAgentTree>();
-            if (actorAT != null && actorAT.GetAT() != null)
+            if (actorAT != null && actorAT.GetMainAT() != null)
             {
-                actorAT.GetAT().Enable(bDebug);
-                if (bDebug) actorAT.GetAT().Start();
+                actorAT.GetMainAT().Enable(bDebug);
+                if (bDebug) actorAT.GetMainAT().Start();
             }
         }
         //--------------------------------------------------------
@@ -639,7 +639,7 @@ namespace Framework.ActorSystem.Editor
                 if (evt.type == EventType.MouseDown)
                 {
                     var actorAT = m_pActor.GetAgent<ActorAgentTree>();
-                    if (actorAT != null && actorAT.GetAT() != null)
+                    if (actorAT != null && actorAT.GetMainAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
                         touch.touchID = evt.button;
@@ -647,7 +647,7 @@ namespace Framework.ActorSystem.Editor
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;
                         touch.isUITouched = false;
-                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.Begin, touch))
+                        if (actorAT.GetMainAT().MouseInputEvent(EATMouseType.Begin, touch))
                         {
                             evt.Use();
                         }
@@ -656,7 +656,7 @@ namespace Framework.ActorSystem.Editor
                 if (evt.type == EventType.MouseUp)
                 {
                     var actorAT = m_pActor.GetAgent<ActorAgentTree>();
-                    if (actorAT != null && actorAT.GetAT() != null)
+                    if (actorAT != null && actorAT.GetMainAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
                         touch.touchID = evt.button;
@@ -664,7 +664,7 @@ namespace Framework.ActorSystem.Editor
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;
                         touch.isUITouched = false;
-                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.End, touch))
+                        if (actorAT.GetMainAT().MouseInputEvent(EATMouseType.End, touch))
                         {
                             evt.Use();
                         }
@@ -673,7 +673,7 @@ namespace Framework.ActorSystem.Editor
                 if (evt.type == EventType.MouseDrag)
                 {
                     var actorAT = m_pActor.GetAgent<ActorAgentTree>();
-                    if (actorAT != null && actorAT.GetAT() != null)
+                    if (actorAT != null && actorAT.GetMainAT() != null)
                     {
                         TouchInput.TouchData touch = TouchInput.TouchData.DEF;
                         touch.touchID = evt.button;
@@ -681,7 +681,7 @@ namespace Framework.ActorSystem.Editor
                         touch.lastPosition = evt.mousePosition;
                         touch.deltaPosition = evt.delta;
                         touch.isUITouched = false;
-                        if (actorAT.GetAT().MouseInputEvent(EATMouseType.Move, touch))
+                        if (actorAT.GetMainAT().MouseInputEvent(EATMouseType.Move, touch))
                         {
                             evt.Use();
                         }
