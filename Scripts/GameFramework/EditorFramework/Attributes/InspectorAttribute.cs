@@ -26,6 +26,21 @@ namespace Framework.DrawProps
 #endif
         }
     }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method)]
+    public class LimitWidthAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        public float width;
+#endif
+        public LimitWidthAttribute(float width)
+        {
+#if UNITY_EDITOR
+            this.width = width;
+#endif
+        }
+    }
+    //-----------------------------------------------------
     [AttributeUsage(AttributeTargets.Method)]
     public class AddInspectorAttribute : Attribute
     {

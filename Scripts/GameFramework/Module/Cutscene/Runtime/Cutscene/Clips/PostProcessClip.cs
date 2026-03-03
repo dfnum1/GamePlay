@@ -28,10 +28,10 @@ namespace Framework.Cutscene.Runtime
         }
         [Display("基本属性")] public BaseClipProp baseProp;
         [Display("后处理类型")] public EPostProcessType postProcessType = EPostProcessType.Vignette;
-        [Disable]public List<AnimationCurve> values;
-        [Disable]public List<Color> colors;
-        [Disable]public List<Vector4> vectors;
-        [Disable]public List<bool> toggles;
+        [Disable] public List<AnimationCurve> values;
+        [Disable] public List<Color> colors;
+        [Disable] public List<Vector4> vectors;
+        [Disable] public List<bool> toggles;
         //-----------------------------------------------------
         public ACutsceneDriver CreateDriver()
         {
@@ -78,11 +78,11 @@ namespace Framework.Cutscene.Runtime
         {
             float normalizedTime = 0;
             VolumeProfile volumeProfiler = null;
-            if (baseProp.ownerTrackObject != null && baseProp.ownerTrackObject.GetPlayable()!=null)
+            if (baseProp.ownerTrackObject != null && baseProp.ownerTrackObject.GetPlayable() != null)
             {
 
                 float time = baseProp.ownerTrackObject.GetPlayable().GetTime();
-                if (GetDuration()>0)
+                if (GetDuration() > 0)
                 {
                     normalizedTime = Mathf.Clamp01((time - GetTime()) / GetDuration());
 
@@ -95,9 +95,21 @@ namespace Framework.Cutscene.Runtime
                             volumeProfiler = volume.profile;
                         }
                     }
+                    else
+                    {
+                        var go = GameObject.Find(PostProcessDriver.GLOBAL_VOLUME_NAME);
+                        if (go != null)
+                        {
+                            var volume = go.GetComponent<Volume>();
+                            if (volume != null && volume.profile)
+                            {
+                                volumeProfiler = volume.profile;
+                            }
+                        }
+                    }
                 }
             }
-            switch(postProcessType)
+            switch (postProcessType)
             {
                 case EPostProcessType.Vignette:
                     {
@@ -123,7 +135,7 @@ namespace Framework.Cutscene.Runtime
                         }
                         GUILayout.BeginHorizontal();
                         values[0] = EditorGUILayout.CurveField("Intensity", values[0]);
-                        if(GUILayout.Button("Clear", GUILayout.Width(30)))
+                        if (GUILayout.Button("Clear", GUILayout.Width(30)))
                         {
                             values[0] = new AnimationCurve();
                         }
@@ -143,16 +155,16 @@ namespace Framework.Cutscene.Runtime
                         }
                         toggles[0] = EditorGUILayout.Toggle("Rounded", toggles[0]);
 
-                        if(volumeProfiler!=null && normalizedTime>=0 && normalizedTime<=1)
+                        if (volumeProfiler != null && normalizedTime >= 0 && normalizedTime <= 1)
                         {
                             volumeProfiler.TryGet<Vignette>(out var comp);
-                            if (comp!=null && GUILayout.Button("设置参数"))
+                            if (comp != null && GUILayout.Button("设置参数"))
                             {
                                 toggles[0] = comp.rounded.value;
                                 vectors[0] = new Vector4(comp.center.value.x, comp.center.value.y, 0, 0);
                                 colors[0] = comp.color.value;
-                                AddOrReplaceKey(values[0],normalizedTime, comp.intensity.value);
-                                AddOrReplaceKey(values[1],normalizedTime, comp.smoothness.value);
+                                AddOrReplaceKey(values[0], normalizedTime, comp.intensity.value);
+                                AddOrReplaceKey(values[1], normalizedTime, comp.smoothness.value);
                             }
                         }
                     }
@@ -176,7 +188,7 @@ namespace Framework.Cutscene.Runtime
                             volumeProfiler.TryGet<ChromaticAberration>(out var comp);
                             if (comp != null && GUILayout.Button("设置参数"))
                             {
-                                AddOrReplaceKey(values[0],normalizedTime, comp.intensity.value);
+                                AddOrReplaceKey(values[0], normalizedTime, comp.intensity.value);
                             }
                         }
                     }
@@ -307,11 +319,11 @@ namespace Framework.Cutscene.Runtime
                             if (comp != null && GUILayout.Button("设置参数"))
                             {
                                 colors[0] = comp.tint.value;
-                                AddOrReplaceKey(values[0],normalizedTime, comp.threshold.value);
-                                AddOrReplaceKey(values[1],normalizedTime, comp.intensity.value);
-                                AddOrReplaceKey(values[2],normalizedTime, comp.scatter.value);
-                                AddOrReplaceKey(values[3],normalizedTime, comp.clamp.value);
-                                AddOrReplaceKey(values[4],normalizedTime, comp.dirtIntensity.value);
+                                AddOrReplaceKey(values[0], normalizedTime, comp.threshold.value);
+                                AddOrReplaceKey(values[1], normalizedTime, comp.intensity.value);
+                                AddOrReplaceKey(values[2], normalizedTime, comp.scatter.value);
+                                AddOrReplaceKey(values[3], normalizedTime, comp.clamp.value);
+                                AddOrReplaceKey(values[4], normalizedTime, comp.dirtIntensity.value);
                             }
                         }
                     }
@@ -352,6 +364,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public class PostProcessDriver : ACutsceneDriver
     {
+        public static string GLOBAL_VOLUME_NAME = "Global Volume";
         private VolumeProfile m_profile;
         private VolumeComponent m_volumeComponent;
         List<float> m_OriValues;
@@ -366,9 +379,22 @@ namespace Framework.Cutscene.Runtime
         public override bool OnClipEnter(CutsceneTrack pTrack, FrameData frameData)
         {
             ICutsceneObject pObj = pTrack.GetBindLastCutsceneObject();
+            Transform pBindTranfrom = null;
             if (pObj != null && pObj.GetUniyTransform() != null)
             {
-                var volume = pObj.GetUniyTransform().GetComponent<Volume>();
+                pBindTranfrom = pObj.GetUniyTransform();
+            }
+            if (pBindTranfrom == null)
+            {
+                var go = GameObject.Find(GLOBAL_VOLUME_NAME);
+                if (go != null)
+                {
+                    pBindTranfrom = go.transform;
+                }
+            }
+            if (pBindTranfrom)
+            {
+                var volume = pBindTranfrom.GetComponent<Volume>();
                 if (volume != null)
                 {
                     m_profile = volume.profile;
@@ -480,11 +506,11 @@ namespace Framework.Cutscene.Runtime
             var clipData = frameData.clip.Cast<PostProcessClip>();
             if (m_profile != null)
             {
-                switch(clipData.postProcessType)
+                switch (clipData.postProcessType)
                 {
                     case PostProcessClip.EPostProcessType.Vignette:
                         {
-                            if(m_volumeComponent == null)
+                            if (m_volumeComponent == null)
                             {
                                 m_profile.TryGet<Vignette>(out var comp);
                                 m_volumeComponent = comp;
@@ -492,7 +518,7 @@ namespace Framework.Cutscene.Runtime
                             else
                             {
                                 Vignette vignette = m_volumeComponent as Vignette;
-                                if(vignette)
+                                if (vignette)
                                 {
                                     if (clipData.colors != null && clipData.colors.Count > 0)
                                         vignette.color.value = clipData.colors[0];
@@ -505,8 +531,8 @@ namespace Framework.Cutscene.Runtime
                                     if (clipData.values != null && clipData.values.Count > 1 && clipData.values[1] != null && clipData.values[1].length > 0)
                                         vignette.smoothness.value = clipData.values[1].Evaluate(frameData.subTime);
 
-                                    if (clipData.toggles!=null && clipData.toggles.Count>0)
-                                        vignette.rounded.value =clipData.toggles[0];
+                                    if (clipData.toggles != null && clipData.toggles.Count > 0)
+                                        vignette.rounded.value = clipData.toggles[0];
                                 }
                             }
                         }
@@ -577,7 +603,7 @@ namespace Framework.Cutscene.Runtime
                                         bloom.scatter.value = clipData.values[2].Evaluate(frameData.subTime);
                                     if (clipData.values != null && clipData.values.Count > 3 && clipData.values[3] != null && clipData.values[3].length > 0)
                                         bloom.clamp.value = clipData.values[3].Evaluate(frameData.subTime);
-                                    if (clipData.values != null && clipData.values.Count > 4 && clipData.values[4]!=null && clipData.values[4].length>0)
+                                    if (clipData.values != null && clipData.values.Count > 4 && clipData.values[4] != null && clipData.values[4].length > 0)
                                         bloom.dirtIntensity.value = clipData.values[4].Evaluate(frameData.subTime);
                                 }
                             }

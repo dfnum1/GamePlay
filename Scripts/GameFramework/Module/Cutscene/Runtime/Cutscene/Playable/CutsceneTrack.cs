@@ -802,6 +802,12 @@ namespace Framework.Cutscene.Runtime
             return m_pOwner.GetBindLastCutsceneObject(m_pOwnerGroup);
         }
         //-----------------------------------------------------
+        public void ClearGroupBindTrackDatas()
+        {
+            if (m_pOwner == null) return;
+            m_pOwner.ClearGroupBindTrackDatas(m_pOwnerGroup);
+        }
+        //-----------------------------------------------------
         public bool SetOutputVariable<T>(IBaseEvent pEvent, int index, T value) where T : struct
         {
             if (m_pOwner == null) return false;

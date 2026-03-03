@@ -24,7 +24,7 @@ namespace Framework.Cutscene.Editor
         private static ACutsceneCustomAgent ms_Agent;
         public static void Init(bool bForce = false)
         {
-            if(!bForce && ms_vEvents != null && ms_vClips != null)
+            if(!bForce && ms_vEvents != null && ms_vClips != null && ms_Agent!=null)
             {
                 return;
             }

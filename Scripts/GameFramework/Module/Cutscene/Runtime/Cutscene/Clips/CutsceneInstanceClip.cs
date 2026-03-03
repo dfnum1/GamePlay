@@ -154,7 +154,7 @@ namespace Framework.Cutscene.Runtime
             m_BindOffset = parClip.position;
             m_Scale = parClip.scale;
             SpawnInstance(parClip.prefabName, OnInstance, parClip.asyncLoad);
-            /*if(parClip.objId!=0) */pTrack.BindTrackData(new ObjId(parClip.objId), this);
+            if(parClip.objId!=0) pTrack.BindTrackData(new ObjId(parClip.objId), this);
             return true;
         }
         //-----------------------------------------------------

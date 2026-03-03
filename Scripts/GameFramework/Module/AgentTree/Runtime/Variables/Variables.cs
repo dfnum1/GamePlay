@@ -38,6 +38,10 @@ namespace Framework.AT.Runtime
         {
             return this.userType == other.userType && this.id == other.id;
         }
+        public bool IsValid()
+        {
+            return id != 0;
+        }
     }
     public enum EVariableType : byte
     {

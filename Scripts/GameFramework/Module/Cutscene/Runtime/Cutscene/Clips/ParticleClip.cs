@@ -298,7 +298,7 @@ namespace Framework.Cutscene.Runtime
                 var go = db.GetUniyObject() as GameObject;
                 if (go != null && !string.IsNullOrEmpty(parClip.bindNode))
                 {
-                    var node = CutsceneUtil.Find(go.transform,parClip.bindNode);
+                    var node = CutsceneKit.Find(go.transform,parClip.bindNode);
                     if (node != null)
                         m_BindTrans = node;
                     else

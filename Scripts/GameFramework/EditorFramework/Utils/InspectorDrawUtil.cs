@@ -939,8 +939,13 @@ namespace Framework.ED
                 {
                     drawLineRow = finfo.GetCustomAttribute<DrawProps.RowFieldInspectorAttribute>();
                 }
+                DrawProps.LimitWidthAttribute limitWidthAttr = null;
+                if (finfo.IsDefined(typeof(DrawProps.LimitWidthAttribute)))
+                {
+                    limitWidthAttr = finfo.GetCustomAttribute<DrawProps.LimitWidthAttribute>();
+                }
 
-                if (tableType != null || (byType != null && byType.IsEnum) || finfo.IsDefined(typeof(DrawProps.DefaultValueAttribute)) || OnSubDraw != null || drawLineRow != null)
+                if (tableType != null || (byType != null && byType.IsEnum) || finfo.IsDefined(typeof(DrawProps.DefaultValueAttribute)) || OnSubDraw != null || drawLineRow != null || limitWidthAttr != null)
                     bHorizontal = true;
 
                 if (finfo.IsDefined(typeof(DrawProps.DisplayDrawTypeAttribute)))
@@ -953,7 +958,10 @@ namespace Framework.ED
 
                 if (bHorizontal)
                 {
-                    EditorGUILayout.BeginHorizontal();
+                    if (limitWidthAttr != null)
+                        EditorGUILayout.BeginHorizontal(GUILayout.Width(limitWidthAttr.width));
+                    else
+                        EditorGUILayout.BeginHorizontal();
                 }
 
                 FieldInfo objFilePathField = null;

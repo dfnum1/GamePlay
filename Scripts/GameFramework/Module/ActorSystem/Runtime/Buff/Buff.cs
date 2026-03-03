@@ -1,9 +1,9 @@
 ﻿#if USE_ACTORSYSTEM
 /********************************************************************
 生成日期:	5:11:2020  20:36
-类    名: 	Skill
+类    名: 	Buff
 作    者:	HappLI
-描    述:	技能系统-单个技能
+描    述:	buff系统-单个buff
 *********************************************************************/
 using Framework.AT.Runtime;
 using Framework.Data;
@@ -22,28 +22,33 @@ namespace Framework.ActorSystem.Runtime
     [ATInteralExport("Actor系统/Buff", -4, "ActorSystem/actor_buff")]
     public class Buff : AActorStateInfo
     {
-        protected uint              m_nSkillID = 0;
-        protected uint              m_nLevel = 0;
+        protected byte                  m_nBuffType = 0;//增益、减益、控制等类型
 
-        private EActionStateType    m_ActionType = EActionStateType.None;
-        private uint                m_nActionTag = 0;
+        private uint                    m_nLevel = 0;
 
-        protected IContextData      m_pConfigData = null;
+        private byte[]                  m_arrAttrTypes = null;
+        private FFloat[]                m_arrAttrValues = null;
 
-        protected long              m_lConfigCD = 0;
+        private float                   m_fBeginScale = 1;
+        public string                   m_strBeginEffect = null;
+        public string                   m_strBeginSound = null;
 
-        protected long              m_LastTriggerTime = 0;
-        protected int               m_nTriggerCount  =0;
-        protected int               m_nContinueTriggerCount = 0;
-        protected int               m_nAttrFormulaType = 0;
+        private float                   m_fStepScale = 1;
+        private string                  m_strStepEffect = null;
+        private string                  m_strStepSound = null;
 
-        protected byte              m_nCostAttrType = 0;
-        protected FFloat            m_CostAttrValue = 0;
+        private float                   m_fEndScale = 1;
+        private string                  m_strEndEffect = null;
+        private string                  m_strEndSound = null;
 
-        protected bool              m_bActived = false;
-        protected SkillSystem       m_pOwner = null;
+        private string                  m_strBindSlot = null;
+        private Vector3                 m_BindOffset = Vector3.zero;
+        private Vector3                 m_BindRotateOffset = Vector3.zero;
+        private byte                    m_nBindBit = (byte)ESlotBindBit.All;
 
-        private bool                m_bPreCanTrigger = false;
+        protected IContextData          m_pConfigData = null;
+        protected BuffSystem            m_pOwner = null;
+        protected bool                  m_bActived = false;
         //-----------------------------------------------------
         public Buff()
         {
@@ -67,15 +72,14 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
-        internal void SetSkillSystem(SkillSystem pSystem)
+        internal void SetSystem(BuffSystem pSystem)
         {
             m_pOwner = pSystem;
         }
         //-----------------------------------------------------
         public virtual void OnInit()
         {
-            m_LastTriggerTime = 0;
-            m_nTriggerCount = 0;
+
         }
         //-----------------------------------------------------
         public void Update(FFloat fFrame)
@@ -102,47 +106,6 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
-        public virtual void SetUsed()
-        {
-            m_nTriggerCount++;
-            m_LastTriggerTime = GetActorManager().GetRunTime();
-        }
-        //-----------------------------------------------------
-        internal void AddContinueTrigger()
-        {
-            m_nContinueTriggerCount++;
-        }
-        //-----------------------------------------------------
-        internal void ClearContinueTrigger()
-        {
-            m_nContinueTriggerCount = 0;
-        }
-        //-----------------------------------------------------
-        public float GetRuntimeNormalCD()
-        {
-            if (GetConfigCD() <= 0)
-                return 0;
-            long nCurTime = GetActorManager().GetRunTime();
-            long nDelta = nCurTime - m_LastTriggerTime;
-            if (nDelta < 0) return 0;
-            if (nDelta >= GetConfigCD()) return 0;
-            return Mathf.Clamp01(nDelta / GetConfigCD());
-        }
-        //-----------------------------------------------------
-        [ATMethod("获得当前CD")]
-        public float GetRuntimeCD()
-        {
-            if (GetConfigCD() <= 0)
-                return 0;
-            long nCurTime = GetActorManager().GetRunTime();
-            long nDelta = nCurTime - m_LastTriggerTime;
-            if (nDelta < 0) nDelta = 0;
-            if (nDelta >= GetConfigCD()) return 0;
-            float fCD = nDelta / 1000.0f;
-            if (fCD < 0) fCD = 0;
-            return fCD;
-        }
-        //-----------------------------------------------------
         [ATMethod("设置等级")]
         public void SetLevel(uint nLevel)
         {
@@ -154,150 +117,8 @@ namespace Framework.ActorSystem.Runtime
             return m_pConfigData;
         }
         //-----------------------------------------------------
-        [ATMethod("获取总共触发次数")]
-        public int GetTriggerCount()
-        {
-            return m_nTriggerCount;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取连续触发次数")]
-        public int GetContinueTriggerCount()
-        {
-            return m_nContinueTriggerCount;
-        }
-        //-----------------------------------------------------
-        [ATMethod("是否可触发")]
-        public bool CanTrigger()
-        {
-            if (!m_bActived || m_nLevel<=0) return false;
-            if (GetRuntimeCD() > 0) return false;
-            if (m_pOwner == null) return false;
-            var attrValue = m_pOwner.GetActor().GetAttr(m_nCostAttrType,0);
-            if (attrValue<GetCostAttrValue()) return false;
-            return CheckCanTrigger();
-        }
-        //-----------------------------------------------------
-        [ATMethod("添加索敌目标")]
-        public override void AddLockTarget(Actor pNode, bool bClear = false)
-        {
-            m_pOwner.AddLockTarget(pNode,bClear);
-        }
-        //-----------------------------------------------------
-        [ATMethod("清理索敌目标")]
-        public override void ClearLockTargets()
-        {
-            m_pOwner.ClearLockTargets();
-        }
-        //------------------------------------------------------
-        public override List<Actor> GetLockTargets( bool isEmptyReLock = true)
-        {
-            return m_pOwner.GetLockTargets(isEmptyReLock);
-        }
-        //------------------------------------------------------
-        public virtual bool DoLockTargets()
-        {
-            Actor pOwner = GetActor();
-            if (pOwner == null) return false;
-            ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
-            if(pAT!=null)
-            {
-                VariableList argvs = VariableList.Malloc(GetFramework());
-                argvs.AddUserData(this);
-                pAT.ExecuteTask((int)EActorATType.onLockTarget, argvs);
-            }
-            return true;
-        }
-        //-----------------------------------------------------
         protected virtual void OnUpdate(FFloat fFrame) 
         {
-        }
-        //-----------------------------------------------------
-        protected virtual bool CheckCanTrigger() 
-        {
-            m_bPreCanTrigger = true;
-            Actor pOwner = GetActor();
-            if (pOwner == null) return false;
-            ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
-            if (pAT != null)
-            {
-                VariableList argvs = VariableList.Malloc(GetFramework());
-                argvs.AddUserData(this);
-                pAT.ExecuteTask((int)EActorATType.onPreDoSkillCheck, argvs);
-            }
-            return m_bPreCanTrigger;
-        }
-        //-----------------------------------------------------
-        [ATMethod("更新前置触发判定标志")]
-        public virtual void SetPreCanTrigger(bool bCanTrigger)
-        {
-            m_bPreCanTrigger = bCanTrigger;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取CD时长(ms)")]
-        public long GetConfigCD()
-        {
-            return m_lConfigCD;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置CD时长(ms)")]
-        public void SetConfigCD(long cd)
-        {
-            m_lConfigCD = cd;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取动作类型")]
-        public EActionStateType GetActionType()
-        {
-            return m_ActionType;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取动作tag")]
-        public uint GetActionTag()
-        {
-            return m_nActionTag;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置绑定动作")]
-        public void SetActionTypeAndTag(EActionStateType eType, uint nTag)
-        {
-            m_ActionType = eType;
-            m_nActionTag = nTag;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取消耗属性"), ATArgvDrawer("#return#", "DrawAttributePop")]
-        public byte GetCostAttrType()
-        {
-            return m_nCostAttrType;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置消耗属性"), ATArgvDrawer("type", "DrawAttributePop")]
-        public void SetCostAttrType(byte type)
-        {
-            m_nCostAttrType = type;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置消耗值")]
-        public void SetCostAttrType(FFloat value)
-        {
-            m_CostAttrValue = value;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置消耗值")]
-        public FFloat GetCostAttrValue()
-        {
-            return m_CostAttrValue;
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取属性计算公式"), ATArgvDrawer("#return#", "DrawFormulaTypePop")]
-        public override int GetAttrFormulaType()
-        {
-            return m_nAttrFormulaType;
-        }
-        //-----------------------------------------------------
-        [ATMethod("设置属性计算公式"), ATArgvDrawer("type", "DrawFormulaTypePop")]
-        public void SetAttrFormulaType(int type)
-        {
-            m_nAttrFormulaType = type;
         }
         //-----------------------------------------------------
         public override void Destroy()
@@ -305,19 +126,19 @@ namespace Framework.ActorSystem.Runtime
             m_pOwner = null;
             m_pConfigData = null;
             m_bActived = false;
-            m_bPreCanTrigger = false;
-            m_nSkillID = 0;
-            m_LastTriggerTime = 0;
-            m_nTriggerCount = 0;
-            m_nLevel = 0;
-            m_ActionType = EActionStateType.None;
-            m_nActionTag = 0;
-            m_CostAttrValue = 0;
-            m_nCostAttrType = 0; 
-            m_nAttrFormulaType = 0;
-
-            m_lConfigCD = 0;
-            m_nAttrFormulaType = 0;
+        }
+        //-----------------------------------------------------
+        public override void AddLockTarget(Actor pNode, bool bClear = false)
+        {
+        }
+        //-----------------------------------------------------
+        public override void ClearLockTargets()
+        {
+        }
+        //-----------------------------------------------------
+        public override List<Actor> GetLockTargets(bool isEmptyReLock = true)
+        {
+            return null;
         }
     }
 }

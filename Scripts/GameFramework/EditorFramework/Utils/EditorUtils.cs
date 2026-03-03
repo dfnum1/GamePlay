@@ -375,45 +375,54 @@ namespace Framework.ED
             return header.Contains("ftyp");
         }
         //------------------------------------------------------
+        static Assembly ms_TagLibSharp = null;
+        static void CheckTagLibDll()
+        {
+            if (ms_TagLibSharp == null)
+            {
+                foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (ass.GetName().Name == "TagLibSharp")
+                    {
+                        ms_TagLibSharp = ass;
+                        break;
+                    }
+                }
+                if (ms_TagLibSharp == null)
+                {
+                    string dllFile = "Assets/Plugins/TagLibSharp.dll";
+                    if (!File.Exists(dllFile))
+                    {
+                        string[] guids = UnityEditor.AssetDatabase.FindAssets("TagLibSharp t:Dll");
+                        foreach (string guid in guids)
+                        {
+                            string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                            if (path.EndsWith("TagLibSharp.dll", StringComparison.OrdinalIgnoreCase))
+                            {
+                                dllFile = path;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!File.Exists(dllFile))
+                        return;
+
+                    ms_TagLibSharp = Assembly.LoadFrom(dllFile);
+                }
+            }
+        }
+        //------------------------------------------------------
         public static float GetVideoDuration(string filePath)
         {
             if (!File.Exists(filePath)) return 0;
-            Assembly TagLibSharp = null;
-            foreach (var ass in System.AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if(ass.GetName().Name == "TagLibSharp")
-                {
-                    TagLibSharp = ass;
-                    break;
-                }
-            }
-            if(TagLibSharp == null)
-            {
-                string dllFile = "Assets/Plugins/TagLibSharp.dll";
-                if (!File.Exists(dllFile))
-                {
-                    string[] guids = UnityEditor.AssetDatabase.FindAssets("TagLibSharp t:Dll");
-                    foreach (string guid in guids)
-                    {
-                        string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-                        if (path.EndsWith("TagLibSharp.dll", StringComparison.OrdinalIgnoreCase))
-                        {
-                            dllFile = path;
-                            break;
-                        }
-                    }
-                }
 
-                if (!File.Exists(dllFile))
-                    return 0;
+            CheckTagLibDll();
 
-                TagLibSharp = Assembly.LoadFrom(dllFile);
-            }
-            
-            if (TagLibSharp == null) return 0;
+            if (ms_TagLibSharp == null) return 0;
 
             // 获取 TagLib.File 类型
-            var fileType = TagLibSharp.GetType("TagLib.File");
+            var fileType = ms_TagLibSharp.GetType("TagLib.File");
             if (fileType == null) return 0;
 
             // 调用静态方法 File.Create
@@ -432,6 +441,32 @@ namespace Framework.ED
             var duration = (TimeSpan)durationProp.GetValue(properties);
 
             return (float)duration.TotalSeconds;
+        }
+        //------------------------------------------------------
+        public static Vector2Int GetVideoSize(string filePath)
+        {
+            if (!File.Exists(filePath)) return Vector2Int.zero;
+            CheckTagLibDll();
+
+            if (ms_TagLibSharp == null) return Vector2Int.zero;
+
+            // 获取 TagLib.File 类型
+            var fileType = ms_TagLibSharp.GetType("TagLib.File");
+            if (fileType == null) return Vector2Int.zero;
+
+            // 调用静态方法 File.Create
+            var createMethod = fileType.GetMethod("Create", new[] { typeof(string) });
+            if (createMethod == null) return Vector2Int.zero;
+
+            var tfile = createMethod.Invoke(null, new object[] { filePath });
+            if (tfile == null) return Vector2Int.zero;
+
+            var propertiesProp = fileType.GetProperty("Properties");
+            var properties = propertiesProp.GetValue(tfile);
+
+            var widthProp = properties.GetType().GetProperty("VideoWidth");
+            var heightProp = properties.GetType().GetProperty("VideoHeight");
+            return new Vector2Int((int)widthProp.GetValue(properties), (int)heightProp.GetValue(properties));
         }
         //------------------------------------------------------
         public static string GetEditorResourcePath(string scriptLabel, string resSubPath = "EditorResources")

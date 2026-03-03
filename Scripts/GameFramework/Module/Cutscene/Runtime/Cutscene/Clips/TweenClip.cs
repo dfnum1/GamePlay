@@ -128,7 +128,7 @@ namespace Framework.Cutscene.Runtime
             if (m_pHold == null) return true;
             m_pHold.SetParamHold(true);
             var clipData = frameData.clip.Cast<TweenClip>();
-            m_Easing = CutsceneUtil.CreateTweenEasing(clipData.easeType);
+            m_Easing = CutsceneKit.CreateTweenEasing(clipData.easeType);
             return true;
         }
         //-----------------------------------------------------

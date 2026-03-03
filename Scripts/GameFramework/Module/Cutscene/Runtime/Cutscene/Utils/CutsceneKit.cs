@@ -1,6 +1,6 @@
 /********************************************************************
 生成日期:	07:23:2025
-类    名: 	CutsceneUtil
+类    名: 	CutsceneKit
 作    者:	HappLI
 描    述:	工具类
 *********************************************************************/
@@ -8,7 +8,7 @@ using Framework.AT.Runtime;
 using UnityEngine;
 namespace Framework.Cutscene.Runtime
 {
-    public class CutsceneUtil
+    public class CutsceneKit
     {
         public static bool RayInsectionFloor(out Vector3 retPos, Vector3 pos, Vector3 dir, float floorY = 0)
         {

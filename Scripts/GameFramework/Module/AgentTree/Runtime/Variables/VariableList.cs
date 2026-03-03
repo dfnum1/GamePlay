@@ -555,6 +555,11 @@ namespace Framework.AT.Runtime
         {
             if (m_vObjIds == null) m_vObjIds = new List<ObjId>(m_nCapacity);
             if (m_vTypes == null) m_vTypes = new List<TypeIndex>(m_nCapacity);
+            for(int i =0; i < m_vObjIds.Count; ++i)
+            {
+                if (m_vObjIds[i].id == value.id)
+                    return;
+            }    
             m_vTypes.Add(new TypeIndex(EVariableType.eObjId, (byte)m_vObjIds.Count));
             m_vObjIds.Add(value);
         }

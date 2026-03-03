@@ -699,6 +699,38 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
+        public void ClearGroupBindTrackDatas(ushort group)
+        {
+            if (m_CutsceneData == null || m_CutsceneData.groups == null)
+            {
+                return;
+            }
+            CutsceneData.Group cutGroup = m_CutsceneData.GetGroup(group);
+            if (cutGroup == null)
+            {
+                return;
+            }
+            ClearGroupBindTrackDatas(cutGroup);
+        }
+        //-----------------------------------------------------
+        public void ClearGroupBindTrackDatas(CutsceneData.Group group)
+        {
+            if (group == null || m_vBindTrackDatas == null) return;
+            if (m_vBindTrackDatas.TryGetValue(group, out var traks))
+            {
+                foreach (var dataDb in traks)
+                {
+                    if (dataDb is BindTrackData)
+                    {
+                        BindTrackData bindTrackData = (BindTrackData)dataDb;
+                        if (bindTrackData.outputDatas != null)
+                            bindTrackData.outputDatas.Release();
+                    }
+                }
+                traks.Clear();
+            }
+        }
+        //-----------------------------------------------------
         public ICutsceneObject GetBindLastCutsceneObject(ushort group)
         {
             if (m_CutsceneData == null || m_CutsceneData.groups == null)

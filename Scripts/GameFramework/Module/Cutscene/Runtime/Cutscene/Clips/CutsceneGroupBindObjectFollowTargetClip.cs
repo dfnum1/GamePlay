@@ -190,7 +190,7 @@ namespace Framework.Cutscene.Runtime
                         var targetTrans = pFollowTarget.GetUniyTransform();
                         if (targetTrans != null)
                         {
-                            var bindTrans = CutsceneUtil.Find(targetTrans,this.followBindSlot);
+                            var bindTrans = CutsceneKit.Find(targetTrans,this.followBindSlot);
                             if (bindTrans != null)
                             {
                                 positionTarget = bindTrans.position;
@@ -201,7 +201,7 @@ namespace Framework.Cutscene.Runtime
                         {
                             if (pFollowTarget.GetParamBindSlotMatrix(this.followBindSlot, out var bindSlotMatrix))
                             {
-                                positionTarget = CutsceneUtil.GetPosition(bindSlotMatrix);
+                                positionTarget = CutsceneKit.GetPosition(bindSlotMatrix);
                                 rotTarget = bindSlotMatrix.rotation;
                             }
                         }
@@ -392,7 +392,7 @@ namespace Framework.Cutscene.Runtime
                     var targetTrans = m_pFollowTargetObj.GetUniyTransform();
                     if (targetTrans != null)
                     {
-                        var bindTrans = CutsceneUtil.Find(targetTrans,clipData.followBindSlot);
+                        var bindTrans = CutsceneKit.Find(targetTrans,clipData.followBindSlot);
                         if (bindTrans != null)
                         {
                             m_BindSlotTransform = bindTrans;
@@ -419,7 +419,7 @@ namespace Framework.Cutscene.Runtime
                 {
                     if(m_pFollowTargetObj.GetParamBindSlotMatrix(clipData.followBindSlot, out var  bindSlotMatrix))
                     {
-                        finalPos = CutsceneUtil.GetPosition(bindSlotMatrix);
+                        finalPos = CutsceneKit.GetPosition(bindSlotMatrix);
                         finalRot = bindSlotMatrix.rotation;
                     }
                 }
