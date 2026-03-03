@@ -21,23 +21,11 @@ namespace Framework.ActorSystem.Runtime
     public class BuffSystem : TypeActor
     {
         private Actor m_pOwner = null;
-
-        private LinkedList<Skill> m_vInitiatives;
-        private LinkedList<Skill> m_vPassivitys;
-
-        private LinkedList<Skill> m_vTodoList = null;
-
-        List<Actor> m_vLockTargets = null;
-        private bool m_bAutoSkill = true;
-        Skill m_pCurrentSkill = null;
-        byte m_nNoActionSkillClear = 0;
-        Skill m_pNoActionCurrentSkill = null;
+        protected Dictionary<uint, Buff> m_vBuffs;
         //-----------------------------------------------------
         public BuffSystem()
         {
             m_pOwner = null;
-            m_bAutoSkill = true;
-            m_vTodoList = new LinkedList<Skill>();
         }
         //-----------------------------------------------------
         public ActorManager GetActorManager()
@@ -65,181 +53,34 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public List<Actor> GetLockTargets(bool isEmptyReLock = true)
         {
-            return m_vLockTargets;
+            return null;
         }
         //-----------------------------------------------------
-        [ATMethod("添加索敌单位")]
         public void AddLockTarget(Actor pNode, bool bClear = false)
         {
-            if (m_vLockTargets == null) m_vLockTargets = new List<Actor>(2);
-            if (bClear) m_vLockTargets.Clear();
-            if (!m_vLockTargets.Contains(pNode))
-                m_vLockTargets.Add(pNode);
         }
         //-----------------------------------------------------
         [ATMethod("清除索敌单位")]
         public void ClearLockTargets()
         {
-            if (m_vLockTargets != null)
-                m_vLockTargets.Clear();
         }
         //-----------------------------------------------------
-        [ATMethod("添加技能")]
-        public void AddSkill(Skill pSkill, ESkillType eType)
+        [ATMethod("添加Buff")]
+        public void AddBuff(Buff pBuff)
         {
-            if (pSkill == null) return;
-          //  pSkill.SetSkillSystem(this);
-            if (eType == ESkillType.eInitiative)
-            {
-                if (m_vInitiatives == null) m_vInitiatives = new LinkedList<Skill>();
-                if (!m_vInitiatives.Contains(pSkill))
-                    m_vInitiatives.AddLast(pSkill);
-            }
-            else
-            {
-                if (m_vPassivitys == null) m_vPassivitys = new LinkedList<Skill>();
-                if (!m_vPassivitys.Contains(pSkill))
-                    m_vPassivitys.AddLast(pSkill);
-            }
-            pSkill.OnInit();
-        }
-        //--------------------------------------------------------
-        internal void OnActionEndState(ActorAction pState)
-        {
-            if(m_pCurrentSkill!=null)
-            {
-                if(m_pCurrentSkill.GetActionType() == pState.type && m_pCurrentSkill.GetActionTag() == pState.actionTag)
-                {
-                    m_pCurrentSkill = null;
-                }
-            }
-        }
-        //--------------------------------------------------------
-        internal void OnActionStartState(ActorAction pState)
-        {
-        }
-        //-----------------------------------------------------
-        [ATMethod("获取当前技能")]
-        public Skill GetCurrentSkill(bool checkNoAction =true)
-        {
-            if (m_pCurrentSkill != null) return m_pCurrentSkill;
-            if(checkNoAction) return m_pNoActionCurrentSkill;
-            return null;
-        }
-        //-----------------------------------------------------
-        [ATMethod("执行技能")]
-        public bool DoSkill(Skill pSkill)
-        {
-            if (pSkill == null)
-                return false;
-            var pAction = m_pOwner.GetAction(pSkill.GetActionType(), pSkill.GetActionTag());
-            bool bFind = pSkill.DoLockTargets();
-            if (bFind)
-            {
-                if (pAction != null) m_pOwner.StartActionState(pAction, pStateParam:pSkill);
-                pSkill.SetUsed();
-                if (pAction != null)
-                {
-                    if(m_pCurrentSkill!= pSkill)
-                    {
-                        if (m_pCurrentSkill != null) m_pCurrentSkill.ClearContinueTrigger();
-                    }
-                    m_pCurrentSkill = pSkill;
-                }
-                else
-                {
-                    m_nNoActionSkillClear = 0;
-                    if(m_pNoActionCurrentSkill!= pSkill)
-                    {
-                        if (m_pNoActionCurrentSkill != null) m_pNoActionCurrentSkill.ClearContinueTrigger();
-                    }
-                    m_pNoActionCurrentSkill = pSkill;
-                }
-                m_pOwner.GetAgent<ActorAgentTree>()?.OnSkill(pSkill);
-            }
-            return bFind;
-        }
-        //-----------------------------------------------------
-        void DoSkill()
-        {
-            if (m_vTodoList == null)
-                return;
-            Skill doSkill = null;
-            uint priority = 0;
-            ActorAction pAction = null;
-            for (var node = m_vTodoList.First; node != null; node = node.Next)
-            {
-                Skill skill = node.Value;
-                var action = m_pOwner.GetAction(skill.GetActionType(), skill.GetActionTag());
-                if (action == null)
-                {
-                    DoSkill(skill);
-                    continue;
-                }
-                if (action.priority >= m_pOwner.GetCurrentPlayActionStatePriority(action.layer))
-                {
-                    if (action != null && action.priority >= priority)
-                    {
-                        priority = action.priority;
-                        doSkill = skill;
-                        pAction = action;
-                    }
-                }
-            }
-            if (doSkill != null)
-            {
-                DoSkill(doSkill);
-            }
-            m_vTodoList.Clear();
+            if (pBuff == null) return;
+            pBuff.SetSystem(this);
+            pBuff.
+            pBuff.OnInit();
         }
         //-----------------------------------------------------
         public void Update(FFloat fFrame)
         {
-            if(m_vInitiatives!=null)
+            if (m_vBuffs != null)
             {
-                for(var node = m_vInitiatives.First; node !=null; node = node.Next)
+                foreach(var buff in m_vBuffs)
                 {
-                    Skill skill = node.Value;
-                    skill.Update(fFrame);
-                    if (!skill.IsActived())
-                        continue;
-                    if (skill.CanTrigger() && !m_vTodoList.Contains(skill))
-                    {
-                        //! 先直接使用，且跳出检测
-                        //     m_pOwner.GetActorGraph()
-                        //      m_pOwner.StartSkill();
-                        m_vTodoList.AddLast(skill);
-                    }
-                }
-            }
-            if (m_vPassivitys != null)
-            {
-                for (var node = m_vPassivitys.First; node != null; node = node.Next)
-                {
-                    Skill skill = node.Value;
-                    skill.Update(fFrame);
-                    if (!skill.IsActived())
-                        continue;
-                    if (skill.CanTrigger() && !m_vTodoList.Contains(skill))
-                    {
-                        //! 先直接使用，且跳出检测
-                        m_vTodoList.AddLast(skill);
-                    }
-                }
-            }
-
-            if(m_bAutoSkill)
-            {
-                DoSkill();
-            }
-
-            if(m_pNoActionCurrentSkill!=null)
-            {
-                m_nNoActionSkillClear++;
-                if(m_nNoActionSkillClear>2)
-                {
-                    m_pNoActionCurrentSkill = null;
-                    m_nNoActionSkillClear = 0;
+                    buff.Value.Update(fFrame);
                 }
             }
         }

@@ -24,6 +24,7 @@ namespace Framework.ED
         const string PACKAGE_NAME = "com.rd1.center.gameplay";
         private static bool ms_LoadUnityPluginCheck = false;
         private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
+        private static System.Reflection.MethodInfo ms_pGetAssetPathUnityPlugin = null;
         //-----------------------------------------------------
         public static bool IsGamePlayInnerType(System.Type type)
         {
@@ -71,6 +72,8 @@ namespace Framework.ED
                         {
                             var clipAttri = tp.GetCustomAttribute<EditorLoaderAttribute>();
                             ms_pLoadUnityPlugin = tp.GetMethod(clipAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                            if(!string.IsNullOrEmpty(clipAttri.getAssetPathMethod))
+                                ms_pGetAssetPathUnityPlugin = tp.GetMethod(clipAttri.getAssetPathMethod, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                             break;
                         }
                     }
@@ -93,6 +96,18 @@ namespace Framework.ED
                     return returnObj as T;
             }
             return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(file);
+        }
+        //-----------------------------------------------------
+        public static string GetAssetFullPath(string file)
+        {
+            EditorPluginInit();
+            if (ms_pGetAssetPathUnityPlugin != null)
+            {
+                var returnObj = ms_pGetAssetPathUnityPlugin.Invoke(null, new object[] { file });
+                if (returnObj != null && returnObj is string)
+                    return returnObj as string;
+            }
+            return file;
         }
         //-----------------------------------------------------
         public static UnityEngine.Object EditLoadUnityObject(string file, System.Type type) 

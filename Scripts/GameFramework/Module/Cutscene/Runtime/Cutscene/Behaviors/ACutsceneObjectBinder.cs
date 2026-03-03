@@ -118,7 +118,7 @@ namespace Framework.Cutscene.Runtime
     {
         ACutsceneObjectBinder m_pBinder;
         //-----------------------------------------------------
-        public BinderUnityObject(CutsceneObjectBinder binder)
+        public BinderUnityObject(ACutsceneObjectBinder binder)
         {
             m_pBinder = binder;
         }

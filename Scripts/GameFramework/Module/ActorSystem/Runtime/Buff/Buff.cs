@@ -9,6 +9,8 @@ using Framework.AT.Runtime;
 using Framework.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Core;
+
 
 
 #if USE_FIXEDMATH
@@ -20,13 +22,21 @@ using FFloat = System.Single;
 namespace Framework.ActorSystem.Runtime
 {
     [ATInteralExport("Actor系统/Buff", -4, "ActorSystem/actor_buff")]
-    public class Buff : AActorStateInfo
+    public class Buff : AActorStateInfo, IOperatorCallback
     {
+        enum EStatus : byte
+        {
+            eNone,
+            eBegin,
+            eTicking,
+            eEnd,
+        }
         protected byte                  m_nBuffType = 0;//增益、减益、控制等类型
-
+        private EStatus                 m_eStatus = EStatus.eNone;
         private uint                    m_nLevel = 0;
 
         private byte[]                  m_arrAttrTypes = null;
+        private byte[]                  m_arrAttrValueTypes = null;
         private FFloat[]                m_arrAttrValues = null;
 
         private float                   m_fBeginScale = 1;
@@ -49,6 +59,10 @@ namespace Framework.ActorSystem.Runtime
         protected IContextData          m_pConfigData = null;
         protected BuffSystem            m_pOwner = null;
         protected bool                  m_bActived = false;
+
+        private AOperatorHandle         m_BeginOpHandler = null;
+        private AOperatorHandle         m_StepOpHandler = null;
+        private AOperatorHandle         m_EndOpHandler = null;
         //-----------------------------------------------------
         public Buff()
         {
@@ -82,11 +96,52 @@ namespace Framework.ActorSystem.Runtime
 
         }
         //-----------------------------------------------------
-        public void Update(FFloat fFrame)
+        internal bool Update(FFloat fFrame)
         {
             if (!m_bActived)
-                return;
+                return true;
+
+            switch(m_eStatus)
+            {
+                case EStatus.eNone:
+                    {
+                        if (m_BeginOpHandler != null) m_BeginOpHandler.Free();
+                        m_BeginOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strBeginEffect, this);
+                        m_eStatus = EStatus.eBegin;
+                    }
+                    break;
+                case EStatus.eBegin:
+                    {
+                        if (m_StepOpHandler != null) m_StepOpHandler.Free();
+                        m_StepOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect,this);
+                        m_eStatus = EStatus.eTicking;
+                    }
+                    break;
+                case EStatus.eTicking:
+                    {
+                        bool isEnd = false;
+
+                        if(isEnd)
+                        {
+                            if (m_EndOpHandler != null) m_EndOpHandler.Free();
+                            m_EndOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect, this);
+                            m_eStatus = EStatus.eEnd;
+                        }
+                    }
+                    break;
+                case EStatus.eEnd:
+                    {
+
+                    }
+                    break;
+            }
             OnUpdate(fFrame);
+            return true;
+        }
+        //-----------------------------------------------------
+        public bool IsEnd()
+        {
+            return m_eStatus == EStatus.eEnd;
         }
         //-----------------------------------------------------
         public bool IsActived()
@@ -126,6 +181,19 @@ namespace Framework.ActorSystem.Runtime
             m_pOwner = null;
             m_pConfigData = null;
             m_bActived = false;
+            m_eStatus = EStatus.eNone;
+            if(m_BeginOpHandler!=null)
+            {
+                m_BeginOpHandler.Free(); m_BeginOpHandler = null;
+            }
+            if (m_StepOpHandler != null)
+            {
+                m_StepOpHandler.Free(); m_StepOpHandler = null;
+            }
+            if (m_EndOpHandler != null)
+            {
+                m_EndOpHandler.Free(); m_EndOpHandler = null;
+            }
         }
         //-----------------------------------------------------
         public override void AddLockTarget(Actor pNode, bool bClear = false)
@@ -139,6 +207,33 @@ namespace Framework.ActorSystem.Runtime
         public override List<Actor> GetLockTargets(bool isEmptyReLock = true)
         {
             return null;
+        }
+        //-----------------------------------------------------
+        public void OnOperatorCallback(AOperatorHandle pCallback, bool doSignCheck)
+        {
+            if(doSignCheck)
+            {
+                pCallback.SetUsed(IsActived() && m_eStatus != EStatus.eNone);
+                if(!pCallback.IsUsed())
+                {
+                    if (pCallback == m_BeginOpHandler)
+                    {
+                        m_BeginOpHandler = null;
+                    }
+                    else if (pCallback == m_StepOpHandler)
+                    {
+                        m_StepOpHandler = null;
+                    }
+                    else if (pCallback == m_EndOpHandler)
+                    {
+                        m_EndOpHandler = null;
+                    }
+                }
+            }
+            else
+            {
+                pCallback.GetObject<GameObject>();
+            }
         }
     }
 }

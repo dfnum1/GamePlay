@@ -69,6 +69,7 @@ namespace Framework.Cutscene.Editor
             {
                 foreach (var state in layer.stateMachine.states)
                 {
+                    if (state.state ==null || state.state.motion == null) continue;
                     m_actionList.Add(new ActionData
                     {
                         controllerPath = controllerPath,

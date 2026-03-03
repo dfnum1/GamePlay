@@ -14,11 +14,13 @@ namespace Framework.DrawProps
     {
 #if UNITY_EDITOR
         public string method;
+        public string getAssetPathMethod = "GetAssetPath";
 #endif
-        public EditorLoaderAttribute(string method)
+        public EditorLoaderAttribute(string method, string getAssetPathMethod)
         {
 #if UNITY_EDITOR
             this.method = method;
+            this.getAssetPathMethod = getAssetPathMethod;
 #endif
         }
     }

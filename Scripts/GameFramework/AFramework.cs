@@ -48,6 +48,7 @@ namespace Framework.Core
         protected long      m_lRuntimeUnScale = 0;
 
         protected FrameworkShareCache           m_ShaderCache;
+        private FileSystem                      m_FileSystem = null;
 
         private Dictionary<int, AModule>        m_vTypeModdules = new Dictionary<int, AModule>(32);
         private List<AModule>                   m_vModdules = new List<AModule>(32);
@@ -71,6 +72,7 @@ namespace Framework.Core
             if (m_pGame != null)
                 return;
 
+            m_FileSystem = AddModule<FileSystem>();
             AddModule<TouchInput>();
             var atMgr = AddModule<AT.Runtime.AgentTreeManager>(); atMgr.RegisterCallback(this);
             var cutsceneMgr = AddModule<Cutscene.Runtime.CutsceneManager>(); cutsceneMgr.RegisterCallback(this);
@@ -129,6 +131,11 @@ namespace Framework.Core
                 if (m_ShaderCache == null) m_ShaderCache = new FrameworkShareCache(this);
                 return m_ShaderCache;
             }
+        }
+        //------------------------------------------------------
+        public FileSystem GetFileSystem()
+        {
+            return m_FileSystem;
         }
         //------------------------------------------------------
         public T GetModule<T>() where T : AModule

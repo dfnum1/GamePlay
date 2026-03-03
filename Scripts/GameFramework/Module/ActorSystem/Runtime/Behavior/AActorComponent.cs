@@ -6,6 +6,8 @@
 *********************************************************************/
 using System.Collections.Generic;
 using UnityEngine;
+using Framework.Core;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,7 +17,7 @@ using Framework.ProjectileSystem.Editor;
 
 namespace Framework.ActorSystem.Runtime
 {
-    public abstract class AActorComponent : MonoBehaviour, IContextData
+    public abstract class AActorComponent : InstanceAble
     {
         [System.Serializable]
         public struct Slot
