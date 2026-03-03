@@ -325,7 +325,7 @@ namespace Framework.Cutscene.Editor
             sb.AppendLine("//auto generator");
             sb.AppendLine("namespace Framework.Cutscene.Runtime");
             sb.AppendLine("{");
-            sb.AppendLine("\tpublic class CutsceneKit");
+            sb.AppendLine("\tpublic class CutsceneUtil");
             sb.AppendLine("\t{");
             sb.AppendLine("\t\tpublic static "+ dataName + " CreateDataer("+ dataTypeName + " type, ushort typeId)");
             sb.AppendLine("\t\t{");

@@ -114,11 +114,11 @@ namespace Framework.Cutscene.Runtime
     }
 #endif
     //-----------------------------------------------------
-    internal class BinderUnityObject : ICutsceneObject
+    public struct BinderUnityObject : ICutsceneObject
     {
         ACutsceneObjectBinder m_pBinder;
         //-----------------------------------------------------
-        internal BinderUnityObject(ACutsceneObjectBinder binder)
+        public BinderUnityObject(CutsceneObjectBinder binder)
         {
             m_pBinder = binder;
         }
