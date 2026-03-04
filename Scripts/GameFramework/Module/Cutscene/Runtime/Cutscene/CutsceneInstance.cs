@@ -24,7 +24,12 @@ namespace Framework.Cutscene.Runtime
 
     }
     //-----------------------------------------------------
-    public class CutsceneInstance : IUserData
+    public interface ICutsceneHandler : IUserData
+    {
+        bool IsDestroyed();
+    }
+    //-----------------------------------------------------
+    public class CutsceneInstance : ICutsceneHandler
     {
         bool                                        m_bEnable = false;
         bool                                        m_bEditorMode = false;
@@ -228,13 +233,14 @@ namespace Framework.Cutscene.Runtime
             return m_pAgentTree.ExecuteTask(type, vArgvs, bAutoReleaseAgvs);
         }
         //-----------------------------------------------------
-        public bool LoadAsset(string file, System.Action<UnityEngine.Object> onCallback, bool bAsync = true)
+        public bool LoadAsset(string file, System.Action<UnityEngine.Object> onCallback, bool bAsync = true, ICutsceneHandler handler = null)
         {
             if (m_pMgr == null)
             {
                 return false;
             }
-            m_pMgr.LoadAsset(file, onCallback, bAsync);
+            if (handler == null) handler = this;
+            m_pMgr.LoadAsset(handler,file, onCallback, bAsync);
             return true;
         }
         //-----------------------------------------------------
@@ -248,16 +254,17 @@ namespace Framework.Cutscene.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SpawnInstance(string file, System.Action<UnityEngine.GameObject> onCallback, bool bAsync = true)
+        public bool SpawnInstance(string file, System.Action<InstanceAble> onCallback, bool bAsync = true, ICutsceneHandler handler = null)
         {
             if (m_pMgr == null)
             {
                 return false;
             }
-            return m_pMgr.SpawnInstance(file, onCallback, bAsync);
+            if (handler == null) handler = this;
+            return m_pMgr.SpawnInstance(handler, file, onCallback, bAsync);
         }
         //-----------------------------------------------------
-        public void DespawnInstance(GameObject pInstance, string name = null)
+        public void DespawnInstance(InstanceAble pInstance, string name = null)
         {
             if (m_pMgr == null)
             {

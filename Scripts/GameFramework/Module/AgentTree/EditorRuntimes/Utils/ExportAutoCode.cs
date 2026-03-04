@@ -17,6 +17,7 @@ using System.Text;
 using Unity.Burst.Intrinsics;
 using UnityEditor;
 using UnityEngine;
+using static PlasticPipe.Client.InvokeMethodRetry;
 
 namespace Framework.AT.Editor
 {
@@ -221,6 +222,59 @@ namespace Framework.AT.Editor
                                 exportData.methods[exportMth.memberName] = exportMth;
                             }
                         }
+                        PropertyInfo[] propfields = types[i].GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
+                        for (int m = 0; m < propfields.Length; ++m)
+                        {
+                            if (propfields[m].IsDefined(typeof(ATFieldAttribute), false))
+                            {
+                                if (!CheckCanExport(propfields[m]))
+                                {
+                                    Debug.LogWarning(typeName + " Property " + propfields[m].Name + " can not export!");
+                                    continue;
+                                }
+                                ATFieldAttribute attr = (ATFieldAttribute)propfields[m].GetCustomAttribute(typeof(ATFieldAttribute));
+                                if (!attr.bGet && !attr.bSet)
+                                {
+                                    continue;
+                                }
+                                ExportInfo exportData;
+                                if (!ms_vExports.TryGetValue(typeName, out exportData))
+                                {
+                                    exportData = new ExportInfo();
+                                    exportData.guid = exportAttr.guid;
+                                    if (exportData.guid == 0)
+                                    {
+                                        exportData.guid = BuildHashCode(tp);
+                                    }
+                                    if (bInternal)
+                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                                    else
+                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
+                                    exportData.type = tp;
+                                    exportData.exportAttr = exportAttr;
+                                    ms_vExports.Add(typeName, exportData);
+                                }
+                                if (!exportData.methodCount.TryGetValue(propfields[m].Name, out var methodCnt))
+                                {
+                                    methodCnt = 0;
+                                }
+                                methodCnt++;
+                                exportData.methodCount[propfields[m].Name] = methodCnt;
+                                exportData.usingCode = CheckUsing(propfields[m], exportData.usingCode);
+
+                                ExportInfo.ExportMemberInfo exportMth = new ExportInfo.ExportMemberInfo();
+                                exportMth.info = propfields[m];
+                                exportMth.fieldAttr = attr;
+                                exportMth.attr = null;
+                                exportMth.displayName = attr.method;
+                                if (methodCnt <= 1) exportMth.memberName = propfields[m].Name;
+                                else exportMth.memberName = propfields[m].Name + "_" + (methodCnt - 1);
+                                exportMth.guid = 0;
+                                if (string.IsNullOrEmpty(exportMth.displayName))
+                                    exportMth.displayName = exportMth.memberName;
+                                exportData.methods[exportMth.memberName] = exportMth;
+                            }
+                        }
                     }
                 }
             }
@@ -296,6 +350,10 @@ namespace Framework.AT.Editor
                 else if (db.Value.info is FieldInfo)
                 {
                     ExportField(code, methodCode, export, db.Value);
+                }
+                else if (db.Value.info is PropertyInfo)
+                {
+                    ExportProperty(code, methodCode, export, db.Value);
                 }
             }
             code.AppendLine("\t\t\t}");
@@ -616,12 +674,12 @@ namespace Framework.AT.Editor
             {
                 if (string.IsNullOrEmpty(drawMethod))
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                 }
                 else
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
                 }
 
@@ -635,18 +693,18 @@ namespace Framework.AT.Editor
             {
                 if(!isModule)
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                 }
 
                 if (string.IsNullOrEmpty(drawMethod))
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                 }
                 else
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
                 }
 
@@ -752,6 +810,189 @@ namespace Framework.AT.Editor
                 }
 
                 code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(field.FieldType)}(pNode,{1})");
+                code.AppendLine($");");
+                code.AppendLine("\t\t\t}");
+            }
+        }
+        //-----------------------------------------------------
+        static void ExportProperty(StringBuilder code, StringBuilder methodCode, ExportInfo export, ExportInfo.ExportMemberInfo info)
+        {
+            PropertyInfo propField = info.info as PropertyInfo;
+            string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
+            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            bool isModule = export.type.IsSubclassOf(typeof(AModule));
+
+            var paramType = ConvertTypeToATType(propField.PropertyType);
+
+            string functionNameGet = "AT_Get_" + info.memberName;
+            string functionNameSet = "AT_Set_" + info.memberName;
+            int getGuid = ATRtti.BuildHashCode(GetTypeName(export.type) + ".Get_" + info.memberName);
+            int setGuid = ATRtti.BuildHashCode(GetTypeName(export.type) + ".Set_" + info.memberName);
+
+            string castLabel = "";
+            if (propField.PropertyType.IsEnum)
+            {
+                castLabel = "(int)";
+            }
+
+            string drawMethod = null;
+            if (propField.IsDefined(typeof(ATArgvDrawerAttribute)))
+            {
+                var methodAttr = propField.GetCustomAttribute<ATArgvDrawerAttribute>();
+                drawMethod = methodAttr.drawerMethod;
+            }
+
+            bool isStaticGet = false;
+            bool isStaticSet = false;
+            if (propField.GetMethod.IsStatic) isStaticGet = true;
+            if (propField.SetMethod.IsStatic) isStaticSet = true;
+
+            string functionCallGet = "";
+            string functionCallSet = "";
+            string functionAttributesGet = $"\t\t[ATFunction({getGuid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+            string functionAttributesSet = $"\t\t[ATFunction({setGuid},\"{info.displayName}\",typeof({GetTypeName(export.type)}),false)]\r\n";
+            string functionHeadGet = "\t\tstatic bool " + functionNameGet + "(";
+            string functionHeadSet = "\t\tstatic bool " + functionNameSet + "(";
+            if (isStaticGet|| isStaticSet)
+            {
+                if (string.IsNullOrEmpty(drawMethod))
+                {
+                    if(isStaticGet) functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                    if(isStaticSet) functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                }
+                else
+                {
+                    if (isStaticGet) functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    if (isStaticSet) functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                }
+
+                if (isStaticGet) functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(propField.PropertyType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{propField.Name});";
+                if (isStaticSet) functionCallSet += $"\t\t\t{GetTypeName(export.type)}.{propField.Name}={propField.Name};";
+
+                if (isStaticGet) functionHeadGet += $"AgentTree pAgentTree, BaseNode pNode";
+                if (isStaticSet) functionHeadSet += $"{GetTypeName(propField.PropertyType)} {propField.Name}";
+            }
+            else
+            {
+                if (!isModule)
+                {
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\", null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                }
+
+                if (string.IsNullOrEmpty(drawMethod))
+                {
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
+                }
+                else
+                {
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                }
+
+                functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(propField.PropertyType)}(pNode, 0, {castLabel}pPointerThis.{propField.Name});";
+                functionCallSet += $"\t\t\tpPointerThis.{propField.Name}={propField.Name};";
+
+                functionHeadGet += $"{oriTypeClassName} pPointerThis, AgentTree pAgentTree, BaseNode pNode";
+                functionHeadSet += $"{oriTypeClassName} pPointerThis,{GetTypeName(propField.PropertyType)} {propField.Name}";
+            }
+
+            functionHeadGet += ")";
+            functionHeadSet += ")";
+            if (functionAttributesGet.EndsWith("\r\n"))
+                functionAttributesGet = functionAttributesGet.Substring(0, functionAttributesGet.Length - "\r\n".Length);
+
+            if (functionAttributesSet.EndsWith("\r\n"))
+                functionAttributesSet = functionAttributesSet.Substring(0, functionAttributesSet.Length - "\r\n".Length);
+
+            if (info.fieldAttr.bGet && propField.GetMethod.IsPublic)
+            {
+                methodCode.AppendLine("#if UNITY_EDITOR");
+                methodCode.AppendLine(functionAttributesGet);
+                methodCode.AppendLine("#endif");
+                methodCode.AppendLine(functionHeadGet);
+                methodCode.AppendLine("\t\t{");
+                methodCode.AppendLine(functionCallGet);
+                methodCode.AppendLine("\t\t\treturn true;");
+                methodCode.AppendLine("\t\t}");
+
+
+                code.AppendLine("\t\t\tcase " + getGuid + ":" + "//" + info.info.Name + " get");
+                code.AppendLine("\t\t\t{");
+
+                if (!isStaticGet && !isModule)
+                {
+                    code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+                }
+                else
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                if (isModule)
+                {
+                    code.AppendLine($"\t\t\t\t{export.type} pModulePointer = pAgentTree.GetModule<{export.type}>();");
+                    code.AppendLine($"\t\t\t\tif(pModulePointer == null) return true;");
+                }
+
+                if (isModule)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pModulePointer, pAgentTree, pNode");
+                }
+                else if (!isStaticGet)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(({oriTypeClassName})pUserClass.pPointer, pAgentTree, pNode");
+                }
+                else
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pAgentTree, pNode");
+                }
+
+                code.AppendLine($");");
+                code.AppendLine("\t\t\t}");
+            }
+
+            if (info.fieldAttr.bSet && !export.type.IsValueType && propField.SetMethod.IsPublic)
+            {
+                methodCode.AppendLine("#if UNITY_EDITOR");
+                methodCode.AppendLine(functionAttributesSet);
+                methodCode.AppendLine("#endif");
+                methodCode.AppendLine(functionHeadSet);
+                methodCode.AppendLine("\t\t{");
+                methodCode.AppendLine(functionCallSet);
+                methodCode.AppendLine("\t\t\treturn true;");
+                methodCode.AppendLine("\t\t}");
+
+                code.AppendLine("\t\t\tcase " + setGuid + ":" + "//" + info.info.Name + " set");
+                code.AppendLine("\t\t\t{");
+
+                if (!isStaticSet && !isModule)
+                {
+                    code.AppendLine("\t\t\t\tif(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;");
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                    code.AppendLine($"\t\t\t\tif(!(pUserClass.pPointer is {oriTypeClassName})) return true;");
+                }
+                else
+                    code.AppendLine($"\t\t\t\tif(pNode.GetInportCount() <= {1}) return true;");
+                if (isModule)
+                {
+                    code.AppendLine($"\t\t\t\t{export.type} pModulePointer = pAgentTree.GetModule<{export.type}>();");
+                    code.AppendLine($"\t\t\t\tif(pModulePointer == null) return true;");
+                }
+                if (isModule)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameGet}(pModulePointer,");
+                }
+                else if (!isStaticSet)
+                {
+                    code.Append($"\t\t\t\treturn {functionNameSet}(({oriTypeClassName})pUserClass.pPointer,");
+                }
+                else
+                {
+                    code.Append($"\t\t\t\treturn {functionNameSet}(");
+                }
+
+                code.Append($"{castLabel}pAgentTree.{ConvertTypeToATGetInPortFunction(propField.PropertyType)}(pNode,{1})");
                 code.AppendLine($");");
                 code.AppendLine("\t\t\t}");
             }
@@ -982,6 +1223,25 @@ namespace Framework.AT.Editor
             return usingCode;
         }
         //-----------------------------------------------------
+        static string CheckUsing(PropertyInfo method, string usingCode)
+        {
+            if (usingCode == null) usingCode = "";
+            if (method.PropertyType != null && SupportExportATType(method.PropertyType))
+            {
+                if (method.PropertyType.Namespace.Contains("ExternEngine") && method.PropertyType.Name.StartsWith("F"))
+                {
+                    if (string.IsNullOrEmpty(usingCode))
+                    {
+                        usingCode += "#if USE_FIXEDMATH\r\nusing ExternEngine;\r\n#else\r\n";
+                    }
+                    string usingEq = $"using {method.PropertyType.Name}=UnityEngine.{method.PropertyType.Name.Substring(1)};";
+                    if (!usingCode.Contains(usingEq))
+                        usingCode += usingEq += "\r\n";
+                }
+            }
+            return usingCode;
+        }
+        //-----------------------------------------------------
         static bool CheckMethodCanExport(MethodInfo method)
         {
             if(!SupportExportATType(method.ReturnType))
@@ -1012,6 +1272,15 @@ namespace Framework.AT.Editor
         static bool CheckCanExport(FieldInfo method)
         {
             if (!SupportExportATType(method.FieldType))
+            {
+                return false;
+            }
+            return true;
+        }
+        //-----------------------------------------------------
+        static bool CheckCanExport(PropertyInfo method)
+        {
+            if (!SupportExportATType(method.PropertyType))
             {
                 return false;
             }

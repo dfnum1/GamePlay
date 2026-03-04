@@ -590,7 +590,7 @@ namespace Framework.SpriteSeq
             return null;
         }
         //-----------------------------------------------------
-        static void OnEditorInitOnload()
+        internal static void OnEditorInitOnload()
         {
             s_CustomIcon = Framework.ED.EditorUtils.LoadEditorResource<Texture2D>("SpriteSequence/icon.png");
             EditorApplication.projectWindowItemOnGUI += OnProjectWindowItemGUI;

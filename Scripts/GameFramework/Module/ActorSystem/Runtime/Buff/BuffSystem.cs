@@ -70,8 +70,6 @@ namespace Framework.ActorSystem.Runtime
         {
             if (pBuff == null) return;
             pBuff.SetSystem(this);
-            pBuff.
-            pBuff.OnInit();
         }
         //-----------------------------------------------------
         public void Update(FFloat fFrame)
@@ -85,43 +83,8 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
-        [ATMethod("设置自动执行")]
-        public void EnableAutoSkill(bool bAuto)
-        {
-            m_bAutoSkill = bAuto;
-        }
-        //-----------------------------------------------------
-        [ATMethod("是否自动执行")]
-        public bool IsAutoSkill()
-        {
-            return m_bAutoSkill;
-        }
-        //-----------------------------------------------------
         public override void Destroy()
         {
-            if (m_vInitiatives != null)
-            {
-                for (var node = m_vInitiatives.First; node != null; node = node.Next)
-                {
-                    node.Value.Destroy();
-                }
-                m_vInitiatives.Clear();
-            }
-            if (m_vPassivitys != null)
-            {
-                for (var node = m_vPassivitys.First; node != null; node = node.Next)
-                {
-                    node.Value.Destroy();
-                }
-                m_vPassivitys.Clear();
-            }
-            if (m_vTodoList != null) m_vTodoList.Clear();
-            m_pOwner = null;
-            if (m_vLockTargets != null) m_vLockTargets.Clear();
-            m_bAutoSkill = true;
-            m_pCurrentSkill = null;
-            m_nNoActionSkillClear = 0;
-            m_pNoActionCurrentSkill = null;
         }
     }
 }

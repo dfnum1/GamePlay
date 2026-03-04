@@ -8,6 +8,8 @@ using Framework.DrawProps;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Framework.Core;
+
 
 
 #if UNITY_EDITOR
@@ -337,9 +339,9 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public class ProjecitleDriver : ACutsceneDriver
     {
-        private GameObject m_StartInstance;
-        private GameObject m_LaunchInstance;
-        private GameObject m_EndInstance;
+        private InstanceAble m_StartInstance;
+        private InstanceAble m_LaunchInstance;
+        private InstanceAble m_EndInstance;
         private Transform m_StartBindTrans;
         private Transform m_EndBindTrans;
         private string m_lastStartBindNode = null;
@@ -365,7 +367,7 @@ namespace Framework.Cutscene.Runtime
             m_EndBindTrans = null;
         }
         //-----------------------------------------------------
-        public GameObject GetGameObject(int state)
+        public InstanceAble GetGameObject(int state)
         {
             switch(state)
             {
@@ -386,7 +388,7 @@ namespace Framework.Cutscene.Runtime
             return null;
         }
         //-----------------------------------------------------
-        void SetGameObject(int state, GameObject obj, ParticleSystem[] particles)
+        void SetGameObject(int state, InstanceAble obj, ParticleSystem[] particles)
         {
             switch(state)
             {
@@ -411,39 +413,39 @@ namespace Framework.Cutscene.Runtime
             }
         }
         //-----------------------------------------------------
-        public GameObject GetStartInstance()
+        public InstanceAble GetStartInstance()
         {
             return GetGameObject(0);
         }
         //-----------------------------------------------------
-        public GameObject GetEndInstance()
+        public InstanceAble GetEndInstance()
         {
             return GetGameObject(2);
         }
         //-----------------------------------------------------
-        public GameObject GetLaunchInstance()
+        public InstanceAble GetLaunchInstance()
         {
             return GetGameObject(1);
         }
         //-----------------------------------------------------
-        void OnInstanceStart(GameObject pObj)
+        void OnInstanceStart(InstanceAble pObj)
         {
             OnInstance(pObj,0);
         }
         //-----------------------------------------------------
-        void OnInstanceLaunch(GameObject pObj)
+        void OnInstanceLaunch(InstanceAble pObj)
         {
             OnInstance(pObj, 1);
         }
         //-----------------------------------------------------
-        void OnInstanceEnd(GameObject pObj)
+        void OnInstanceEnd(InstanceAble pObj)
         {
             OnInstance(pObj, 2);
             if (pObj)
                 pObj.transform.localScale = Vector3.zero;
         }
         //-----------------------------------------------------
-        void OnInstance(GameObject pObj, int state)
+        void OnInstance(InstanceAble pObj, int state)
         {
             if (pObj == null)
                 return;

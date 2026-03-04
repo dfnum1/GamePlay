@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Framework.AT.Runtime;
+using Framework.Core;
+
 
 
 
@@ -202,7 +204,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public class ParticleDriver : ACutsceneDriver, ICutsceneObject
     {
-        private GameObject m_Instance;
+        private InstanceAble m_Instance;
         private Transform m_BindTrans;
         private Vector3 m_BindOffset;
         private Vector3 m_BindRotate;
@@ -217,12 +219,12 @@ namespace Framework.Cutscene.Runtime
             m_lastBindNode = null;
         }
         //-----------------------------------------------------
-        public GameObject GetInstance()
+        public InstanceAble GetInstance()
         {
             return m_Instance;
         }
         //-----------------------------------------------------
-        void OnInstance(GameObject pObj)
+        void OnInstance(InstanceAble pObj)
         {
             if (pObj == null)
                 return;

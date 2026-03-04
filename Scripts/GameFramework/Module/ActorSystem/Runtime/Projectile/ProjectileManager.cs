@@ -18,6 +18,7 @@ using Framework.ActorSystem.Runtime;
 using Framework.AT.Runtime;
 using static UnityEngine.GraphicsBuffer;
 using Framework.Base;
+using Framework.Core;
 #if USE_SERVER
 using Transform = ExternEngine.Transform;
 #endif
@@ -584,12 +585,21 @@ namespace Framework.ActorSystem.Runtime
             }
             if (!string.IsNullOrEmpty(projectileData.effect))
             {
-                m_pActorManager.SpawnInstance(projectileData.effect, (ins) =>
-                {
-                    pProjectile.SetObjectAble(ins);
-                });
+                var op = GetFileSystem().SpawnInstance(projectileData.effect, OnSpawnInstance, true);
+                op.SetUserData(0, pProjectile);
             }
 #endif
+        }
+        //------------------------------------------------------
+        void OnSpawnInstance(InstanceOperator op, bool check)
+        {
+            ProjectileActor pProjectile = op.GetUserData<ProjectileActor>(0);
+            if(check)
+            {
+                op.SetUsed(!pProjectile.IsDestroy());
+                return;
+            }
+            pProjectile.SetObjectAble(op.GetInstanceAble());
         }
         //------------------------------------------------------
         public uint BoundLaunchProjectile(ProjectileActor projectile, Actor pTarget, Actor pHitActor, int boundCnt, byte boundAttackGroup=0xff, bool bImmdeate = true)

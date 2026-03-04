@@ -6,7 +6,9 @@
 *********************************************************************/
 using ExternEngine;
 using Framework.AT.Runtime;
+using Framework.Base;
 using Framework.Core;
+using Framework.Data;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -14,10 +16,6 @@ namespace Framework.Cutscene.Runtime
 {
     public interface ICutsceneCallback
     {
-        bool OnLoadAsset(string name, System.Action<UnityEngine.Object> onLoaded, bool bAsync = true);
-        bool OnUnloadAsset(UnityEngine.Object pAsset);
-        bool OnSpawnInstance(string name, System.Action<UnityEngine.GameObject> onLoaded, bool bAsync = true);
-        bool OnDespawnInstance(GameObject pInstance, string name = null);
         void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status);
         bool OnCutscenePlayableCreateClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip);
         bool OnCutscenePlayableDestroyClip(CutscenePlayable playable, CutsceneTrack track, IBaseClip clip);
@@ -109,26 +107,11 @@ namespace Framework.Cutscene.Runtime
             else
                 Debug.Log("CutsceneManager: Creating cutscene with name " + cutsceneName + " and subName " + subName);
 
-            //! lamda function gc.....
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnLoadAsset(cutsceneName, (cutAsset) =>
-                {
-                    ACutsceneObject pAsset = cutAsset as ACutsceneObject;
-                    if (pAsset == null || pAsset.GetCutsceneGraph() == null || !cutscene.Create(pAsset.GetCutsceneGraph(), subName))
-                    {
-                        CutscenePool.FreeCutscene(cutscene);
-                    }
-                    else
-                    {
-                        cutscene.SetName(cutsceneName);
-                        EnableCutscene(cutscene.GetGUID(), bEnable);
-                    }
-                }, bAsync))
-                    break;
-            }
-
             cutscene.SetName(cutsceneName);
+            var op = GetFileSystem().LoadAsset(cutsceneName, OnLoadAsset, bAsync);
+            op.SetUserData(0, cutscene);
+            op.SetUserData(1, new StringVar() { strValue = subName });
+            op.SetUserData(2, new Value1Var() { boolVal = bEnable });
             return cutscene.GetGUID();
         }
         //-----------------------------------------------------
@@ -149,27 +132,34 @@ namespace Framework.Cutscene.Runtime
             int playableGuid = cutscene.GetGUID();
             m_vCutscenes.Add(playableGuid, cutscene);
             Debug.Log("CutsceneManager: Creating cutscene with name " + cutsceneName + " and subId " + subId);
-            //! lamda function gc.....
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnLoadAsset(cutsceneName, (cutAsset) =>
-                {
-                    ACutsceneObject pAsset = cutAsset as ACutsceneObject;
-                    if (pAsset == null || pAsset.GetCutsceneGraph() == null || !cutscene.Create(pAsset.GetCutsceneGraph(), null, subId))
-                    {
-                        CutscenePool.FreeCutscene(cutscene);
-                    }
-                    else
-                    {
-                        cutscene.SetName(cutsceneName);
-                        EnableCutscene(cutscene.GetGUID(), bEnable);
-                    }
-                }, bAsync))
-                    break;
-            }
 
             cutscene.SetName(cutsceneName);
+            var op = GetFileSystem().LoadAsset(cutsceneName, OnLoadAsset, bAsync);
+            op.SetUserData(0, cutscene);
+            op.SetUserData(1, new StringVar() { strValue = null });
+            op.SetUserData(2, new Value1Var() { boolVal = bEnable });
             return cutscene.GetGUID();
+        }
+        //-----------------------------------------------------
+        void OnLoadAsset(AssetOperator assetOp, bool check)
+        {
+            CutsceneInstance cutsceneInst = assetOp.GetUserData<CutsceneInstance>(0);
+            if (check)
+            {
+                assetOp.SetUsed(!cutsceneInst.IsDestroyed());
+                return;
+            }
+            var subName = assetOp.GetUserData<StringVar>(1);
+            ACutsceneObject pAsset = assetOp.GetObject<ACutsceneObject>();
+            if (pAsset == null || pAsset.GetCutsceneGraph() == null || !cutsceneInst.Create(pAsset.GetCutsceneGraph(), subName.strValue))
+            {
+                CutscenePool.FreeCutscene(cutsceneInst);
+            }
+            else
+            {
+                EnableCutscene(cutsceneInst.GetGUID(), assetOp.GetUserData<Value1Var>(2).boolVal);
+            }
+            cutsceneInst.SetName(assetOp.GetAssetPath());
         }
         //-----------------------------------------------------
         public CutsceneInstance CreateCutscene(CutsceneGraph cutsceneGraph, string cutsceneName, bool bEnable = true)
@@ -451,7 +441,7 @@ namespace Framework.Cutscene.Runtime
             return m_vCutscenes;
         }
         //-----------------------------------------------------
-        public bool LoadAsset(string file, System.Action<UnityEngine.Object> onCallback, bool bAsync= true)
+        public bool LoadAsset(ICutsceneHandler pOwner, string file, System.Action<UnityEngine.Object> onCallback, bool bAsync= true)
         {
             if (string.IsNullOrEmpty(file))
                 return false;
@@ -467,22 +457,22 @@ namespace Framework.Cutscene.Runtime
             }
 #endif
 
-            if (m_vCallbacks == null || m_vCallbacks.Count<=0)
-            {
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    Debug.LogError("CutsceneManager: No callbacks registered to load asset " + file);
-#else
-                Debug.LogError("CutsceneManager: No callbacks registered to load asset " + file);
-#endif
-                return false;
-            }
-            for (int i = 0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnLoadAsset(file, onCallback, bAsync))
-                    break;
-            }
+            var op = GetFileSystem().LoadAsset(file, OnLoadAsset1, bAsync);
+            op.SetUserData(0, pOwner);
+            op.SetUserData(1, new Callback1Var() { callback = onCallback });
             return true;
+        }
+        //-----------------------------------------------------
+        void OnLoadAsset1(AssetOperator assetOperator, bool check)
+        {
+            ICutsceneHandler pCutscneInstance = assetOperator.GetUserData<ICutsceneHandler>(0);
+            if(check)
+            {
+                assetOperator.SetUsed(!pCutscneInstance.IsDestroyed());
+                return;
+            }
+            Callback1Var callback = assetOperator.GetUserData<Callback1Var>(1);
+            callback.InvokeObj(assetOperator.GetObject<UnityEngine.Object>());
         }
         //-----------------------------------------------------
         public void UnloadAsset(UnityEngine.Object pAsset)
@@ -499,75 +489,42 @@ namespace Framework.Cutscene.Runtime
 #endif
                 return;
             }
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnUnloadAsset(pAsset))
-                    break;
-            }
+            GetFramework().OnUnloadAsset(pAsset);
         }
         //-----------------------------------------------------
-        public bool SpawnInstance(string file, System.Action<UnityEngine.GameObject> onCallback, bool bAsync = true)
+        public bool SpawnInstance(ICutsceneHandler pOwner, string file, System.Action<InstanceAble> onCallback, bool bAsync = true)
         {
             if (string.IsNullOrEmpty(file))
                 return false;
-#if UNITY_EDITOR
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-                var obj = Editor.DataUtils.EditLoadUnityObject(file);
-                if (obj == null || !(obj is UnityEngine.GameObject))
-                    return false;
-                if (onCallback != null) onCallback(GameObject.Instantiate(obj as GameObject));
-                return true;
-            }
-#endif
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    Debug.LogError("CutsceneManager: No callbacks registered to spawn instance " + file);
-#else
-                Debug.LogError("CutsceneManager: No callbacks registered to spawn instance " + file);
-#endif
-                return false;
-            }
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnSpawnInstance(file, onCallback, bAsync))
-                {
-                    break;
-                }
-            }
-
+            var op = GetFileSystem().SpawnInstance(file, OnSpawnInstance, bAsync);
+            op.SetUserData(0, pOwner);
+            op.SetUserData(1, new Callback1Var() { callback = onCallback });
             return true;
         }
         //-----------------------------------------------------
-        public void DespawnInstance(GameObject pInstance, string name = null)
+        void OnSpawnInstance(InstanceOperator assetOperator, bool check)
+        {
+            ICutsceneHandler pCutscneInstance = assetOperator.GetUserData<ICutsceneHandler>(0);
+            if (check)
+            {
+                assetOperator.SetUsed(!pCutscneInstance.IsDestroyed());
+                return;
+            }
+            Callback1Var callback = assetOperator.GetUserData<Callback1Var>(1);
+            var obj = assetOperator.GetInstanceAble();
+            if (obj == null)
+            {
+                Debug.LogError("CutsceneManager: Spawned asset is not a InstanceAble.");
+                return;
+            }
+            callback.InvokeObj(obj);
+        }
+        //-----------------------------------------------------
+        public void DespawnInstance(InstanceAble pInstance, string name = null)
         {
             if (pInstance == null)
                 return;
-#if UNITY_EDITOR
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-                if (Application.isPlaying) GameObject.Destroy(pInstance);
-                else GameObject.DestroyImmediate(pInstance);
-            }
-#endif
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if(!m_bEditMode && Application.isPlaying)
-                    Debug.LogWarning("CutsceneManager: No callbacks registered to despawn instance " + name);
-#else
-                Debug.LogWarning("CutsceneManager: No callbacks registered to despawn instance " + name);
-#endif
-                if (pInstance) GameObject.Destroy(pInstance);
-                return;
-            }
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnDespawnInstance(pInstance, name))
-                    break;
-            }
+            GetFileSystem().DeSpawnInstance(pInstance);
         }
         //-----------------------------------------------------
         public void SetBindDriver(int playableGuid, ACutsceneDriver pDriver, EDataType dataType = EDataType.eNone, int type = 0)

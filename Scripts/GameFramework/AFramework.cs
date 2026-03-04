@@ -47,18 +47,18 @@ namespace Framework.Core
         protected long      m_lRuntime = 0;
         protected long      m_lRuntimeUnScale = 0;
 
-        protected FrameworkShareCache           m_ShaderCache;
-        private FileSystem                      m_FileSystem = null;
+        protected FrameworkShareCache                           m_ShaderCache;
+        private FileSystem                                      m_FileSystem = null;
 
-        private Dictionary<int, AModule>        m_vTypeModdules = new Dictionary<int, AModule>(32);
-        private List<AModule>                   m_vModdules = new List<AModule>(32);
-        private List<IUpdate>                   m_vAllUpdates = new List<IUpdate>(32);
-        private Dictionary<int, IFixedUpdate>   m_vAllFixedUpdates = new Dictionary<int, IFixedUpdate>(32);
-        private Dictionary<int, ILateUpdate>    m_vAllLateUpdates = new Dictionary<int, ILateUpdate>(32);
-        private Dictionary<int, ITouchInput>    m_vAllTouchInputs = new Dictionary<int, ITouchInput>(32);
-        private Dictionary<int, IKeyInput>      m_vAllKeyInputs = new Dictionary<int, IKeyInput>(32);
-        private Dictionary<int, IPause>         m_vAllPauses = new Dictionary<int, IPause>(32);
-        private List<INavSimplePath>            m_vNavSimplePath = new List<INavSimplePath>(32);
+        private Dictionary<int, AModule>                        m_vTypeModdules = new Dictionary<int, AModule>(32);
+        private List<AModule>                                   m_vModdules = new List<AModule>(32);
+        private List<IUpdate>                                   m_vAllUpdates = new List<IUpdate>(32);
+        private Dictionary<int, IFixedUpdate>                   m_vAllFixedUpdates = new Dictionary<int, IFixedUpdate>(32);
+        private Dictionary<int, ILateUpdate>                    m_vAllLateUpdates = new Dictionary<int, ILateUpdate>(32);
+        private Dictionary<int, ITouchInput>                    m_vAllTouchInputs = new Dictionary<int, ITouchInput>(32);
+        private Dictionary<int, IKeyInput>                      m_vAllKeyInputs = new Dictionary<int, IKeyInput>(32);
+        private Dictionary<int, IPause>                         m_vAllPauses = new Dictionary<int, IPause>(32);
+        private List<INavSimplePath>                            m_vNavSimplePath = new List<INavSimplePath>(32);
         //------------------------------------------------------
         public void Init(IGame game)
         {
@@ -136,6 +136,16 @@ namespace Framework.Core
         public FileSystem GetFileSystem()
         {
             return m_FileSystem;
+        }
+        //------------------------------------------------------
+        public T GetLaunchData<T>(string name = null) where T : UnityEngine.Object
+        {
+            if(m_FileSystem == null)
+            {
+                Debug.LogWarning("没有文件系统模块，无法获取启动数据，请联系程序实现业务");
+                return null;
+            }
+            return m_FileSystem.GetLaunchData<T>(name);
         }
         //------------------------------------------------------
         public T GetModule<T>() where T : AModule
@@ -296,6 +306,8 @@ namespace Framework.Core
             if (pathCb != null && !m_vNavSimplePath.Contains(pathCb))
                 m_vNavSimplePath.Add(pathCb);
 
+            if (m_FileSystem != null) m_FileSystem.RegisterFunction(pointer, hashCode);
+
             OnRegisterFunction(pointer, hashCode);
         }
         //------------------------------------------------------
@@ -330,6 +342,7 @@ namespace Framework.Core
             if (pathCb != null)
                 m_vNavSimplePath.Remove(pathCb);
 
+            if (m_FileSystem != null) m_FileSystem.UnRegisterFunction(pointer, hashCode);
 
             OnUnRegisterFunction(pointer, hashCode);
         }
@@ -414,16 +427,30 @@ namespace Framework.Core
         protected abstract void OnDestroy();
         #region ModelCallback
         //------------------------------------------------------
-        public virtual bool OnLoadAsset(string name, Action<UnityEngine.Object> onLoaded, bool bAsync = true)
+        public virtual IEnumerator OnLoadAsset(AssetOperator assetOperator)
         {
 #if UNITY_EDITOR
-            var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.Object>(name);
-            if (onLoaded != null) onLoaded(obj);
-            return obj != null;
+            var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.Object>(assetOperator.GetAssetPath());
+            assetOperator.SetObject(obj);
 #else
             Debug.LogWarning("业务层没有实现资源加载，请联系程序实现业务");
-            return false;
 #endif
+            yield return null;
+        }
+        //------------------------------------------------------
+        public virtual IEnumerator OnSpawnInstance(InstanceOperator instanceOperator)
+        {
+#if UNITY_EDITOR
+            var gameObj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.GameObject>(instanceOperator.GetAssetPath());
+            if(gameObj != null)
+            {
+                gameObj = GameObject.Instantiate(gameObj);
+            }
+            instanceOperator.SetObject(gameObj);
+#else
+            Debug.LogWarning("业务层没有实现资源加载，请联系程序实现业务");
+#endif
+            yield return null;
         }
         //------------------------------------------------------
         public virtual bool OnUnloadAsset(UnityEngine.Object pAsset)
@@ -434,30 +461,6 @@ namespace Framework.Core
             Debug.LogWarning("业务层没有实现资源卸载，请联系程序实现业务");
 #endif
             return false;
-        }
-        //------------------------------------------------------
-        public virtual bool OnSpawnInstance(string name, Action<GameObject> onLoaded, bool bAsync = true)
-        {
-#if UNITY_EDITOR
-            var obj = Framework.ED.EditorUtils.EditLoadUnityObject<UnityEngine.GameObject>(name);
-            if (onLoaded != null && obj) onLoaded(GameObject.Instantiate(obj));
-
-            return obj!=null;
-#else
-            Debug.LogWarning("业务层没有实现实例化，请联系程序实现业务");
-            return false;
-#endif
-        }
-        //------------------------------------------------------
-        public virtual bool OnDespawnInstance(GameObject pInstance, string name = null)
-        {
-#if UNITY_EDITOR
-            Framework.ED.EditorUtils.Destroy(pInstance);
-            return true;
-#else
-            Debug.LogWarning("业务层没有实现实例化删除，请联系程序实现业务");
-            return false;
-#endif
         }
         //------------------------------------------------------
         public virtual void OnCutsceneStatus(int cutsceneInstanceId, EPlayableStatus status)

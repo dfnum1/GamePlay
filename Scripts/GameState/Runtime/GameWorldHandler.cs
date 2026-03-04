@@ -31,7 +31,7 @@ namespace Framework.State.Runtime
         internal static void CheckInnerMalloc(System.Type type)
         {
 #if UNITY_EDITOR
-            UnityEngine.Debug.Assert(ms_MallocInnter != type, "禁止使用new " + type.Name + " 创建实例!!!");
+            UnityEngine.Debug.Assert(ms_MallocInnter == type, "禁止使用new " + type.Name + " 创建实例!!!");
 #endif
         }
         //-----------------------------------------------------

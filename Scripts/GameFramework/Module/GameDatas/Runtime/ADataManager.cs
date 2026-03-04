@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.Base;
 using Framework.Core;
 using System;
@@ -26,8 +27,6 @@ namespace Framework.Data
     {
         private System.IO.MemoryStream m_pMemoryStream = null;
         private System.IO.BinaryReader m_pBinaryReader = null;
-
-   //     protected Core.Asset m_pAssetRef = null;
 
         protected int m_nLoadCnt = 0;
         protected int m_nTotalCnt = 0;
@@ -64,8 +63,8 @@ namespace Framework.Data
             {
                 return;
             }
-         //   ACsvConfig csv = GetFramework().GetBindData<ACsvConfig>();
-         //   InitCsv(csv);
+            ACsvConfig csv = GetFramework().GetLaunchData<ACsvConfig>();
+            InitCsv(csv);
             CheckLoaded();
         }
         //-------------------------------------------
@@ -149,8 +148,6 @@ namespace Framework.Data
             if (Progress >= 1)
             {
                 Mapping();
-                //if (m_pAssetRef != null) m_pAssetRef.Release(0);
-                //m_pAssetRef = null;
                 OnParserOver();
                 if (OnLoaded != null) OnLoaded();
                 OnLoaded = null;
@@ -186,31 +183,54 @@ namespace Framework.Data
         //-------------------------------------------
         public void LoadBinary<T>(string strFile, System.Action<ABaseData, bool> onCallback, bool bCache = false, bool bAbsFile = false) where T : ABaseData
         {
-            //AFileSystem fileSystem = FileSystemUtil.GetFileSystem();
-            //if(fileSystem == null)
-            //{
-            //    if (onCallback != null) onCallback(default);
-            //    return;
-            //}
-            //if (string.IsNullOrEmpty(strFile))
-            //{
-            //    if (onCallback != null) onCallback(default);
-            //    return;
-            //}
-            //IUserData getData = null;
-            //if (m_vCustomDatas != null && m_vCustomDatas.TryGetValue(strFile, out getData))
-            //{
-            //    if (onCallback != null) onCallback((T)getData);
-            //    return;
-            //}
+            FileSystem fileSystem = GetFileSystem();
+            if (fileSystem == null)
+            {
+                if (onCallback != null) onCallback(null, false);
+                return;
+            }
+            if (string.IsNullOrEmpty(strFile))
+            {
+                if (onCallback != null) onCallback(null, false);
+                return;
+            }
+            ABaseData getData = null;
+            if (m_vCustomDatas != null && m_vCustomDatas.TryGetValue(strFile, out getData))
+            {
+                if (onCallback != null) onCallback(getData as T, true);
+                return;
+            }
+            var assetOp = fileSystem.LoadAsset(strFile, OnReadBinaryFile);
+            assetOp.SetUserData(0, new TypeVar() { type = typeof(T) }) ;
+            assetOp.SetUserData(1, new Callback1Var() { callback = onCallback });
+            assetOp.SetUserData(2, new ByteVar() { boolVal = bCache });
+            assetOp.SetUserData(3, new StringVar() { strValue = strFile });
+        }
+        //-------------------------------------------
+        void OnReadBinaryFile(AssetOperator assetOp, bool check)
+        {
+            if(check) return;
 
-            //string fullFile = strFile;
-            //if(!bAbsFile) fullFile = Path.Combine(FileSystemUtil.StreamBinaryPath, strFile).Replace("\\", "/");
-            //var assetOp = FileSystemUtil.LoadCustomFile(fullFile, OnReadBinaryFile);
-            //assetOp.userData = new VariableType() { type = typeof(T) };
-            //assetOp.userData1 = new VariableCallback1() { callback = onCallback };
-            //assetOp.userData2 = new Framework.Core.VariableByte() { boolVal = bCache };
-            //assetOp.userData3 = new Framework.Core.VariableString() { strValue = strFile };
+            ABaseData newData = null;
+            Callback1Var callback = assetOp.GetUserData<Callback1Var>(1);
+            var pTextAsset = assetOp.GetObject<TextAsset>();
+            if(pTextAsset == null)
+            {
+                callback.Invoke(newData);
+                return;
+            }
+
+            TypeVar userType = assetOp.GetUserData<TypeVar>(0);
+            ByteVar cacheFlag = assetOp.GetUserData<ByteVar>(2);
+            StringVar strFile = assetOp.GetUserData<StringVar>(3);
+
+            var bytes = pTextAsset.bytes;
+            newData = OnReadBinary(userType.type, bytes, bytes!=null? bytes.Length:0);
+            callback.Invoke(newData);
+            if (cacheFlag.boolVal)
+            {
+                m_vCustomDatas[strFile.strValue] = newData;
+            }
         }
         //-------------------------------------------
         public System.IO.BinaryReader BeginBinary(byte[] bytes)
@@ -262,8 +282,11 @@ namespace Framework.Data
         protected abstract Data_Base Parser(CsvParser csvParser, int index, TextAsset pAsset, EDataType eType = EDataType.Binary);
         protected abstract void Mapping();
         //-------------------------------------------
-        protected virtual IUserData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)
+        protected virtual ABaseData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)
         {
+#if UNITY_EDITOR
+            Debug.LogError("binary data read not implement! type:" + classType.ToString());
+#endif
             return null;
         }
         //-------------------------------------------

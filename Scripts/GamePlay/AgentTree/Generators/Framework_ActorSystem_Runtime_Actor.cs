@@ -759,10 +759,10 @@ namespace Framework.ActorSystem.Runtime
 		[ATFunction(-1997386568,"减少属性",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"value",false, null,typeof(System.Int32))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"value",false, null,typeof(ExternEngine.FFloat))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bLowerZero",false, null,typeof(System.Boolean))]
 #endif
-		static bool AT_SubAttr(Actor pPointerThis,System.Byte type,System.Int32 value,System.Boolean bLowerZero)
+		static bool AT_SubAttr(Actor pPointerThis,System.Byte type,ExternEngine.FFloat value,System.Boolean bLowerZero)
 		{
 			pPointerThis.SubAttr(type,value,bLowerZero);
 			return true;
@@ -818,7 +818,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(2026433217,"重置逻辑冰冻",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(2026433217,"重置逻辑静止",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_ResetFreeze(Actor pPointerThis)
@@ -827,7 +827,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(817905509,"设置逻辑冰冻",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunction(817905509,"设置逻辑静止",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bToggle",false, null,typeof(System.Boolean))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableFloat),"fDuration",false, null,typeof(System.Single))]
@@ -1409,7 +1409,7 @@ namespace Framework.ActorSystem.Runtime
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 3) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
-				return AT_SubAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportInt(pNode,2),pAgentTree.GetInportBool(pNode,3));
+				return AT_SubAttr((Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportFloat(pNode,2),pAgentTree.GetInportBool(pNode,3));
 			}
 			case -894122339://ClearAttrs
 			{

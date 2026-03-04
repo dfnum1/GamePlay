@@ -10,6 +10,8 @@ using Framework.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using Framework.Core;
+using Framework.Base;
+
 
 
 
@@ -22,7 +24,7 @@ using FFloat = System.Single;
 namespace Framework.ActorSystem.Runtime
 {
     [ATInteralExport("Actor系统/Buff", -4, "ActorSystem/actor_buff")]
-    public class Buff : AActorStateInfo, IOperatorCallback
+    public class Buff : AActorStateInfo
     {
         enum EStatus : byte
         {
@@ -40,16 +42,19 @@ namespace Framework.ActorSystem.Runtime
         private FFloat[]                m_arrAttrValues = null;
 
         private float                   m_fBeginScale = 1;
-        public string                   m_strBeginEffect = null;
-        public string                   m_strBeginSound = null;
+        private string                  m_strBeginEffect = null;
+        private string                  m_strBeginSound = null;
+        private InstanceAble            m_BeginEffect = null;
 
         private float                   m_fStepScale = 1;
         private string                  m_strStepEffect = null;
         private string                  m_strStepSound = null;
+        private InstanceAble            m_StepEffect = null;
 
         private float                   m_fEndScale = 1;
         private string                  m_strEndEffect = null;
         private string                  m_strEndSound = null;
+        private InstanceAble            m_EndEffect = null;
 
         private string                  m_strBindSlot = null;
         private Vector3                 m_BindOffset = Vector3.zero;
@@ -106,14 +111,16 @@ namespace Framework.ActorSystem.Runtime
                 case EStatus.eNone:
                     {
                         if (m_BeginOpHandler != null) m_BeginOpHandler.Free();
-                        m_BeginOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strBeginEffect, this);
+                        m_BeginOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strBeginEffect, OnInstanceCallback);
+                        m_BeginOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                         m_eStatus = EStatus.eBegin;
                     }
                     break;
                 case EStatus.eBegin:
                     {
                         if (m_StepOpHandler != null) m_StepOpHandler.Free();
-                        m_StepOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect,this);
+                        m_StepOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect, OnInstanceCallback);
+                        m_StepOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                         m_eStatus = EStatus.eTicking;
                     }
                     break;
@@ -124,7 +131,8 @@ namespace Framework.ActorSystem.Runtime
                         if(isEnd)
                         {
                             if (m_EndOpHandler != null) m_EndOpHandler.Free();
-                            m_EndOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect, this);
+                            m_EndOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strEndEffect, OnInstanceCallback);
+                            m_EndOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                             m_eStatus = EStatus.eEnd;
                         }
                     }
@@ -194,6 +202,14 @@ namespace Framework.ActorSystem.Runtime
             {
                 m_EndOpHandler.Free(); m_EndOpHandler = null;
             }
+            if (m_BeginEffect != null) m_BeginEffect.Destroy();
+            m_BeginEffect = null;
+
+            if (m_StepEffect != null) m_StepEffect.Destroy();
+            m_StepEffect = null;
+
+            if (m_EndEffect != null) m_EndEffect.Destroy();
+            m_EndEffect = null;
         }
         //-----------------------------------------------------
         public override void AddLockTarget(Actor pNode, bool bClear = false)
@@ -209,7 +225,7 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
-        public void OnOperatorCallback(AOperatorHandle pCallback, bool doSignCheck)
+        void OnInstanceCallback(InstanceOperator pCallback, bool doSignCheck)
         {
             if(doSignCheck)
             {
@@ -232,7 +248,26 @@ namespace Framework.ActorSystem.Runtime
             }
             else
             {
-                pCallback.GetObject<GameObject>();
+                EStatus type = (EStatus)pCallback.GetUserData<Value1Var>(0).ToInt();
+                var pAble = pCallback.GetInstanceAble();
+                if (pAble != null)
+                {
+                    if (type == EStatus.eBegin) m_BeginEffect = pAble;
+                    else if (type == EStatus.eTicking) m_StepEffect = pAble;
+                    else if (type == EStatus.eEnd) m_EndEffect = pAble;
+                }
+                if (pCallback == m_BeginOpHandler)
+                {
+                    m_BeginOpHandler = null;
+                }
+                else if (pCallback == m_StepOpHandler)
+                {
+                    m_StepOpHandler = null;
+                }
+                else if (pCallback == m_EndOpHandler)
+                {
+                    m_EndOpHandler = null;
+                }
             }
         }
     }

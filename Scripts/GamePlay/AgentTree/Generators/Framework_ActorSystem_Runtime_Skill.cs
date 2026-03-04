@@ -155,7 +155,7 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-1475328400,"获取消耗属性",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunction(-1475328400,"设置消耗属性",typeof(Framework.ActorSystem.Runtime.Skill),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
 #endif

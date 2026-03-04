@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Framework.Cutscene.Runtime
 {
-    public abstract class ACutsceneDriver : IUserData
+    public abstract class ACutsceneDriver : ICutsceneHandler
     {
         long m_nKey = 0;
         CutsceneInstance m_pCutscene = null;
@@ -86,7 +86,7 @@ namespace Framework.Cutscene.Runtime
             {
                 return false;
             }
-            m_pCutscene.LoadAsset(file, onCallback, bAsync);
+            m_pCutscene.LoadAsset(file, onCallback, bAsync,this);
             return true;
         }
         //-----------------------------------------------------
@@ -100,16 +100,16 @@ namespace Framework.Cutscene.Runtime
             return true;
         }
         //-----------------------------------------------------
-        public bool SpawnInstance(string file, System.Action<UnityEngine.GameObject> onCallback, bool bAsync = true)
+        public bool SpawnInstance(string file, System.Action<InstanceAble> onCallback, bool bAsync = true)
         {
             if (m_pCutscene == null)
             {
                 return false;
             }
-            return m_pCutscene.SpawnInstance(file, onCallback, bAsync);
+            return m_pCutscene.SpawnInstance(file, onCallback, bAsync, this);
         }
         //-----------------------------------------------------
-        public void DespawnInstance(GameObject pInstance, string name = null)
+        public void DespawnInstance(InstanceAble pInstance, string name = null)
         {
             if (m_pCutscene == null)
             {

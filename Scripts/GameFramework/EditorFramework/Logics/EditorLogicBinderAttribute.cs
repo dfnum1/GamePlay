@@ -5,6 +5,8 @@
 Ãè    Êö:	±à¼­Æ÷Âß¼­°ó¶¨Æ÷
 *********************************************************************/
 #if UNITY_EDITOR
+using System;
+
 namespace Framework.ED
 {
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
@@ -31,9 +33,21 @@ namespace Framework.ED
     public class EditorInitOnloadAttribute : System.Attribute
     {
         public string callMethod;
-        public EditorInitOnloadAttribute(string rectMethod)
+        public EditorInitOnloadAttribute(string callMethod= "OnEditorInitOnload")
         {
-            this.callMethod = rectMethod;
+            this.callMethod = callMethod;
+        }
+    }
+    //-----------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class CustomPreferenceAttribute : Attribute
+    {
+        public string header = "";
+        public string method = "OnPreferencesGUI";
+        public CustomPreferenceAttribute(string header = "", string method = "OnPreferencesGUI")
+        {
+            this.header = header;
+            this.method = method;
         }
     }
 }

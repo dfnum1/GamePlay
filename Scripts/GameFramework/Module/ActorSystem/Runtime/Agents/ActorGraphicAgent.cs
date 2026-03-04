@@ -52,6 +52,7 @@ namespace Framework.ActorSystem.Runtime
                 m_Player = playable.GetBehaviour();
                 m_nPlayableId = component.gameObject.GetInstanceID();
 
+                m_Player.SetFramework(GetFramework());
                 UnityEngine.Playables.AnimationPlayableUtilities.Play(animator, m_Player.playable, m_pPlayableGraph);
                 m_Player.SetMixLayer(1);
                 m_Player.SetClipNum(4);

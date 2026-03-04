@@ -429,7 +429,7 @@ namespace Framework.ProjectileSystem.Editor
             {
                 foreach (var db in projectiles)
                 {
-                    var pGO = db.Value.GetObjectAble().pUnityGameObject;
+                    var pGO = db.Value.GetObjectAble().pInstanceAble;
                     var systems = pGO.GetComponents<ParticleSystem>();
                     for (int i = 0; i < systems.Length; ++i)
                     {

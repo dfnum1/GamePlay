@@ -25,7 +25,6 @@ namespace Framework.Core
         private IUserData m_pUserData2 = null;
         private IUserData m_pUserData3 = null;
         private IUserData m_pUserData4 = null;
-        private List<IOperatorCallback> m_OnCallback = null;
 
         private UnityEngine.Object m_pObject = null;
         //------------------------------------------------------
@@ -101,52 +100,31 @@ namespace Framework.Core
             m_pObject = obj;
         }
         //------------------------------------------------------
+        public UnityEngine.Object GetObject()
+        {
+            return m_pObject;
+        }
+        //------------------------------------------------------
         public T GetObject<T>() where T : UnityEngine.Object
         {
             if (m_pObject == null) return null;
             return m_pObject as T;
         }
         //------------------------------------------------------
-        public void AddCallback(IOperatorCallback callback)
-        {
-            if (callback == null) return;
-            if (m_OnCallback == null)
-                m_OnCallback = new List<IOperatorCallback>(2);
-            else
-            {
-                if (m_OnCallback.Contains(callback))
-                    return;
-            }
-            m_OnCallback.Add(callback);
-        }
-        //------------------------------------------------------
-        public void RemoveCallback(IOperatorCallback callback)
-        {
-            if (callback == null) return;
-            if (m_OnCallback == null) return;
-            m_OnCallback.Remove(callback);
-        }
-        //------------------------------------------------------
-        public void ClearCallback()
-        {
-            if (m_OnCallback == null) return;
-            m_OnCallback.Clear();
-        }
-        //------------------------------------------------------
         public void SetUserData(int index, IUserData userData)
         {
             switch (index)
             {
-                case 1:
+                case 0:
                     m_pUserData1 = userData;
                     break;
-                case 2:
+                case 1:
                     m_pUserData2 = userData;
                     break;
-                case 3:
+                case 2:
                     m_pUserData3 = userData;
                     break;
-                case 4:
+                default:
                     m_pUserData4 = userData;
                     break;
             }
@@ -156,13 +134,13 @@ namespace Framework.Core
         {
             switch (index)
             {
-                case 1:
+                case 0:
                     return m_pUserData1;
-                case 2:
+                case 1:
                     return m_pUserData2;
-                case 3:
+                case 2:
                     return m_pUserData3;
-                case 4:
+                default:
                     return m_pUserData4;
             }
             return null;
@@ -172,13 +150,13 @@ namespace Framework.Core
         {
             switch (index)
             {
-                case 1:
+                case 0:
                     return m_pUserData1 != null;
-                case 2:
+                case 1:
                     return m_pUserData2 != null;
-                case 3:
+                case 2:
                     return m_pUserData3 != null;
-                case 4:
+                case 3:
                     return m_pUserData4 != null;
             }
             return false;
@@ -188,13 +166,13 @@ namespace Framework.Core
         {
             switch (index)
             {
-                case 1:
+                case 0:
                     return m_pUserData1 != null && m_pUserData1 is T;
-                case 2:
+                case 1:
                     return m_pUserData2 != null && m_pUserData2 is T;
-                case 3:
+                case 2:
                     return m_pUserData3 != null && m_pUserData3 is T;
-                case 4:
+                case 3:
                     return m_pUserData4 != null && m_pUserData4 is T;
             }
             return false;
@@ -204,38 +182,33 @@ namespace Framework.Core
         {
             switch (index)
             {
-                case 1:
+                case 0:
                     return (T)m_pUserData1;
-                case 2:
+                case 1:
                     return (T)m_pUserData2;
-                case 3:
+                case 2:
                     return (T)m_pUserData3;
-                case 4:
+                default:
                     return (T)m_pUserData4;
             }
             return default(T);
         }
         //------------------------------------------------------
-        internal void DoCallback()
+        internal void DoCallback(bool doSignCheck)
         {
-            if (m_OnCallback != null)
-            {
-                for (int i = 0; i < m_OnCallback.Count; i++)
-                {
-                    m_OnCallback[i].OnOperatorCallback(this, false);
-                }
-            }
+            if (doSignCheck)
+                DoSignCheckCallback();
+            else
+                DoCallback();
         }
         //------------------------------------------------------
-        internal void DoSignCheckCallback()
+        protected abstract void DoCallback();
+        //------------------------------------------------------
+        protected abstract void DoSignCheckCallback();
+        //------------------------------------------------------
+        public T Cast<T>()where T : AOperatorHandle
         {
-            if (m_OnCallback != null)
-            {
-                for (int i = 0; i < m_OnCallback.Count; i++)
-                {
-                    m_OnCallback[i].OnOperatorCallback(this, true);
-                }
-            }
+            return this as T;
         }
         //------------------------------------------------------
         public override void Destroy()
@@ -254,8 +227,6 @@ namespace Framework.Core
             m_bAsync = false;
             m_nPriority = 0;
             m_pObject = null;
-            if (m_OnCallback != null)
-                m_OnCallback.Clear();
         }
     }
     //------------------------------------------------------
@@ -266,6 +237,51 @@ namespace Framework.Core
     //------------------------------------------------------
     public class AssetOperator : AOperatorHandle
     {
+        private List<System.Action<AssetOperator, bool>> m_OnCallback = null;
+        //------------------------------------------------------
+        public void AddCallback(System.Action<AssetOperator, bool> callback)
+        {
+            if (callback == null) return;
+            if (m_OnCallback == null)
+                m_OnCallback = new List<System.Action<AssetOperator, bool>>(2);
+            else
+            {
+                if (m_OnCallback.Contains(callback))
+                    return;
+            }
+            m_OnCallback.Add(callback);
+        }
+        //------------------------------------------------------
+        protected override void DoCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, false);
+                }
+            }
+        }
+        //------------------------------------------------------
+        protected override void DoSignCheckCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, true);
+                }
+            }
+        }
+        //------------------------------------------------------
+        public override void Destroy()
+        {
+            base.Destroy();
+            if (m_OnCallback != null)
+                m_OnCallback.Clear();
+        }
     }
     //------------------------------------------------------
     public enum ELoadSceneMode
@@ -276,6 +292,44 @@ namespace Framework.Core
     public class SceneOperator : AOperatorHandle
     {
         private ELoadSceneMode m_eLoadSceneMode = ELoadSceneMode.eSingle;
+        private List<System.Action<SceneOperator, bool>> m_OnCallback = null;
+        //------------------------------------------------------
+        public void AddCallback(System.Action<SceneOperator, bool> callback)
+        {
+            if (callback == null) return;
+            if (m_OnCallback == null)
+                m_OnCallback = new List<System.Action<SceneOperator, bool>>(2);
+            else
+            {
+                if (m_OnCallback.Contains(callback))
+                    return;
+            }
+            m_OnCallback.Add(callback);
+        }
+        //------------------------------------------------------
+        protected override void DoCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, false);
+                }
+            }
+        }
+        //------------------------------------------------------
+        protected override void DoSignCheckCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, true);
+                }
+            }
+        }
         //------------------------------------------------------
         public void SetLoadSceneMode(ELoadSceneMode mode)
         {
@@ -290,6 +344,7 @@ namespace Framework.Core
         public override void Destroy()
         {
             base.Destroy();
+            if (m_OnCallback != null) m_OnCallback.Clear();
             m_eLoadSceneMode = ELoadSceneMode.eSingle;
         }
     }
@@ -299,6 +354,62 @@ namespace Framework.Core
         Transform m_pByParent = null;
         int m_nLimitCount = -1;
         bool m_bPreload = false;
+        InstanceAble m_pAble = null;
+        private List<System.Action<InstanceOperator, bool>> m_OnCallback = null;
+        //------------------------------------------------------
+        public void AddCallback(System.Action<InstanceOperator, bool> callback)
+        {
+            if (callback == null) return;
+            if (m_OnCallback == null)
+                m_OnCallback = new List<System.Action<InstanceOperator, bool>>(2);
+            else
+            {
+                if (m_OnCallback.Contains(callback))
+                    return;
+            }
+            m_OnCallback.Add(callback);
+        }
+        //------------------------------------------------------
+        protected override void DoCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, false);
+                }
+            }
+        }
+        //------------------------------------------------------
+        protected override void DoSignCheckCallback()
+        {
+            if (m_OnCallback != null)
+            {
+                for (int i = 0; i < m_OnCallback.Count; i++)
+                {
+                    if (m_OnCallback[i] != null)
+                        m_OnCallback[i](this, true);
+                }
+            }
+        }
+        //------------------------------------------------------
+        internal void SetInstanceAble(InstanceAble pAble)
+        {
+            m_pAble = pAble;
+        }
+        //------------------------------------------------------
+        public InstanceAble GetInstanceAble()
+        {
+            if(m_pAble == null)
+            {
+                var pObj = GetObject<GameObject>();
+                if (pObj == null) return m_pAble;
+                m_pAble = pObj.GetComponent<InstanceAble>();
+                if (m_pAble == null) m_pAble = pObj.AddComponent<InstanceAble>();
+            }
+            return m_pAble;
+        }
         //------------------------------------------------------
         public void SetPreload(bool preload)
         {
@@ -333,6 +444,9 @@ namespace Framework.Core
         public override void Destroy()
         {
             base.Destroy();
+            if (m_OnCallback != null) m_OnCallback.Clear();
+            SetUsed(false);
+            m_pAble = null;
             m_pByParent = null;
             m_bPreload = false;
             m_nLimitCount = -1;

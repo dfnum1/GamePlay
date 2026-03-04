@@ -62,11 +62,6 @@ namespace Framework.ActorSystem.Runtime
             return m_pSytstem;
         }
         //--------------------------------------------------------
-        public AFramework GetFramework()
-        {
-            return m_pSytstem.GetFramework();
-        }
-        //--------------------------------------------------------
         internal void SetActorManager(ActorManager pSystem)
         {
             m_pSytstem = pSystem;
@@ -156,9 +151,9 @@ namespace Framework.ActorSystem.Runtime
             DoObjectAble();
         }
         //--------------------------------------------------------
-        public void SetObjectAble(UnityEngine.GameObject pGo)
+        public void SetObjectAble(InstanceAble pGo)
         {
-            if (m_pObjectAble.pUnityGameObject == pGo)
+            if (m_pObjectAble.pInstanceAble == pGo)
             {
                 m_Transform.bDirtyPos = true;
                 m_Transform.bDirtyEuler = true;
@@ -648,7 +643,7 @@ namespace Framework.ActorSystem.Runtime
 #if !USE_SERVER
             if (IsColliderAble() != bAble)
             {
-                if (m_pObjectAble.pUnityGameObject)
+                if (m_pObjectAble.pInstanceAble)
                 {
                     if (bAble)
                     {
@@ -1094,7 +1089,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public T GetComponent<T>(bool bFindChild = false) where T : Component
         {
-            if (m_pObjectAble.pUnityGameObject == null ) return null;
+            if (m_pObjectAble.pInstanceAble == null ) return null;
             int hashCode = typeof(T).GetHashCode();
             if (m_vComponents == null)
             {
@@ -1104,10 +1099,10 @@ namespace Framework.ActorSystem.Runtime
             if (m_vComponents.TryGetValue(hashCode, out retCom))
                 return retCom as T;
 
-            retCom = m_pObjectAble.pUnityGameObject.GetComponent<T>();
+            retCom = m_pObjectAble.pInstanceAble.GetComponent<T>();
             if (retCom == null && bFindChild)
             {
-                retCom = m_pObjectAble.pUnityGameObject.GetComponentInChildren<T>();
+                retCom = m_pObjectAble.pInstanceAble.GetComponentInChildren<T>();
             }
             m_vComponents[hashCode] = retCom;
             return retCom as T;
@@ -1115,7 +1110,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public T AddComponent<T>(bool bNullNew = true, System.Type type = null) where T : Component
         {
-            if (m_pObjectAble.pUnityGameObject == null) return null;
+            if (m_pObjectAble.pInstanceAble == null) return null;
             if (type == null) type = typeof(T);
             int hashCode = type.GetHashCode();
             if (m_vComponents != null)
@@ -1129,7 +1124,7 @@ namespace Framework.ActorSystem.Runtime
                     }
                 }
             }
-            T newComp = m_pObjectAble.pUnityGameObject.AddComponent(type) as T;
+            T newComp = m_pObjectAble.pInstanceAble.AddBehaviour<T>(type);
             if (newComp == null) return null;
             if (m_vComponents == null) m_vComponents = new Dictionary<int, Component>(2);
             m_vComponents[hashCode] = newComp;

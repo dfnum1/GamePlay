@@ -64,6 +64,13 @@ namespace Framework.Base
                 ((System.Action<T>)callback)(userData);
             }
         }
+        public void InvokeObj<T>(T userData) where T : UnityEngine.Object
+        {
+            if (callback != null && callback is System.Action<T>)
+            {
+                ((System.Action<T>)callback)(userData);
+            }
+        }
         public void Destroy() { }
     }
     //------------------------------------------------------

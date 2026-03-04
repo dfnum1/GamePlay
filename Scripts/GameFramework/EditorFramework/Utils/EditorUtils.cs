@@ -25,6 +25,7 @@ namespace Framework.ED
         private static bool ms_LoadUnityPluginCheck = false;
         private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
         private static System.Reflection.MethodInfo ms_pGetAssetPathUnityPlugin = null;
+        private static Dictionary<string, System.Reflection.MethodInfo> ms_vPreferencesGUI = null;
         //-----------------------------------------------------
         public static bool IsGamePlayInnerType(System.Type type)
         {
@@ -191,6 +192,49 @@ namespace Framework.ED
             return null;
         }
         //-----------------------------------------------------
+        internal static Dictionary<string, MethodInfo> GetPreferencesGUIs()
+        {
+            if (ms_vPreferencesGUI == null)
+            {
+                ms_vPreferencesGUI = new Dictionary<string, MethodInfo>();
+                foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    Type[] types = null;
+                    try
+                    {
+                        types = assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types; // 部分可用类型
+                                          // 可选：输出警告
+                        UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时部分类型无法加载: {ex}");
+                    }
+                    catch (Exception ex)
+                    {
+                        UnityEngine.Debug.LogWarning($"加载程序集 {assembly.FullName} 时发生异常: {ex}");
+                        continue;
+                    }
+                    for (int i = 0; i < types.Length; ++i)
+                    {
+                        System.Type tp = types[i];
+                        if (tp == null)
+                            continue;
+                        if (tp.IsDefined(typeof(CustomPreferenceAttribute), false))
+                        {
+                            CustomPreferenceAttribute attr = (CustomPreferenceAttribute)tp.GetCustomAttribute(typeof(CustomPreferenceAttribute));
+                            var method = tp.GetMethod(attr.method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                            if (method == null) continue;
+                            if (string.IsNullOrEmpty(attr.header))
+                                attr.header = GetDisplayName(tp);
+                            ms_vPreferencesGUI[attr.header] = method;
+                        }
+                    }
+                }
+            }
+            return ms_vPreferencesGUI;
+        }
+        //-----------------------------------------------------
         public static string PinYin(string chinese)
         {
             string retValue = string.Empty;
@@ -313,9 +357,38 @@ namespace Framework.ED
             return name;
         }
         //------------------------------------------------------
+        public static string GetDisplayName(Type type)
+        {
+            if (type == null) return null;
+            if (type.IsDefined(typeof(DisplayAttribute), false))
+            {
+                var attr = type.GetCustomAttribute<DisplayAttribute>();
+                if (!string.IsNullOrEmpty(attr.displayName))
+                    return attr.displayName;
+            }
+            else if (type.IsDefined(typeof(InspectorNameAttribute), false))
+            {
+                var attr = type.GetCustomAttribute<InspectorNameAttribute>();
+                if (!string.IsNullOrEmpty(attr.displayName))
+                    return attr.displayName;
+            }
+            else if (type.IsDefined(typeof(HeaderAttribute), false))
+            {
+                var attr = type.GetCustomAttribute<HeaderAttribute>();
+                if (!string.IsNullOrEmpty(attr.header))
+                    return attr.header;
+            }
+            return type.Name;
+        }
+        //------------------------------------------------------
         public static void Destroy(UnityEngine.Object go)
         {
             if (go == null) return;
+            string assetPath = AssetDatabase.GetAssetPath(go);
+            if (!string.IsNullOrEmpty(assetPath))
+            {
+                return;
+            }
             if (Application.isPlaying) UnityEngine.Object.Destroy(go);
             else UnityEngine.Object.DestroyImmediate(go);
         }

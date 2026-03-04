@@ -5,6 +5,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.Core;
 using Framework.Cutscene.Runtime;
 using UnityEngine;
 
@@ -97,11 +98,22 @@ namespace Framework.ActorSystem.Runtime
                 return true;
             }
 
-            GetSystem().LoadAsset(graphName, (uniObj) =>
-            {
-                LoadActorGraph(uniObj as TextAsset, null);
-            }, false);
+            GetSystem().GetFileSystem().LoadAsset(graphName, OnLoadCallback);
             return true;
+        }
+        //--------------------------------------------------------
+        void OnLoadCallback(AOperatorHandle handle, bool check)
+        {
+            if (check)
+            {
+                if (m_pOwner == null || m_pOwner.IsDestroy())
+                    return;
+            }
+            if (handle.IsValid())
+            {
+                TextAsset pText = handle.GetObject<TextAsset>();
+                LoadActorGraph(pText, m_pOnLoadedCallback);
+            }
         }
         //--------------------------------------------------------
         public void LoadActorGraph(TextAsset pText, System.Action<ActorGraphData> OnLoaded)

@@ -42,6 +42,11 @@ namespace Framework.Core
             return m_pFramework;
         }
         //-------------------------------------------------
+        public FileSystem GetFileSystem()
+        {
+            return m_pFramework.GetFileSystem();
+        }
+        //-------------------------------------------------
         protected virtual void OnStart() { }
         //-------------------------------------------------
         protected virtual void OnInit() { }

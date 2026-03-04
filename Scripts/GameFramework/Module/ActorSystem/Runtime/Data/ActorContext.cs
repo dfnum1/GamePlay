@@ -6,6 +6,7 @@
 *********************************************************************/
 using Framework.Base;
 using Framework.Core;
+using System.ComponentModel;
 using UnityEngine;
 namespace Framework.ActorSystem.Runtime
 {
@@ -14,7 +15,7 @@ namespace Framework.ActorSystem.Runtime
     {
         public IContextData pContextData { get; private set; }
         public UnityEngine.Object pUnityObject { get; private set; }
-        public UnityEngine.GameObject pUnityGameObject { get; private set; }
+        public InstanceAble pInstanceAble{ get; private set; }
         public UnityEngine.Transform pUnityTransform { get; private set; }
         public static ActorContext NULL = new ActorContext();
         //--------------------------------------------------------
@@ -26,7 +27,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         public bool IsValid()
         {
-            return pUnityObject != null || pContextData != null || pUnityTransform != null || pUnityGameObject!=null;
+            return pUnityObject != null || pContextData != null || pUnityTransform != null || pInstanceAble != null;
         }
         //--------------------------------------------------------
         internal void SetContextData(Actor pActor, IContextData pData)
@@ -43,13 +44,28 @@ namespace Framework.ActorSystem.Runtime
             {
                 AActorComponent component = pData as AActorComponent;
                 pUnityTransform = component.transform;
-                pUnityGameObject = component.gameObject;
+                pInstanceAble = component;
                 pUnityObject = component;
             }
             else
             {
                 Debug.LogWarning("Actor SetContextData pData 不是 AActorComponent 类型");
             }
+        }
+        //--------------------------------------------------------
+        internal void SetContextData(Actor pActor, InstanceAble pData)
+        {
+            if (pActor == null)
+            {
+                Debug.LogAssertion("ActorContext pActor is null");
+                return;
+            }
+            Clear(pActor);
+            pContextData = pData;
+            if (pData == null) return;
+            pInstanceAble = pData;
+            pUnityTransform = pData.transform;
+            pUnityObject = pData;
         }
         //--------------------------------------------------------
         internal void SetContextData(Actor pActor, Transform pTransfrom)
@@ -62,8 +78,6 @@ namespace Framework.ActorSystem.Runtime
             Clear(pActor);
             this.pUnityTransform = pTransfrom;
             this.pUnityObject = pTransfrom;
-            if (pTransfrom)
-                pUnityGameObject = pTransfrom.gameObject;
         }
         //--------------------------------------------------------
         internal void SetContextData(Actor pActor, GameObject pGO)
@@ -74,7 +88,6 @@ namespace Framework.ActorSystem.Runtime
             if (pGO == null) return;
             this.pUnityTransform = pGO.transform;
             this.pUnityObject = pGO;
-            pUnityGameObject = pGO;
         }
         //--------------------------------------------------------
         internal void SetContextData(Actor pActor, UnityEngine.Object pObj)
@@ -89,17 +102,15 @@ namespace Framework.ActorSystem.Runtime
             {
                 AActorComponent component = pObj as AActorComponent;
                 pUnityTransform = component.transform;
-                pUnityGameObject = component.gameObject;
+                pInstanceAble = component;
             }
             else if (pObj is GameObject)
             {
-                pUnityGameObject = pObj as GameObject;
-                pUnityTransform = pUnityGameObject.transform;
+                pUnityTransform = ((GameObject)pObj).transform;
             }
             else if (pObj is Transform)
             {
                 pUnityTransform = pObj as Transform;
-                pUnityGameObject = pUnityTransform.gameObject;
             }
         }
         //--------------------------------------------------------
@@ -107,7 +118,11 @@ namespace Framework.ActorSystem.Runtime
         {
             if(pActor != null)
             {
-                if (pUnityGameObject) pActor.GetActorManager().DespawnInstance(pUnityGameObject);
+                if (pInstanceAble) pActor.GetFileSystem().DeSpawnInstance(pInstanceAble);
+                else
+                {
+                    if(pUnityTransform) BaseUtil.Desytroy(pUnityTransform.gameObject);
+                }
             }
             else
             {
@@ -116,13 +131,14 @@ namespace Framework.ActorSystem.Runtime
             pContextData = null;
             pUnityObject = null;
             pUnityTransform = null;
+            pInstanceAble = null;
         }
         //--------------------------------------------------------
         internal void ClearNoDespawn()
         {
             pContextData = null;
             pUnityObject = null;
-            pUnityGameObject = null;
+            pInstanceAble = null;
             pUnityTransform = null;
         }
     }

@@ -114,7 +114,7 @@ namespace Framework.Cutscene.Runtime
     }
 #endif
     //-----------------------------------------------------
-    public struct BinderUnityObject : ICutsceneObject
+    public class BinderUnityObject : ICutsceneObject
     {
         ACutsceneObjectBinder m_pBinder;
         //-----------------------------------------------------

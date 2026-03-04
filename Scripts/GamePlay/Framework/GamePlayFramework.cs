@@ -16,6 +16,7 @@ namespace Framework.Core
         protected override void OnInit()
         {
             AddModule<Framework.State.Runtime.GameWorld>();
+            AddModule<Framework.Db.UserManager>();
             ATRegisterInternalHandler.Init();
             GameStateInnerTypeRegistry.Init();
         }

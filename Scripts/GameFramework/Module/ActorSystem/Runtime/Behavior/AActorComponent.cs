@@ -31,7 +31,6 @@ namespace Framework.ActorSystem.Runtime
         [DrawProps.Disable] public List<ActorAvatarMask> avatarMasks = new List<ActorAvatarMask>(2);
         public TextAsset ActionGraphData = null;
 
-        private Transform m_pTransform;
 #if UNITY_EDITOR
         private GameObject m_pBindPrefab = null;
         internal void SetBindPrefab(GameObject prefab)
@@ -44,12 +43,6 @@ namespace Framework.ActorSystem.Runtime
             return m_pBindPrefab;
         }
 #endif
-        //-----------------------------------------------------
-        public Transform GetTransform()
-        {
-            if (m_pTransform == null) m_pTransform = transform;
-            return m_pTransform;
-        }
         //-----------------------------------------------------
         public Transform GetSlot(string name, out Vector3 offset)
         {

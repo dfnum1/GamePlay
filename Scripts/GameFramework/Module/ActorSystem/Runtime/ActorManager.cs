@@ -31,12 +31,6 @@ namespace Framework.ActorSystem.Runtime
 {
     public interface IActorSystemCallback
     {
-        bool OnLoadAsset(string name, System.Action<UnityEngine.Object> onLoaded, bool bAsync = true);
-        bool OnUnloadAsset(UnityEngine.Object pAsset);
-
-        bool OnSpawnInstance(string name, System.Action<UnityEngine.GameObject> onLoaded, bool bAsync = true);
-        bool OnDespawnInstance(GameObject pInstance, string name = null);
-
         bool OnActorSystemActorCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null);
         bool OnActorSystemActorAttrDirty(Actor pActor, byte attrType, FFloat oldValue, FFloat newValue, IVarData externVar = null);
 
@@ -253,15 +247,27 @@ namespace Framework.ActorSystem.Runtime
                 string modelFile = pData.GetAssetFile();
                 if(!File.Exists(modelFile))
                 {
-                    GetFramework().OnSpawnInstance(modelFile, (instGo) => {
-                        pActor.SetObjectAble(instGo);
-                    }, bAsync);
+                    var op = GetFileSystem().SpawnInstance(modelFile, OnSpawnInstance, bAsync);
+                    if(op!=null) op.SetUserData(0, pActor);
                 }
             }
 
             OnActorStatusCallback(pActor, bAsync ? EActorStatus.AsyncCreate : EActorStatus.Create, userVariable);
             pActor.OnCreated();
             return pActor;
+        }
+        //-----------------------------------------------------
+        void OnSpawnInstance(InstanceOperator instOp, bool check)
+        {
+            var pActor = instOp.GetUserData<Actor>(0);
+            if (check)
+            {
+                instOp.SetUsed(!pActor.IsDestroy());
+                return;
+            }
+            var able = instOp.GetInstanceAble();
+            if(able!=null) pActor.SetObjectAble(instOp.GetObject());
+            else pActor.SetObjectAble(instOp.GetObject());
         }
         //-----------------------------------------------------
         [ATMethod("根据ID获取Actor")]
@@ -333,7 +339,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if(m_ProjectileManager == null)
             {
-                m_ProjectileManager = TypeInstancePool.Malloc<ProjectileManager>();
+                m_ProjectileManager = TypeInstancePool.Malloc<ProjectileManager>(GetFramework());
                 m_ProjectileManager.Awake(this);
             }
             return m_ProjectileManager;
@@ -474,123 +480,6 @@ namespace Framework.ActorSystem.Runtime
                     return true;
             }
             return false;
-        }
-        //-----------------------------------------------------
-        public bool LoadAsset(string file, System.Action<UnityEngine.Object> onCallback, bool bAsync = true)
-        {
-            if (string.IsNullOrEmpty(file))
-                return false;
-#if UNITY_EDITOR
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-                var asset = ActorSystemUtil.EditLoadUnityObject(file);
-                if (asset != null)
-                {
-                    if (onCallback != null) onCallback(asset);
-                    return true;
-                }
-            }
-#endif
-
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    Debug.LogError("CutsceneManager: No callbacks registered to load asset " + file);
-#else
-                Debug.LogError("CutsceneManager: No callbacks registered to load asset " + file);
-#endif
-                return false;
-            }
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnLoadAsset(file, onCallback, bAsync))
-                    break;
-            }
-            return true;
-        }
-        //-----------------------------------------------------
-        public void UnloadAsset(UnityEngine.Object pAsset)
-        {
-            if (pAsset == null)
-                return;
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if (!m_bEditMode && Application.isPlaying)
-                    Debug.LogError("ActorManager: No callbacks registered to UnloadAsset");
-#else
-                Debug.LogError("ActorManager: No callbacks registered to UnloadAsset ");
-#endif
-                return;
-            }
-            for (int i = 0; i < m_vCallbacks.Count; ++i)
-            {
-                if(m_vCallbacks[i].OnUnloadAsset(pAsset))
-                    break;
-            }
-        }
-        //-----------------------------------------------------
-        public bool SpawnInstance(string file, System.Action<UnityEngine.GameObject> onCallback, bool bAsync = true)
-        {
-            if (string.IsNullOrEmpty(file))
-                return false;
-#if UNITY_EDITOR
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-                var obj = ActorSystemUtil.EditLoadUnityObject(file);
-                if (obj == null || !(obj is UnityEngine.GameObject))
-                    return false;
-                if (onCallback != null) onCallback(GameObject.Instantiate(obj as GameObject));
-                return true;
-            }
-#endif
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    Debug.LogError("ActorManager: No callbacks registered to spawn instance " + file);
-#else
-                Debug.LogError("ActorManager: No callbacks registered to spawn instance " + file);
-#endif
-                return false;
-            }
-            for (int i = 0; i < m_vCallbacks.Count; ++i)
-            {
-                if(m_vCallbacks[i].OnSpawnInstance(file, onCallback, bAsync))
-                    break;
-            }
-            return true;
-        }
-        //-----------------------------------------------------
-        public void DespawnInstance(GameObject pInstance, string name = null)
-        {
-            if (pInstance == null)
-                return;
-#if UNITY_EDITOR
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-                if (Application.isPlaying) GameObject.Destroy(pInstance);
-                else GameObject.DestroyImmediate(pInstance);
-                return;
-            }
-#endif
-            if (m_vCallbacks == null || m_vCallbacks.Count <= 0)
-            {
-#if UNITY_EDITOR
-                if (!m_bEditMode && Application.isPlaying)
-                    Debug.LogWarning("ActorManager: No callbacks registered to despawn instance " + name);
-#else
-                Debug.LogWarning("ActorManager: No callbacks registered to despawn instance " + name);
-#endif
-                if (pInstance) GameObject.Destroy(pInstance);
-                return;
-            }
-            for(int i =0; i < m_vCallbacks.Count; ++i)
-            {
-                if (m_vCallbacks[i].OnDespawnInstance(pInstance, name))
-                    break;
-            }
         }
         //-----------------------------------------------------
         protected override void OnUpdate(FFloat fFrame)

@@ -28,16 +28,16 @@ namespace Framework.Core
     //------------------------------------------------------
     public class InstanceAble : MonoBehaviour, IContextData
     {
-        public static Action<string, GameObject, InstanceAble> OnRealDestroyLinster;
-        public static Action<string, GameObject, InstanceAble> OnDestroyLinster;
-        public static Action<string, GameObject, InstanceAble> OnRecyleLinster;
-        public static Action<string, GameObject, InstanceAble> OnPoolStartLinster;
+        internal static Action<string, GameObject, InstanceAble> OnRealDestroyLinster;
+        internal static Action<string, GameObject, InstanceAble> OnDestroyLinster;
+        internal static Action<string, GameObject, InstanceAble> OnRecyleLinster;
+        internal static Action<string, GameObject, InstanceAble> OnPoolStartLinster;
 
         AFramework                          m_pFramework;
         Transform                           m_pTransform;
         GameObject                          m_pObject;
 
-        private Dictionary<int, Behaviour>  m_vComponents = null;
+        private Dictionary<int, Component>  m_vComponents = null;
         private int                         m_nDefaultLayerFlag = 0;
         GameObject                          m_pPrefab = null;
         string                              m_strPrefabPath = null;
@@ -82,6 +82,11 @@ namespace Framework.Core
             m_vCallbacks.Remove(callback);
         }
         //------------------------------------------------------
+        public void SetActive(bool bActive)
+        {
+            GetGameObject().SetActive(bActive);
+        }
+        //------------------------------------------------------
         public virtual void Destroy()
         {
 
@@ -119,14 +124,14 @@ namespace Framework.Core
             }
         }
         //------------------------------------------------------
-        public T GetBehaviour<T>() where T : Behaviour
+        public T GetBehaviour<T>() where T : Component
         {
             int hashCode = typeof(T).GetHashCode();
             if (m_vComponents == null)
             {
-                m_vComponents = new Dictionary<int, Behaviour>(4);
+                m_vComponents = new Dictionary<int, Component>(4);
             }
-            Behaviour retCom;
+            Component retCom;
             if (m_vComponents.TryGetValue(hashCode, out retCom))
                 return retCom as T;
             retCom = GetComponent<T>();
@@ -134,12 +139,12 @@ namespace Framework.Core
             return retCom as T;
         }
         //------------------------------------------------------
-        public T AddBehaviour<T>(System.Type type) where T : Behaviour
+        public T AddBehaviour<T>(System.Type type) where T : Component
         {
             int hashCode = type.GetHashCode();
             if (m_vComponents != null)
             {
-                Behaviour outCom;
+                Component outCom;
                 if (m_vComponents.TryGetValue(hashCode, out outCom))
                 {
                     return outCom as T;
@@ -147,9 +152,29 @@ namespace Framework.Core
             }
             T newComp = m_pObject.AddComponent(type) as T;
             if (newComp == null) return null;
-            if (m_vComponents == null) m_vComponents = new Dictionary<int, Behaviour>(2);
+            if (m_vComponents == null) m_vComponents = new Dictionary<int, Component>(2);
             m_vComponents.Add(hashCode, newComp);
             return newComp;
+        }
+        //------------------------------------------------------
+        protected void OnDestroy()
+        {
+            if (OnRealDestroyLinster != null)
+                OnRealDestroyLinster(m_strPrefabPath, m_pPrefab, this);
+            DoCallback(EInstanceCallbackType.eDestroy);
+        }
+        //------------------------------------------------------
+        protected void DoCallback(EInstanceCallbackType type)
+        {
+            if (m_pFramework != null)
+                m_pFramework.GetFileSystem()?.OnInstanceCallback(this,type);
+            if (m_vCallbacks != null)
+            {
+                for (int i = 0; i < m_vCallbacks.Count; ++i)
+                {
+                    m_vCallbacks[i].OnInstanceCallback(this, type);
+                }
+            }
         }
     }
 }

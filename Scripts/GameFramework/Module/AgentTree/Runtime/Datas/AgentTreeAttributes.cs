@@ -309,7 +309,7 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Field| AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class ATFieldAttribute : System.Attribute
     {
 #if UNITY_EDITOR

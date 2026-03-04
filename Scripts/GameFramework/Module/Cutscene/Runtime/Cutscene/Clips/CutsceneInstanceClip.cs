@@ -7,6 +7,8 @@
 using Framework.DrawProps;
 using UnityEngine;
 using Framework.AT.Runtime;
+using Framework.Core;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using Framework.Cutscene.Editor;
@@ -113,7 +115,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     internal class CutsceneInstanceDriver : ACutsceneDriver, ICutsceneObject
     {
-        private GameObject m_Instance;
+        private InstanceAble m_Instance;
         private Animator m_pAnimator;
         private Vector3 m_BindOffset;
         private Vector3 m_BindRotate;
@@ -125,7 +127,7 @@ namespace Framework.Cutscene.Runtime
             DestroyInstance();
         }
         //-----------------------------------------------------
-        void OnInstance(GameObject pObj)
+        void OnInstance(InstanceAble pObj)
         {
             if (pObj == null)
                 return;

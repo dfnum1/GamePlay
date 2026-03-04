@@ -9,8 +9,8 @@ namespace Framework.ActorSystem.Runtime
 	{
 #if UNITY_EDITOR
 		[ATFunction(-1036468186,"攻击者",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"attack_ptr",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData),"attack_ptr", null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_Get_attack_ptr(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -19,8 +19,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1958629959,"受击者",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"target_ptr",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData),"target_ptr", null,typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 		static bool AT_Get_target_ptr(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -29,8 +29,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1151495309,"受击位置",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(UnityEngine.Vector3))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"hit_position",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(UnityEngine.Vector3))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3),"hit_position", null,typeof(UnityEngine.Vector3))]
 #endif
 		static bool AT_Get_hit_position(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -39,8 +39,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(1620485685,"受击朝向",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(UnityEngine.Vector3))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableVec3),"hit_direction",false, null,typeof(UnityEngine.Vector3))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(UnityEngine.Vector3))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableVec3),"hit_direction", null,typeof(UnityEngine.Vector3))]
 #endif
 		static bool AT_Get_hit_direction(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -49,8 +49,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(737022015,"受击类型",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(Framework.ActorSystem.Runtime.EHitType))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"hitType",false, null,typeof(Framework.ActorSystem.Runtime.EHitType))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(Framework.ActorSystem.Runtime.EHitType))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt),"hitType", null,typeof(Framework.ActorSystem.Runtime.EHitType))]
 #endif
 		static bool AT_Get_hitType(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -59,8 +59,8 @@ namespace Framework.ActorSystem.Runtime
 		}
 #if UNITY_EDITOR
 		[ATFunction(-1786296471,"是否打到场景",typeof(Framework.ActorSystem.Runtime.HitFrameActor),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"HitFrameActor",false, null,typeof(System.Boolean))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bHitScene",false, null,typeof(System.Boolean))]
+		[ATFunctionReturn(typeof(VariableUserData),"HitFrameActor", null,typeof(System.Boolean))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool),"bHitScene", null,typeof(System.Boolean))]
 #endif
 		static bool AT_Get_bHitScene(HitFrameActor pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{

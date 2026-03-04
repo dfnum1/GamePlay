@@ -5,13 +5,14 @@
 描    述:	编辑器偏好设置
 *********************************************************************/
 #if UNITY_EDITOR
-using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
-using System;
-using Framework.ED;
 using Framework.DrawProps;
+using Framework.ED;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+using UnityEditor;
+using UnityEngine;
 
 namespace Framework.ED
 {
@@ -26,8 +27,8 @@ namespace Framework.ED
             int hash = projectPath.GetHashCode();
             return $"FrameworkSetting.{hash}.";
         }
-        private static Dictionary<Type, Color> typeColors = new Dictionary<Type, Color>();
         private static Dictionary<string, Settings> settings = new Dictionary<string, Settings>();
+        private static Dictionary<string, Settings.CustomPreference> m_vCustomPreferences = new Dictionary<string, Settings.CustomPreference>();
 
         [System.Serializable]
         public class Settings : ISerializationCallbackReceiver
@@ -38,6 +39,32 @@ namespace Framework.ED
             [Display("配置表c++代码生成路径")] public string tableCppGeneratedPatch = "";
             [Display("配置表c#服务器代码生成路径")] public string tableCsServerGeneratedPatch = "";
 
+
+            [System.Serializable]
+            internal class CustomPreference
+            {
+                public string typeName;
+                public string header;
+                public string content;
+                [System.NonSerialized]public object pointer;
+            }
+            [SerializeField]internal List<CustomPreference> customPreferences = new List<CustomPreference>();
+
+            public T GetCustom<T>()
+            {
+                string key = typeof(T).FullName.Replace("+", ".").ToLower();
+                for(int i =0; i < customPreferences.Count; ++i)
+                {
+                    if (customPreferences[i].typeName.CompareTo(key)==0)
+                    {
+                        if (customPreferences[i].pointer == null)
+                            customPreferences[i].pointer = Activator.CreateInstance(typeof(T));
+                        JsonUtility.FromJsonOverwrite(customPreferences[i].content, customPreferences[i].pointer);
+                        return (T)customPreferences[i].pointer;
+                    }
+                }
+                return default;
+            }
             public void OnAfterDeserialize()
             {
             }
@@ -72,6 +99,50 @@ namespace Framework.ED
             VerifyLoaded();
             Settings settings = EditorFrameworkPreferences.settings[lastKey];
             SystemSettingsGUI(lastKey, settings);
+
+
+            var preferences = EditorUtils.GetPreferencesGUIs();
+            if(preferences!=null && preferences.Count>0)
+            {
+                m_vCustomPreferences.Clear();
+                foreach (var custom in settings.customPreferences)
+                {
+                    m_vCustomPreferences[custom.typeName] = custom;
+                }
+                foreach (var db in preferences)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField(db.Key, EditorStyles.boldLabel);
+                    string typeName = db.Value.DeclaringType.FullName.Replace("+",".").ToLower();
+                    if(!m_vCustomPreferences.TryGetValue(typeName, out var customPreference))
+                    {
+                        customPreference = new Settings.CustomPreference();
+                        customPreference.typeName = typeName;
+                        customPreference.header = db.Key;
+                        customPreference.content = "";
+                        settings.customPreferences.Add(customPreference);
+                        SavePrefs(lastKey, settings);
+                    }
+                    try
+                    {
+                        if(customPreference.pointer == null)
+                            customPreference.pointer = Activator.CreateInstance(db.Value.DeclaringType);
+                        JsonUtility.FromJsonOverwrite(customPreference.content, customPreference.pointer);
+                        EditorGUI.BeginChangeCheck();
+                        db.Value.Invoke(customPreference.pointer, null);
+                        if(EditorGUI.EndChangeCheck())
+                        {
+                            customPreference.content = JsonUtility.ToJson(customPreference.pointer);
+                            SavePrefs(lastKey, settings);
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+
             if (GUILayout.Button(new GUIContent("Set Default", "Reset all values to default"), GUILayout.Width(120)))
             {
                 ResetPrefs();
@@ -99,7 +170,6 @@ namespace Framework.ED
         {
             if (EditorPrefs.HasKey(lastKey)) EditorPrefs.DeleteKey(lastKey);
             if (settings.ContainsKey(lastKey)) settings.Remove(lastKey);
-            typeColors = new Dictionary<Type, Color>();
             VerifyLoaded();
 
             RepaintAll();

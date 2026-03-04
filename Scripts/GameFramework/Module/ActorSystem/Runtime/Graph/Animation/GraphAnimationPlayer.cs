@@ -330,24 +330,25 @@ namespace Framework.ActorSystem.Runtime
             {
             }
         }
-        protected Playable m_ActualPlayable;
-        AnimationMixerPlayable[] m_Mixers;
-        AnimationLayerMixerPlayable m_MixerLayer;
-        private int m_nClipNum = 1;
-        private int m_nMixLayerCnt = 0;
-        public Playable playable { get { return self; } }
-        protected Playable self { get { return m_ActualPlayable; } }
-        public PlayableGraph graph { get { return self.GetGraph(); } }
+        private AFramework                          m_pFramework;
+        protected Playable                          m_ActualPlayable;
+        AnimationMixerPlayable[]                    m_Mixers;
+        AnimationLayerMixerPlayable                 m_MixerLayer;
+        private int                                 m_nClipNum = 1;
+        private int                                 m_nMixLayerCnt = 0;
+        public Playable                             playable { get { return self; } }
+        protected Playable                          self { get { return m_ActualPlayable; } }
+        public PlayableGraph                        graph { get { return self.GetGraph(); } }
 
-        DefaultClip m_DefaultClip = new DefaultClip();
-        private IUserData m_DefaultOwner = null;
-        private int m_StatesVersion = 0;
-        private int m_Count =0;
-        List<ActionStatePlayAble> m_vStates;
-        Dictionary<IUserData, ActionStatePlayAble> m_vBindStates;
-        Dictionary<string, ActionStatePlayAble> m_vBindNameStates;
-        bool m_KeepStoppedPlayablesConnected = true;
-        public bool keepStoppedPlayablesConnected
+        DefaultClip                                 m_DefaultClip = new DefaultClip();
+        private IUserData                           m_DefaultOwner = null;
+        private int                                 m_StatesVersion = 0;
+        private int                                 m_Count =0;
+        List<ActionStatePlayAble>                   m_vStates;
+        Dictionary<IUserData, ActionStatePlayAble>  m_vBindStates;
+        Dictionary<string, ActionStatePlayAble>     m_vBindNameStates;
+        bool                                        m_KeepStoppedPlayablesConnected = true;
+        public bool                                 keepStoppedPlayablesConnected
         {
             get { return m_KeepStoppedPlayablesConnected; }
             set
@@ -360,6 +361,11 @@ namespace Framework.ActorSystem.Runtime
         }
         public GraphAnimationPlayer()
         {
+        }
+        //--------------------------------------------------------
+        internal void SetFramework(AFramework pFramework)
+        {
+            m_pFramework = pFramework;
         }
         //--------------------------------------------------------
         public override void OnPlayableCreate(Playable playable)
@@ -533,7 +539,7 @@ namespace Framework.ActorSystem.Runtime
         //--------------------------------------------------------
         ActionStatePlayAble InsertState(IUserData motionClip)
         {
-            ActionStatePlayAble state = TypeInstancePool.Malloc<ActionStatePlayAble>();
+            ActionStatePlayAble state = TypeInstancePool.Malloc<ActionStatePlayAble>(m_pFramework);
             state.owner = motionClip;
 
             int firstAvailable = m_vStates.FindIndex(s => s.isDestroy);
