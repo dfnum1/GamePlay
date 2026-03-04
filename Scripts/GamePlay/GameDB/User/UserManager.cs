@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Framework.Db
 {
-    [ATInteralExport("用户系统", -7, "GameDb/db_sytem")]
+    [ATInteralExport("用户系统", -7, icon: "GameDb/db_system")]
     public class UserManager : AModule
     {
         List<User> m_vOthers = null;

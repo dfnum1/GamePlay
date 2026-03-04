@@ -14,7 +14,7 @@ using System.Collections.Generic;
 namespace Framework.Db
 {
     [System.Serializable]
-    [ATInteralExport("用户系统/用户", -8)]
+    [ATInteralExport("用户系统/用户", -8, icon: "GameDb/db_system")]
     public class User : TypeObject
     {
         public Action<AProxyDB>             OnDirtyDB = null;

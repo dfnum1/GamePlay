@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.Db
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.Db.UserManager), "用户系统")]
+	[ATClass(typeof(Framework.Db.UserManager),"用户系统")]
 #endif
 	public class Framework_Db_UserManager
 	{

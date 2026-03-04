@@ -99,7 +99,7 @@ namespace Framework.AT.Editor
         {
             if (!icon.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 icon += ".png";
-            return Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(icon + ".png");
+            return Framework.ED.EditorUtils.LoadEditorResource<Texture2D>(icon);
         }
         //-----------------------------------------------------
         internal static void Init(bool bForce = false)
