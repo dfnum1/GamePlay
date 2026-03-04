@@ -12,9 +12,6 @@ using UnityEngine;
 using Framework.Core;
 using Framework.Base;
 
-
-
-
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -23,7 +20,7 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
-    [ATInteralExport("Actor系统/Buff", -4, "ActorSystem/actor_buff")]
+    [ATInteralExport("Actor系统/Buff", -10, "ActorSystem/actor_buff")]
     public class Buff : AActorStateInfo
     {
         enum EStatus : byte
@@ -36,6 +33,13 @@ namespace Framework.ActorSystem.Runtime
         protected byte                  m_nBuffType = 0;//增益、减益、控制等类型
         private EStatus                 m_eStatus = EStatus.eNone;
         private uint                    m_nLevel = 0;
+        private FFloat                  m_fTickStep = 0;
+        private FFloat                  m_fLife = 0;
+        private FFloat                  m_fTime = 0;
+        private FFloat                  m_fTickTime = 0;
+        private int                     m_nTickCount = 0;
+
+        private uint                    m_nEffectStateFlags = 0;
 
         private byte[]                  m_arrAttrTypes = null;
         private byte[]                  m_arrAttrValueTypes = null;
@@ -98,7 +102,66 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         public virtual void OnInit()
         {
-
+            m_nEffectStateFlags = 0;
+            m_bActived = false;
+            m_eStatus = EStatus.eNone;
+            m_nLevel = 0;
+            m_fTickStep = 0;
+            m_fLife = 0;
+            m_fTime = 0;
+            m_fTickTime = 0;
+            m_nTickCount = 0;
+        }
+        //-----------------------------------------------------
+        public void SetEffectStateFlags(uint effectStateFlag)
+        {
+            m_nEffectStateFlags = effectStateFlag;
+        }
+        //-----------------------------------------------------
+        public void ClearEffectState()
+        {
+            m_nEffectStateFlags = 0;
+        }
+        //-----------------------------------------------------
+        [ATMethod("是有拥有Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        public bool HasEffectState(uint effectState)
+        {
+            if (effectState >= 32) return false;
+            return (m_nEffectStateFlags & (1u << (int)effectState)) != 0;
+        }
+        //-----------------------------------------------------
+        [ATMethod("添加Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        public void AddEffectState(uint effectState)
+        {
+            if (effectState >= 32) return;
+            m_nEffectStateFlags |= (1u << (int)effectState);
+        }
+        //-----------------------------------------------------
+        [ATMethod("移除Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        public void RemoveEffectState(uint effectState)
+        {
+            if (effectState >= 32) return;
+            m_nEffectStateFlags &= ~(1u << (int)effectState);
+        }
+        //-----------------------------------------------------
+        internal void CollectStats(Dictionary<byte,BuffAttr> vAttrs)
+        {
+            if (m_arrAttrTypes == null || m_arrAttrValues == null) return;
+            for (int i = 0; i < m_arrAttrTypes.Length; ++i)
+            {
+                if (i >= m_arrAttrValues.Length)
+                    continue;
+                if (!vAttrs.TryGetValue(m_arrAttrTypes[i], out var attr))
+                {
+                    attr = new BuffAttr();
+                    attr.Clear();
+                    vAttrs[m_arrAttrTypes[i]] = attr;
+                }
+                if(m_arrAttrValueTypes!=null && i < m_arrAttrValueTypes.Length && m_arrAttrValueTypes[i] == (byte)EAttrValueType.eRate)
+                    attr.AddRate(m_arrAttrValues[i]*m_nTickCount);
+                else
+                    attr.AddValue(m_arrAttrValues[i] * m_nTickCount);
+            }
         }
         //-----------------------------------------------------
         internal bool Update(FFloat fFrame)
@@ -118,17 +181,36 @@ namespace Framework.ActorSystem.Runtime
                     break;
                 case EStatus.eBegin:
                     {
+                        m_nTickCount = 1;
+                        m_fTime = 0;
+                        m_fTickTime = 0;
                         if (m_StepOpHandler != null) m_StepOpHandler.Free();
                         m_StepOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect, OnInstanceCallback);
                         m_StepOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                         m_eStatus = EStatus.eTicking;
+                        OnTick();
                     }
                     break;
                 case EStatus.eTicking:
                     {
                         bool isEnd = false;
-
-                        if(isEnd)
+                        m_fTime += fFrame;
+                        if(m_fTickStep>0)
+                        {
+                            m_fTickTime += fFrame;
+                            if(m_fTickTime >= m_fTickStep)
+                            {
+                                //! Tick todo
+                                m_nTickCount++;
+                                m_fTickTime = 0;
+                                OnTick();
+                            }
+                        }
+                        if(m_fTime >= m_fLife)
+                        {
+                            isEnd = true;
+                        }
+                        if (isEnd)
                         {
                             if (m_EndOpHandler != null) m_EndOpHandler.Free();
                             m_EndOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strEndEffect, OnInstanceCallback);
@@ -147,16 +229,19 @@ namespace Framework.ActorSystem.Runtime
             return true;
         }
         //-----------------------------------------------------
+        [ATMethod("是否结束")]
         public bool IsEnd()
         {
             return m_eStatus == EStatus.eEnd;
         }
         //-----------------------------------------------------
+        [ATMethod("是否激活")]
         public bool IsActived()
         {
             return m_bActived;
         }
         //-----------------------------------------------------
+        [ATMethod("设置激活")]
         public void SetActived(bool bActive)
         {
             m_bActived = bActive;
@@ -175,9 +260,56 @@ namespace Framework.ActorSystem.Runtime
             m_nLevel = nLevel;
         }
         //-----------------------------------------------------
+        [ATMethod("获取等级")]
+        public uint GetLevel()
+        {
+            return m_nLevel;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取Tick次数")]
+        public int GetTickCount()
+        {
+            return m_nTickCount;
+        }
+        //-----------------------------------------------------
         public IContextData GetConfigData()
         {
             return m_pConfigData;
+        }
+        //-----------------------------------------------------
+        protected virtual void OnTick()
+        {
+
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取Buff属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        public virtual FFloat GetAttr(byte type)
+        {
+            if (m_arrAttrTypes == null || m_arrAttrValues == null) return 0;
+            for(int i =0; i < m_arrAttrTypes.Length; ++i)
+            {
+                if (m_arrAttrTypes[i] == type)
+                {
+                    if (i < m_arrAttrValues.Length)
+                        return m_arrAttrValues[i]*m_nTickCount;
+                }
+            }
+            return FFloat.zero;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取Buff属性值类型"), ATArgvDrawer("type", "DrawAttributePop")]
+        public EAttrValueType GetAttrValueType(byte type)
+        {
+            if (m_arrAttrTypes == null || m_arrAttrValueTypes == null) return EAttrValueType.eValue;
+            for (int i = 0; i < m_arrAttrTypes.Length; ++i)
+            {
+                if (m_arrAttrTypes[i] == type)
+                {
+                    if (i < m_arrAttrValueTypes.Length)
+                        return (EAttrValueType)m_arrAttrValueTypes[i];
+                }
+            }
+            return EAttrValueType.eValue;
         }
         //-----------------------------------------------------
         protected virtual void OnUpdate(FFloat fFrame) 
@@ -208,7 +340,7 @@ namespace Framework.ActorSystem.Runtime
             if (m_StepEffect != null) m_StepEffect.Destroy();
             m_StepEffect = null;
 
-            if (m_EndEffect != null) m_EndEffect.Destroy();
+            if (m_EndEffect != null) m_EndEffect.Destroy(10);
             m_EndEffect = null;
         }
         //-----------------------------------------------------

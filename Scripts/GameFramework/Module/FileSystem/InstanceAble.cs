@@ -87,7 +87,7 @@ namespace Framework.Core
             GetGameObject().SetActive(bActive);
         }
         //------------------------------------------------------
-        public virtual void Destroy()
+        public void Destroy(float delayTime = 0)
         {
 
         }

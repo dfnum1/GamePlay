@@ -1094,8 +1094,8 @@ namespace Framework.AT.Editor
                 {
                     port.fieldRoot.Add(drawElement);
                     port.fieldElement = drawElement;
-                    return;
                 }
+                return;
             }
 
             if (portVariable is AT.Runtime.VariableInt && attri.argvType.IsEnum)

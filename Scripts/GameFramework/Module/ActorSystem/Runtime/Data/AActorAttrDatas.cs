@@ -14,6 +14,24 @@ using System;
 namespace Framework.ActorSystem.Runtime
 {
     //-----------------------------------------------------
+    //! 属性值类型
+    //-----------------------------------------------------
+    [DrawProps.UnFilter]
+    public enum EAttrValueType : byte
+    {
+        [DrawProps.Display("值类型")] eValue,
+        [DrawProps.Display("率类型", "万分位")] eRate,
+    }
+    //-----------------------------------------------------
+    //! 属性作用类型
+    //-----------------------------------------------------
+    [DrawProps.UnFilter]
+    public enum EAttrCalcType : byte
+    {
+        [DrawProps.Display("作用基础属性")] eBase,
+        [DrawProps.Display("作用总属性")] eTotal,
+    }
+    //-----------------------------------------------------
     //! Formula Type
     //-----------------------------------------------------
     [DrawProps.UnFilter]
@@ -45,8 +63,16 @@ namespace Framework.ActorSystem.Runtime
         public struct AttrInfo
         {
             public byte attr;
+            public bool rate;
             public string name;
             public string desc;
+            public EAttrCalcType calcType;
+
+            public static AttrInfo DEF = new AttrInfo() { attr = 0xff, calcType = EAttrCalcType.eBase };
+            public bool IsValid()
+            {
+                return attr != 0xff;
+            }
         }
         [System.Serializable]
         public class AttrFormula
@@ -82,6 +108,7 @@ namespace Framework.ActorSystem.Runtime
     {
         public AttrCoreData.AttrInfo[] vAttributes;
         public AttrCoreData.AttrFormula[] vFormulas;
+        public BuffStateData[] vBuffStates;
 
         public AttrCoreData data = new AttrCoreData();
     }

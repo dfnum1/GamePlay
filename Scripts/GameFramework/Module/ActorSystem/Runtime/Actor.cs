@@ -46,6 +46,7 @@ namespace Framework.ActorSystem.Runtime
 
         ActorGraph                              m_pGraph = null;
         SkillSystem                             m_pSkillSystem = null;
+        BuffSystem                              m_pBuffSystem = null;
 
         bool m_bCutsceneHold = false;
         protected ushort                        m_nFlags = (ushort)EActorFlag.Default;
@@ -1067,6 +1068,14 @@ namespace Framework.ActorSystem.Runtime
             return pAgent.IsInAction(eType);
         }
         //--------------------------------------------------------
+        [ATMethod("获取Buff系统")]
+        public BuffSystem GetBuffSystem()
+        {
+            if (m_pBuffSystem == null) m_pBuffSystem = TypeInstancePool.Malloc<BuffSystem>(GetFramework());
+            m_pBuffSystem.SetActor(this);
+            return m_pBuffSystem;
+        }
+        //--------------------------------------------------------
         [ATMethod("获取技能系统")]
         public SkillSystem GetSkillSystem()
         {
@@ -1553,6 +1562,11 @@ namespace Framework.ActorSystem.Runtime
             {
                 m_pSkillSystem.Free();
                 m_pSkillSystem = null;
+            }
+            if(m_pBuffSystem!=null)
+            {
+                m_pBuffSystem.Free();
+                m_pBuffSystem = null;
             }
             if (m_vAgents != null)
             {

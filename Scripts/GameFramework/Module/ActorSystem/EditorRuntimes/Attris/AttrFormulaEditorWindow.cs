@@ -19,9 +19,10 @@ namespace Framework.ActorSystem.Editor
     public class AttrFormulaEditorWindow : EditorWindowBase
     {
         private AActorAttrDatas m_Data;
-        private int m_TabIndex = 0; // 0:属性 1:表达式
+        private int m_TabIndex = 0; // 0:属性 1:buff 2:表达式
         private int m_SelectedAttrIndex = -1;
         private int m_SelectedFormulaIndex = -1;
+        private int m_SelectedBuffIndex = -1;
 
         // 滚动位置
         private List<LambdaParam> m_vInputLambdas = new List<LambdaParam>();
@@ -95,13 +96,17 @@ namespace Framework.ActorSystem.Editor
 
             // 左侧：标签页+列表（带滚动）
             EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.4f));
-            m_TabIndex = GUILayout.Toolbar(m_TabIndex, new[] { "属性", "表达式" });
+            m_TabIndex = GUILayout.Toolbar(m_TabIndex, new[] { "属性","Buff状态", "表达式" });
             EditorGUILayout.Space();
 
             m_LeftScroll = EditorGUILayout.BeginScrollView(m_LeftScroll);
             if (m_TabIndex == 0)
             {
                 DrawAttrList();
+            }
+            else if (m_TabIndex == 1)
+            {
+                DrawBuffList();
             }
             else
             {
@@ -117,6 +122,10 @@ namespace Framework.ActorSystem.Editor
             if (m_TabIndex == 0)
             {
                 DrawAttrEdit();
+            }
+            else if (m_TabIndex == 1)
+            {
+                DrawBuffEdit();
             }
             else
             {
@@ -146,7 +155,20 @@ namespace Framework.ActorSystem.Editor
                     }
                 }
             }
-            if (m_TabIndex == 1 && m_SelectedFormulaIndex >= 0 && m_SelectedFormulaIndex < (m_Data.vFormulas?.Length ?? 0))
+            if (m_TabIndex == 1 && m_SelectedBuffIndex >= 0 && m_SelectedBuffIndex < (m_Data.vBuffStates?.Length ?? 0))
+            {
+                if (GUILayout.Button("删除状态", GUILayout.Width(100)))
+                {
+                    if (EditorUtility.DisplayDialog("确认删除", "确定要删除该状态吗？", "删除", "取消"))
+                    {
+                        var list = new List<BuffStateData>(m_Data.vBuffStates);
+                        list.RemoveAt(m_SelectedBuffIndex);
+                        m_Data.vBuffStates = list.ToArray();
+                        m_SelectedBuffIndex = -1;
+                    }
+                }
+            }
+            if (m_TabIndex == 2 && m_SelectedFormulaIndex >= 0 && m_SelectedFormulaIndex < (m_Data.vFormulas?.Length ?? 0))
             {
                 if (GUILayout.Button("删除表达式", GUILayout.Width(100)))
                 {
@@ -165,6 +187,7 @@ namespace Framework.ActorSystem.Editor
             {
                 EditorUtility.SetDirty(m_Data);
                 AssetDatabase.SaveAssets();
+                AttriCustomDrawer.Init(true);
                 ShowNotification(new GUIContent("保存成功"));
             }
             EditorGUILayout.EndHorizontal();
@@ -216,6 +239,51 @@ namespace Framework.ActorSystem.Editor
                 list.Add(attr);
                 m_Data.vAttributes = list.ToArray();
                 m_SelectedAttrIndex = m_Data.vAttributes.Length - 1;
+            }
+        }
+        //-----------------------------------------------------
+        void DrawBuffList()
+        {
+            EditorGUILayout.HelpBox("Buff 状态最多32中，如果buff 状态超过32个，需程序修改！！!", MessageType.Warning);
+            if (m_Data.vBuffStates == null)
+                m_Data.vBuffStates = new BuffStateData[0];
+
+            for (int i = 0; i < m_Data.vBuffStates.Length; ++i)
+            {
+                var attr = m_Data.vBuffStates[i];
+                using (new GUIColorScope(m_SelectedBuffIndex == i ? Color.green : Color.white))
+                {
+                    if (GUILayout.Button($"{attr.name}[{attr.state}]", EditorStyles.toolbarButton))
+                    {
+                        m_SelectedBuffIndex = i;
+                    }
+                }
+
+            }
+            if (GUILayout.Button("添加状态"))
+            {
+                var list = new List<BuffStateData>(m_Data.vBuffStates);
+                var attr = new BuffStateData() { name = "新状态", desc = "" };
+                byte newAttr = 0;
+                // 自动分配一个未使用的属性类型
+                bool bExist = true;
+                while (bExist)
+                {
+                    bExist = false;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i].state == newAttr)
+                        {
+                            bExist = true;
+                            newAttr++;
+                            break;
+                        }
+                    }
+                }
+                attr.state = newAttr;
+                list.Add(attr);
+                m_Data.vBuffStates = list.ToArray();
+                m_SelectedBuffIndex = m_Data.vBuffStates.Length - 1;
             }
         }
         //-----------------------------------------------------
@@ -280,7 +348,7 @@ namespace Framework.ActorSystem.Editor
             if (newAttr != attr.attr)
             {
                 bool bExist = false;
-                for (int i = 0; i < attr.attr; i++)
+                for (int i = 0; i < m_Data.vAttributes.Length; i++)
                 {
                     if (m_Data.vAttributes[i].attr == newAttr)
                     {
@@ -296,7 +364,44 @@ namespace Framework.ActorSystem.Editor
             }
             attr.name = EditorGUILayout.DelayedTextField("属性名", attr.name);
             attr.desc = EditorGUILayout.TextField("描述", attr.desc);
+            attr.rate = EditorGUILayout.Toggle("率属性", attr.rate);
+            if(attr.rate)
+            {
+                attr = (AttrCoreData.AttrInfo)InspectorDrawUtil.DrawPropertyByFieldName(attr, "calcType");
+            }
             m_Data.vAttributes[m_SelectedAttrIndex] = attr;
+        }
+        //-----------------------------------------------------
+        private void DrawBuffEdit()
+        {
+            if (m_SelectedBuffIndex < 0 || m_SelectedBuffIndex >= m_Data.vBuffStates.Length)
+            {
+                EditorGUILayout.HelpBox("请选择buff状态", MessageType.Info);
+                return;
+            }
+            var attr = m_Data.vBuffStates[m_SelectedBuffIndex];
+            byte newAttr = (byte)EditorGUILayout.IntField("状态类型", attr.state);
+            if (newAttr >= 32) newAttr = attr.state;
+            if (newAttr != attr.state)
+            {
+                bool bExist = false;
+                for (int i = 0; i < m_Data.vBuffStates.Length; i++)
+                {
+                    if (m_Data.vBuffStates[i].state == newAttr)
+                    {
+                        this.ShowNotificationWarning("状态类型已存在，请选择其他类型");
+                        bExist = true;
+                        break;
+                    }
+                }
+                if (!bExist)
+                {
+                    attr.state = newAttr;
+                }
+            }
+            attr.name = EditorGUILayout.DelayedTextField("状态名", attr.name);
+            attr.desc = EditorGUILayout.TextField("描述", attr.desc);
+            m_Data.vBuffStates[m_SelectedBuffIndex] = attr;
         }
         //-----------------------------------------------------
         private void DrawFormulaEdit()

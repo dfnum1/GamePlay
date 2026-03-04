@@ -6,9 +6,7 @@
 描    述:	Buff系统
 *********************************************************************/
 using Framework.AT.Runtime;
-using Framework.DrawProps;
 using System.Collections.Generic;
-
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -17,11 +15,17 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
-    [ATInteralExport("Actor系统/Buff系统", -3, "ActorSystem/actor_buffsytem")]
+    //-----------------------------------------------------
+    [ATInteralExport("Actor系统/Buff系统", -9, "BuffSystem/actor_buffsytem")]
     public class BuffSystem : TypeActor
     {
         private Actor m_pOwner = null;
         protected Dictionary<uint, Buff> m_vBuffs;
+
+        private bool                        m_bDirty = false;
+        private Dictionary<byte, BuffAttr>  m_vBuffAttrs = null;
+        private Dictionary<byte, BuffAttr>  m_vLastBuffAttrs = null;
+        private Dictionary<byte, BuffAttr> m_vTempBuffAttrs = null;
         //-----------------------------------------------------
         public BuffSystem()
         {
@@ -72,6 +76,28 @@ namespace Framework.ActorSystem.Runtime
             pBuff.SetSystem(this);
         }
         //-----------------------------------------------------
+        [ATMethod("获取Buff属性值"),ATArgvDrawer("type", "DrawAttributePop")]
+        public FFloat GetAttrValue(byte type)
+        {
+            if (m_vTempBuffAttrs == null) m_vTempBuffAttrs = m_vBuffAttrs;
+            if (m_vTempBuffAttrs != null && m_vTempBuffAttrs.TryGetValue(type, out var attr))
+            {
+                return attr.GetValue();
+            }
+            return 0;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取Buff属性率"), ATArgvDrawer("type", "DrawAttributePop")]
+        public FFloat GetAttrRate(byte type)
+        {
+            if (m_vTempBuffAttrs == null) m_vTempBuffAttrs = m_vBuffAttrs;
+            if (m_vTempBuffAttrs != null && m_vTempBuffAttrs.TryGetValue(type, out var attr))
+            {
+                return attr.GetRate();
+            }
+            return 0;
+        }
+        //-----------------------------------------------------
         public void Update(FFloat fFrame)
         {
             if (m_vBuffs != null)
@@ -81,10 +107,63 @@ namespace Framework.ActorSystem.Runtime
                     buff.Value.Update(fFrame);
                 }
             }
+            if(m_bDirty)
+            {
+                m_bDirty = false;
+                if (m_vBuffs != null)
+                {
+                    if (m_vBuffAttrs == null) m_vBuffAttrs = new Dictionary<byte, BuffAttr>(32);
+                    else
+                    {
+                        if (m_vLastBuffAttrs == null) m_vLastBuffAttrs = new Dictionary<byte, BuffAttr>(m_vBuffAttrs.Count);
+                        m_vLastBuffAttrs.Clear();
+                        foreach (var db in m_vBuffAttrs)
+                        {
+                            m_vLastBuffAttrs.Add(db.Key, db.Value);
+                        }
+                    }
+                    m_vBuffAttrs.Clear();
+                    foreach (var buff in m_vBuffs)
+                    {
+                        buff.Value.CollectStats(m_vBuffAttrs);
+                    }
+                    if(m_vLastBuffAttrs!=null)
+                    {
+                        foreach (var db in m_vBuffAttrs)
+                        {
+                            if(m_vLastBuffAttrs.TryGetValue(db.Key, out var lastValue))
+                            {
+                                if(!lastValue.Equals(db.Value))
+                                {
+                                    m_vTempBuffAttrs = m_vLastBuffAttrs;
+                                    FFloat oldValue = m_pOwner.GetAttr(db.Key);
+                                    m_vTempBuffAttrs = m_vBuffAttrs;
+                                    m_pOwner.GetActorParameter().DoAttrDirtyCall(db.Key, oldValue, m_pOwner.GetAttr(db.Key));
+                                }
+                            }
+                        }
+                        foreach(var db in m_vLastBuffAttrs)
+                        {
+                            if (!m_vBuffAttrs.TryGetValue(db.Key, out var lastValue))
+                            {
+                                m_vTempBuffAttrs = m_vLastBuffAttrs;
+                                FFloat oldValue = m_pOwner.GetAttr(db.Key);
+                                m_vTempBuffAttrs = m_vBuffAttrs;
+                                m_pOwner.GetActorParameter().DoAttrDirtyCall(db.Key, oldValue, m_pOwner.GetAttr(db.Key));
+                            }
+                        }
+
+                        m_vTempBuffAttrs = null;
+                    }
+                }
+            }
         }
         //-----------------------------------------------------
         public override void Destroy()
         {
+            if (m_vLastBuffAttrs != null) m_vLastBuffAttrs.Clear();
+            if (m_vBuffAttrs != null) m_vBuffAttrs.Clear();
+            m_vTempBuffAttrs = null;
         }
     }
 }

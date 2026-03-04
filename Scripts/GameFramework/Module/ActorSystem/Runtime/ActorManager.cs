@@ -40,29 +40,30 @@ namespace Framework.ActorSystem.Runtime
     [ATInteralExport("Actor系统/管理器",-1, icon: "ActorSystem/actormanager")]
     public class ActorManager : AModule
     {
-        ProjectileManager                       m_ProjectileManager = null;
-        bool                                    m_bEditMode = false;
-        private List<IActorSystemCallback>      m_vCallbacks = null;
-        int                                     m_nAutoGUID = 0;
-        Dictionary<int, Actor>                  m_vNodes = new Dictionary<int, Actor>(128);
-        Actor                                   m_pTail = null;
-        Actor                                   m_pRoot = null; 
-        List<Actor>                             m_vDestroyList = new List<Actor>(16);
+        ProjectileManager                           m_ProjectileManager = null;
+        bool                                        m_bEditMode = false;
+        private List<IActorSystemCallback>          m_vCallbacks = null;
+        int                                         m_nAutoGUID = 0;
+        Dictionary<int, Actor>                      m_vNodes = new Dictionary<int, Actor>(128);
+        Actor                                       m_pTail = null;
+        Actor                                       m_pRoot = null; 
+        List<Actor>                                 m_vDestroyList = new List<Actor>(16);
 
-        float                                   m_fTerrainHeight = 0;
-        int                                     m_nTerrainLayerMask = -1;
+        float                                       m_fTerrainHeight = 0;
+        int                                         m_nTerrainLayerMask = -1;
 
-        Dictionary<int, AttrCoreData.AttrFormula> m_AttrFormulas = null;
+        Dictionary<int, AttrCoreData.AttrFormula>   m_AttrFormulas = null;
+        Dictionary<int, AttrCoreData.AttrInfo>      m_AttrInfos = null;
 
-        protected IntersetionParam              m_IntersetionParam = null;
-        HashSet<HitFrameActor>                  m_vHitFrameCaches;
-        List<Actor>                             m_CatchNodeList;
-        HashSet<Actor>                          m_CatchNodeSet;
+        protected IntersetionParam                  m_IntersetionParam = null;
+        HashSet<HitFrameActor>                      m_vHitFrameCaches;
+        List<Actor>                                 m_CatchNodeList;
+        HashSet<Actor>                              m_CatchNodeSet;
 
-        private ISpatialWorld                   m_pSpatialIndex;
-        private ESpatialIndexType               m_eSpatialIndexType = ESpatialIndexType.Octree;
-        private bool                            m_isSpatialIndexEnabled = true;
-        FBounds                                 m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
+        private ISpatialWorld                       m_pSpatialIndex;
+        private ESpatialIndexType                   m_eSpatialIndexType = ESpatialIndexType.Octree;
+        private bool                                m_isSpatialIndexEnabled = true;
+        FBounds                                     m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -81,6 +82,14 @@ namespace Framework.ActorSystem.Runtime
             if (m_AttrFormulas.TryGetValue(formula, out var attrFormula))
                 return attrFormula;
             return null;
+        }
+        //-----------------------------------------------------        
+        public AttrCoreData.AttrInfo GetAttrInfo(int type)
+        {
+            if (m_AttrInfos == null) return AttrCoreData.AttrInfo.DEF;
+            if (m_AttrInfos.TryGetValue(type, out var attrInfo))
+                return attrInfo;
+            return AttrCoreData.AttrInfo.DEF;
         }
         //-----------------------------------------------------        
         [ATMethod("设置空间大小")]

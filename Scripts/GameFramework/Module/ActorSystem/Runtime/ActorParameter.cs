@@ -150,7 +150,35 @@ namespace Framework.ActorSystem.Runtime
         internal FFloat GetAttr(byte type, float defVal = 0)
         {
             if (m_vAttributes.TryGetValue(type, out var val))
-                return val;
+            {
+                FFloat finalVal = val;
+                FFloat rateVal = m_pActor.GetBuffSystem().GetAttrRate(type);
+                AttrCoreData.AttrInfo attrInfo = AttrCoreData.AttrInfo.DEF;
+                if(rateVal!=FFloat.zero)
+                {
+                    attrInfo = m_pActor.GetActorManager().GetAttrInfo(type);
+                    if(attrInfo.IsValid())
+                    {
+                        if(attrInfo.calcType == EAttrCalcType.eBase)
+                        {
+                            finalVal += val * rateVal;
+                        }
+                    }
+                }
+                finalVal += m_pActor.GetBuffSystem().GetAttrValue(type);
+                if (rateVal != FFloat.zero)
+                {
+                    attrInfo = m_pActor.GetActorManager().GetAttrInfo(type);
+                    if (attrInfo.IsValid())
+                    {
+                        if (attrInfo.calcType == EAttrCalcType.eTotal)
+                        {
+                            finalVal += finalVal * rateVal;
+                        }
+                    }
+                }
+                return finalVal;
+            }
             return defVal;
         }
         //--------------------------------------------------------
@@ -223,7 +251,7 @@ namespace Framework.ActorSystem.Runtime
                 m_vAttributes.Clear();
         }
         //--------------------------------------------------------
-        void DoAttrDirtyCall(byte type, FFloat oldValue, FFloat newValue)
+        internal void DoAttrDirtyCall(byte type, FFloat oldValue, FFloat newValue)
         {
             if (oldValue == newValue)
                 return;
