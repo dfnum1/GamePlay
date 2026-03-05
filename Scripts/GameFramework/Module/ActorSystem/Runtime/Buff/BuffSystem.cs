@@ -16,7 +16,7 @@ using FFloat = System.Single;
 namespace Framework.ActorSystem.Runtime
 {
     //-----------------------------------------------------
-    [ATInteralExport("Actor系统/Buff系统", -9, "BuffSystem/actor_buffsytem")]
+    [ATInteralExport("Actor系统/Buff系统", -9, "BuffSystem/actor_buffsystem")]
     public class BuffSystem : TypeActor
     {
         private Actor m_pOwner = null;

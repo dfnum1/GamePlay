@@ -12,8 +12,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Framework.Base;
-using Framework.Pathfinding.Runtime;
-
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -31,34 +29,34 @@ namespace Framework.Core
 {
     public abstract class AFramework : IAgentTreeCallback, ICutsceneCallback, IActorSystemCallback
     {
-        private static AFramework ms_pMainFramework;
+        private static AFramework                 ms_pMainFramework;
 #if UNITY_EDITOR
-        private static AFramework ms_pEditorFramework;
-        public static AFramework editorFramework { get { return ms_pEditorFramework; } }
+        private static AFramework                 ms_pEditorFramework;
+        public static AFramework                  editorFramework { get { return ms_pEditorFramework; } }
 #endif
-        public bool         IsEditorMode { get { return m_pGame == null || m_pGame.IsEditor(); } }
-        public static bool  isStartup { get { return ms_pMainFramework != null && ms_pMainFramework.m_bStarted; } }
-        private IGame       m_pGame;
-        public IGame        gameStartup { get { return m_pGame; } }
+        public bool                               IsEditorMode { get { return m_pGame == null || m_pGame.IsEditor(); } }
+        public static bool                        isStartup { get { return ms_pMainFramework != null && ms_pMainFramework.m_bStarted; } }
+        private IGame                             m_pGame;
+        public IGame                              gameStartup { get { return m_pGame; } }
 
-        private bool        m_bInited = false;
-        private bool        m_bAwaked = false;
-        private bool        m_bStarted = false;
-        protected long      m_lRuntime = 0;
-        protected long      m_lRuntimeUnScale = 0;
+        private bool                              m_bInited = false;
+        private bool                              m_bAwaked = false;
+        private bool                              m_bStarted = false;
+        protected long                            m_lRuntime = 0;
+        protected long                            m_lRuntimeUnScale = 0;
 
-        protected FrameworkShareCache                           m_ShaderCache;
-        private FileSystem                                      m_FileSystem = null;
+        protected FrameworkShareCache             m_ShaderCache;
+        private FileSystem                        m_FileSystem = null;
 
-        private Dictionary<int, AModule>                        m_vTypeModdules = new Dictionary<int, AModule>(32);
-        private List<AModule>                                   m_vModdules = new List<AModule>(32);
-        private List<IUpdate>                                   m_vAllUpdates = new List<IUpdate>(32);
-        private Dictionary<int, IFixedUpdate>                   m_vAllFixedUpdates = new Dictionary<int, IFixedUpdate>(32);
-        private Dictionary<int, ILateUpdate>                    m_vAllLateUpdates = new Dictionary<int, ILateUpdate>(32);
-        private Dictionary<int, ITouchInput>                    m_vAllTouchInputs = new Dictionary<int, ITouchInput>(32);
-        private Dictionary<int, IKeyInput>                      m_vAllKeyInputs = new Dictionary<int, IKeyInput>(32);
-        private Dictionary<int, IPause>                         m_vAllPauses = new Dictionary<int, IPause>(32);
-        private List<INavSimplePath>                            m_vNavSimplePath = new List<INavSimplePath>(32);
+        private Dictionary<int, AModule>          m_vTypeModdules = new Dictionary<int, AModule>(32);
+        private List<AModule>                     m_vModdules = new List<AModule>(32);
+        private List<IUpdate>                     m_vAllUpdates = new List<IUpdate>(32);
+        private Dictionary<int, IFixedUpdate>     m_vAllFixedUpdates = new Dictionary<int, IFixedUpdate>(32);
+        private Dictionary<int, ILateUpdate>      m_vAllLateUpdates = new Dictionary<int, ILateUpdate>(32);
+        private Dictionary<int, ITouchInput>      m_vAllTouchInputs = new Dictionary<int, ITouchInput>(32);
+        private Dictionary<int, IKeyInput>        m_vAllKeyInputs = new Dictionary<int, IKeyInput>(32);
+        private Dictionary<int, IPause>           m_vAllPauses = new Dictionary<int, IPause>(32);
+        private List<INavSimplePath>              m_vNavSimplePath = new List<INavSimplePath>(32);
         //------------------------------------------------------
         public void Init(IGame game)
         {

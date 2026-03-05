@@ -73,6 +73,17 @@ namespace Framework.ED
         {
             return true;
         }
+
+        public AFrameworkSetting GetSetting()
+        {
+            var guids = UnityEditor.AssetDatabase.FindAssets("t: AFrameworkSetting");
+            if (guids.Length > 0)
+            {
+                var setting = UnityEditor.AssetDatabase.LoadAssetAtPath<AFrameworkSetting>(UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]));
+                return setting;
+            }
+            return null;
+        }
     }
     //-----------------------------------------------------
     public class EditorFramework : AFramework

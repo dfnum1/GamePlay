@@ -1832,12 +1832,15 @@ namespace Framework.ED
                     }
                     else
                     {
-                        if (finfo.IsDefined(typeof(DisplayAttribute)))
+                        if (!finfo.IsDefined(typeof(UnHeaderAttribute)))
                         {
-                            DrawHeader(displayNameContent);
+                            if (finfo.IsDefined(typeof(DisplayAttribute)))
+                            {
+                                DrawHeader(displayNameContent);
+                            }
+                            else
+                                DrawHeader(finfo.Name);
                         }
-                        else
-                            DrawHeader(finfo.Name);
 
                         System.Object objValue = finfo.GetValue(data);
                         MethodInfo method = finfo.FieldType.GetMethod("OnInspector");

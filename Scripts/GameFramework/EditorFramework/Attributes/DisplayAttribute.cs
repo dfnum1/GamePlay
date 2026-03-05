@@ -79,4 +79,9 @@ this.displayName = displayName;
         }
     }
 #endif
+    //------------------------------------------------------
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class UnHeaderAttribute : Attribute
+    {
+    }
 }

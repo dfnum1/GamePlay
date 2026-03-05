@@ -11,6 +11,7 @@ namespace Framework.Core
 {
     public interface IGame
     {
+        AFrameworkSetting GetSetting();
         Coroutine BeginCoroutine(IEnumerator coroutine);
         void EndAllCoroutine();
         void EndCoroutine(Coroutine cortuine);
