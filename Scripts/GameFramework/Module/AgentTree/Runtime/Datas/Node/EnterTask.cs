@@ -50,4 +50,9 @@ namespace Framework.AT.Runtime
             }
         }
     }
+    //-----------------------------------------------------
+    public class CustomTaskNode : EnterTask
+    {
+        public string callName;
+    }
 }

@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using ExternEngine;
 using Framework.AT.Runtime;
 using Framework.DrawProps;
 using UnityEngine;
@@ -58,29 +59,55 @@ namespace Framework.ActorSystem.Runtime
     public enum EActorATType : int
     {
         [AT.Runtime.ATAction("回调/攻击回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_attack")]
+        [Return("单位", typeof(Actor))]
         [Return("受击者", typeof(Actor))]
         [Return("技能", typeof(Skill))]
-        onAttack = 80,
+        onAttack = 300,
 
         [AT.Runtime.ATAction("回调/受击回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_hit")]
+        [Return("单位", typeof(Actor))]
         [Return("受击信息", typeof(HitFrameActor))]
-        onHit = 81,
+        onHit,
 
         [AT.Runtime.ATAction("回调/死亡回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_kill")]
-        onKilled = 82,
+        [Return("单位", typeof(Actor))]
+        onKilled,
 
         [AT.Runtime.ATAction("回调/复活回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_revive")]
-        onRevive = 83,
+        [Return("单位", typeof(Actor))]
+        onRevive,
 
         [AT.Runtime.ATAction("回调/索敌回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_lockTarget")]
+        [Return("单位", typeof(Actor))]
         [Return("技能", typeof(Skill))]
-        onLockTarget = 84,
+        onLockTarget,
 
         [AT.Runtime.ATAction("回调/技能释放前置判定", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_pretrigger_check")]
+        [Return("单位", typeof(Actor))]
         [Return("技能", typeof(Skill))]
-        onPreDoSkillCheck = 85,
+        onPreDoSkillCheck,
 
-        [AT.Runtime.ATAction("回调/着陆回调",true, false, true), AT.Runtime.ATIcon("ActorSystem/on_ground")] 
+        [AT.Runtime.ATAction("回调/着陆回调",true, false, true), AT.Runtime.ATIcon("ActorSystem/on_ground")]
+        [Return("单位", typeof(Actor))]
         onGround,
+
+        [AT.Runtime.ATAction("回调/属性变更", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_attr")]
+        [Return("单位", typeof(Actor))]
+        [Return("属性", typeof(byte), drawMethod: "DrawAttributePop")]
+        [Return("之前值", typeof(FFloat))]
+        [Return("新值", typeof(FFloat))]
+        onDirtyAttribute,
+
+        [AT.Runtime.ATAction("回调/移除Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
+        [Return("单位", typeof(Actor))]
+        [Return("Buff", typeof(Buff))]
+        [Return("移除状态", typeof(uint),drawMethod: "BuffStateDraw")]
+        onRemoveBuffState,
+
+        [AT.Runtime.ATAction("全局回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
+        [Return("单位", typeof(Actor))]
+        [Return("Buff", typeof(Buff))]
+        [Return("新增状态", typeof(uint), drawMethod: "BuffStateDraw")]
+        onAddBuffState,
     }
 }

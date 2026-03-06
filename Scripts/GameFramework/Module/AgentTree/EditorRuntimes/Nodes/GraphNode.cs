@@ -883,7 +883,7 @@ namespace Framework.AT.Editor
                     outputPort.tooltip += "端口变量GUID:" + port.GetVariableGuid();
                     if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
                     {
-                        outputPort.portName = "";
+                        outputPort.portName = port.attri.name;
                         outputPort.tooltip += "\r\n变量名:" + port.attri.name;
                     }
                     else
@@ -912,7 +912,7 @@ namespace Framework.AT.Editor
                     inputPort.tooltip += "端口变量GUID:" + port.GetVariableGuid();
                     if (port.GetVariable().GetVariableType() == EVariableType.eUserData)
                     {
-                        inputPort.portName = "";
+                        inputPort.portName = port.attri.name;
                         inputPort.tooltip += "\r\n变量名:" + port.attri.name;
                     }
                     else

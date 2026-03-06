@@ -13,6 +13,10 @@ using static UnityEngine.Application;
 using Framework.Base;
 using System.IO;
 using UnityEngine.Playables;
+using Framework.AT.Editor;
+using static UnityEngine.UI.CanvasScaler;
+
+
 
 
 
@@ -60,6 +64,9 @@ namespace Framework.ActorSystem.Runtime
         List<Actor>                                 m_CatchNodeList;
         HashSet<Actor>                              m_CatchNodeSet;
 
+        private AgentTree                           m_pGlobalSkillAT = null;
+        private AgentTree                           m_pGlobalBuffAT = null;
+
         private ISpatialWorld                       m_pSpatialIndex;
         private ESpatialIndexType                   m_eSpatialIndexType = ESpatialIndexType.Octree;
         private bool                                m_isSpatialIndexEnabled = true;
@@ -74,6 +81,11 @@ namespace Framework.ActorSystem.Runtime
         {
             ActorSystemUtil.Register(this);
             m_fTerrainHeight = 0;
+        }
+        //-----------------------------------------------------        
+        protected override void OnStart()
+        {
+            BuildAgentTrees();
         }
         //-----------------------------------------------------        
         public AttrCoreData.AttrFormula GetAttrFormula(int formula)
@@ -440,29 +452,54 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         internal bool OnActorStatusCallback(Actor pActor, EActorStatus eStatus, IVarData pTakeData = null)
         {
-            if (m_vCallbacks == null || pActor == null)
+            if (pActor == null)
                 return false;
             if(m_ProjectileManager!=null)
             {
                 m_ProjectileManager.OnActorStatusCallback(pActor, eStatus, pTakeData);
             }
-            foreach(var db in m_vCallbacks)
+
+            if(eStatus == EActorStatus.Killed)
             {
-                if (db.OnActorSystemActorCallback(pActor, eStatus, pTakeData))
-                    return true;
+                OnTaskGlobalAT((int)EActorATType.onKilled, pActor);
             }
+            else if (eStatus == EActorStatus.Revive)
+            {
+                OnTaskGlobalAT((int)EActorATType.onRevive, pActor);
+            }
+            if(m_vCallbacks!=null)
+            {
+                foreach (var db in m_vCallbacks)
+                {
+                    if (db.OnActorSystemActorCallback(pActor, eStatus, pTakeData))
+                        return true;
+                }
+            }
+
             return false;
         }
         //-----------------------------------------------------
         internal bool OnActorAttriDirtyCallback(Actor pActor, byte attrType, float oldValue, float newValue, IVarData pTakeData = null)
         {
-            if (m_vCallbacks == null || pActor == null)
+            if (pActor == null)
                 return false;
-            foreach (var db in m_vCallbacks)
+
+            var argv = VariableList.Malloc(GetFramework());
+            argv.AddUserData(pActor);
+            argv.AddInt(attrType);
+            argv.AddFloat(oldValue);
+            argv.AddFloat(newValue);
+            OnTaskGlobalAT((int)EActorATType.onDirtyAttribute, argv);
+
+            if (m_vCallbacks!=null)
             {
-                if (db.OnActorSystemActorAttrDirty(pActor, attrType, oldValue, newValue, pTakeData))
-                    return true;
+                foreach (var db in m_vCallbacks)
+                {
+                    if (db.OnActorSystemActorAttrDirty(pActor, attrType, oldValue, newValue, pTakeData))
+                        return true;
+                }
             }
+
             return false;
         }
         //-----------------------------------------------------
@@ -480,6 +517,13 @@ namespace Framework.ActorSystem.Runtime
                     }
                 }
             }
+            if(hitFrame.target_ptr!=null)
+            {
+                ActorAgentTree pAT = hitFrame.target_ptr.GetAgent<ActorAgentTree>(false);
+                if (pAT != null)
+                    pAT.OnHit(hitFrame);
+            }
+            OnTaskGlobalAT((int)EActorATType.onGlobalHitFrame, hitFrame.attack_ptr,hitFrame.target_ptr, hitFrame);
 
             if (m_vCallbacks == null)
                 return false;
@@ -543,6 +587,9 @@ namespace Framework.ActorSystem.Runtime
                 }
                 m_vDestroyList.Clear();
             }
+
+            if (m_pGlobalSkillAT != null) m_pGlobalSkillAT.Update(fFrame);
+            if (m_pGlobalBuffAT != null) m_pGlobalBuffAT.Update(fFrame);
         }
         //------------------------------------------------------
         public long GetRunTime()
@@ -553,6 +600,41 @@ namespace Framework.ActorSystem.Runtime
         public long GetRunUnScaleTime()
         {
             return GetFramework().GetRunUnScaleTime();
+        }
+        //-----------------------------------------------------
+        void BuildAgentTrees()
+        {
+            if(m_pGlobalSkillAT!=null) m_pGlobalSkillAT.Free();
+            m_pGlobalSkillAT = null;
+            if(m_pGlobalBuffAT != null) m_pGlobalBuffAT.Free();
+             m_pGlobalBuffAT = null;
+            if (GetFramework().gameStartup == null)
+                return;
+
+            var setting = GetFramework().gameStartup.GetSetting();
+            if (setting == null || setting.GetSetting() == null)
+                return;
+            var settingData = setting.GetSetting();
+            if (settingData.skillSystem != null && settingData.skillSystem.atData != null && settingData.skillSystem.atData.enable)
+            {
+                var pAT = AgentTreePool.MallocAgentTree(settingData.skillSystem.atData, GetFramework());
+                if(pAT!=null)
+                {
+                    m_pGlobalSkillAT = pAT;
+                    m_pGlobalSkillAT.Enable(true);
+                    m_pGlobalSkillAT.Start();
+                }
+            }
+            if (settingData.buffSystem != null && settingData.buffSystem.atData!=null && settingData.buffSystem.atData.enable)
+            {
+                var pAT = AgentTreePool.MallocAgentTree(settingData.buffSystem.atData, GetFramework());
+                if (pAT != null)
+                {
+                    m_pGlobalBuffAT = pAT;
+                    m_pGlobalBuffAT.Enable(true);
+                    m_pGlobalBuffAT.Start();
+                }
+            }
         }
         //-----------------------------------------------------
         public void DrawDebug(bool bGizmos)
@@ -594,7 +676,13 @@ namespace Framework.ActorSystem.Runtime
         protected override void OnDestroy()
         {
             Clear();
-            if(m_vCallbacks!=null) m_vCallbacks.Clear();
+
+            if (m_pGlobalSkillAT != null) m_pGlobalSkillAT.Free();
+            m_pGlobalSkillAT = null;
+            if (m_pGlobalBuffAT != null) m_pGlobalBuffAT.Free();
+            m_pGlobalBuffAT = null;
+
+            if (m_vCallbacks!=null) m_vCallbacks.Clear();
             if (m_ProjectileManager != null) m_ProjectileManager.Destroy();
             
             if (m_pSpatialIndex != null)
@@ -675,6 +763,50 @@ namespace Framework.ActorSystem.Runtime
             }
             m_pSpatialIndex.QueryActorsAtPosition(position, maxDistance, vResults, pIngore);
             return vResults;
+        }
+        //-----------------------------------------------------
+        internal void OnTaskGlobalAT(int taskType, VariableList argvs,bool autoRelease = true)
+        {
+            if (m_pGlobalBuffAT != null)
+            {
+                m_pGlobalBuffAT.ExecuteTask(taskType, argvs, false);
+                m_pGlobalBuffAT.Free();
+            }
+
+            if (m_pGlobalSkillAT != null)
+            {
+                m_pGlobalSkillAT.ExecuteTask(taskType, argvs, false);
+            }
+            if(autoRelease && argvs != null) argvs.Release();
+        }
+        //-----------------------------------------------------
+        internal void OnTaskGlobalAT(int taskType)
+        {
+            OnTaskGlobalAT(taskType, null);
+        }
+        //-----------------------------------------------------
+        internal void OnTaskGlobalAT(int taskType, IUserData data1)
+        {
+            VariableList argvs = VariableList.Malloc(GetFramework(),1);
+            argvs.AddUserData(data1);
+            OnTaskGlobalAT(taskType, argvs);
+        }
+        //-----------------------------------------------------
+        internal void OnTaskGlobalAT(int taskType, IUserData data1, IUserData data2)
+        {
+            VariableList argvs = VariableList.Malloc(GetFramework(), 1);
+            argvs.AddUserData(data1);
+            argvs.AddUserData(data2);
+            OnTaskGlobalAT(taskType, argvs);
+        }       
+        //-----------------------------------------------------
+        internal void OnTaskGlobalAT(int taskType, IUserData data1, IUserData data2, IUserData data3)
+        {
+            VariableList argvs = VariableList.Malloc(GetFramework(), 1);
+            argvs.AddUserData(data1);
+            argvs.AddUserData(data2);
+            argvs.AddUserData(data3);
+            OnTaskGlobalAT(taskType, argvs);
         }
     }
 }

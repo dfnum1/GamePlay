@@ -160,7 +160,19 @@ namespace Framework.ActorSystem.Runtime
                     }
                     m_pNoActionCurrentSkill = pSkill;
                 }
-                m_pOwner.GetAgent<ActorAgentTree>()?.OnSkill(pSkill);
+                Actor pTarget = null;
+                var argvs = VariableList.Malloc(GetFramework());
+                var lockTargets = pSkill.GetLockTargets();
+                if (lockTargets.Count > 0)
+                {
+                    pTarget = lockTargets[0];
+                    argvs.AddUserData(pTarget);
+                    argvs.AddUserData(pSkill);
+                }
+
+                m_pOwner.GetAgent<ActorAgentTree>()?.ExecuteTask((int)EActorATType.onAttack, argvs,false);
+                GetActor().GetActorManager().OnTaskGlobalAT((int)EActorATType.onGlobalAttack, GetActor(), pTarget,pSkill);
+                argvs.Release();
             }
             return bFind;
         }

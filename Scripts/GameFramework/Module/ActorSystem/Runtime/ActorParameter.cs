@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 #if USE_FIXEDMATH
 using ExternEngine;
+using Framework.AT.Runtime;
 using Framework.Base;
 #else
 using UnityEngine;
@@ -256,6 +257,11 @@ namespace Framework.ActorSystem.Runtime
             if (oldValue == newValue)
                 return;
 
+            var argv = VariableList.Malloc(GetFramework());
+            argv.AddInt(type);
+            argv.AddFloat(oldValue);
+            argv.AddFloat(newValue);
+            m_pActor.GetAgent<ActorAgentTree>()?.ExecuteTask((int)EActorATType.onDirtyAttribute, argv);
             m_pActor.GetActorManager().OnActorAttriDirtyCallback(m_pActor, type, oldValue, newValue);
 
             if (m_vCallbacks == null)

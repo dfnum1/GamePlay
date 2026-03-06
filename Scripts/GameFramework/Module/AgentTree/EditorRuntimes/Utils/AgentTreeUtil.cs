@@ -466,7 +466,9 @@ namespace Framework.AT.Editor
                                     {
                                         for(int j =0; j < returns.Length; ++j)
                                         {
-                                            attr.returns.Add(new ArgvAttribute(returns[j].name, returns[j].argvType));
+                                            ArgvAttribute arvgs = new ArgvAttribute(returns[j].name, returns[j].argvType);
+                                            arvgs.methodDrawer = returns[j].drawMethod;
+                                            attr.returns.Add(arvgs);
                                         }
                                     }
                                 }
@@ -498,7 +500,7 @@ namespace Framework.AT.Editor
                                 }
                                 if (ms_Attrs.TryGetValue(key, out var attrD))
                                 {
-                                    Debug.LogError(tp.Name + " 存在重复定义:" + tp.Name + "." + v.ToString() + "=" + flagValue);
+                                    Debug.LogError(tp.Name + " 存在重复定义:" + tp.Name + "." + v.ToString() + "=" + flagValue + "   已定义：" + attrD.displayName);
                                 }
                                 else
                                 {

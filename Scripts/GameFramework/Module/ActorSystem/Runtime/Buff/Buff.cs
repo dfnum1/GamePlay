@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Framework.Core;
 using Framework.Base;
+using TagLib.Riff;
+
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -134,14 +136,43 @@ namespace Framework.ActorSystem.Runtime
         public void AddEffectState(uint effectState)
         {
             if (effectState >= 32) return;
+            uint last = m_nEffectStateFlags;
             m_nEffectStateFlags |= (1u << (int)effectState);
+
+            if (last != m_nEffectStateFlags)
+            {
+                var agrvs = VariableList.Malloc(GetFramework());
+                agrvs.AddUserData(this);
+                agrvs.AddInt((int)effectState);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onAddBuffState, agrvs, false);
+
+                agrvs.Clear();
+                agrvs.AddUserData(GetActor());
+                agrvs.AddUserData(this);
+                agrvs.AddInt((int)effectState);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalAddBuffState, agrvs, true);
+            }
         }
         //-----------------------------------------------------
         [ATMethod("移除Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
         public void RemoveEffectState(uint effectState)
         {
             if (effectState >= 32) return;
+            uint last = m_nEffectStateFlags;
             m_nEffectStateFlags &= ~(1u << (int)effectState);
+            if(last != m_nEffectStateFlags)
+            {
+                var agrvs = VariableList.Malloc(GetFramework());
+                agrvs.AddUserData(this);
+                agrvs.AddInt((int)effectState);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onRemoveBuffState, agrvs, false);
+
+                agrvs.Clear();
+                agrvs.AddUserData(GetActor());
+                agrvs.AddUserData(this);
+                agrvs.AddInt((int)effectState);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalRemoveBuffState, agrvs, true);
+            }
         }
         //-----------------------------------------------------
         internal void CollectStats(Dictionary<byte,BuffAttr> vAttrs)
@@ -244,7 +275,15 @@ namespace Framework.ActorSystem.Runtime
         [ATMethod("设置激活")]
         public void SetActived(bool bActive)
         {
+            if (m_bActived == bActive)
+                return;
+
             m_bActived = bActive;
+            var agrvs = VariableList.Malloc(GetFramework());
+            agrvs.AddUserData(GetActor());
+            agrvs.AddUserData(this);
+            agrvs.AddBool(m_bActived);
+            GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalBuffActive, agrvs,true);
         }
         //-----------------------------------------------------
         public ActorManager GetActorManager()

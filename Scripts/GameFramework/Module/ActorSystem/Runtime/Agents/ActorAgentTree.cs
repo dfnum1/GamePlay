@@ -111,6 +111,13 @@ namespace Framework.ActorSystem.Runtime
             if (bAutoReleaseAgvs && vArgvs!=null) vArgvs.Release();
         }
         //--------------------------------------------------------
+        internal void OnHit(HitFrameActor hitFrame)
+        {
+            var argvs = VariableList.Malloc(GetFramework());
+            argvs.AddUserData(hitFrame);
+            ExecuteTask((int)EActorATType.onHit,argvs, true);
+        }
+        //--------------------------------------------------------
         protected override void OnFlagDirty(EActorFlag flag, bool IsUsed)
         {
             if (m_pMainAgentTree == null) return;
@@ -169,27 +176,6 @@ namespace Framework.ActorSystem.Runtime
                     m_vSubAgentTrees[i].Update(fDelta);
                 }
             }
-        }
-        //--------------------------------------------------------
-        internal void OnSkill(Skill pSkill)
-        {
-            if (m_pMainAgentTree == null && m_vSubAgentTrees == null) return;
-            var argvs = VariableList.Malloc(GetFramework());
-            var lockTargets = pSkill.GetLockTargets();
-            if(lockTargets.Count>0)
-            {
-                argvs.AddUserData(lockTargets[0]);
-                argvs.AddUserData(pSkill);
-            }
-            if(m_pMainAgentTree!=null) m_pMainAgentTree.ExecuteTask((int)EActorATType.onAttack, argvs, false);
-            if(m_vSubAgentTrees!=null)
-            {
-                foreach (var db in m_vSubAgentTrees)
-                {
-                    db.ExecuteTask((int)EActorATType.onAttack, argvs,false);
-                }
-            }
-            argvs.Release();
         }
         //--------------------------------------------------------
         protected override void OnDestroy()
