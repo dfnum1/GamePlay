@@ -12,6 +12,7 @@ using Framework.ED;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -114,6 +115,9 @@ namespace Framework.Cutscene.Editor
         private static Dictionary<System.Type, System.Reflection.MethodInfo> ms_vSceneViewMethods = new Dictionary<System.Type, System.Reflection.MethodInfo>();
         private static System.Type ms_pCutsceneRuntimeType = null;
         private static Dictionary<long, System.Reflection.MethodInfo> ms_vDefaultValueFunctions = new Dictionary<long, MethodInfo>();
+
+        private static List<string> ms_VarDisplayTypesPop = new List<string>();
+        private static Dictionary<string, CutsceneVarDisplayTypeAttribute> ms_VarDisplayTypes = new Dictionary<string, CutsceneVarDisplayTypeAttribute>();
         //-----------------------------------------------------
         static void Init()
         {
@@ -129,6 +133,8 @@ namespace Framework.Cutscene.Editor
                 ms_vCustomDriverTypes.Clear();
                 ms_vCustomEventTypes.Clear();
                 ms_vDefaultValueFunctions.Clear();
+                ms_VarDisplayTypesPop.Clear(); 
+                ms_VarDisplayTypes.Clear();
                 foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
                     Type[] types = null;
@@ -168,6 +174,21 @@ namespace Framework.Cutscene.Editor
                             var clipAttri = tp.GetCustomAttribute<CutsceneEditorLoaderAttribute>();
                             ms_pLoadUnityPlugin = tp.GetMethod(clipAttri.method, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                         }
+
+                        if (tp.IsDefined(typeof(CutsceneVarDisplayTypeAttribute), false))
+                        {
+                            var dispAttrs = tp.GetCustomAttributes<CutsceneVarDisplayTypeAttribute>();
+                            foreach (var dsp in dispAttrs)
+                            {
+                                dsp.displayType = tp;
+                                if (!string.IsNullOrEmpty(dsp.drawMethod) && !ms_VarDisplayTypes.ContainsKey(dsp.drawMethod))
+                                {
+                                    ms_VarDisplayTypesPop.Add(dsp.popDisplayName);
+                                    ms_VarDisplayTypes[dsp.drawMethod] = dsp;
+                                }
+                            }
+                        }
+
                         if (tp.IsDefined(typeof(CutsceneClipAttribute), false))
                         {
                             var clipAttri = tp.GetCustomAttribute<CutsceneClipAttribute>();
@@ -441,6 +462,21 @@ namespace Framework.Cutscene.Editor
         {
             Init();
             return ms_EventAttrs;
+        }
+        //-----------------------------------------------------
+        internal static List<string> GetVarDisplayPop()
+        {
+            Init();
+            return ms_VarDisplayTypesPop;
+        }
+        //-----------------------------------------------------
+        internal static CutsceneVarDisplayTypeAttribute GetVarDisplay(string method)
+        {
+            if (string.IsNullOrEmpty(method)) return null;
+            Init();
+            if (ms_VarDisplayTypes.TryGetValue(method, out var attr))
+                return attr;
+            return null;
         }
         //-----------------------------------------------------
         public static Color GetDrawColor(IDataer dater)

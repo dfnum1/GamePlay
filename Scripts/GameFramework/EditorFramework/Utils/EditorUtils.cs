@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.Rendering.BoolParameter;
 namespace Framework.ED
 {
     public class EditorUtils

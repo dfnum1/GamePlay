@@ -142,15 +142,11 @@ namespace Framework.ActorSystem.Runtime
             if (last != m_nEffectStateFlags)
             {
                 var agrvs = VariableList.Malloc(GetFramework());
-                agrvs.AddUserData(this);
-                agrvs.AddInt((int)effectState);
-                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onAddBuffState, agrvs, false);
-
-                agrvs.Clear();
                 agrvs.AddUserData(GetActor());
                 agrvs.AddUserData(this);
                 agrvs.AddInt((int)effectState);
-                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalAddBuffState, agrvs, true);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onAddBuffState, agrvs, false);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onAddBuffState, agrvs, true);
             }
         }
         //-----------------------------------------------------
@@ -163,15 +159,11 @@ namespace Framework.ActorSystem.Runtime
             if(last != m_nEffectStateFlags)
             {
                 var agrvs = VariableList.Malloc(GetFramework());
-                agrvs.AddUserData(this);
-                agrvs.AddInt((int)effectState);
-                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onRemoveBuffState, agrvs, false);
-
-                agrvs.Clear();
                 agrvs.AddUserData(GetActor());
                 agrvs.AddUserData(this);
                 agrvs.AddInt((int)effectState);
-                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalRemoveBuffState, agrvs, true);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onRemoveBuffState, agrvs, false);
+                GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onRemoveBuffState, agrvs, true);
             }
         }
         //-----------------------------------------------------
@@ -283,7 +275,7 @@ namespace Framework.ActorSystem.Runtime
             agrvs.AddUserData(GetActor());
             agrvs.AddUserData(this);
             agrvs.AddBool(m_bActived);
-            GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onGlobalBuffActive, agrvs,true);
+            GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onActiveBuff, agrvs,true);
         }
         //-----------------------------------------------------
         public ActorManager GetActorManager()

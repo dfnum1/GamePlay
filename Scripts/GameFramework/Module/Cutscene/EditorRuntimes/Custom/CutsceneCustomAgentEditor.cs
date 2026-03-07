@@ -418,13 +418,15 @@ namespace Framework.Cutscene.Editor
             float width = position.width / 2-20;
             float controlWidth = 100;
             float editColWidth = 70;
-            float headWidth = (width - controlWidth- editColWidth) / 3;
+            float displayWidth = 100;
+            float headWidth = (width - controlWidth- editColWidth- displayWidth) / 3;
             GUILayout.Space(5);
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("参数名", GUILayout.Width(headWidth));
             GUILayout.Label("类型", GUILayout.Width(headWidth));
             GUILayout.Label("初始值", GUILayout.Width(headWidth));
             GUILayout.Label("是否可编辑", GUILayout.Width(editColWidth));
+            GUILayout.Label("显示规则", GUILayout.Width(displayWidth));
             EditorGUILayout.EndHorizontal();
 
             for (int i = 0; i < vParams.Length; ++i)
@@ -525,8 +527,25 @@ namespace Framework.Cutscene.Editor
                     vParams[i].defaultValue = vec.x.ToString("F3") + "|" + vec.y.ToString("F3") + "|" + vec.z.ToString("F3") + "|" + vec.w.ToString("F3");
                 }
                 vParams[i].canEdit = EditorGUILayout.Toggle(vParams[i].canEdit, new GUILayoutOption[] { GUILayout.Width(editColWidth) });
-                // 上移
-                GUI.enabled = i > 0;
+
+                if(vParams[i].type == EVariableType.eInt ||
+                    vParams[i].type == EVariableType.eString)
+                {
+                    var dispPop = DataUtils.GetVarDisplayPop();
+                    int displayIndex = EditorGUILayout.Popup(dispPop.IndexOf(vParams[i].displayType), dispPop.ToArray(), new GUILayoutOption[] { GUILayout.Width(displayWidth) });
+                    if (displayIndex >= 0 && displayIndex < dispPop.Count)
+                        vParams[i].displayType = dispPop[displayIndex];
+                    else
+                    {
+                        vParams[i].displayType = null;
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("", GUILayout.Width(displayWidth));
+                }
+                    // 上移
+                    GUI.enabled = i > 0;
                 if (GUILayout.Button("↑", GUILayout.Width(30)))
                 {
                     var temp = vParams[i - 1];

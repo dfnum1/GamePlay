@@ -229,4 +229,101 @@ namespace Framework.Cutscene.Runtime
 #endif
         }
     }
+    //------------------------------------------------------
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, AllowMultiple = true)]
+    public class CutsceneVarDisplayTypeAttribute : Attribute
+    {
+#if UNITY_EDITOR
+        internal System.Type displayType;
+        public System.Type callDisplayType;
+        public string drawMethod = null;
+        public string popDisplayName = "";
+#endif
+        public CutsceneVarDisplayTypeAttribute(string drawMethod, string popDisplayName="", System.Type callDisplayType = null)
+        {
+#if UNITY_EDITOR
+            this.drawMethod = drawMethod;
+            if (string.IsNullOrEmpty(popDisplayName)) popDisplayName = drawMethod;
+            this.displayType = null;
+            this.callDisplayType = callDisplayType;
+            this.popDisplayName = popDisplayName;
+#endif
+        }
+#if UNITY_EDITOR
+        static System.Reflection.MethodInfo m_drawMethodInfoInt = null;
+        internal int Draw( string label, int value)
+        {
+            if (displayType != null && displayType.IsEnum)
+            {
+                return Convert.ToInt32(Framework.ED.EditorEnumPop.PopEnum(label,value, displayType));
+            }
+            if (m_drawMethodInfoInt == null)
+            {
+                if (callDisplayType == null) callDisplayType = displayType;
+                if (callDisplayType != null)
+                {
+                    var method = callDisplayType.GetMethod(drawMethod, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                    if (method != null && method.ReflectedType == typeof(int))
+                    {
+                        var parmas = method.GetParameters();
+                        if(parmas.Length ==2 && parmas[0].ParameterType == typeof(string) && parmas[1].ParameterType == typeof(int))
+                        {
+                            m_drawMethodInfoInt = method;
+                        }
+                        else if (parmas.Length == 1 && parmas[0].ParameterType == typeof(int))
+                        {
+                            m_drawMethodInfoInt = method;
+                        }
+                    }
+                }
+            }
+            if (m_drawMethodInfoInt != null)
+            {
+                System.Object retVal = null;
+                if (m_drawMethodInfoInt.GetParameters().Length == 2)
+                    retVal = m_drawMethodInfoInt.Invoke(null, new object[] { label, value });
+                else if (m_drawMethodInfoInt.GetParameters().Length == 1)
+                    retVal = m_drawMethodInfoInt.Invoke(null, new object[] { value });
+
+                return (int)retVal;
+            }
+                return value;
+        }
+        static System.Reflection.MethodInfo m_drawMethodInfoStr = null;
+        internal string Draw(string label, string value)
+        {
+            if (m_drawMethodInfoStr == null)
+            {
+                if (callDisplayType == null) callDisplayType = displayType;
+                if (callDisplayType != null)
+                {
+                    var method = callDisplayType.GetMethod(drawMethod, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                    if (method != null && method.ReflectedType == typeof(string))
+                    {
+                        var parmas = method.GetParameters();
+                        if (parmas.Length == 2 && parmas[0].ParameterType == typeof(string) && parmas[1].ParameterType == typeof(string))
+                        {
+                            m_drawMethodInfoStr = method;
+                        }
+                        else if (parmas.Length == 1 && parmas[0].ParameterType == typeof(string))
+                        {
+                            m_drawMethodInfoStr = method;
+                        }
+                    }
+                }
+            }
+            if (m_drawMethodInfoStr != null)
+            {
+                System.Object retVal = null;
+                if (m_drawMethodInfoStr.GetParameters().Length==2)
+                    retVal = m_drawMethodInfoStr.Invoke(null, new object[] { label, value });
+                else if (m_drawMethodInfoStr.GetParameters().Length == 1)
+                    retVal = m_drawMethodInfoStr.Invoke(null, new object[] { value });
+                if (retVal == null) return null;
+                return retVal.ToString();
+            }
+            return value;
+        }
+#endif
+    }
 }

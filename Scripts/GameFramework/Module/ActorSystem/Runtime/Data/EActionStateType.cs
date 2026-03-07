@@ -67,7 +67,7 @@ namespace Framework.ActorSystem.Runtime
         [AT.Runtime.ATAction("回调/受击回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_hit")]
         [Return("单位", typeof(Actor))]
         [Return("受击信息", typeof(HitFrameActor))]
-        onHit,
+        onHitFrame,
 
         [AT.Runtime.ATAction("回调/死亡回调", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_kill")]
         [Return("单位", typeof(Actor))]
@@ -109,5 +109,11 @@ namespace Framework.ActorSystem.Runtime
         [Return("Buff", typeof(Buff))]
         [Return("新增状态", typeof(uint), drawMethod: "BuffStateDraw")]
         onAddBuffState,
+
+        [AT.Runtime.ATAction("全局回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
+        [Return("单位", typeof(Actor))]
+        [Return("Buff", typeof(Buff))]
+        [Return("是否激活", typeof(bool))]
+        onActiveBuff,
     }
 }

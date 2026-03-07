@@ -1,60 +1,23 @@
 /********************************************************************
 生成日期:	06:30:2025
-类    名: 	VariablesEditor
+类    名: 	CustomVariablesDraw
 作    者:	HappLI
-描    述:	变量编辑绘制
+描    述:	变量绘制工具类
 *********************************************************************/
 #if UNITY_EDITOR
+using Framework.AT.Editor;
 using Framework.AT.Runtime;
-using Framework.DrawProps;
 using Framework.ED;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Framework.AT.Editor
+namespace Framework.Cutscene.Editor
 {
-    [Inspector(typeof(Variables))]
-    public class VariablesEditor
+    internal class CustomVariablesDraw
     {
-        public static bool ms_bCanCustomChangeRule = false;
-        public static bool CanCusomChangeRule
-        {
-            get { return ms_bCanCustomChangeRule; }
-            set { ms_bCanCustomChangeRule = value;}
-        }
         static EVariableType ms_nAddType = EVariableType.eInt;
-        public delegate Variables DrawInspectorDelegate(System.Object data, System.Object parentData, System.Reflection.FieldInfo parentField);
-        private static Dictionary<System.Type, DrawInspectorDelegate> ms_vCustoms = new Dictionary<System.Type, DrawInspectorDelegate>();
-        //--------------------------------------------------------------
-        public static void RegisterCustomDraw(System.Type type, DrawInspectorDelegate drawDelegate)
-        {
-            ms_vCustoms[type] = drawDelegate;
-        }
-        //--------------------------------------------------------------
-        public static void UnregisterCustomDraw(System.Type type)
-        {
-            if (ms_vCustoms.ContainsKey(type))
-                ms_vCustoms.Remove(type);
-        }
-        //--------------------------------------------------------------
-        public static Variables DrawInspector(System.Object data, System.Object parentData, System.Reflection.FieldInfo parentField)
-        {
-            if (data != null)
-            {
-                System.Type type = data.GetType();
-                if (ms_vCustoms.TryGetValue(type, out var drawDelegate) && drawDelegate != null)
-                {
-                    var returnData = drawDelegate(data, parentData, parentField);
-                    if (returnData != null)
-                        return returnData;
-                }
-            }
-            return InnerDrawInspector(data, parentData, parentField);
-        }
-        //--------------------------------------------------------------
-        static Variables InnerDrawInspector(System.Object data, System.Object parentData, System.Reflection.FieldInfo parentField)
+        internal static Variables DrawInspector(System.Object data, System.Object parentData, System.Reflection.FieldInfo parentField)
         {
             Variables variables;
             if (data != null) variables = (Variables)data;
@@ -75,18 +38,17 @@ namespace Framework.AT.Editor
 
             bool isClipCustomData = false;
             uint customAgentType = 0;
-            if(parentData!=null)
+            if (parentData != null)
             {
-                /*
-                if(parentData is CutsceneCustomEvent)
+                if(parentData is Runtime.CutsceneCustomEvent)
                 {
-                    customAgentType = ((CutsceneCustomEvent)parentData).customType;
+                    customAgentType = ((Runtime.CutsceneCustomEvent)parentData).customType;
                 }
-                if (parentData is CutsceneCustomClip)
+                if (parentData is Runtime.CutsceneCustomClip)
                 {
                     isClipCustomData = true;
-                    customAgentType = ((CutsceneCustomClip)parentData).customType;
-                }*/
+                    customAgentType = ((Runtime.CutsceneCustomClip)parentData).customType;
+                }
             }
 
             for (int i = 0; i < variables.variables.GetVarCount(); ++i)
@@ -96,30 +58,30 @@ namespace Framework.AT.Editor
                 EditorGUILayout.BeginHorizontal();
 
                 // 变量类型
-                EditorGUI.BeginDisabledGroup(!CanCusomChangeRule);
-                var newType = (EVariableType)EditorEnumPop.PopEnum("",type,null, new GUILayoutOption[] { GUILayout.Width(80) });
+                EditorGUI.BeginDisabledGroup(!AT.Editor.VariablesEditor.CanCusomChangeRule);
+                var newType = (EVariableType)EditorEnumPop.PopEnum("", type, null, new GUILayoutOption[] { GUILayout.Width(80) });
                 EditorGUI.EndDisabledGroup();
                 string defValue = null;
                 string varName = "";
-                /*
+                string displayType = null;
                 if (customAgentType!=0)
                 {
-                    CutsceneCustomAgent.AgentUnit agentUnit = null;
-                    ParamPortMapFieldAttribute portMapFieldAttr = null;
+                    Runtime.ACutsceneCustomAgent.AgentUnit agentUnit = null;
+                    Runtime.ParamPortMapFieldAttribute portMapFieldAttr = null;
                     if (isClipCustomData)
                     {
                         agentUnit = CustomAgentUtil.GetClip(customAgentType);
-                        if (parentField != null && parentField.IsDefined(typeof(ParamPortMapFieldAttribute)))
+                        if (parentField != null && parentField.IsDefined(typeof(Runtime.ParamPortMapFieldAttribute)))
                         {
-                            portMapFieldAttr = parentField.GetCustomAttribute<ParamPortMapFieldAttribute>();
+                            portMapFieldAttr = parentField.GetCustomAttribute<Runtime.ParamPortMapFieldAttribute>();
                         }
                     }
                     else
                     {
                         agentUnit = CustomAgentUtil.GetEvent(customAgentType);
-                        if (parentField != null && parentField.IsDefined(typeof(ParamPortMapFieldAttribute)))
+                        if (parentField != null && parentField.IsDefined(typeof(Runtime.ParamPortMapFieldAttribute)))
                         {
-                            portMapFieldAttr = parentField.GetCustomAttribute<ParamPortMapFieldAttribute>();
+                            portMapFieldAttr = parentField.GetCustomAttribute<Runtime.ParamPortMapFieldAttribute>();
                         }
                     }
                     if (agentUnit !=null && portMapFieldAttr !=null)
@@ -128,18 +90,19 @@ namespace Framework.AT.Editor
                         if(portAttrDef!=null)
                         {
                             var paramDataObj = portAttrDef.GetValue(agentUnit);
-                            if(paramDataObj!=null && paramDataObj is CutsceneCustomAgent.AgentUnit.ParamData[])
+                            if(paramDataObj!=null && paramDataObj is Runtime.ACutsceneCustomAgent.AgentUnit.ParamData[])
                             {
-                                CutsceneCustomAgent.AgentUnit.ParamData[] paramDatas = paramDataObj as CutsceneCustomAgent.AgentUnit.ParamData[];
+                                Runtime.ACutsceneCustomAgent.AgentUnit.ParamData[] paramDatas = paramDataObj as Runtime.ACutsceneCustomAgent.AgentUnit.ParamData[];
                                 if(paramDatas!=null && i < paramDatas.Length)
                                 {
                                     varName = paramDatas[i].name;
                                     defValue = paramDatas[i].defaultValue;
+                                    displayType = paramDatas[i].displayType;
                                 }
                             }
                         }
                     }
-                }*/
+                }
                 if (newType != type)
                 {
                     ED.InspectorDrawUtil.RegisterUndo(variables); // 类型变化前
@@ -154,7 +117,14 @@ namespace Framework.AT.Editor
                     EditorGUILayout.LabelField(varName, GUILayout.Width(120));
 
                     GUILayout.BeginHorizontal(GUILayout.Width(120));
-                    int newValue = EditorGUILayout.IntField(oldValue);
+                    var drawAttr = DataUtils.GetVarDisplay(displayType);
+                    int newValue = oldValue;
+                    if (drawAttr!=null)
+                    {
+                        newValue = drawAttr.Draw(null,oldValue);
+                    }
+                    else
+                        newValue = EditorGUILayout.IntField(oldValue);
                     if (defValue != null && GUILayout.Button(EditorGUIUtility.IconContent("d_RotateTool"), GUILayout.Width(24), GUILayout.Height(18)))
                     {
                         if (int.TryParse(defValue, out var tempV)) newValue = tempV;
@@ -193,7 +163,10 @@ namespace Framework.AT.Editor
                     string oldValue = variables.variables.GetString(i);
                     EditorGUILayout.LabelField(varName, GUILayout.Width(120));
                     GUILayout.BeginHorizontal(GUILayout.Width(120));
-                    string newValue = EditorGUILayout.TextField(oldValue);
+                    var drawAttr = DataUtils.GetVarDisplay(displayType);
+                    string newValue = oldValue;
+                    if (drawAttr != null) newValue = drawAttr.Draw(null, oldValue);
+                    else newValue = EditorGUILayout.TextField(oldValue);
                     if (defValue != null && GUILayout.Button(EditorGUIUtility.IconContent("d_RotateTool"), GUILayout.Width(24), GUILayout.Height(24)))
                     {
                         newValue = defValue;
@@ -325,7 +298,7 @@ namespace Framework.AT.Editor
                     variables.variables.SetVec4(i, newValue);
                 }
 
-                if (CanCusomChangeRule)
+                if (VariablesEditor.CanCusomChangeRule)
                 {
                     // 上移按钮
                     GUI.enabled = i > 0;
@@ -342,13 +315,13 @@ namespace Framework.AT.Editor
                 }
                 EditorGUILayout.EndHorizontal();
             }
-            if (CanCusomChangeRule)
+            if (VariablesEditor.CanCusomChangeRule)
             {
                 // 处理上移
                 if (moveUpIndex > 0)
                 {
                     ED.InspectorDrawUtil.RegisterUndo(variables);
-                    variables.variables.SwapIndex(moveUpIndex, moveUpIndex-1);
+                    variables.variables.SwapIndex(moveUpIndex, moveUpIndex - 1);
                 }
                 // 处理下移
                 if (moveDownIndex >= 0 && moveDownIndex < variables.variables.GetVarCount() - 1)
@@ -378,4 +351,5 @@ namespace Framework.AT.Editor
         }
     }
 }
+
 #endif

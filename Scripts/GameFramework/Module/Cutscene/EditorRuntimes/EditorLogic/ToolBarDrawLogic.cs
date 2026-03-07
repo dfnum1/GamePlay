@@ -22,7 +22,7 @@ namespace Framework.Cutscene.Editor
             GUILayout.BeginHorizontal();
             if(GUILayout.Button("创建", new GUILayoutOption[] { GUILayout.Width(80) }))
             {
-                ACutsceneObject cutscene = ScriptableObject.CreateInstance<ACutsceneObject>();
+                ACutsceneObject cutscene = Framework.ED.EditorUtils.CreateUnityScriptObject<ACutsceneObject>();
                 string saveFile = EditorUtility.SaveFilePanel("保存cutscene", Application.dataPath, "New", "asset");
                 saveFile = saveFile.Replace("\\", "/");
                 if (!string.IsNullOrEmpty(saveFile) && saveFile.StartsWith(Application.dataPath.Replace("\\", "/")))

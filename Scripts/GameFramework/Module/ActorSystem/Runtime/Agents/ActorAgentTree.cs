@@ -114,8 +114,9 @@ namespace Framework.ActorSystem.Runtime
         internal void OnHit(HitFrameActor hitFrame)
         {
             var argvs = VariableList.Malloc(GetFramework());
+            argvs.AddUserData(GetActor());
             argvs.AddUserData(hitFrame);
-            ExecuteTask((int)EActorATType.onHit,argvs, true);
+            ExecuteTask((int)EActorATType.onHitFrame,argvs, true);
         }
         //--------------------------------------------------------
         protected override void OnFlagDirty(EActorFlag flag, bool IsUsed)

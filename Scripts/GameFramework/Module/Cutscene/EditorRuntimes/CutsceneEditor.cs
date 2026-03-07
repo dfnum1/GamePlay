@@ -117,6 +117,7 @@ namespace Framework.Cutscene.Editor
             m_TileStyle.fontSize = 20;
             m_TileStyle.normal.textColor = Color.white;
             m_TileStyle.alignment = TextAnchor.MiddleCenter;
+            base.OnInnerEnable();
         }
         //--------------------------------------------------------
         protected override void OnInnerDisable()

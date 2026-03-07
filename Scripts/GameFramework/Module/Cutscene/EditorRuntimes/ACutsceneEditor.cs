@@ -9,6 +9,7 @@ using Framework.ED;
 using Framework.Cutscene.Runtime;
 using UnityEngine;
 using Framework.AT.Editor;
+using Framework.AT.Runtime;
 
 namespace Framework.Cutscene.Editor
 {
@@ -31,6 +32,16 @@ namespace Framework.Cutscene.Editor
                 logic.ForcePlay();
             else if (eStatus == EPlayableStatus.Stop)
                 logic.FroceStop();
+        }
+        protected override void OnInnerEnable()
+        {
+            base.OnInnerEnable();
+            VariablesEditor.RegisterCustomDraw(typeof(Variables), CustomVariablesDraw.DrawInspector);
+        }
+        protected override void OnInnerDisable()
+        {
+            base.OnInnerDisable();
+            VariablesEditor.UnregisterCustomDraw(typeof(Variables));
         }
     }
 }

@@ -523,7 +523,7 @@ namespace Framework.ActorSystem.Runtime
                 if (pAT != null)
                     pAT.OnHit(hitFrame);
             }
-            OnTaskGlobalAT((int)EActorATType.onGlobalHitFrame, hitFrame.attack_ptr,hitFrame.target_ptr, hitFrame);
+            OnTaskGlobalAT((int)EActorATType.onHitFrame, hitFrame.attack_ptr,hitFrame.target_ptr, hitFrame);
 
             if (m_vCallbacks == null)
                 return false;
