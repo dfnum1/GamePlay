@@ -352,7 +352,7 @@ namespace Framework.Cutscene.Runtime
 
         private bool m_bEndLaucnchPostionGrab = false;
         private Vector3 m_EndLuanchPosition = Vector3.zero;
-
+        private ProjecitleClip m_ClipData = null;
 #if UNITY_EDITOR
         bool m_bFrameing = false;
         private ParticleSystem[] m_StartParticles;
@@ -365,6 +365,7 @@ namespace Framework.Cutscene.Runtime
             DestroyParticle(-1);
             m_StartBindTrans = null;
             m_EndBindTrans = null;
+            m_ClipData = null;
         }
         //-----------------------------------------------------
         public InstanceAble GetGameObject(int state)
@@ -440,9 +441,9 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void OnInstanceEnd(InstanceAble pObj)
         {
-            OnInstance(pObj, 2);
             if (pObj)
-                pObj.transform.localScale = Vector3.zero;
+                pObj.transform.localScale = Vector3.one;
+            OnInstance(pObj, 2);
         }
         //-----------------------------------------------------
         void OnInstance(InstanceAble pObj, int state)
@@ -486,18 +487,22 @@ namespace Framework.Cutscene.Runtime
             var bindTrans = GetBindTransform(state);
             var transform = go.transform;
 
+            if (clip == null)
+                clip = m_ClipData;
 
-            if(clip!=null)
+            if (clip != null)
             {
                 if (state == 0)
                 {
-                    transform.position = clip.startPosition;
+                    if (m_bStartLaucnchPostionGrab) transform.position = m_StartLuanchPosition;
+                    else transform.position = clip.startPosition;
                     transform.eulerAngles = clip.endRotate;
                     transform.localScale = clip.startScale;
                 }
                 else if (state == 2)
                 {
-                    transform.position = clip.endPosition;
+                    if (m_bEndLaucnchPostionGrab) transform.position = m_EndLuanchPosition;
+                    else transform.position = clip.endPosition;
                     transform.eulerAngles = clip.endRotate;
                     transform.localScale = clip.endScale;
                 }
@@ -513,18 +518,20 @@ namespace Framework.Cutscene.Runtime
                 {
                     if (state == 0)
                     {
-                        transform.localPosition = clip.startPosition;
+                        if (m_bStartLaucnchPostionGrab) transform.position = m_StartLuanchPosition;
+                        else transform.position = clip.startPosition;
                         transform.localEulerAngles = clip.startRotate;
                     }
                     else if (state == 2)
                     {
-                        transform.localPosition = clip.endPosition;
+                        if (m_bEndLaucnchPostionGrab) transform.position = m_EndLuanchPosition;
+                        else transform.position = clip.endPosition;
                         transform.localEulerAngles = clip.endRotate;
                     }
                 }
                 else
                 {
-                    transform.localPosition = Vector3.zero;
+                    transform.position = Vector3.zero;
                     transform.localScale = Vector3.one;
                     transform.localEulerAngles = Vector3.zero;
                 }
@@ -542,6 +549,10 @@ namespace Framework.Cutscene.Runtime
                             transform.position = tempPos + clip.startPosition;
                         }
                     }
+                    else
+                    {
+                        transform.position = m_StartLuanchPosition;
+                    }
                 }
                 else if (state == 2)
                 {
@@ -553,6 +564,10 @@ namespace Framework.Cutscene.Runtime
                         {
                             transform.position = tempPos + clip.endPosition;
                         }
+                    }
+                    else
+                    {
+                        transform.position = m_EndLuanchPosition;
                     }
                 }
             }
@@ -673,11 +688,12 @@ namespace Framework.Cutscene.Runtime
             m_bEndLaucnchPostionGrab = false;
             m_EndLuanchPosition = Vector3.zero;
             ProjecitleClip parClip = clip.clip.Cast<ProjecitleClip>();
+            m_ClipData = parClip;
             CheckStartBindTransform(pTrack, parClip);
             CheckEndBindTransform(pTrack, parClip);
             SpawnInstance(parClip.startPrefab, OnInstanceStart, parClip.asyncLoad);
             SpawnInstance(parClip.luanchingPrefab, OnInstanceLaunch, parClip.asyncLoad);
-            SpawnInstance(parClip.endPrefab, OnInstanceEnd, parClip.asyncLoad);
+        //    SpawnInstance(parClip.endPrefab, OnInstanceEnd, parClip.asyncLoad);
 #if UNITY_EDITOR
             m_bFrameing = true;
 #endif
@@ -688,10 +704,8 @@ namespace Framework.Cutscene.Runtime
         {
             if(!clip.IsLeaveIn())
             {
-                if (m_EndInstance)
-                {
-                    UpdateTransform(2, clip.clip.Cast<ProjecitleClip>());
-                }
+                m_ClipData = clip.clip.Cast<ProjecitleClip>();
+                SpawnInstance(m_ClipData.endPrefab, OnInstanceEnd, m_ClipData.asyncLoad);
             }
             if (clip.CanRestore() || clip.IsLeaveIn())
             {
