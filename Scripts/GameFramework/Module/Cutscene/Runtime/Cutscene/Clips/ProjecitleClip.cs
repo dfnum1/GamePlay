@@ -459,6 +459,9 @@ namespace Framework.Cutscene.Runtime
             if (pObj == GetGameObject(state))
                 return;
 
+            pObj.SetActive(true);
+            pObj.transform.SetParent(null);
+
             ParticleSystem[] parSystems = null;
 #if UNITY_EDITOR
             if (IsEditorMode())
@@ -697,6 +700,7 @@ namespace Framework.Cutscene.Runtime
 #if UNITY_EDITOR
             m_bFrameing = true;
 #endif
+            OnFrameClip(pTrack, clip);
             return true;
         }
         //-----------------------------------------------------
