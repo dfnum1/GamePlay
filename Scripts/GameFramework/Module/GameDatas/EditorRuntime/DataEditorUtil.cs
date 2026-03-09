@@ -5,13 +5,18 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
+using Framework.AT.Editor;
+using Framework.AT.Runtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 namespace Framework.Data.ED
 {
+    [ATDrawer("DrawCsvTablePop", "OnDrawCsvTablePop")]
     public class DataEditorUtil
     {
         private static System.IO.MemoryStream m_pMemoryStream = null;
@@ -39,6 +44,8 @@ namespace Framework.Data.ED
         }
         //-------------------------------------------
         static Dictionary<string, System.Type> ms_TableNameTypes= null;
+        static List<string> ms_TableNamePops = null;
+        static List<int> ms_TableHashs = null;
         private static void CheckTableTypeMethod()
         {
             if(ms_TableNameTypes != null) return;
@@ -57,6 +64,24 @@ namespace Framework.Data.ED
                     {
                         ms_TableNameTypes[tp.Name.Substring("CsvData_".Length).ToLower()] = tp;
                     }
+                }
+            }
+        }
+        //-------------------------------------------
+        private static void InitTableLists()
+        {
+            string[] assets = AssetDatabase.FindAssets("t:ACsvConfig");
+            if (assets == null || assets.Length <= 0) return;
+            ACsvConfig csvCfg = AssetDatabase.LoadAssetAtPath<ACsvConfig>(AssetDatabase.GUIDToAssetPath(assets[0]));
+            if(csvCfg.Assets!=null && ms_TableNamePops == null)
+            {
+                ms_TableNamePops = new List<string>(csvCfg.Assets.Length);
+                ms_TableHashs = new List<int>(csvCfg.Assets.Length);
+                for (int i = 0; i < csvCfg.Assets.Length; ++i)
+                {
+                    if (csvCfg.Assets[i].Asset == null  || !csvCfg.Assets[i].exportAT) continue;
+                    ms_TableNamePops.Add(csvCfg.Assets[i].Asset.name);
+                    ms_TableHashs.Add(csvCfg.Assets[i].nHash);
                 }
             }
         }
@@ -265,6 +290,41 @@ namespace Framework.Data.ED
         {
             return GetTable<T>(typeof(T), bReload);
 		}
+        //----------------------------------------
+        internal static VisualElement OnDrawCsvTablePop(ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            if (portValue == null || portValue.GetVariableType() != EVariableType.eInt)
+                return null;
+            InitTableLists();
+            bool canEdit = port.attri.canEdit;
+
+            var intVar = (AT.Runtime.VariableInt)portValue;
+            int curIndex = ms_TableHashs.IndexOf((int)intVar.value);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(ms_TableNamePops, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = ms_TableNamePops.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    intVar.value = ms_TableHashs[idx];
+                    onValueChanged?.Invoke(intVar);
+                }
+            });
+
+            return popup;
+        }
     }
 }
 #endif

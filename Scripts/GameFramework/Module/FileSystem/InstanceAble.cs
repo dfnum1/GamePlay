@@ -63,6 +63,99 @@ namespace Framework.Core
             }
         }
         //------------------------------------------------------
+        public void SetPosition(Vector3 postion, bool bLocal = false)
+        {
+            if (bLocal)
+                GetTransform().localPosition = postion;
+            else
+                GetTransform().position = postion;
+        }
+        //------------------------------------------------------
+        public Vector3 GetPosition(bool bLocal = false)
+        {
+            if (bLocal)
+                return GetTransform().localPosition;
+            else
+                return GetTransform().position;
+        }
+        //------------------------------------------------------
+        public void SetRotation(Quaternion rot, bool bLocal = false)
+        {
+            if (bLocal)
+                GetTransform().rotation = rot;
+            else
+                GetTransform().localRotation = rot;
+        }
+        //------------------------------------------------------
+        public Quaternion GetRotation(bool bLocal = false)
+        {
+            if (bLocal)
+                return GetTransform().localRotation;
+            else
+                return GetTransform().rotation;
+        }
+        //------------------------------------------------------
+        public void SetForward(Vector3 forward)
+        {
+            GetTransform().forward = forward;
+        }
+        //------------------------------------------------------
+        public Vector3 GetForward()
+        {
+            return GetTransform().forward;
+        }
+        //------------------------------------------------------
+        public void SetUp(Vector3 up)
+        {
+            GetTransform().up = up;
+        }
+        //------------------------------------------------------
+        public Vector3 GetUp()
+        {
+            return GetTransform().up;
+        }
+        //------------------------------------------------------
+        public void SetEulerAngle(Vector3 eulerAngles, bool bLocal = false)
+        {
+            if (bLocal)
+                GetTransform().localEulerAngles = eulerAngles;
+            else
+                GetTransform().eulerAngles = eulerAngles;
+        }
+        //------------------------------------------------------
+        public Vector3 GetEulerAngle(bool bLocal = false)
+        {
+            if (bLocal)
+                return GetTransform().localEulerAngles;
+            else
+                return GetTransform().eulerAngles;
+        }
+        //------------------------------------------------------
+        public void SetScale(Vector3 scale)
+        {
+            GetTransform().localScale = scale;
+        }
+        //------------------------------------------------------
+        public Vector3 GetScale(bool bLocal = true)
+        {
+            if (bLocal) return GetTransform().localScale;
+            return GetTransform().lossyScale;
+        }
+        //------------------------------------------------------
+        public void SetTransform(Matrix4x4 matrix, bool bLocal = false)
+        {
+            if(bLocal) GetTransform().SetLocalPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
+            else GetTransform().SetPositionAndRotation(matrix.GetColumn(3), matrix.rotation);
+            GetTransform().localScale = matrix.lossyScale;
+        }
+        //------------------------------------------------------
+        public void SetTransform(Vector3 position, Quaternion rot, Vector3 scale, bool bLocal = false)
+        {
+            if (bLocal) GetTransform().SetLocalPositionAndRotation(position, rot);
+            else GetTransform().SetPositionAndRotation(position, rot);
+            GetTransform().localScale = scale;
+        }
+        //------------------------------------------------------
         internal void SetLockInfo(string prefabPath, GameObject prefabObj)
         {
             m_pPrefab = prefabObj;

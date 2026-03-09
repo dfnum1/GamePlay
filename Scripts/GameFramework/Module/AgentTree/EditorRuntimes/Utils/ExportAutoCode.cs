@@ -58,12 +58,11 @@ namespace Framework.AT.Editor
                 EditorUtility.DisplayDialog("提示","未找到安装路径，无法导出蓝图脚本！", "好的");
                 return;
             }
-            if(Framework.ED.EditorUtils.IsInstallFromPackage())
+            if(!Framework.ED.EditorUtils.IsInstallFromPackage())
             {
-                ExportATMothed(false);
-            }
-            else
                 ExportATMothed(true);
+            }
+            ExportATMothed(false);
         }
         //-----------------------------------------------------
         static void ExportATMothed(bool bInternal)
@@ -75,7 +74,6 @@ namespace Framework.AT.Editor
                     EditorUtility.DisplayDialog("提示", "请先在编辑器设置中设置代码生成路径！", "好的");
                     return;
                 }
-                return;
             }
             ms_vExports.Clear();
             ms_vRefTypes.Clear();
@@ -140,11 +138,18 @@ namespace Framework.AT.Editor
                                     {
                                         exportData.guid = BuildHashCode(tp);
                                     }
-                                    if(bInternal)
+                                    if (bInternal)
                                         exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
                                     else
-                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
-                                    
+                                    {
+                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs").Replace("\\", "/");
+                                        if(exportData.exportPath.StartsWith("Assets/"))
+                                        {
+                                            exportData.exportPath = exportData.exportPath.Substring("Assets/".Length);
+                                        }
+                                    }
+                                    exportData.exportPath = exportData.exportPath.Replace("\\", "/");
+
                                     exportData.type = tp;
                                     exportData.exportAttr = exportAttr;
                                     ms_vExports.Add(typeName, exportData);
@@ -279,10 +284,13 @@ namespace Framework.AT.Editor
                 }
             }
 
-            string epxortRoot = Application.dataPath + "/" + EXPORT_PATH;
-            if(Directory.Exists(epxortRoot))
+            if(bInternal)
             {
-                Directory.Delete(epxortRoot, true);
+                string epxortRoot = Application.dataPath + "/" + EXPORT_PATH;
+                if (Directory.Exists(epxortRoot))
+                {
+                    Directory.Delete(epxortRoot, true);
+                }
             }
 
             foreach (var db in ms_vExports)
@@ -326,7 +334,16 @@ namespace Framework.AT.Editor
             code.AppendLine($"\tpublic class {typeClassName}");
             code.AppendLine("\t{");
             code.AppendLine("##FUNCTION##");
-            if(!export.type.IsSubclassOf(typeof(AModule)))
+            if(!string.IsNullOrEmpty(export.exportAttr.expression))
+            {
+                code.AppendLine("\t\tstatic bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
+                code.AppendLine("\t\t{");
+                code.AppendLine($"\t\t\tif(pUserClass.pPointer == null) pUserClass.pPointer = {export.exportAttr.expression};");
+                code.AppendLine("\t\t\tif(pUserClass.pPointer == null) return false;");
+                code.AppendLine("\t\t\treturn true;");
+                code.AppendLine("\t\t}");
+            }
+            else if (!export.type.IsSubclassOf(typeof(AModule)))
             {
                 code.AppendLine("\t\tstatic bool CheckUserClassPointer(ref VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)");
                 code.AppendLine("\t\t{");
@@ -364,7 +381,7 @@ namespace Framework.AT.Editor
                 code.AppendLine("}");
 
             code.Replace("##FUNCTION##", methodCode.ToString());
-            string fullPath = Application.dataPath + "/" + export.exportPath;
+            string fullPath = Path.Combine(Application.dataPath, export.exportPath);
             if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
@@ -844,8 +861,8 @@ namespace Framework.AT.Editor
 
             bool isStaticGet = false;
             bool isStaticSet = false;
-            if (propField.GetMethod.IsStatic) isStaticGet = true;
-            if (propField.SetMethod.IsStatic) isStaticSet = true;
+            if (propField.GetMethod!=null && propField.GetMethod.IsStatic) isStaticGet = true;
+            if (propField.SetMethod!=null && propField.SetMethod.IsStatic) isStaticSet = true;
 
             string functionCallGet = "";
             string functionCallSet = "";
@@ -906,7 +923,7 @@ namespace Framework.AT.Editor
             if (functionAttributesSet.EndsWith("\r\n"))
                 functionAttributesSet = functionAttributesSet.Substring(0, functionAttributesSet.Length - "\r\n".Length);
 
-            if (info.fieldAttr.bGet && propField.GetMethod.IsPublic)
+            if (propField.GetMethod!=null && info.fieldAttr.bGet && propField.GetMethod.IsPublic)
             {
                 methodCode.AppendLine("#if UNITY_EDITOR");
                 methodCode.AppendLine(functionAttributesGet);
@@ -952,7 +969,7 @@ namespace Framework.AT.Editor
                 code.AppendLine("\t\t\t}");
             }
 
-            if (info.fieldAttr.bSet && !export.type.IsValueType && propField.SetMethod.IsPublic)
+            if (propField.SetMethod!=null && info.fieldAttr.bSet && !export.type.IsValueType && propField.SetMethod.IsPublic)
             {
                 methodCode.AppendLine("#if UNITY_EDITOR");
                 methodCode.AppendLine(functionAttributesSet);
@@ -1128,6 +1145,18 @@ namespace Framework.AT.Editor
             code.AppendLine("\t\t{");
             foreach (var db in ms_vExports)
             {
+
+                if (bInternal)
+                {
+                    if (!(db.Value.exportAttr is ATInteralExportAttribute))
+                        continue;
+                }
+                else
+                {
+                    if ((db.Value.exportAttr is ATInteralExportAttribute))
+                        continue;
+                }
+
                 string function = "";
                 if(db.Value.type.Namespace!= null)
                     function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction";

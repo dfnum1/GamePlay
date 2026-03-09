@@ -9,16 +9,8 @@ using Framework.Core;
 using Framework.Cutscene.Runtime;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Application;
 using Framework.Base;
 using System.IO;
-using UnityEngine.Playables;
-using Framework.AT.Editor;
-using static UnityEngine.UI.CanvasScaler;
-
-
-
-
 
 
 #if USE_FIXEDMATH

@@ -788,6 +788,16 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(238595900,"获取Buff系统",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.BuffSystem))]
+#endif
+		static bool AT_GetBuffSystem(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.GetBuffSystem());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-464428257,"获取技能系统",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.SkillSystem))]
@@ -1424,6 +1434,13 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is Actor)) return true;
 				return AT_IsInAction((Actor)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
+			}
+			case 238595900://GetBuffSystem
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Actor)) return true;
+				return AT_GetBuffSystem((Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -464428257://GetSkillSystem
 			{

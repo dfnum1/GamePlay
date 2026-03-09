@@ -45,6 +45,7 @@ namespace Framework.AT.Runtime
         public int guid;
         public string nodeName;
         public string icon;
+        public string expression;
 #endif
         public ATExportAttribute(string nodeName = null, int guid = 0, string icon = null)
         {
@@ -52,6 +53,16 @@ namespace Framework.AT.Runtime
             this.guid = guid;
             this.nodeName = nodeName;
             this.icon = icon;
+            this.expression = null;
+#endif
+        }
+        public ATExportAttribute(string nodeName, string expression, int guid = 0, string icon = null)
+        {
+#if UNITY_EDITOR
+            this.guid = guid;
+            this.nodeName = nodeName;
+            this.icon = icon;
+            this.expression = expression;
 #endif
         }
     }

@@ -135,8 +135,8 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         public override bool OnFrameClip(CutsceneTrack pTrack, FrameData frameData)
         {
-            if (frameData.eStatus == EPlayableStatus.Pause)
-                return true;
+            //if (frameData.eStatus == EPlayableStatus.Pause && !IsEditorMode())
+            //    return true;
             var clipData = frameData.clip.Cast<CutsceneAnimationClip>();
 #if UNITY_EDITOR
             CheckLoad(clipData);

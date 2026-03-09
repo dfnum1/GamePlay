@@ -19,13 +19,13 @@ namespace Framework.ActorSystem.Runtime
     [ATInteralExport("Actor系统/Buff系统", -9, "BuffSystem/actor_buffsystem")]
     public class BuffSystem : TypeActor
     {
-        private Actor m_pOwner = null;
-        protected Dictionary<uint, Buff> m_vBuffs;
+        private Actor                       m_pOwner = null;
+        protected LinkedList<Buff>          m_vBuffs = null;
 
         private bool                        m_bDirty = false;
         private Dictionary<byte, BuffAttr>  m_vBuffAttrs = null;
         private Dictionary<byte, BuffAttr>  m_vLastBuffAttrs = null;
-        private Dictionary<byte, BuffAttr> m_vTempBuffAttrs = null;
+        private Dictionary<byte, BuffAttr>  m_vTempBuffAttrs = null;
         //-----------------------------------------------------
         public BuffSystem()
         {
@@ -60,20 +60,18 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
-        public void AddLockTarget(Actor pNode, bool bClear = false)
-        {
-        }
-        //-----------------------------------------------------
-        [ATMethod("清除索敌单位")]
-        public void ClearLockTargets()
-        {
-        }
-        //-----------------------------------------------------
         [ATMethod("添加Buff")]
         public void AddBuff(Buff pBuff)
         {
             if (pBuff == null) return;
             pBuff.SetSystem(this);
+            if (m_vBuffs == null) m_vBuffs = new LinkedList<Buff>();
+            else
+            {
+                if (m_vBuffs.Contains(pBuff))
+                    return;
+            }
+            m_vBuffs.AddLast(pBuff);
         }
         //-----------------------------------------------------
         [ATMethod("获取Buff属性值"),ATArgvDrawer("type", "DrawAttributePop")]
@@ -102,9 +100,16 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_vBuffs != null)
             {
-                foreach(var buff in m_vBuffs)
+                for (var node = m_vBuffs.First; node != null;)
                 {
-                    buff.Value.Update(fFrame);
+                    var next = node.Next;
+                    node.Value.Update(fFrame);
+                    if (node.Value.IsEnd())
+                    {
+                        node.Value.Free();
+                        m_vBuffs.Remove(node);
+                    }
+                    node = next;
                 }
             }
             if(m_bDirty)
@@ -123,9 +128,9 @@ namespace Framework.ActorSystem.Runtime
                         }
                     }
                     m_vBuffAttrs.Clear();
-                    foreach (var buff in m_vBuffs)
+                    for (var node = m_vBuffs.First; node != null; node = node.Next)
                     {
-                        buff.Value.CollectStats(m_vBuffAttrs);
+                        node.Value.CollectStats(m_vBuffAttrs);
                     }
                     if(m_vLastBuffAttrs!=null)
                     {
@@ -164,6 +169,16 @@ namespace Framework.ActorSystem.Runtime
             if (m_vLastBuffAttrs != null) m_vLastBuffAttrs.Clear();
             if (m_vBuffAttrs != null) m_vBuffAttrs.Clear();
             m_vTempBuffAttrs = null;
+            m_bDirty = false;
+            if(m_vBuffs!=null)
+            {
+                for (var node = m_vBuffs.First; node != null; node = node.Next)
+                {
+                    node.Value.Free();
+                }
+                m_vBuffs.Clear();
+            }
+            m_pOwner = null;
         }
     }
 }

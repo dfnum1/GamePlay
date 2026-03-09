@@ -578,19 +578,17 @@ namespace Framework.Cutscene.Runtime
         //-----------------------------------------------------
         void CheckStartBindTransform(CutsceneTrack pTrack, ProjecitleClip parClip)
         {
-            var instance = GetGameObject(0);
-            if (instance == null)
-                return;
             string bindSlot = parClip.startBindSlot;
             if (string.IsNullOrEmpty(bindSlot))
             {
+                var instance = GetGameObject(0);
                 if (instance) instance.transform.SetParent(null);
                 m_StartBindTrans = null;
                 m_lastStartBindNode = null;
                 return;
             }
             string lastBindNode = m_lastStartBindNode;
-            if (bindSlot.CompareTo(lastBindNode) == 0)
+            if (m_StartBindTrans != null && bindSlot.CompareTo(lastBindNode) == 0)
             {
                 return;
             }
@@ -609,6 +607,7 @@ namespace Framework.Cutscene.Runtime
             {
                 m_StartBindTrans = pBind;
                 m_lastStartBindNode = bindSlot;
+                m_bStartLaucnchPostionGrab = false;
             }
         }
         //-----------------------------------------------------
@@ -626,7 +625,7 @@ namespace Framework.Cutscene.Runtime
                 return;
             }
             string lastBindNode = m_lastEndBindNode;
-            if (bindSlot.CompareTo(lastBindNode) == 0)
+            if (m_EndBindTrans != null && bindSlot.CompareTo(lastBindNode) == 0)
             {
                 return;
             }
@@ -639,10 +638,12 @@ namespace Framework.Cutscene.Runtime
                     m_EndBindTrans = node;
                 else
                     m_EndBindTrans = go.transform;
+                m_bEndLaucnchPostionGrab = false;
             }
             else if (go != null && go.name.CompareTo(bindSlot) == 0)
             {
                 m_EndBindTrans = go.transform;
+                m_bEndLaucnchPostionGrab = false;
             }
             m_lastEndBindNode = bindSlot;
         }

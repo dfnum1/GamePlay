@@ -1,6 +1,6 @@
 /********************************************************************
 生成日期:	1:11:2020 10:05
-类    名: 	DataManager
+类    名: 	ADataManager
 作    者:	HappLI
 描    述:	
 *********************************************************************/
@@ -8,21 +8,18 @@ using Framework.AT.Runtime;
 using Framework.Base;
 using Framework.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 #if USE_SERVER
 using ExternEngine;
 #else
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Windows;
-using static UnityEngine.Application;
 #endif
 
 namespace Framework.Data
 {
+    [ATInteralExport("配置数据系统/管理器", -1, icon: "GameData/tabledata")]
     public abstract class ADataManager : Core.AModule
     {
         private System.IO.MemoryStream m_pMemoryStream = null;
@@ -31,7 +28,8 @@ namespace Framework.Data
         protected int m_nLoadCnt = 0;
         protected int m_nTotalCnt = 0;
         Dictionary<int, Data_Base> m_vDatas = new Dictionary<int, Data_Base>(64);
-        Dictionary<string, ABaseData> m_vCustomDatas = null;
+        Dictionary<int, Data_Base> m_vHashDatas = new Dictionary<int, Data_Base>(64);
+        Dictionary<string, IUserData> m_vCustomDatas = null;
         public static Action OnLoaded = null;
         public bool bInited { get; set; }
         //-------------------------------------------
@@ -45,7 +43,12 @@ namespace Framework.Data
             bInited = false;
             m_nLoadCnt = 0;
             m_nTotalCnt = 0;
+            foreach (var db in m_vDatas)
+            {
+                db.Value.Free();
+            }
             m_vDatas.Clear();
+            m_vHashDatas.Clear();
         }
         //-------------------------------------------
         protected override void OnAwake()
@@ -73,7 +76,12 @@ namespace Framework.Data
             if (pConfig == null) return;
             m_nLoadCnt = 0;
             m_nTotalCnt = 0;
+            foreach (var db in m_vDatas)
+            {
+                db.Value.Free();
+            }
             m_vDatas.Clear();
+            m_vHashDatas.Clear();
             m_nTotalCnt += pConfig.Assets.Length;
             CsvParser csvParser = new CsvParser();
             for (int i = 0; i < pConfig.Assets.Length; ++i)
@@ -111,7 +119,9 @@ namespace Framework.Data
                     }
                     else
                     {
+                        csvData.SetSystem(this);
                         csvData.SetHashID(pConfig.Assets[i].nHash);
+                        m_vHashDatas[pConfig.Assets[i].nHash] = csvData;
                         m_vDatas[csvData.GetType().GetHashCode()] = csvData;
                     }
 #if UNITY_EDITOR
@@ -134,6 +144,7 @@ namespace Framework.Data
             csvParser.Clear();
         }
         //-------------------------------------------
+        [ATField]
         public float Progress
         {
             get
@@ -156,22 +167,38 @@ namespace Framework.Data
             }
         }
         //-------------------------------------------
-        public T GetCustomData<T>(string strFile) where T : ABaseData
+        [ATMethod("获取配置数据"),ATArgvDrawer("table", "DrawCsvTablePop")]
+        public Data_Base GetCsvData(int table)
+        {
+            if (m_vHashDatas.TryGetValue(table, out var data))
+                return data;
+            return null;
+        }
+        //-------------------------------------------
+        public T GetCsvData<T>() where T : Data_Base
+        {
+            int hash = (typeof(T)).GetHashCode();
+            if (m_vDatas.TryGetValue(hash, out var data))
+                return data as T;
+            return null;
+        }
+        //-------------------------------------------
+        public T GetCustomData<T>(string strFile) where T : IUserData
         {
             if (string.IsNullOrEmpty(strFile)) return default;
             if (m_vCustomDatas != null)
             {
-                ABaseData getData = null;
+                IUserData getData = null;
                 if (m_vCustomDatas.TryGetValue(strFile, out getData))
                     return (T)getData;
             }
             return default;
         }
         //-------------------------------------------
-        public void AddCustomData(string strFile, ABaseData userData)
+        public void AddCustomData(string strFile, IUserData userData)
         {
             if (string.IsNullOrEmpty(strFile) || userData == null) return;
-            if (m_vCustomDatas == null) m_vCustomDatas = new Dictionary<string, ABaseData>(64);
+            if (m_vCustomDatas == null) m_vCustomDatas = new Dictionary<string, IUserData>(64);
             m_vCustomDatas[strFile] = userData;
         }
         //-------------------------------------------
@@ -181,7 +208,7 @@ namespace Framework.Data
             if (m_vCustomDatas != null) m_vCustomDatas.Remove(strFile);
         }
         //-------------------------------------------
-        public void LoadBinary<T>(string strFile, System.Action<ABaseData, bool> onCallback, bool bCache = false, bool bAbsFile = false) where T : ABaseData
+        public void LoadBinary<T>(string strFile, System.Action<IUserData, bool> onCallback, bool bCache = false, bool bAbsFile = false) where T : IUserData
         {
             FileSystem fileSystem = GetFileSystem();
             if (fileSystem == null)
@@ -194,10 +221,10 @@ namespace Framework.Data
                 if (onCallback != null) onCallback(null, false);
                 return;
             }
-            ABaseData getData = null;
+            IUserData getData = null;
             if (m_vCustomDatas != null && m_vCustomDatas.TryGetValue(strFile, out getData))
             {
-                if (onCallback != null) onCallback(getData as T, true);
+                if (onCallback != null) onCallback((T)getData, true);
                 return;
             }
             var assetOp = fileSystem.LoadAsset(strFile, OnReadBinaryFile);
@@ -211,7 +238,7 @@ namespace Framework.Data
         {
             if(check) return;
 
-            ABaseData newData = null;
+            IUserData newData = null;
             Callback1Var callback = assetOp.GetUserData<Callback1Var>(1);
             var pTextAsset = assetOp.GetObject<TextAsset>();
             if(pTextAsset == null)
@@ -264,25 +291,20 @@ namespace Framework.Data
             bInited = false;
             if (m_vCustomDatas != null)
             {
-                foreach (var db in m_vCustomDatas)
-                    db.Value.Destroy();
                 m_vCustomDatas.Clear();
             }
-        }
-        //------------------------------------------------------
-        public T GetCsv<T>() where T : Data_Base
-        {
-            int hashCode = typeof(T).GetHashCode();
-            Data_Base csvData;
-            if (m_vDatas.TryGetValue(hashCode, out csvData))
-                return csvData as T;
-            return null;
+            foreach(var db in m_vDatas)
+            {
+                db.Value.Free();
+            }
+            m_vDatas.Clear();
+            m_vHashDatas.Clear();
         }
         //-------------------------------------------
         protected abstract Data_Base Parser(CsvParser csvParser, int index, TextAsset pAsset, EDataType eType = EDataType.Binary);
         protected abstract void Mapping();
         //-------------------------------------------
-        protected virtual ABaseData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)
+        protected virtual IUserData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)
         {
 #if UNITY_EDITOR
             Debug.LogError("binary data read not implement! type:" + classType.ToString());

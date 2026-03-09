@@ -17,6 +17,7 @@ namespace Framework.AT.Runtime
 			Register(-5, typeof(Framework.ActorSystem.Runtime.HitFrameActor),Framework.ActorSystem.Runtime.Framework_ActorSystem_Runtime_HitFrameActor.DoAction,0);
 			Register(-4, typeof(Framework.ActorSystem.Runtime.Skill),Framework.ActorSystem.Runtime.Framework_ActorSystem_Runtime_Skill.DoAction,84673252/*Framework.ActorSystem.Runtime.AActorStateInfo*/);
 			Register(-3, typeof(Framework.ActorSystem.Runtime.SkillSystem),Framework.ActorSystem.Runtime.Framework_ActorSystem_Runtime_SkillSystem.DoAction,-179068835/*Framework.ActorSystem.Runtime.TypeActor*/);
+			Register(-1, typeof(Framework.Data.ADataManager),Framework.Data.Framework_Data_ADataManager.DoAction,-1834191620/*Framework.Core.AModule*/);
 		}
 		//-----------------------------------------------------
 		public static void Register(int typeId, System.Type type, ATCallHandler.OnActionDelegate onFunction, int parentTypeId =0)

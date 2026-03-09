@@ -4,10 +4,8 @@
 作    者:	HappLI
 描    述:	
 *********************************************************************/
-
 using Framework.ActorSystem.Runtime;
 using Framework.Base;
-using Framework.Core;
 
 namespace Framework.Data
 {
@@ -15,12 +13,34 @@ namespace Framework.Data
     {
         public abstract void Destroy();
     }
-    public class Data_Base : ABaseData
+    public class Data_Base : TypeObject
     {
 #if UNITY_EDITOR
         public string strFilePath;
 #endif
         private int m_nHashID = 0;
+        private ADataManager m_pSystem;
+        //-------------------------------------------
+        protected ADataManager GetSystem()
+        {
+            return m_pSystem;
+        }
+        //-------------------------------------------
+        internal void SetSystem(ADataManager pSystem)
+        {
+            m_pSystem = pSystem;
+        }
+        //-------------------------------------------
+        protected void RegisterATClass()
+        {
+            var pFramework = GetFramework();
+            if (pFramework != null)
+            {
+                var pATManager = pFramework.GetModule<AT.Runtime.AgentTreeManager>();
+                if (pATManager != null)
+                    pATManager.RegisterClass(this);
+            }
+        }
         //-------------------------------------------
         public int GetHashID() { return m_nHashID; }
         public void SetHashID(int hashID) { m_nHashID = hashID; }

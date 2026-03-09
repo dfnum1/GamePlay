@@ -17,7 +17,7 @@ namespace Framework.Core
         {
             AddModule<Framework.State.Runtime.GameWorld>();
             AddModule<Framework.Db.UserManager>();
-            ATRegisterInternalHandler.Init();
+ //           ATRegisterInternalHandler.Init();
             GameStateInnerTypeRegistry.Init();
         }
         //--------------------------------------------------------

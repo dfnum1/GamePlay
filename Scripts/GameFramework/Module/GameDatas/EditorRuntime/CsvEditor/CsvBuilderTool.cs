@@ -957,6 +957,7 @@ namespace Framework.ED
             code += "using UnityEngine;\r\n";
             code += "#endif\r\n";
             code += "using Framework.Core;\r\n";
+            code += "using Framework.Base;\r\n";
             code += "using Framework.Data;\r\n";
             code += "namespace TopGame.Data\r\n";
             code += "{\r\n";
@@ -972,7 +973,7 @@ namespace Framework.ED
                 {
                     code += "\t\tprivate " + simply.className + space_gap + "m_p" + strSplit[1] + ";\r\n";
                     if (simply.enabelAT)
-                        code += "\t\t//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]\n";
+                        code += "\t\t[Framework.AT.Runtime.ATField]\n";
                     code += "\t\tpublic " + simply.className + space_gap + strSplit[1] + "{\n";
                     code += "\t\t\tget{\r\n";
                     code += "\t\t\t//#if UNITY_EDITOR\r\n";
@@ -997,7 +998,7 @@ namespace Framework.ED
                 if (!vMap.ContainsKey(strSplit[1].ToLower())) continue;
                 code += "\t\t\t\tcase " + vMap[strSplit[1].ToLower()].hash + ":\r\n";
                 code += "\t\t\t\t{\r\n";
-                code += "\t\t\t\t\t " + strSplit[1] + " = new " + simply.className + "();\r\n";
+                code += "\t\t\t\t\t " + strSplit[1] + " =  TypeInstancePool.Malloc<" + simply.className + ">(GetFramework());\r\n";
                 code += "\t\t\t\t\t pCsv = " + strSplit[1] + "; break;\r\n";
                 code += "\t\t\t\t}\r\n";
             }
@@ -1216,7 +1217,7 @@ namespace Framework.ED
                     }
                 }
             }
-            code += "\t\tprotected override IUserData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)\r\n";
+            code += "\t\tprotected override Framework.Base.IUserData OnReadBinary(System.Type classType, byte[] buffers, int dataSize)\r\n";
             code += "\t\t{\r\n";
             code += "\t\t\tif (buffers == null || dataSize <= 0) return null;\r\n";
             code += "\t\t\tBinaryUtil binary = new BinaryUtil();\r\n";
@@ -1330,7 +1331,7 @@ namespace Framework.ED
         {
             string eidotPath = InitEditorPath();
             if (string.IsNullOrEmpty(eidotPath)) eidotPath = "Scripts/GameEditor/CsvEditor/";
-            string file = Path.Combine(Application.dataPath , eidotPath, "Tml~", tml + ".txt");
+            string file = Path.Combine(eidotPath, "Tml~", tml + ".txt");
             if (!File.Exists(file)) return false;
             FileStream fs = new FileStream(file, FileMode.Open);
             StreamReader reader = new StreamReader(fs, System.Text.Encoding.UTF8);
@@ -1537,7 +1538,7 @@ namespace Framework.ED
                 if (!string.IsNullOrEmpty(propTypes[i].table_label))
                 {
                     if (bEnableAT)
-                        strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + propTypes[i].table_label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
+                        strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + propTypes[i].table_label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
                     else
                         strPropField += "\t\t\t" + "public\t" + propTypes[i].table_label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
 
@@ -1546,7 +1547,7 @@ namespace Framework.ED
                 else if (!string.IsNullOrEmpty(propTypes[i].enumType))
                 {
                     if (bEnableAT)
-                        strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + propTypes[i].enumType + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
+                        strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + propTypes[i].enumType + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
                     else
                         strPropField += "\t\t\t" + "public\t" + propTypes[i].enumType + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
                     arCastName[i] += "(" + propTypes[i].enumType + ")";
@@ -1554,7 +1555,7 @@ namespace Framework.ED
                 else
                 {
                     if (bEnableAT)
-                        strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + propTypes[i].label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
+                        strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + propTypes[i].label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
                     else
                         strPropField += "\t\t\t" + "public\t" + propTypes[i].label + "\t\t\t\t" + propTypeNames[i] + ";\r\n";
                     arCastName[i] = "";
@@ -2036,16 +2037,16 @@ namespace Framework.ED
                             if (ms_vClassMappingPropertys.TryGetValue(mappCsv.ToLower(), out classProperty))
                             {
                                 if (temp.bArray)
-                                    strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + classProperty.propertyClassName + "[]" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
+                                    strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + classProperty.propertyClassName + "[]" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
                                 else
-                                    strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + classProperty.propertyClassName + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
+                                    strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + classProperty.propertyClassName + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
                             }
                             else
                             {
                                 if (temp.bArray)
-                                    strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data[]" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
+                                    strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data[]" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
                                 else
-                                    strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
+                                    strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data" + " " + mappCsv + "_" + propTypeNames[i] + "_data" + ";\r\n";
                             }
                         }
                         else
@@ -2732,7 +2733,7 @@ namespace Framework.ED
                     else
                     {
                         if (bEnableAT)
-                            strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + arPropType[i] + "\t\t\t\t" + arPropName[i] + ";\r\n";
+                            strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + arPropType[i] + "\t\t\t\t" + arPropName[i] + ";\r\n";
                         else
                             strPropField += "\t\t\t" + "public\t" + arPropType[i] + "\t\t\t\t" + arPropName[i] + ";\r\n";
                     }
@@ -3114,16 +3115,16 @@ namespace Framework.ED
                                     if (ms_vClassMappingPropertys.TryGetValue(mappCsv.ToLower(), out classProperty))
                                     {
                                         if (temp.bArray)
-                                            strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + classProperty.propertyClassName + "[]" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
+                                            strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + classProperty.propertyClassName + "[]" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
                                         else
-                                            strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + classProperty.propertyClassName + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
+                                            strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + classProperty.propertyClassName + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
                                     }
                                     else
                                     {
                                         if (temp.bArray)
-                                            strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data[]" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
+                                            strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data[]" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
                                         else
-                                            strPropField += "\t\t\t" + "//[Framework.Plugin.AT.ATField(\"\",null,\"\",1)]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
+                                            strPropField += "\t\t\t" + "[Framework.AT.Runtime.ATField]public\t" + "CsvData_" + mappCsv + "." + mappCsv + "Data" + " " + mappCsv + "_" + arPropName[i] + "_data" + ";\r\n";
                                     }
                                 }
                                 else
@@ -3374,9 +3375,9 @@ namespace Framework.ED
             {
                 for (int i = 0; i < vLine.Count;)
                 {
-                    if (vLine[i].Trim().Contains("[Framework.Plugin.AT.ATExportMono(") ||
-                        vLine[i].Trim().Contains("[Framework.Plugin.AT.ATField(") ||
-                        vLine[i].Trim().Contains("[Framework.Plugin.AT.ATMethod("))
+                    if (vLine[i].Trim().Contains("[Framework.AT.Runtime.ATExportMono(") ||
+                        vLine[i].Trim().Contains("[Framework.AT.Runtime.ATField(") ||
+                        vLine[i].Trim().Contains("[Framework.AT.Runtime.ATMethod("))
                     {
                         vLine.RemoveAt(i);
                     }

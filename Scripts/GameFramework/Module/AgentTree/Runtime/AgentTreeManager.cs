@@ -76,6 +76,11 @@ namespace Framework.AT.Runtime
             FreeAgentTree(pAT);
         }
         //-----------------------------------------------------
+        public void RegisterClass(IUserData pUserClass)
+        {
+
+        }
+        //-----------------------------------------------------
         public void RegisterCallback(IAgentTreeCallback pCallback)
         {
             if (m_vCallback == null) m_vCallback = new LinkedList<IAgentTreeCallback>();

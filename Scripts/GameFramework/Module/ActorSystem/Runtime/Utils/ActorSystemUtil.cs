@@ -30,6 +30,11 @@ namespace Framework.ActorSystem.Runtime
         static System.Collections.Generic.HashSet<ActorManager> ms_vActorManager = null;
 #endif
         //-----------------------------------------------------
+        public static bool HasBindSlot(int flags, ESlotBindBit bind)
+        {
+            return (flags & (int)bind) != 0;
+        }
+        //-----------------------------------------------------
         internal static void Register(ActorManager actorMgr)
         {
 #if UNITY_EDITOR

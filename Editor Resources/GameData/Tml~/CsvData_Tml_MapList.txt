@@ -9,17 +9,19 @@ using Framework.Data;
 using Framework.Core;
 namespace TopGame.Data
 {
-	[Framework.Plugin.AT.ATExportMono("配置数据/#CLASS_NAME#", "TopGame.Data.DataManager.getInstance().#CLASS_NAME#")]
+	[Framework.AT.Runtime.ATExport("配置数据/#CLASS_NAME#", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
     public partial class CsvData_#CLASS_NAME# : Data_Base
     {
-		[Framework.Plugin.AT.ATExportMono("配置数据/#CLASS_NAME#/#CLASS_NAME#Data")]
-		public partial class #CLASS_NAME#Data : BaseData
+		[Framework.AT.Runtime.ATExport("配置数据/#CLASS_NAME#/#CLASS_NAME#Data")]
+		public partial class #CLASS_NAME#Data : ABaseData
 		{
 			#PROP_FIELD#
+			
+			public override void Destroy(){}
 		}
 		Dictionary<#DATA_KEY#, List<#CLASS_NAME#Data>> m_vData = new Dictionary<#DATA_KEY#, List<#CLASS_NAME#Data>>();
 		//-------------------------------------------
-		[Framework.Plugin.AT.ATField("数据列表")]
+		[Framework.AT.Runtime.ATField("数据列表")]
 		public Dictionary<#DATA_KEY#, List<#CLASS_NAME#Data>> datas
 		{
 			get{ return m_vData;}
@@ -27,12 +29,12 @@ namespace TopGame.Data
         //-------------------------------------------
         public CsvData_#CLASS_NAME#()
         {
-			Framework.Plugin.AT.AgentTreeManager.getInstance().RegisterClass(this);
+			RegisterATClass();
         }
 		//-------------------------------------------
 		#GENE_FUNCS#
 		//-------------------------------------------
-		[Framework.Plugin.AT.ATMethod("查找数据")]
+		[Framework.AT.Runtime.ATMethod("查找数据")]
 		public List<#CLASS_NAME#Data> GetData(#DATA_KEY# id)
 		{
 			List<#CLASS_NAME#Data> outData;

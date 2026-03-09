@@ -1,5 +1,11 @@
 ﻿//auto generated
 using Framework.AT.Runtime;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat=UnityEngine.Float;
+
+#endif
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
@@ -18,15 +24,6 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(1944429814,"清除索敌单位",typeof(Framework.ActorSystem.Runtime.BuffSystem),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"BuffSystem",false, null,typeof(Framework.ActorSystem.Runtime.BuffSystem))]
-#endif
-		static bool AT_ClearLockTargets(BuffSystem pPointerThis)
-		{
-			pPointerThis.ClearLockTargets();
-			return true;
-		}
-#if UNITY_EDITOR
 		[ATFunction(-2082800567,"添加Buff",typeof(Framework.ActorSystem.Runtime.BuffSystem),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"BuffSystem",false, null,typeof(Framework.ActorSystem.Runtime.BuffSystem))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pBuff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
@@ -34,6 +31,28 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_AddBuff(BuffSystem pPointerThis,Framework.ActorSystem.Runtime.Buff pBuff)
 		{
 			pPointerThis.AddBuff(pBuff);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-2136425852,"获取Buff属性值",typeof(Framework.ActorSystem.Runtime.BuffSystem),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"BuffSystem",false, null,typeof(Framework.ActorSystem.Runtime.BuffSystem))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(ExternEngine.FFloat))]
+#endif
+		static bool AT_GetAttrValue(BuffSystem pPointerThis,System.Byte type,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.GetAttrValue(type));
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-763813700,"获取Buff属性率",typeof(Framework.ActorSystem.Runtime.BuffSystem),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"BuffSystem",false, null,typeof(Framework.ActorSystem.Runtime.BuffSystem))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(ExternEngine.FFloat))]
+#endif
+		static bool AT_GetAttrRate(BuffSystem pPointerThis,System.Byte type,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.GetAttrRate(type));
 			return true;
 		}
 
@@ -55,19 +74,26 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is BuffSystem)) return true;
 				return AT_GetActor((BuffSystem)pUserClass.pPointer,pAgentTree, pNode);
 			}
-			case 1944429814://ClearLockTargets
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is BuffSystem)) return true;
-				return AT_ClearLockTargets((BuffSystem)pUserClass.pPointer);
-			}
 			case -2082800567://AddBuff
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
 				if(!(pUserClass.pPointer is BuffSystem)) return true;
 				return AT_AddBuff((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Buff>(pNode,1));
+			}
+			case -2136425852://GetAttrValue
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is BuffSystem)) return true;
+				return AT_GetAttrValue((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+			}
+			case -763813700://GetAttrRate
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is BuffSystem)) return true;
+				return AT_GetAttrRate((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			}
 			return true;

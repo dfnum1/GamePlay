@@ -282,7 +282,7 @@ namespace Framework.Cutscene.Runtime
                 return;
             }
 
-            if(parClip.bindNode.CompareTo(m_lastBindNode) == 0)
+            if(m_BindTrans!=null && parClip.bindNode.CompareTo(m_lastBindNode) == 0)
             {
                 return;
             }
@@ -375,7 +375,10 @@ namespace Framework.Cutscene.Runtime
 #if UNITY_EDITOR
                 if(frameData.eStatus != EPlayableStatus.Start && IsEditorMode())
                 {
-                    //! can edit
+                    if (Selection.activeGameObject != m_Instance)
+                    {
+                        UpdateTransform();
+                    }
                 }
                 else
 #endif

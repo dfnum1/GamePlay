@@ -1,5 +1,11 @@
 ﻿//auto generated
 using Framework.AT.Runtime;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
+using FFloat=UnityEngine.Float;
+
+#endif
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
@@ -91,11 +97,33 @@ namespace Framework.ActorSystem.Runtime
 #if UNITY_EDITOR
 		[ATFunction(-1853761918,"获取Tick次数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
-		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.UInt32))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
 #endif
 		static bool AT_GetTickCount(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportInt(pNode, 0, pPointerThis.GetTickCount());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-84416733,"获取Buff属性",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat), "pReturn", null,typeof(ExternEngine.FFloat))]
+#endif
+		static bool AT_GetAttr(Buff pPointerThis,System.Byte type,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.GetAttr(type));
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1241946103,"获取Buff属性值类型",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(Framework.ActorSystem.Runtime.EAttrValueType))]
+#endif
+		static bool AT_GetAttrValueType(Buff pPointerThis,System.Byte type,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportInt(pNode, 0, (int)pPointerThis.GetAttrValueType(type));
 			return true;
 		}
 
@@ -172,6 +200,20 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Buff)) return true;
 				return AT_GetTickCount((Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -84416733://GetAttr
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Buff)) return true;
+				return AT_GetAttr((Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+			}
+			case -1241946103://GetAttrValueType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Buff)) return true;
+				return AT_GetAttrValueType((Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			}
 			return true;

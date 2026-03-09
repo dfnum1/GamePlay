@@ -9,12 +9,12 @@ using Framework.Data;
 using Framework.Core;
 namespace TopGame.Data
 {
-	[Framework.Plugin.AT.ATExportMono("配置数据/#CLASS_NAME#", "TopGame.Data.DataManager.getInstance().#CLASS_NAME#")]
+	[Framework.AT.Runtime.ATExport("配置数据/#CLASS_NAME#", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
     public partial class CsvData_#CLASS_NAME# : Data_Base
     {
 		List<#BIND_DATA#> m_vData = new Dictionary<#BIND_DATA#>();
 		//-------------------------------------------
-		[Framework.Plugin.AT.ATField("数据列表")]
+		[Framework.AT.Runtime.ATField("数据列表")]
 		public List<#BIND_DATA#> datas
 		{
 			get{ return m_vData;}

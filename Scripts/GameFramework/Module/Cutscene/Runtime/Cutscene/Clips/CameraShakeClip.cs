@@ -74,6 +74,7 @@ namespace Framework.Cutscene.Runtime
     //-----------------------------------------------------
     public class CameraShakeDriver : ACutsceneDriver
     {
+        private Vector3 m_TotalShake = Vector3.zero;
         private Vector3 m_CurPos = Vector3.zero;
         private Camera m_pMainCamera = null;
         private Transform m_pTransform;
@@ -85,10 +86,12 @@ namespace Framework.Cutscene.Runtime
 #endif
             m_pMainCamera = null;
             m_pTransform = null;
+            m_TotalShake = Vector3.zero;
         }
         //-----------------------------------------------------
         public override bool OnClipEnter(CutsceneTrack pTrack, FrameData clip)
         {
+            m_TotalShake = Vector3.zero;
             var bindObj = pTrack.GetBindLastCutsceneObject();
             if (bindObj != null) m_pMainCamera = bindObj.GetCamera();
             if (m_pMainCamera == null) m_pMainCamera = Camera.main;
@@ -110,10 +113,14 @@ namespace Framework.Cutscene.Runtime
         {
             if (ControllerRefUtil.ControllRef(m_pMainCamera) <=0)
             {
-                if (m_pTransform)
+                if (clip.CanRestore())
                 {
-                    m_pTransform.position = m_CurPos;
+                    if (m_pTransform)
+                    {
+                        m_pTransform.position -= m_TotalShake;
+                    }
                 }
+                m_TotalShake = Vector3.zero;
 
 #if UNITY_EDITOR
                 if (IsEditorMode() && m_pMainCamera) LockUtil.RestoreCamera(m_pMainCamera);
@@ -143,7 +150,9 @@ namespace Framework.Cutscene.Runtime
 
                 var offset = fShakeX * m_pTransform.forward + fShakeY * m_pTransform.up + fShakeZ * m_pTransform.right;
 
-                m_pTransform.position = m_CurPos + offset;
+                m_TotalShake += offset;
+                m_pTransform.position += offset;
+
             }
             return true;
         }
