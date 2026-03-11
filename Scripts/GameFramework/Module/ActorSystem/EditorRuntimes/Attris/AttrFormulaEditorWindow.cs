@@ -599,7 +599,7 @@ namespace Framework.ActorSystem.Editor
             if (attr.subTypes == null) attr.subTypes = new List<AttrCoreData.ActorType>();
             if (attr.subTypes!=null)
             {
-                float width = (position.width - position.width * 0.4f-30)/2;
+                float width = (position.width*0.5f-30)/2;
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("子类型：");
                 if (GUILayout.Button("新增子类"))
@@ -634,7 +634,28 @@ namespace Framework.ActorSystem.Editor
                 {
                     var subType = attr.subTypes[i];
                     EditorGUILayout.BeginHorizontal();
-                    subType.type = (byte)EditorGUILayout.IntField("类型", subType.type, GUILayout.Width(width));
+                    var newType = (byte)EditorGUILayout.IntField("类型", subType.type, GUILayout.Width(width));
+                    if (newType != subType.type)
+                    {
+                        bool bExist = false;
+                        for (int j = 0; j < attr.subTypes.Count; j++)
+                        {
+                            if (i != j && attr.subTypes[i].type == newType)
+                            {
+                                bExist = true;
+                                newType++;
+                                break;
+                            }
+                        }
+                        if (bExist)
+                        {
+                            this.ShowNotificationWarning("类型已存在，请选择其他类型");
+                        }
+                        else
+                        {
+                            subType.type = newType;
+                        }
+                    }
                     subType.name = EditorGUILayout.DelayedTextField("子类名", subType.name, GUILayout.Width(width));
                     if (GUILayout.Button("-", GUILayout.Width(30)))
                     {
