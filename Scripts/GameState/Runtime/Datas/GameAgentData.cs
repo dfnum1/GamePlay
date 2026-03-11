@@ -9,6 +9,7 @@ using Framework.DrawProps;
 
 namespace Framework.State.Runtime
 {
+    [System.Serializable]
     public class GameAgentData :IGameWorldItem
     {
         [UnEdit]public ushort agentId =0;

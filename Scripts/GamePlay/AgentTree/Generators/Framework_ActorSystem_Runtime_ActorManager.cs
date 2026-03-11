@@ -170,6 +170,17 @@ namespace Framework.ActorSystem.Runtime
 			pPointerThis.Clear();
 			return true;
 		}
+#if UNITY_EDITOR
+		[ATFunction(-2072939453,"统计类型和阵营组单位数量",typeof(Framework.ActorSystem.Runtime.ActorManager),false)]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"actorType",false, null,typeof(System.Byte),drawMethod:"ActorTypeDraw")]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"attackGroup",false, null,typeof(System.Byte),drawMethod:"AttackGroupDraw")]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
+#endif
+		static bool AT_StatisticsActorCount(ActorManager pPointerThis,System.Byte actorType,System.Byte attackGroup,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportInt(pNode, 0, pPointerThis.StatisticsActorCount(actorType,attackGroup));
+			return true;
+		}
 
 		public static bool DoAction(VariableUserData pUserClass, AgentTree pAgentTree, BaseNode pNode)
 		{
@@ -294,6 +305,13 @@ namespace Framework.ActorSystem.Runtime
 				Framework.ActorSystem.Runtime.ActorManager pModulePointer = pAgentTree.GetModule<Framework.ActorSystem.Runtime.ActorManager>();
 				if(pModulePointer == null) return true;
 				return AT_Clear(pModulePointer);
+			}
+			case -2072939453://StatisticsActorCount
+			{
+				if(pNode.GetInportCount() <= 2) return true;
+				Framework.ActorSystem.Runtime.ActorManager pModulePointer = pAgentTree.GetModule<Framework.ActorSystem.Runtime.ActorManager>();
+				if(pModulePointer == null) return true;
+				return AT_StatisticsActorCount(pModulePointer,pAgentTree.GetInportByte(pNode,1),pAgentTree.GetInportByte(pNode,2), pAgentTree, pNode);
 			}
 			}
 			return true;

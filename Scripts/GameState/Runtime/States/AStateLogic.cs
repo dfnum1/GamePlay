@@ -21,9 +21,6 @@ namespace Framework.State.Runtime
         //----------------------------------------------------------------
         public AStateLogic()
         {
-#if UNITY_EDITOR
-            GameWorldHandler.CheckInnerMalloc(GetType());
-#endif
             m_pState = null;
         }
         //----------------------------------------------------------------

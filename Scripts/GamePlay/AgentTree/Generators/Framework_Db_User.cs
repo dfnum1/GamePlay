@@ -83,43 +83,43 @@ namespace Framework.Db
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_GetSdkUid((User)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_GetSdkUid((Framework.Db.User)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -1898955544://SetSDKUid
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_SetSDKUid((User)pUserClass.pPointer,pAgentTree.GetInportString(pNode,1));
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_SetSDKUid((Framework.Db.User)pUserClass.pPointer,pAgentTree.GetInportString(pNode,1));
 			}
 			case 235885163://GetProxyDB
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_GetProxyDB((User)pUserClass.pPointer,pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_GetProxyDB((Framework.Db.User)pUserClass.pPointer,pAgentTree.GetInportInt(pNode,1), pAgentTree, pNode);
 			}
 			case 1346945877://Clear
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_Clear((User)pUserClass.pPointer);
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_Clear((Framework.Db.User)pUserClass.pPointer);
 			}
 			case -1274085549://SetLastLoginTime
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_SetLastLoginTime((User)pUserClass.pPointer,pAgentTree.GetInportLong(pNode,1));
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_SetLastLoginTime((Framework.Db.User)pUserClass.pPointer,pAgentTree.GetInportLong(pNode,1));
 			}
 			case -2045211318://GetLastLoginTime
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is User)) return true;
-				return AT_GetLastLoginTime((User)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.Db.User)) return true;
+				return AT_GetLastLoginTime((Framework.Db.User)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			}
 			return true;

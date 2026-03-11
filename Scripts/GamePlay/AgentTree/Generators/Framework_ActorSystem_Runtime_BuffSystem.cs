@@ -71,29 +71,29 @@ namespace Framework.ActorSystem.Runtime
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is BuffSystem)) return true;
-				return AT_GetActor((BuffSystem)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.BuffSystem)) return true;
+				return AT_GetActor((Framework.ActorSystem.Runtime.BuffSystem)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -2082800567://AddBuff
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is BuffSystem)) return true;
-				return AT_AddBuff((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Buff>(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.BuffSystem)) return true;
+				return AT_AddBuff((Framework.ActorSystem.Runtime.BuffSystem)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Buff>(pNode,1));
 			}
 			case -2136425852://GetAttrValue
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is BuffSystem)) return true;
-				return AT_GetAttrValue((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.BuffSystem)) return true;
+				return AT_GetAttrValue((Framework.ActorSystem.Runtime.BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			case -763813700://GetAttrRate
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is BuffSystem)) return true;
-				return AT_GetAttrRate((BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.BuffSystem)) return true;
+				return AT_GetAttrRate((Framework.ActorSystem.Runtime.BuffSystem)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			}
 			return true;

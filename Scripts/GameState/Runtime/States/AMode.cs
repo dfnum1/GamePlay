@@ -23,9 +23,6 @@ namespace Framework.State.Runtime
         //----------------------------------------------------------------
         public AMode()
         {
-#if UNITY_EDITOR
-            GameWorldHandler.CheckInnerMalloc(GetType());
-#endif
             m_pState = null;
             m_nAPICallStatus = 0;
         }
@@ -163,6 +160,13 @@ namespace Framework.State.Runtime
         {
             if (m_pState == null) return null;
             return m_pState.GetFramework();
+        }
+        //----------------------------------------------------------------
+        public FileSystem GetFileSystem()
+        {
+            var pFramework = GetFramework();
+            if (pFramework == null) return null;
+            return pFramework.GetFileSystem();
         }
         //----------------------------------------------------------------
         internal void Update(FFloat fFrameTime)

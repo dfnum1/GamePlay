@@ -60,22 +60,31 @@ namespace Framework.State.Runtime
                             pMode.SetState(m_pGameState);
                             pMode.CreateLogics(modeData.modeLogics);
                             m_vGameModes.Add(pMode);
-                            if(m_pWorldObject.gameStateData.activeMode == i)
+                            if(m_pWorldObject.gameStateData.activeMode == modeData.modeType)
                             {
                                 m_pGameState.SetActiveMode(pMode);
                             }
                         }
                         else
                         {
-                            Debug.Assert(false, "无法创建游戏模式实例:" + modeData.modeType);
+                            Framework.Base.Logger.Assert(false, "无法创建游戏模式实例:" + modeData.modeType);
                         }
+                    }
+                    if(m_pGameState.GetActiveMode() == null)
+                    {
+                        Framework.Base.Logger.Warning("当前状态没有激活的玩法模式！！！");
                     }
                 }
             }
             else
             {
-                Debug.Assert(false, "无法创建游戏状态实例:" + m_pWorldObject.gameStateData.stateType);
+                Framework.Base.Logger.Assert(false, "无法创建游戏状态实例:" + m_pWorldObject.gameStateData.stateType);
             }
+        }
+        //--------------------------------------------------------
+        public GameWorldData GetWorldData()
+        {
+            return m_pWorldObject;
         }
         //--------------------------------------------------------
         public AgentTreeData GetAgentTreeData(ushort agentId)

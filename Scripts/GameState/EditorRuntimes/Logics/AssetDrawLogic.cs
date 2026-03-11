@@ -82,7 +82,7 @@ namespace Framework.State.Editor
             GameElement,
             AgentLibrary,
         }
-        static string[] TABS = new string[] { "游戏元素", "Agent图书馆" };
+        static string[] TABS = new string[] { "游戏元素", "蓝图库" };
         ETab m_eTab = ETab.GameElement;
 
         bool m_bItemRightPop = false;
@@ -160,14 +160,7 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void OnTabChange()
         {
-            switch (m_eTab)
-            {
-                case ETab.GameElement:
-                    RefreshGameElements();
-                    break;
-                case ETab.AgentLibrary:
-                    break;
-            }
+            RefreshGameElements();
         }
         //--------------------------------------------------------
         public override void OnSaveChanges()
@@ -453,6 +446,10 @@ namespace Framework.State.Editor
                                     GameAgentData gameData = data.bindData as GameAgentData;
                                     worldData.warAgents.Remove(gameData);
 
+                                    if(worldData.gameLevel!=null && worldData.gameLevel.useATs!=null)
+                                    {
+                                        worldData.gameLevel.useATs.Remove(gameData.agentId);
+                                    }
                                     //! 关联的蓝图配置也需要一并删除
                                     GetLevelCfgEditor()?.OnRemoveWorldItem(gameData);
 

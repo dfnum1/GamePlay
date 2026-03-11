@@ -20,6 +20,7 @@ namespace Framework.State.Editor
         Vector2 m_Scoller;
         List<string> m_vModePops = new List<string>();
         IGameWorldItem m_pGameworldItem = null;
+        bool m_bExpandLevelAT = false;
         //--------------------------------------------------------
         protected override void OnEnable()
         {
@@ -234,12 +235,9 @@ namespace Framework.State.Editor
         //--------------------------------------------------------
         void OnDrawGameLevel(GameLevelData stateData)
         {
-            EditorGUI.BeginChangeCheck();
-            stateData.name = EditorGUILayout.DelayedTextField("名称:", stateData.name);
-            if (EditorGUI.EndChangeCheck())
-            {
+            stateData.name = UIDrawUtils.DrawField<string>("名称:", stateData.name, () => {
                 UndoRegister(false);
-            }
+            });
             GameLevelDataProvider.Draw(new GUIContent("游戏数据类型:"), stateData.dataType, (clsId, index) =>
             {
                 UndoRegister(false);
@@ -247,17 +245,88 @@ namespace Framework.State.Editor
             });
 
             GUILayout.Label("描述:");
-            EditorGUI.BeginChangeCheck();
-            stateData.strDesc = EditorGUILayout.TextArea(stateData.strDesc, GUILayout.MinHeight(50));
-            if (EditorGUI.EndChangeCheck())
-            {
+            stateData.strDesc = UIDrawUtils.DrawField<string>(stateData.strDesc, () => {
                 UndoRegister(false);
+            }, GUILayout.MinHeight(50));
+
+            stateData.linkFile = UIDrawUtils.DrawField<string>("关卡文件:", stateData.linkFile, () => {
+                UndoRegister(false);
+            });
+
+            GUILayout.BeginHorizontal();
+            m_bExpandLevelAT = EditorGUILayout.Foldout(m_bExpandLevelAT,"关卡行为蓝图");
+            if(GUILayout.Button("新增", GUILayout.Width(40)))
+            {
+                var worldData = GetWorldData();
+                GameATProvider.PopSearch(worldData.warAgents, (agent, index) =>
+                {
+                    if(agent != null)
+                    {
+                        if (stateData.useATs == null) stateData.useATs = new List<int>();
+                        if(stateData.useATs.Contains(agent.agentId))
+                        {
+                            GetOwner().ShowNotification(agent.name + "[" + agent.agentId + "]已经在行为列表中了，请勿重复添加!!!");
+                        }
+                        else
+                        {
+                            stateData.useATs.Add(agent.agentId);
+                        }
+                    }
+                });
             }
+            GUILayout.EndHorizontal();
+            if (m_bExpandLevelAT)
+            {
+                var worldData = GetWorldData();
+                if (stateData.useATs != null)
+                {
+                    for (int i = 0; i < stateData.useATs.Count; ++i)
+                    {
+                        GUILayout.BeginHorizontal();
+                        GameATProvider.Draw(worldData.warAgents, "", stateData.useATs[i], (agent, index) =>
+                        {
+                            if (agent == null)
+                            {
+                                if (stateData.useATs[index] != 0)
+                                {
+                                    UndoRegister(true);
+                                    stateData.useATs[index] = 0;
+                                }
+                            }
+                            else
+                            {
+                                if (stateData.useATs[index] != agent.agentId)
+                                {
+                                    UndoRegister(true);
+                                    stateData.useATs[index] = agent.agentId;
+                                }
+                            }
+                        }, i);
+                        if (GUILayout.Button("-", GUILayout.Width(20)))
+                        {
+                            if (EditorUtility.DisplayDialog("提示", "确认将蓝图脚本从本关卡中移除？", "确认", "取消"))
+                            {
+                                UndoRegister(true);
+                                stateData.useATs.RemoveAt(i);
+                                GUILayout.EndHorizontal();
+                                break;
+                            }
+                        }
+                        else
+                            ++i;
+                          
+                        GUILayout.EndHorizontal();
+                    }
+                }
+            }
+ 
+
             var cfgData = stateData.GetGameData<AGameCfgData>(GetFramework());
             if (cfgData != null)
             {
                 Framework.ED.InspectorDrawUtil.BeginChangeCheck(GetLogic<UndoLogic>());
                 Framework.ED.InspectorDrawUtil.SetOwnerWindow(GetOwner());
+                InspectorDrawUtil.DrawHeader("用户扩展关卡数据");
                 if (cfgData.GetEditor() != null)
                 {
                     cfgData.GetEditor(GetOwner()).OnInspectorGUI();

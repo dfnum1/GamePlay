@@ -21,6 +21,8 @@ namespace Framework.ActorSystem.Editor
     [ATDrawer("DrawAttributePop", "OnDrawAttributePop")]
     [ATDrawer("DrawFormulaTypePop", "OnDrawFormulaTypePop")]
     [ATDrawer("BuffStateDraw", "OnBuffStateDraw")]
+    [ATDrawer("AttackGroupDraw", "OnAttackGroupDraw")]
+    [ATDrawer("ActorTypeDraw", "OnActorTypeDraw")]
     public class AttriCustomDrawer
     {
         static List<byte> ms_vAttris = null;
@@ -31,6 +33,12 @@ namespace Framework.ActorSystem.Editor
 
         static List<byte> ms_vBuffStateTypes = null;
         static List<string> ms_vBuffStatePops = null;
+
+        static List<byte> ms_vAttackGroupTypes = null;
+        static List<string> ms_vAttackGroupPops = null;
+
+        static List<byte> ms_vActorTypeTypes = null;
+        static List<string> ms_vActorTypePops = null;
 
         internal static void Init(bool bForce = false)
         {
@@ -44,6 +52,13 @@ namespace Framework.ActorSystem.Editor
             ms_vBuffStateTypes = new List<byte>();
             ms_vFormulaTypes = new List<int>();
             ms_vFormulaTypePops = new List<string>();
+
+            ms_vAttackGroupPops = new List<string>();
+            ms_vAttackGroupTypes = new List<byte>();
+
+            ms_vActorTypePops = new List<string>();
+            ms_vActorTypeTypes = new List<byte>();
+
 
             AActorAttrDatas pData = null;
             string[] guidDatas = AssetDatabase.FindAssets("t:AActorAttrDatas");
@@ -77,6 +92,24 @@ namespace Framework.ActorSystem.Editor
                         var pAttri = pData.vFormulas[i];
                         ms_vFormulaTypes.Add(pAttri.labelId);
                         ms_vFormulaTypePops.Add(pAttri.name);
+                    }
+                }
+                if (pData.vAttackGroups != null)
+                {
+                    for (int i = 0; i < pData.vAttackGroups.Length; ++i)
+                    {
+                        var pAttri = pData.vAttackGroups[i];
+                        ms_vAttackGroupTypes.Add(pAttri.group);
+                        ms_vAttackGroupPops.Add(pAttri.name);
+                    }
+                }
+                if (pData.vActorTypes != null)
+                {
+                    for (int i = 0; i < pData.vActorTypes.Length; ++i)
+                    {
+                        var pAttri = pData.vActorTypes[i];
+                        ms_vActorTypeTypes.Add(pAttri.type);
+                        ms_vActorTypePops.Add(pAttri.name);
                     }
                 }
             }
@@ -145,6 +178,76 @@ namespace Framework.ActorSystem.Editor
                 if (idx >= 0)
                 {
                     intVar.value = ms_vFormulaTypes[idx];
+                    onValueChanged?.Invoke(intVar);
+                }
+            });
+
+            return popup;
+        }
+        //----------------------------------------
+        internal static VisualElement OnAttackGroupDraw(ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            if (portValue == null || portValue.GetVariableType() != EVariableType.eInt)
+                return null;
+            Init();
+            bool canEdit = port.attri.canEdit;
+
+            var intVar = (AT.Runtime.VariableInt)portValue;
+            int curIndex = ms_vAttackGroupTypes.IndexOf((byte)intVar.value);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(ms_vAttackGroupPops, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = ms_vAttackGroupPops.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    intVar.value = ms_vAttackGroupTypes[idx];
+                    onValueChanged?.Invoke(intVar);
+                }
+            });
+
+            return popup;
+        }
+        //----------------------------------------
+        internal static VisualElement OnActorTypeDraw(ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            if (portValue == null || portValue.GetVariableType() != EVariableType.eInt)
+                return null;
+            Init();
+            bool canEdit = port.attri.canEdit;
+
+            var intVar = (AT.Runtime.VariableInt)portValue;
+            int curIndex = ms_vActorTypeTypes.IndexOf((byte)intVar.value);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(ms_vActorTypePops, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = ms_vActorTypePops.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    intVar.value = ms_vActorTypeTypes[idx];
                     onValueChanged?.Invoke(intVar);
                 }
             });

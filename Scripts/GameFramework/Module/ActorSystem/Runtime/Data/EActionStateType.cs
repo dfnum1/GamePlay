@@ -104,13 +104,13 @@ namespace Framework.ActorSystem.Runtime
         [Return("移除状态", typeof(uint),drawMethod: "BuffStateDraw")]
         onRemoveBuffState,
 
-        [AT.Runtime.ATAction("全局回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
+        [AT.Runtime.ATAction("回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
         [Return("单位", typeof(Actor))]
         [Return("Buff", typeof(Buff))]
         [Return("新增状态", typeof(uint), drawMethod: "BuffStateDraw")]
         onAddBuffState,
 
-        [AT.Runtime.ATAction("全局回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
+        [AT.Runtime.ATAction("回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
         [Return("单位", typeof(Actor))]
         [Return("Buff", typeof(Buff))]
         [Return("是否激活", typeof(bool))]

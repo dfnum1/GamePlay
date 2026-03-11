@@ -69,7 +69,7 @@ namespace Framework.State.Runtime
         internal void Deserialize()
         {
             if (gameLevel != null)
-                gameLevel.Deserialize(null);
+                gameLevel.Deserialize(null, gameLevel.linkFile);
         }
         internal string Serialize()
         {

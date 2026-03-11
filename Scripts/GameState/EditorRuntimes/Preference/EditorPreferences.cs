@@ -29,7 +29,7 @@ namespace Framework.State.Editor
         private static Dictionary<string, Settings> settings = new Dictionary<string, Settings>();
 
         [System.Serializable]
-        public class Settings : ISerializationCallbackReceiver
+        public class Settings : EditorPreferenceSetting
         {
             public string tablePath = "../../gametable";
             public string generatorCodePath = "";
@@ -39,7 +39,7 @@ namespace Framework.State.Editor
             [SerializeField] private string typeColorsData = "";
             [NonSerialized] public Dictionary<string, Color> typeColors = new Dictionary<string, Color>();
 
-            public void OnAfterDeserialize()
+            public override void OnAfterDeserialize()
             {
                 // Deserialize typeColorsData
                 typeColors = new Dictionary<string, Color>();
@@ -52,9 +52,10 @@ namespace Framework.State.Editor
                         typeColors.Add(data[i], col);
                     }
                 }
+                base.OnAfterDeserialize();
             }
 
-            public void OnBeforeSerialize()
+            public override void OnBeforeSerialize()
             {
                 // Serialize typeColors
                 typeColorsData = "";
@@ -62,6 +63,7 @@ namespace Framework.State.Editor
                 {
                     typeColorsData += item.Key + "," + ColorUtility.ToHtmlStringRGB(item.Value) + ",";
                 }
+                base.OnBeforeSerialize();
             }
         }
 

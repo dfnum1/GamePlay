@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace Framework.Base
 {
+    [AT.Runtime.ATInteralExport("IUserData",-1)]
     public interface IUserData
     {
 

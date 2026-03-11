@@ -75,7 +75,13 @@ namespace Framework.Core
                 user.SetFramework(m_pFramework);
                 return user as T;
             }
+#if UNITY_EDITOR
+            TypeInstancePool.SetMallockInner(typeof(T));
+#endif
             T newT = new T();
+#if UNITY_EDITOR
+            TypeInstancePool.SetMallockInner(null);
+#endif
             newT.SetFramework(m_pFramework);
             m_pFramework.UnRegisterFunction(newT);
             return newT;
@@ -98,7 +104,14 @@ namespace Framework.Core
         {
             if (m_vAgentTreePool == null || m_vAgentTreePool.Count<=0)
             {
-                return new AgentTree();
+#if UNITY_EDITOR
+                TypeInstancePool.SetMallockInner(typeof(AgentTree));
+#endif
+                var pAT = new AgentTree();
+#if UNITY_EDITOR
+                TypeInstancePool.SetMallockInner(null);
+#endif
+                return pAT;
             }
             return m_vAgentTreePool.Pop();
         }

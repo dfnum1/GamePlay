@@ -77,7 +77,7 @@ namespace Framework.Base
             Log(eType, pMsg);
         }
         //------------------------------------------------------
-        void LogAsset(bool bCondition, string strMsg = null)
+        void InnerAssert(bool bCondition, string strMsg = null)
         {
             if ((((uint)ELogType.Asset) & m_nFlag) == 0) return;
 #if !USE_SERVER
@@ -143,12 +143,12 @@ namespace Framework.Base
             Logger.getInstance().Log(ELogType.Break, pMsg);
         }
         //------------------------------------------------------
-        public static void Asset(bool bCondition, string strMsg=null)
+        public static void Assert(bool bCondition, string strMsg=null)
         {
-            Logger.getInstance().LogAsset(bCondition, strMsg);
+            Logger.getInstance().InnerAssert(bCondition, strMsg);
         }
         //------------------------------------------------------
-        public static void Asset(System.Exception pException)
+        public static void Assert(System.Exception pException)
         {
             Logger.getInstance().LogException(pException);
         }

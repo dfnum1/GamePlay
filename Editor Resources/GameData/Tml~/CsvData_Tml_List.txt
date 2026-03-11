@@ -9,10 +9,10 @@ using Framework.Data;
 using Framework.Core;
 namespace TopGame.Data
 {
-	[Framework.AT.Runtime.ATExport("配置数据/#CLASS_NAME#", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
+	[Framework.AT.Runtime.ATExport("配置数据系统/#CLASS_NAME#", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
     public partial class CsvData_#CLASS_NAME# : Data_Base
     {
-		[Framework.AT.Runtime.ATExport("配置数据/#CLASS_NAME#/#CLASS_NAME#Data")]
+		[Framework.AT.Runtime.ATExport("配置数据系统/#CLASS_NAME#/#CLASS_NAME#Data")]
 		public partial class #CLASS_NAME#Data : ABaseData
 		{
 			#PROP_FIELD#

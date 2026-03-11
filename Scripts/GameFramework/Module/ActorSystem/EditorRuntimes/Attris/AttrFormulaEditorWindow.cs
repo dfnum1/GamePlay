@@ -23,6 +23,8 @@ namespace Framework.ActorSystem.Editor
         private int m_SelectedAttrIndex = -1;
         private int m_SelectedFormulaIndex = -1;
         private int m_SelectedBuffIndex = -1;
+        private int m_SelectedAtkGroupIndex = -1;
+        private int m_SelectedActorTypeIndex = -1;
 
         // 滚动位置
         private List<LambdaParam> m_vInputLambdas = new List<LambdaParam>();
@@ -76,10 +78,6 @@ namespace Framework.ActorSystem.Editor
             window.m_Data = attriData;
             window.titleContent = new GUIContent("属性表达式编辑器", AssetUtil.LoadTexture("ActorSystem/actor_attris.png"));
             window.minSize = new Vector2(800, 500);
-
-            attriData.data = new AttrCoreData();
-            attriData.data.vAttributes = attriData.vAttributes;
-            attriData.data.vFormulas = attriData.vFormulas;
             EditorUtility.SetDirty(attriData);
             AssetDatabase.SaveAssetIfDirty(attriData);
         }
@@ -96,7 +94,7 @@ namespace Framework.ActorSystem.Editor
 
             // 左侧：标签页+列表（带滚动）
             EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.4f));
-            m_TabIndex = GUILayout.Toolbar(m_TabIndex, new[] { "属性","Buff状态", "表达式" });
+            m_TabIndex = GUILayout.Toolbar(m_TabIndex, new[] { "属性","阵营组", "单位类型","Buff状态", "表达式" });
             EditorGUILayout.Space();
 
             m_LeftScroll = EditorGUILayout.BeginScrollView(m_LeftScroll);
@@ -105,6 +103,14 @@ namespace Framework.ActorSystem.Editor
                 DrawAttrList();
             }
             else if (m_TabIndex == 1)
+            {
+                DrawAttackGroupList();
+            }
+            else if (m_TabIndex == 2)
+            {
+                DrawActorTypeList();
+            }
+            else if (m_TabIndex == 3)
             {
                 DrawBuffList();
             }
@@ -124,6 +130,14 @@ namespace Framework.ActorSystem.Editor
                 DrawAttrEdit();
             }
             else if (m_TabIndex == 1)
+            {
+                DrawAttackGroupEdit();
+            }
+            else if (m_TabIndex == 2)
+            {
+                DrawActorTypesEdit();
+            }
+            else if (m_TabIndex == 3)
             {
                 DrawBuffEdit();
             }
@@ -155,11 +169,37 @@ namespace Framework.ActorSystem.Editor
                     }
                 }
             }
-            if (m_TabIndex == 1 && m_SelectedBuffIndex >= 0 && m_SelectedBuffIndex < (m_Data.vBuffStates?.Length ?? 0))
+            if (m_TabIndex == 1 && m_SelectedAtkGroupIndex >= 0 && m_SelectedAtkGroupIndex < (m_Data.vAttackGroups?.Length ?? 0))
+            {
+                if (GUILayout.Button("删除阵营组", GUILayout.Width(100)))
+                {
+                    if (EditorUtility.DisplayDialog("提示", "确定要删除吗？", "删除", "取消"))
+                    {
+                        var list = new List<AttrCoreData.AttackGroup>(m_Data.vAttackGroups);
+                        list.RemoveAt(m_SelectedAtkGroupIndex);
+                        m_Data.vAttackGroups = list.ToArray();
+                        m_SelectedAtkGroupIndex = -1;
+                    }
+                }
+            }
+            if (m_TabIndex == 2 && m_SelectedActorTypeIndex >= 0 && m_SelectedActorTypeIndex < (m_Data.vActorTypes?.Length ?? 0))
+            {
+                if (GUILayout.Button("删除Actor类型", GUILayout.Width(100)))
+                {
+                    if (EditorUtility.DisplayDialog("提示", "确定要删除吗？", "删除", "取消"))
+                    {
+                        var list = new List<AttrCoreData.ActorType>(m_Data.vActorTypes);
+                        list.RemoveAt(m_SelectedBuffIndex);
+                        m_Data.vActorTypes = list.ToArray();
+                        m_SelectedActorTypeIndex = -1;
+                    }
+                }
+            }
+            if (m_TabIndex == 3 && m_SelectedBuffIndex >= 0 && m_SelectedBuffIndex < (m_Data.vBuffStates?.Length ?? 0))
             {
                 if (GUILayout.Button("删除状态", GUILayout.Width(100)))
                 {
-                    if (EditorUtility.DisplayDialog("确认删除", "确定要删除该状态吗？", "删除", "取消"))
+                    if (EditorUtility.DisplayDialog("提示", "确定要删除该状态吗？", "删除", "取消"))
                     {
                         var list = new List<BuffStateData>(m_Data.vBuffStates);
                         list.RemoveAt(m_SelectedBuffIndex);
@@ -168,7 +208,7 @@ namespace Framework.ActorSystem.Editor
                     }
                 }
             }
-            if (m_TabIndex == 2 && m_SelectedFormulaIndex >= 0 && m_SelectedFormulaIndex < (m_Data.vFormulas?.Length ?? 0))
+            if (m_TabIndex == 4 && m_SelectedFormulaIndex >= 0 && m_SelectedFormulaIndex < (m_Data.vFormulas?.Length ?? 0))
             {
                 if (GUILayout.Button("删除表达式", GUILayout.Width(100)))
                 {
@@ -239,6 +279,94 @@ namespace Framework.ActorSystem.Editor
                 list.Add(attr);
                 m_Data.vAttributes = list.ToArray();
                 m_SelectedAttrIndex = m_Data.vAttributes.Length - 1;
+            }
+        }
+        //-----------------------------------------------------
+        private void DrawAttackGroupList()
+        {
+            if (m_Data.vAttackGroups == null)
+                m_Data.vAttackGroups = new AttrCoreData.AttackGroup[0];
+
+            for (int i = 0; i < m_Data.vAttackGroups.Length; ++i)
+            {
+                var attr = m_Data.vAttackGroups[i];
+                using (new GUIColorScope(m_SelectedAtkGroupIndex == i ? Color.green : Color.white))
+                {
+                    if (GUILayout.Button($"{attr.name}[{attr.group}]", EditorStyles.toolbarButton))
+                    {
+                        m_SelectedAtkGroupIndex = i;
+                    }
+                }
+
+            }
+            if (GUILayout.Button("添加阵营组"))
+            {
+                var list = new List<AttrCoreData.AttackGroup>(m_Data.vAttackGroups);
+                var attr = new AttrCoreData.AttackGroup() { name = "新组", desc = "" };
+                byte newAttr = 0;
+                // 自动分配一个未使用的属性类型
+                bool bExist = true;
+                while (bExist)
+                {
+                    bExist = false;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i].group == newAttr)
+                        {
+                            bExist = true;
+                            newAttr++;
+                            break;
+                        }
+                    }
+                }
+                attr.group = newAttr;
+                list.Add(attr);
+                m_Data.vAttackGroups = list.ToArray();
+                m_SelectedAtkGroupIndex = m_Data.vAttackGroups.Length - 1;
+            }
+        }
+        //-----------------------------------------------------
+        private void DrawActorTypeList()
+        {
+            if (m_Data.vActorTypes == null)
+                m_Data.vActorTypes = new AttrCoreData.ActorType[0];
+
+            for (int i = 0; i < m_Data.vActorTypes.Length; ++i)
+            {
+                var attr = m_Data.vActorTypes[i];
+                using (new GUIColorScope(m_SelectedActorTypeIndex == i ? Color.green : Color.white))
+                {
+                    if (GUILayout.Button($"{attr.name}[{attr.type}]", EditorStyles.toolbarButton))
+                    {
+                        m_SelectedActorTypeIndex = i;
+                    }
+                }
+
+            }
+            if (GUILayout.Button("添加类型"))
+            {
+                var list = new List<AttrCoreData.ActorType>(m_Data.vActorTypes);
+                var attr = new AttrCoreData.ActorType() { name = "新类型", desc = "" };
+                byte newAttr = 0;
+                // 自动分配一个未使用的属性类型
+                bool bExist = true;
+                while (bExist)
+                {
+                    bExist = false;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i].type == newAttr)
+                        {
+                            bExist = true;
+                            newAttr++;
+                            break;
+                        }
+                    }
+                }
+                attr.type = newAttr;
+                list.Add(attr);
+                m_Data.vActorTypes = list.ToArray();
+                m_SelectedActorTypeIndex = m_Data.vActorTypes.Length - 1;
             }
         }
         //-----------------------------------------------------
@@ -402,6 +530,70 @@ namespace Framework.ActorSystem.Editor
             attr.name = EditorGUILayout.DelayedTextField("状态名", attr.name);
             attr.desc = EditorGUILayout.TextField("描述", attr.desc);
             m_Data.vBuffStates[m_SelectedBuffIndex] = attr;
+        }
+        //-----------------------------------------------------
+        private void DrawAttackGroupEdit()
+        {
+            if (m_SelectedAtkGroupIndex < 0 || m_SelectedAtkGroupIndex >= m_Data.vAttackGroups.Length)
+            {
+                EditorGUILayout.HelpBox("请选择阵营", MessageType.Info);
+                return;
+            }
+            var attr = m_Data.vAttackGroups[m_SelectedAtkGroupIndex];
+            byte newAttr = (byte)EditorGUILayout.IntField("阵营标识Id", attr.group);
+            if (newAttr >= 32) newAttr = attr.group;
+            if (newAttr != attr.group)
+            {
+                bool bExist = false;
+                for (int i = 0; i < m_Data.vAttackGroups.Length; i++)
+                {
+                    if (m_Data.vAttackGroups[i].group == newAttr)
+                    {
+                        this.ShowNotificationWarning("阵营标识已存在，请选择其他类型");
+                        bExist = true;
+                        break;
+                    }
+                }
+                if (!bExist)
+                {
+                    attr.group = newAttr;
+                }
+            }
+            attr.name = EditorGUILayout.DelayedTextField("阵营名", attr.name);
+            attr.desc = EditorGUILayout.TextField("描述", attr.desc);
+            m_Data.vAttackGroups[m_SelectedAtkGroupIndex] = attr;
+        }
+        //-----------------------------------------------------
+        private void DrawActorTypesEdit()
+        {
+            if (m_SelectedActorTypeIndex < 0 || m_SelectedActorTypeIndex >= m_Data.vActorTypes.Length)
+            {
+                EditorGUILayout.HelpBox("请选择Actor类型", MessageType.Info);
+                return;
+            }
+            var attr = m_Data.vActorTypes[m_SelectedActorTypeIndex];
+            byte newAttr = (byte)EditorGUILayout.IntField("类型", attr.type);
+            if (newAttr >= 32) newAttr = attr.type;
+            if (newAttr != attr.type)
+            {
+                bool bExist = false;
+                for (int i = 0; i < m_Data.vActorTypes.Length; i++)
+                {
+                    if (m_Data.vActorTypes[i].type == newAttr)
+                    {
+                        this.ShowNotificationWarning("类型已存在，请选择其他类型");
+                        bExist = true;
+                        break;
+                    }
+                }
+                if (!bExist)
+                {
+                    attr.type = newAttr;
+                }
+            }
+            attr.name = EditorGUILayout.DelayedTextField("Actor名", attr.name);
+            attr.desc = EditorGUILayout.TextField("描述", attr.desc);
+            m_Data.vActorTypes[m_SelectedActorTypeIndex] = attr;
         }
         //-----------------------------------------------------
         private void DrawFormulaEdit()

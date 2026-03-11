@@ -29,7 +29,7 @@ namespace Framework.Cutscene.Editor
         private static Dictionary<string, Settings> settings = new Dictionary<string, Settings>();
 
         [System.Serializable]
-        public class Settings : ISerializationCallbackReceiver
+        public class Settings : EditorPreferenceSetting
         {
             public int FrameRate = 30;
             public float playbackSpeedScale = 1;
@@ -77,7 +77,7 @@ namespace Framework.Cutscene.Editor
             [SerializeField] private string playAbleDebugerData = "";
             [NonSerialized] public Dictionary<string, bool> playAbleDebugers = new Dictionary<string, bool>();
 
-            public void OnAfterDeserialize()
+            public override void OnAfterDeserialize()
             {
                 // Deserialize typeColorsData
                 typeColors = new Dictionary<string, Color>();
@@ -101,9 +101,10 @@ namespace Framework.Cutscene.Editor
                         playAbleDebugers.Add(debugerData[i], bValue);
                     }
                 }
+                base.OnAfterDeserialize();
             }
 
-            public void OnBeforeSerialize()
+            public override void OnBeforeSerialize()
             {
                 // Serialize typeColors
                 typeColorsData = "";
@@ -116,6 +117,7 @@ namespace Framework.Cutscene.Editor
                 {
                     playAbleDebugerData += item.Key + "," + item.Value.ToString() + ",";
                 }
+                base.OnBeforeSerialize();
             }
         }
 

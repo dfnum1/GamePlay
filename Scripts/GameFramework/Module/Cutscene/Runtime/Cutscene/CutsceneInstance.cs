@@ -19,6 +19,7 @@ namespace Framework.Cutscene.Runtime
         public ICutsceneObject pObj; //绑定的对象
     }
     //-----------------------------------------------------
+    [AT.Runtime.ATInteralExport("IContextData", -18)]
     public interface ICutsceneData : IUserData
     {
 

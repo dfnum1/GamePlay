@@ -6,9 +6,11 @@
 *********************************************************************/
 using Framework.Core;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Framework.Base
 {
+    [AT.Runtime.ATInteralExport("TypeObject", -14)]
     public abstract class TypeObject : IUserData
     {
         AFramework m_pFramework;
@@ -101,9 +103,14 @@ namespace Framework.Base
 #if UNITY_EDITOR
         static System.Type ms_MallocInnter = null;
         //------------------------------------------------------
+        internal static void SetMallockInner(System.Type type)
+        {
+            ms_MallocInnter = type;
+        }
+        //------------------------------------------------------
         internal static void CheckLegal(System.Type type)
         {
-            UnityEngine.Debug.Assert(ms_MallocInnter == type, "禁止使用new " + type.Name + " 创建实例!!!");
+            Debug.Assert(ms_MallocInnter == type, "禁止使用new " + type.Name + " 创建实例,请使用TypeInstancePool.Malloc<"+ type.Name + ">(pFramewrok) 创建!!!");
         }
 #endif
     }

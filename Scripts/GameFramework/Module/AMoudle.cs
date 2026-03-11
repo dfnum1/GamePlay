@@ -9,6 +9,7 @@ using Framework.Base;
 
 namespace Framework.Core
 {
+    [AT.Runtime.ATInteralExport("AModule", -19)]
     public abstract class AModule : IUserData
     {
         protected AFramework m_pFramework;

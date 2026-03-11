@@ -49,7 +49,7 @@ namespace Framework.Db
 		[ATFunction(1532732646,"我自己",typeof(Framework.Db.UserManager),false)]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData),"mySelf", null,typeof(Framework.Db.User))]
 #endif
-		static bool AT_Get_mySelf(UserManager pPointerThis, AgentTree pAgentTree, BaseNode pNode)
+		static bool AT_Get_mySelf(Framework.Db.UserManager pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.mySelf);
 			return true;

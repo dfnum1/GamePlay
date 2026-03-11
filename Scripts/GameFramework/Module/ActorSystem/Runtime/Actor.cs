@@ -85,11 +85,36 @@ namespace Framework.ActorSystem.Runtime
             return m_nInstanceID;
         }
         //--------------------------------------------------------
+        [ATMethod("设置GUID")]
+        public void SetGUID(uint nGuid)
+        {
+            GetActorParameter().SetGUID(nGuid);
+        }
+        //--------------------------------------------------------
+        [ATMethod("获取GUID")]
+        public uint GetGUID()
+        {
+            return GetActorParameter().GetGUID();
+        }
+        //--------------------------------------------------------
+        [ATMethod("设置Actor类型"), ATArgvDrawer("type", "ActorTypeDraw")]
+        public void SetActorType(byte type)
+        {
+            GetActorParameter().SetActorType(type);
+        }
+        //--------------------------------------------------------
+        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", "ActorTypeDraw")]
+        public byte GetActorType()
+        {
+            return GetActorParameter().GetActorType();
+        }
+        //--------------------------------------------------------
         public void SetContextData(IContextData pData)
         {
             GetActorParameter().SetCfgData(pData);
         }
         //--------------------------------------------------------
+        [ATMethod("获取配置数据")]
         public IContextData GetContextData()
         {
             return GetActorParameter().GetCfgData();
@@ -230,7 +255,7 @@ namespace Framework.ActorSystem.Runtime
         {
             Reset();
             SetActived(false);
-            SetVisible(false);
+            SetVisible(true);
             AddAgent<ActorAgentTree>();
         }
         //--------------------------------------------------------
@@ -274,13 +299,13 @@ namespace Framework.ActorSystem.Runtime
             m_pPrev = pNode;
         }
         //------------------------------------------------------
-        [ATMethod("获取攻击组")]
+        [ATMethod("获取攻击组"), ATArgvDrawer("#return#", "AttackGroupDraw")]
         public byte GetAttackGroup()
         {
             return GetActorParameter().GetAttackGroup();
         }
         //------------------------------------------------------
-        [ATMethod("设置攻击组")]
+        [ATMethod("设置攻击组"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
         public void SetAttackGroup(byte attackGroup)
         {
             GetActorParameter().SetAttackGroup(attackGroup);
@@ -1330,9 +1355,13 @@ namespace Framework.ActorSystem.Runtime
                 bool bDirty = false;
                 if (m_Transform.bDirtyPos)
                 {
-                    if (m_pObjectAble.pUnityTransform)
+                    if (m_pObjectAble.pInstanceAble)
                     {
-                        m_pObjectAble.pUnityTransform.position=m_Transform.GetPosition();
+                        m_pObjectAble.pInstanceAble.SetPosition(m_Transform.GetPosition());
+                    }
+                    else if (m_pObjectAble.pUnityTransform)
+                    {
+                        m_pObjectAble.pUnityTransform.position = m_Transform.GetPosition();
                     }
                     m_Transform.bDirtyPos = false;
                     //    if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.Position, m_Transform.GetPosition()));
@@ -1346,7 +1375,11 @@ namespace Framework.ActorSystem.Runtime
                 }
                 if (m_Transform.bDirtyEuler)
                 {
-                    if (m_pObjectAble.pUnityTransform)
+                    if (m_pObjectAble.pInstanceAble)
+                    {
+                        m_pObjectAble.pInstanceAble.SetEulerAngle(m_Transform.GetEulerAngle());
+                    }
+                    else if (m_pObjectAble.pUnityTransform)
                     {
                         m_pObjectAble.pUnityTransform.eulerAngles =m_Transform.GetEulerAngle();
                     }
@@ -1357,7 +1390,11 @@ namespace Framework.ActorSystem.Runtime
                 }
                 if (m_Transform.bDirtyScale)
                 {
-                    if (m_pObjectAble.pUnityTransform)
+                    if (m_pObjectAble.pInstanceAble)
+                    {
+                        m_pObjectAble.pInstanceAble.SetScale(m_Transform.GetScale());
+                    }
+                    else if (m_pObjectAble.pUnityTransform)
                     {
                         m_pObjectAble.pUnityTransform.localScale =m_Transform.GetScale();
                     }
@@ -1371,7 +1408,11 @@ namespace Framework.ActorSystem.Runtime
             }
             else
             {
-                if (m_pObjectAble.pUnityTransform) m_pObjectAble.pUnityTransform.position =INVAILD_POS;
+                if (m_pObjectAble.pInstanceAble)
+                {
+                    m_pObjectAble.pInstanceAble.SetPosition(INVAILD_POS);
+                }
+                else if (m_pObjectAble.pUnityTransform) m_pObjectAble.pUnityTransform.position = INVAILD_POS;
             }
         }
         //------------------------------------------------------

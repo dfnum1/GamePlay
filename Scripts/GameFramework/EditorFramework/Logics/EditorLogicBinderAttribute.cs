@@ -42,10 +42,12 @@ namespace Framework.ED
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class CustomPreferenceAttribute : Attribute
     {
+        public string key = "";
         public string header = "";
         public string method = "OnPreferencesGUI";
-        public CustomPreferenceAttribute(string header = "", string method = "OnPreferencesGUI")
+        public CustomPreferenceAttribute(string key, string header = "", string method = "OnPreferencesGUI")
         {
+            this.key = key;
             this.header = header;
             this.method = method;
         }

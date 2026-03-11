@@ -33,7 +33,7 @@ namespace Framework.ActorSystem.Runtime
         bool OnActorSystemActorHitFrame(HitFrameActor hitFrameActor);
 
     }
-    [ATInteralExport("Actor系统/管理器",-1, icon: "ActorSystem/actormanager")]
+    [ATInteralExport("Actor系统/管理器",-20, icon: "ActorSystem/actormanager")]
     public class ActorManager : AModule
     {
         ProjectileManager                           m_ProjectileManager = null;
@@ -258,7 +258,7 @@ namespace Framework.ActorSystem.Runtime
             if(pData!=null)
             {
                 string modelFile = pData.GetAssetFile();
-                if(!File.Exists(modelFile))
+                if(!string.IsNullOrEmpty(modelFile))
                 {
                     var op = GetFileSystem().SpawnInstance(modelFile, OnSpawnInstance, bAsync);
                     if(op!=null) op.SetUserData(0, pActor);
@@ -755,6 +755,19 @@ namespace Framework.ActorSystem.Runtime
             }
             m_pSpatialIndex.QueryActorsAtPosition(position, maxDistance, vResults, pIngore);
             return vResults;
+        }
+        //-----------------------------------------------------
+        [ATMethod("统计类型和阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        public int StatisticsActorCount(byte actorType, byte attackGroup)
+        {
+            int cnt = 0;
+            foreach(var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetActorType() == actorType && db.Value.GetAttackGroup() == attackGroup)
+                    cnt++;
+            }
+            return cnt;
         }
         //-----------------------------------------------------
         internal void OnTaskGlobalAT(int taskType, VariableList argvs,bool autoRelease = true)

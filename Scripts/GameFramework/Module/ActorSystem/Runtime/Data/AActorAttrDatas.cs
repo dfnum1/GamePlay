@@ -97,8 +97,22 @@ namespace Framework.ActorSystem.Runtime
             public string inputLambda;
 #endif
         }
-        public AttrInfo[] vAttributes;
-        public AttrFormula[] vFormulas;
+
+        [System.Serializable]
+        public class AttackGroup
+        {
+            public byte group;
+            public string name;
+            public string desc;
+        }
+
+        [System.Serializable]
+        public class ActorType
+        {
+            public byte type;
+            public string name;
+            public string desc;
+        }
     }
     //-----------------------------------------------------
     //! ActorAttrDatas
@@ -106,9 +120,11 @@ namespace Framework.ActorSystem.Runtime
     [System.Serializable]
     public abstract class AActorAttrDatas : ScriptableObject
     {
-        public AttrCoreData.AttrInfo[] vAttributes;
-        public AttrCoreData.AttrFormula[] vFormulas;
-        public BuffStateData[] vBuffStates;
+        public AttrCoreData.AttrInfo[]      vAttributes;
+        public AttrCoreData.AttrFormula[]   vFormulas;
+        public AttrCoreData.AttackGroup[]   vAttackGroups;
+        public AttrCoreData.ActorType[]     vActorTypes;
+        public BuffStateData[]              vBuffStates;
 
         public AttrCoreData data = new AttrCoreData();
     }

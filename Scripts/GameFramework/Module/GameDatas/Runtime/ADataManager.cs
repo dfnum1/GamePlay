@@ -19,7 +19,7 @@ using UnityEngine.Windows;
 
 namespace Framework.Data
 {
-    [ATInteralExport("配置数据系统/管理器", -1, icon: "GameData/tabledata")]
+    [ATInteralExport("配置数据系统/管理器", -12, icon: "GameData/tabledata")]
     public abstract class ADataManager : Core.AModule
     {
         private System.IO.MemoryStream m_pMemoryStream = null;

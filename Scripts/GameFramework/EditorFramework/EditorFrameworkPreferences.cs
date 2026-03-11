@@ -16,6 +16,43 @@ using UnityEngine;
 
 namespace Framework.ED
 {
+    [System.Serializable]
+    internal class CustomPreference
+    {
+        public string typeName;
+        public string header;
+        public string content;
+        [System.NonSerialized] public object pointer;
+    }
+    [System.Serializable]
+    public class EditorPreferenceSetting : ISerializationCallbackReceiver
+    {
+        [SerializeField] internal List<CustomPreference> customPreferences = new List<CustomPreference>();
+
+        public T GetCustom<T>()
+        {
+            string key = typeof(T).FullName.Replace("+", ".").ToLower();
+            for (int i = 0; i < customPreferences.Count; ++i)
+            {
+                if (customPreferences[i].typeName.CompareTo(key) == 0)
+                {
+                    if (customPreferences[i].pointer == null)
+                        customPreferences[i].pointer = Activator.CreateInstance(typeof(T));
+                    JsonUtility.FromJsonOverwrite(customPreferences[i].content, customPreferences[i].pointer);
+                    return (T)customPreferences[i].pointer;
+                }
+            }
+            return default;
+        }
+        public virtual void OnAfterDeserialize()
+        {
+        }
+
+        public virtual void OnBeforeSerialize()
+        {
+        }
+    }
+
     public class EditorFrameworkPreferences
     {
         /// <summary> The last key we checked. This should be the one we modify </summary>
@@ -28,50 +65,15 @@ namespace Framework.ED
             return $"FrameworkSetting.{hash}.";
         }
         private static Dictionary<string, Settings> settings = new Dictionary<string, Settings>();
-        private static Dictionary<string, Settings.CustomPreference> m_vCustomPreferences = new Dictionary<string, Settings.CustomPreference>();
 
         [System.Serializable]
-        public class Settings : ISerializationCallbackReceiver
+        public class Settings : EditorPreferenceSetting
         {
             [Display("代码自动化")]public bool autoCodeGen = true;
             [Display("二进制序列化代码生成路径")] public string binaryGeneratedPatch = "";
             [Display("配置表c#代码生成路径")] public string tableCsGeneratedPatch = "";
             [Display("配置表c++代码生成路径")] public string tableCppGeneratedPatch = "";
-            [Display("配置表c#服务器代码生成路径")] public string tableCsServerGeneratedPatch = "";
-
-
-            [System.Serializable]
-            internal class CustomPreference
-            {
-                public string typeName;
-                public string header;
-                public string content;
-                [System.NonSerialized]public object pointer;
-            }
-            [SerializeField]internal List<CustomPreference> customPreferences = new List<CustomPreference>();
-
-            public T GetCustom<T>()
-            {
-                string key = typeof(T).FullName.Replace("+", ".").ToLower();
-                for(int i =0; i < customPreferences.Count; ++i)
-                {
-                    if (customPreferences[i].typeName.CompareTo(key)==0)
-                    {
-                        if (customPreferences[i].pointer == null)
-                            customPreferences[i].pointer = Activator.CreateInstance(typeof(T));
-                        JsonUtility.FromJsonOverwrite(customPreferences[i].content, customPreferences[i].pointer);
-                        return (T)customPreferences[i].pointer;
-                    }
-                }
-                return default;
-            }
-            public void OnAfterDeserialize()
-            {
-            }
-
-            public void OnBeforeSerialize()
-            {
-            }
+            [Display("配置表c#服务器代码生成路径")] public string tableCsServerGeneratedPatch = "";            
         }
 
         /// <summary> Get settings of current active editor </summary>
@@ -101,48 +103,11 @@ namespace Framework.ED
             SystemSettingsGUI(lastKey, settings);
 
 
-            var preferences = EditorUtils.GetPreferencesGUIs();
-            if(preferences!=null && preferences.Count>0)
+            bool bDirty = EditorUtils.DrawCustomPreference("Preferences/GamePlay", settings.customPreferences);
+            if(bDirty)
             {
-                m_vCustomPreferences.Clear();
-                foreach (var custom in settings.customPreferences)
-                {
-                    m_vCustomPreferences[custom.typeName] = custom;
-                }
-                foreach (var db in preferences)
-                {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField(db.Key, EditorStyles.boldLabel);
-                    string typeName = db.Value.DeclaringType.FullName.Replace("+",".").ToLower();
-                    if(!m_vCustomPreferences.TryGetValue(typeName, out var customPreference))
-                    {
-                        customPreference = new Settings.CustomPreference();
-                        customPreference.typeName = typeName;
-                        customPreference.header = db.Key;
-                        customPreference.content = "";
-                        settings.customPreferences.Add(customPreference);
-                        SavePrefs(lastKey, settings);
-                    }
-                    try
-                    {
-                        if(customPreference.pointer == null)
-                            customPreference.pointer = Activator.CreateInstance(db.Value.DeclaringType);
-                        JsonUtility.FromJsonOverwrite(customPreference.content, customPreference.pointer);
-                        EditorGUI.BeginChangeCheck();
-                        db.Value.Invoke(customPreference.pointer, null);
-                        if(EditorGUI.EndChangeCheck())
-                        {
-                            customPreference.content = JsonUtility.ToJson(customPreference.pointer);
-                            SavePrefs(lastKey, settings);
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-                }
+                SavePrefs(lastKey, settings);
             }
-
             if (GUILayout.Button(new GUIContent("Set Default", "Reset all values to default"), GUILayout.Width(120)))
             {
                 ResetPrefs();

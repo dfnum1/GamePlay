@@ -255,6 +255,129 @@ namespace Framework.ED
             GUI.DrawTextureWithTexCoords(rect, gridTex, new Rect(tileOffset, tileAmount));
             GUI.DrawTextureWithTexCoords(rect, crossTex, new Rect(tileOffset + new Vector2(0.5f, 0.5f), tileAmount));
         }
+        //-------------------------------------------
+        public static void DrawHeader(string header)
+        {
+            InspectorDrawUtil.DrawHeader(header);
+        }
+        //-------------------------------------------
+        public static T DrawField<T>(T curData, System.Action onDityCallback = null, params GUILayoutOption[] layoutOps)
+        {
+            return DrawField<T>(null, curData, onDityCallback, layoutOps);
+        }
+        //-------------------------------------------
+        public static T DrawField<T>(string label, T curData, System.Action onDityCallback = null, params GUILayoutOption[] layoutOps)
+        {
+            object result = curData;
+            bool changed = false;
+            Type type = typeof(T);
+
+            if (type == typeof(byte))
+            {
+                int v = string.IsNullOrEmpty(label) ? EditorGUILayout.IntField((byte)(object)curData, layoutOps) : EditorGUILayout.IntField(label, (byte)(object)curData, layoutOps);
+                if ((byte)v != (byte)(object)curData) { changed = true; result = (byte)Mathf.Clamp(v, byte.MinValue, byte.MaxValue); }
+            }
+            else if (type == typeof(short))
+            {
+                int v = string.IsNullOrEmpty(label) ? EditorGUILayout.IntField((short)(object)curData, layoutOps) : EditorGUILayout.IntField(label, (short)(object)curData, layoutOps);
+                if ((short)v != (short)(object)curData) { changed = true; result = (short)Mathf.Clamp(v, short.MinValue, short.MaxValue); }
+            }
+            else if (type == typeof(ushort))
+            {
+                int v = string.IsNullOrEmpty(label) ? EditorGUILayout.IntField((ushort)(object)curData, layoutOps) : EditorGUILayout.IntField(label, (ushort)(object)curData, layoutOps);
+                if ((ushort)v != (ushort)(object)curData) { changed = true; result = (ushort)Mathf.Clamp(v, ushort.MinValue, ushort.MaxValue); }
+            }
+            else if (type == typeof(int))
+            {
+                int v = string.IsNullOrEmpty(label) ? EditorGUILayout.IntField((int)(object)curData, layoutOps) : EditorGUILayout.IntField(label, (int)(object)curData, layoutOps);
+                if (v != (int)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(uint))
+            {
+                long v = string.IsNullOrEmpty(label) ? EditorGUILayout.LongField((long)(uint)(object)curData, layoutOps) : EditorGUILayout.LongField(label, (long)(uint)(object)curData, layoutOps);
+                if ((uint)v != (uint)(object)curData) { changed = true; result = (uint)Mathf.Max(0, v); }
+            }
+            else if (type == typeof(long))
+            {
+                long v = string.IsNullOrEmpty(label) ? EditorGUILayout.LongField((long)(object)curData, layoutOps) : EditorGUILayout.LongField(label, (long)(object)curData, layoutOps);
+                if (v != (long)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(ulong))
+            {
+                ulong v = string.IsNullOrEmpty(label) ? (ulong)EditorGUILayout.LongField((long)(object)curData, layoutOps) : (ulong)EditorGUILayout.LongField(label, (long)(object)curData, layoutOps);
+                if (v != (ulong)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(float))
+            {
+                float v = string.IsNullOrEmpty(label) ? EditorGUILayout.FloatField((float)(object)curData, layoutOps) : EditorGUILayout.FloatField(label, (float)(object)curData, layoutOps);
+                if (!Mathf.Approximately(v, (float)(object)curData)) { changed = true; result = v; }
+            }
+            else if (type == typeof(double))
+            {
+                double v = string.IsNullOrEmpty(label) ? EditorGUILayout.DoubleField((double)(object)curData, layoutOps) : EditorGUILayout.DoubleField(label, (double)(object)curData, layoutOps);
+                if (v != (double)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Vector2))
+            {
+                Vector2 v = string.IsNullOrEmpty(label) ? EditorGUILayout.Vector2Field(GUIContent.none, (Vector2)(object)curData, layoutOps) : EditorGUILayout.Vector2Field(label, (Vector2)(object)curData, layoutOps);
+                if (v != (Vector2)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Vector3))
+            {
+                Vector3 v = string.IsNullOrEmpty(label) ? EditorGUILayout.Vector3Field(GUIContent.none, (Vector3)(object)curData, layoutOps) : EditorGUILayout.Vector3Field(label, (Vector3)(object)curData, layoutOps);
+                if (v != (Vector3)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Vector4))
+            {
+                Vector4 v = string.IsNullOrEmpty(label) ? EditorGUILayout.Vector4Field(GUIContent.none, (Vector4)(object)curData, layoutOps) : EditorGUILayout.Vector4Field(label, (Vector4)(object)curData, layoutOps);
+                if (v != (Vector4)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Rect))
+            {
+                Rect v = string.IsNullOrEmpty(label) ? EditorGUILayout.RectField((Rect)(object)curData, layoutOps) : EditorGUILayout.RectField(label, (Rect)(object)curData, layoutOps);
+                if (v != (Rect)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Bounds))
+            {
+                Bounds v = string.IsNullOrEmpty(label) ? EditorGUILayout.BoundsField((Bounds)(object)curData, layoutOps) : EditorGUILayout.BoundsField(label, (Bounds)(object)curData, layoutOps);
+                if (v != (Bounds)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(BoundsInt))
+            {
+                BoundsInt v = string.IsNullOrEmpty(label) ? EditorGUILayout.BoundsIntField((BoundsInt)(object)curData, layoutOps) : EditorGUILayout.BoundsIntField(label, (BoundsInt)(object)curData, layoutOps);
+                if (v != (BoundsInt)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Vector2Int))
+            {
+                Vector2Int v = string.IsNullOrEmpty(label) ? EditorGUILayout.Vector2IntField(GUIContent.none, (Vector2Int)(object)curData, layoutOps) : EditorGUILayout.Vector2IntField(label, (Vector2Int)(object)curData, layoutOps);
+                if (v != (Vector2Int)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Vector3Int))
+            {
+                Vector3Int v = string.IsNullOrEmpty(label) ? EditorGUILayout.Vector3IntField(GUIContent.none, (Vector3Int)(object)curData, layoutOps) : EditorGUILayout.Vector3IntField(label, (Vector3Int)(object)curData, layoutOps);
+                if (v != (Vector3Int)(object)curData) { changed = true; result = v; }
+            }
+            else if (type == typeof(Color))
+            {
+                Color v = string.IsNullOrEmpty(label) ? EditorGUILayout.ColorField((Color)(object)curData, layoutOps) : EditorGUILayout.ColorField(label, (Color)(object)curData, layoutOps);
+                if (v != (Color)(object)curData) { changed = true; result = v; }
+            }
+            else
+            {
+                // fallback
+                string cur = curData != null ? curData.ToString() : "";
+                string last = cur;
+                cur = string.IsNullOrEmpty(label)
+                    ? EditorGUILayout.TextField(cur, layoutOps)
+                    : EditorGUILayout.TextField(label, cur, layoutOps);
+                if (cur != last) { changed = true; result = cur; }
+            }
+
+            if (changed && onDityCallback != null)
+                onDityCallback();
+
+            return (T)result;
+        }
     }
     //------------------------------------------------------
     //!GUIViewportScope

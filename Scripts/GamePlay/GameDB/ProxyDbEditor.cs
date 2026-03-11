@@ -410,7 +410,7 @@ namespace Framework.Db
     //------------------------------------------------------
     //! 用户db偏好设置
     //------------------------------------------------------
-    [System.Serializable, CustomPreference("用户Db")]
+    [System.Serializable, CustomPreference("Preferences/GamePlay","用户Db")]
     internal class UserDBPreference
     {
         public bool autoCode = true;

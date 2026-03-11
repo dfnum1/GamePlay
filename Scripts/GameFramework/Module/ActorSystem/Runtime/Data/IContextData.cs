@@ -8,6 +8,7 @@ using Framework.Cutscene.Runtime;
 
 namespace Framework.ActorSystem.Runtime
 {
+    [AT.Runtime.ATInteralExport("IContextData", -17)]
     public interface IContextData : ICutsceneData
     {
     }

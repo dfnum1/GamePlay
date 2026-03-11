@@ -9,11 +9,13 @@ using Framework.Base;
 
 namespace Framework.Data
 {
+    [AT.Runtime.ATInteralExport("ABaseData", -16)]
     public abstract class ABaseData : IContextData
     {
         public abstract void Destroy();
     }
-    public class Data_Base : TypeObject
+    [AT.Runtime.ATInteralExport("Data_Base", -15)]
+    public abstract class Data_Base : TypeObject
     {
 #if UNITY_EDITOR
         public string strFilePath;

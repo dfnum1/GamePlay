@@ -21,7 +21,7 @@ namespace Framework.Data
 		[ATFunction(-65229731,"Progress",typeof(Framework.Data.ADataManager),false)]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableFloat),"Progress", null,typeof(System.Single))]
 #endif
-		static bool AT_Get_Progress(ADataManager pPointerThis, AgentTree pAgentTree, BaseNode pNode)
+		static bool AT_Get_Progress(Framework.Data.ADataManager pPointerThis, AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportFloat(pNode, 0, pPointerThis.Progress);
 			return true;

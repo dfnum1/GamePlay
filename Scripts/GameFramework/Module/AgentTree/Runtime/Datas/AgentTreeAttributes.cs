@@ -83,7 +83,7 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
     public class ATInteralExportAttribute : ATExportAttribute
     {
         public ATInteralExportAttribute(string nodeName = null, int guid = 0, string icon = null) : base(nodeName, guid, icon)
@@ -198,7 +198,7 @@ namespace Framework.AT.Runtime
             this.drawMethod = drawMethod;
 #endif
         }
-        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type AlignType, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type DisplayType, Type AlignType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
         {
 #if UNITY_EDITOR
             this.ArgvType = ArgvType;
@@ -207,7 +207,6 @@ namespace Framework.AT.Runtime
             this.AlignType = AlignType;
             this.ToolTips = ToolTips;
             this.bAutoDestroy = false;
-            this.DisplayType = DisplayType;
             this.bReturn = bReturn;
             this.ListElementByArgvIndex = ListElementByArgvIndex;
             this.bSeriable = bSeriable;
@@ -221,7 +220,7 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         internal ArgvAttribute ToArgv()
         {
-            return new ArgvAttribute(DisplayName, DisplayType, ArgvType, bShowEdit, defaultValue) { methodDrawer = drawMethod };
+            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue) { methodDrawer = drawMethod };
         }
 #endif
     }
@@ -304,7 +303,7 @@ namespace Framework.AT.Runtime
         }
     }
     //-----------------------------------------------------
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class ATArgvDrawerAttribute : System.Attribute
     {
 #if UNITY_EDITOR

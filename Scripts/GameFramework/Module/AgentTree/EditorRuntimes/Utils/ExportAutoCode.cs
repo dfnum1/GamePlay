@@ -118,6 +118,30 @@ namespace Framework.AT.Editor
                     if (exportAttr!=null)
                     {
                         string typeName = GetTypeName(tp);
+                        ExportInfo exportData;
+                        if (!ms_vExports.TryGetValue(typeName, out exportData))
+                        {
+                            exportData = new ExportInfo();
+                            exportData.guid = exportAttr.guid;
+                            if (exportData.guid == 0)
+                            {
+                                exportData.guid = BuildHashCode(tp);
+                            }
+                            if (bInternal)
+                                exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
+                            else
+                            {
+                                exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
+                                if (exportData.exportPath.StartsWith("Assets/"))
+                                {
+                                    exportData.exportPath = exportData.exportPath.Substring("Assets/".Length);
+                                }
+                            }
+                            exportData.exportPath = exportData.exportPath.Replace("\\", "/");
+                            exportData.type = tp;
+                            exportData.exportAttr = exportAttr;
+                            ms_vExports.Add(typeName, exportData);
+                        }
                         MethodInfo[] meths = types[i].GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly);
                         for (int m = 0; m < meths.Length; ++m)
                         {
@@ -129,31 +153,6 @@ namespace Framework.AT.Editor
                                     continue;
                                 }
                                 ATMethodAttribute attr = (ATMethodAttribute)meths[m].GetCustomAttribute(typeof(ATMethodAttribute));
-                                ExportInfo exportData;
-                                if (!ms_vExports.TryGetValue(typeName, out exportData))
-                                {
-                                    exportData = new ExportInfo();
-                                    exportData.guid = exportAttr.guid;
-                                    if (exportData.guid == 0)
-                                    {
-                                        exportData.guid = BuildHashCode(tp);
-                                    }
-                                    if (bInternal)
-                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
-                                    else
-                                    {
-                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs").Replace("\\", "/");
-                                        if(exportData.exportPath.StartsWith("Assets/"))
-                                        {
-                                            exportData.exportPath = exportData.exportPath.Substring("Assets/".Length);
-                                        }
-                                    }
-                                    exportData.exportPath = exportData.exportPath.Replace("\\", "/");
-
-                                    exportData.type = tp;
-                                    exportData.exportAttr = exportAttr;
-                                    ms_vExports.Add(typeName, exportData);
-                                }
                                 if (!exportData.methodCount.TryGetValue(meths[m].Name, out var methodCnt))
                                 {
                                     methodCnt = 0;
@@ -188,23 +187,6 @@ namespace Framework.AT.Editor
                                 if(!attr.bGet && !attr.bSet)
                                 {
                                     continue;
-                                }
-                                ExportInfo exportData;
-                                if (!ms_vExports.TryGetValue(typeName, out exportData))
-                                {
-                                    exportData = new ExportInfo();
-                                    exportData.guid = exportAttr.guid;
-                                    if (exportData.guid == 0)
-                                    {
-                                        exportData.guid = BuildHashCode(tp);
-                                    }
-                                    if(bInternal)
-                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
-                                    else
-                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
-                                    exportData.type = tp;
-                                    exportData.exportAttr = exportAttr;
-                                    ms_vExports.Add(typeName, exportData);
                                 }
                                 if (!exportData.methodCount.TryGetValue(fields[m].Name, out var methodCnt))
                                 {
@@ -241,23 +223,6 @@ namespace Framework.AT.Editor
                                 if (!attr.bGet && !attr.bSet)
                                 {
                                     continue;
-                                }
-                                ExportInfo exportData;
-                                if (!ms_vExports.TryGetValue(typeName, out exportData))
-                                {
-                                    exportData = new ExportInfo();
-                                    exportData.guid = exportAttr.guid;
-                                    if (exportData.guid == 0)
-                                    {
-                                        exportData.guid = BuildHashCode(tp);
-                                    }
-                                    if (bInternal)
-                                        exportData.exportPath = EXPORT_PATH + tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs";
-                                    else
-                                        exportData.exportPath = Path.Combine(EditorPreferences.GetSettings().generatorCodePath, tp.FullName.Replace("+", "_").Replace(".", "_") + ".cs");
-                                    exportData.type = tp;
-                                    exportData.exportAttr = exportAttr;
-                                    ms_vExports.Add(typeName, exportData);
                                 }
                                 if (!exportData.methodCount.TryGetValue(propfields[m].Name, out var methodCnt))
                                 {
@@ -312,6 +277,8 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static void ExportCode(ExportInfo export)
         {
+            if (export.methods.Count <= 0)
+                return;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
             string oriTypeClassName = export.type.Name.Replace("+", ".");
             StringBuilder methodCode = new StringBuilder();
@@ -400,7 +367,7 @@ namespace Framework.AT.Editor
             bool isModule = export.type.IsSubclassOf(typeof(AModule));
             MethodInfo method = info.info as MethodInfo;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
-            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            string oriTypeClassName = export.type.FullName.Replace("+", ".");
             Type retType = null;
             bool hasReturn = false;
             if (method.ReturnType != null && method.ReturnType != typeof(void))
@@ -658,7 +625,7 @@ namespace Framework.AT.Editor
         {
             FieldInfo field = info.info as FieldInfo;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
-            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            string oriTypeClassName = export.type.FullName.Replace("+", ".");
             bool isModule = export.type.IsSubclassOf(typeof(AModule));
 
             var paramType = ConvertTypeToATType(field.FieldType);
@@ -710,8 +677,8 @@ namespace Framework.AT.Editor
             {
                 if(!isModule)
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
-                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\", null,typeof({GetTypeName(export.type)}))]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
                 }
 
                 if (string.IsNullOrEmpty(drawMethod))
@@ -836,7 +803,7 @@ namespace Framework.AT.Editor
         {
             PropertyInfo propField = info.info as PropertyInfo;
             string typeClassName = export.type.FullName.Replace("+", "_").Replace(".", "_");
-            string oriTypeClassName = export.type.Name.Replace("+", ".");
+            string oriTypeClassName = export.type.FullName.Replace("+", ".");
             bool isModule = export.type.IsSubclassOf(typeof(AModule));
 
             var paramType = ConvertTypeToATType(propField.PropertyType);
@@ -1130,6 +1097,15 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static void ExportRegisterCode(bool bInternal)
         {
+            if (!bInternal)
+            {
+                if (string.IsNullOrEmpty(EditorPreferences.GetSettings().generatorCodePath))
+                {
+                    EditorUtility.DisplayDialog("提示", "请先在编辑器设置中设置代码生成路径！", "好的");
+                    return;
+                }
+            }
+
             StringBuilder code = new StringBuilder();
             code.AppendLine("//auto generated");
             code.AppendLine("namespace Framework.AT.Runtime");
@@ -1159,18 +1135,56 @@ namespace Framework.AT.Editor
 
                 string function = "";
                 if(db.Value.type.Namespace!= null)
-                    function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace(".", "_")}.DoAction";
+                    function = $"{db.Value.type.Namespace.Replace("+", ".")}.{db.Value.type.FullName.Replace("+",".").Replace(".", "_")}.DoAction";
                 else
-                    function = $"{db.Value.type.FullName.Replace(".", "_")}.DoAction";
+                    function = $"{db.Value.type.FullName.Replace("+",".").Replace(".", "_")}.DoAction";
                 string parentTypeId = "0";
-                if(db.Value.type.BaseType!=null)
+                if (db.Value.type.BaseType == typeof(System.Object))
                 {
-                    if(IsUserDataType(db.Value.type.BaseType))
+                    var baseInterfaces = db.Value.type.BaseType.GetTypeInfo().ImplementedInterfaces;
+                    var interfaces = db.Value.type.GetTypeInfo().ImplementedInterfaces;
+                    if (interfaces != null && interfaces.Count() > 0)
+                    {
+                        interfaces = interfaces.Except(baseInterfaces).ToArray();
+                        Dictionary<Type, HashSet<Type>> vInherits = new Dictionary<Type, HashSet<Type>>();
+                        foreach (var bt in interfaces)
+                        {
+                            vInherits[bt] = new HashSet<Type>(bt.GetInterfaces());
+                        }
+                        int maxInherit = 0;
+                        System.Type parentType = interfaces.First();
+                        foreach (var tmp in vInherits)
+                        {
+                            if(tmp.Value.Count > maxInherit)
+                            {
+                                parentType = tmp.Key;
+                                maxInherit = tmp.Value.Count;
+                            }
+                        }
+                        if (parentType != null)
+                        {
+                            parentTypeId = BuildHashCode(parentType) + "/*" + GetTypeName(parentType) + "*/";
+                        }
+                    }
+                }
+                else if (db.Value.type.BaseType != null)
+                {
+                    if (IsUserDataType(db.Value.type))
                     {
                         parentTypeId = BuildHashCode(db.Value.type.BaseType) + "/*" + GetTypeName(db.Value.type.BaseType) + "*/";
                     }
                 }
-                code.AppendLine($"\t\t\tRegister({db.Value.guid}, typeof({db.Value.type.FullName.Replace("+", ".")}),{function},{parentTypeId});");
+                else if (db.Value.type.IsInterface || db.Value.type.IsAbstract)
+                {
+                    if (db.Value.type.GetInterfaces().Contains(typeof(IUserData)))
+                    {
+                        parentTypeId = BuildHashCode(typeof(Framework.Base.IUserData)) + "/*" + GetTypeName(typeof(Framework.Base.IUserData)) + "*/";
+                    }
+                }
+                if(db.Value.type.IsInterface || db.Value.type.IsAbstract)
+                    code.AppendLine($"\t\t\tRegister({db.Value.guid}, typeof({db.Value.type.FullName.Replace("+", ".")}),null,{parentTypeId});");
+                else
+                    code.AppendLine($"\t\t\tRegister({db.Value.guid}, typeof({db.Value.type.FullName.Replace("+", ".")}),{function},{parentTypeId});");
             }
             code.AppendLine("\t\t}");
             code.AppendLine("\t\t//-----------------------------------------------------");
@@ -1182,7 +1196,16 @@ namespace Framework.AT.Editor
             code.AppendLine("\t}");
             code.AppendLine("}");
 
-            string fullPath = Application.dataPath + "/" + EXPORT_PATH + name + ".cs";
+            string fullPath = Path.Combine(Application.dataPath, EXPORT_PATH + name + ".cs");
+            if(!bInternal)
+            {
+                fullPath = EditorPreferences.GetSettings().generatorCodePath.Replace("\\","/");
+                if (fullPath.StartsWith("Assets/"))
+                {
+                    fullPath = fullPath.Substring("Assets/".Length);
+                }
+                fullPath = Path.Combine(Application.dataPath, fullPath,name + ".cs").Replace("\\", "/");
+            }
             if (!Directory.Exists(Path.GetDirectoryName(fullPath)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
@@ -1333,10 +1356,18 @@ namespace Framework.AT.Editor
         {
             if (type.IsClass || type.IsValueType)
             {
-                if (type.GetType().GetInterface(typeof(IUserData).FullName.Replace("+", ".")) != null)
+                if (type.GetInterfaces().Contains(typeof(IUserData)))
                     return true;
             }
-            return type == typeof(IUserData) || type.GetInterfaces().Contains(typeof(IUserData));
+            while (type != null)
+            {
+                if (type == typeof(IUserData) || type.GetInterfaces().Contains(typeof(IUserData)))
+                {
+                    return true;
+                }
+                type = type.BaseType;
+            }
+            return false;
         }
         //-----------------------------------------------------
         static System.Type ConvertTypeToATType(System.Type type)

@@ -303,6 +303,7 @@ namespace Framework.ActorSystem.Runtime
             return m_nTickCount;
         }
         //-----------------------------------------------------
+        [ATMethod("获取配置数据")]
         public IContextData GetConfigData()
         {
             return m_pConfigData;

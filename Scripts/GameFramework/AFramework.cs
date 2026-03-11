@@ -70,6 +70,8 @@ namespace Framework.Core
             if (m_pGame != null)
                 return;
 
+            Application.lowMemory += LowMemory;
+
             m_FileSystem = AddModule<FileSystem>();
             AddModule<TouchInput>();
             var atMgr = AddModule<AT.Runtime.AgentTreeManager>(); atMgr.RegisterCallback(this);
@@ -379,28 +381,36 @@ namespace Framework.Core
 
         }
         //------------------------------------------------------
-        public void LateUpdate()
+        public void LateUpdate(float deltaTime)
         {
             if (!m_bInited || !m_bStarted || !m_bAwaked)
                 return;
-            float fDelta = Time.deltaTime;
             foreach (var db in m_vAllLateUpdates)
-                db.Value.LateUpdate(fDelta);
+                db.Value.LateUpdate(deltaTime);
 
-            OnLateUpdate(fDelta);
+            OnLateUpdate(deltaTime);
             if(m_ShaderCache!=null) m_ShaderCache.ClearCaches();
         }
         protected virtual void OnLateUpdate(float fFrameTime) { }
         //------------------------------------------------------
-        public void FixedUpdate()
+        public void FixedUpdate(float deltaTime)
         {
-            float fixedDeltaTime = Time.fixedDeltaTime;
             foreach (var db in m_vAllFixedUpdates)
-                db.Value.FixedUpdate(fixedDeltaTime);
-            OnFixedUpdate(fixedDeltaTime);
+                db.Value.FixedUpdate(deltaTime);
+            OnFixedUpdate(deltaTime);
         }
         //------------------------------------------------------
         protected virtual void OnFixedUpdate(float fFrameTime) { }
+        //------------------------------------------------------
+        void LowMemory()
+        {
+            OnLowMemory();
+        }
+        //------------------------------------------------------
+        protected virtual void OnLowMemory()
+        {
+
+        }
         //------------------------------------------------------
         public void Destroy()
         {

@@ -51,8 +51,16 @@ namespace Framework.AT.Editor
                     }
                 }
             }
+            string name = "蓝图脚本";
+            if (pObject != null)
+            {
+                if (pObject is Object)
+                {
+                    name = "蓝图-" + ((Object)pObject).name;
+                }
+            }
             AgentTreeWindow window = EditorWindow.GetWindow<AgentTreeWindow>();
-            window.titleContent = new GUIContent("蓝图脚本", EditorResources.LoadTexture("AT/AgentTree.png"));
+            window.titleContent = new GUIContent(name, EditorResources.LoadTexture("AT/AgentTree.png"));
             window.m_pATData = atData;
             window.m_pAT = pAT;
             window.m_onSave = OnSave;

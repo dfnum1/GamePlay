@@ -12,10 +12,16 @@ namespace Framework.Core
     //-----------------------------------------------------
     public class GamePlayFramework : AFramework
     {
+        Framework.State.Runtime.GameWorld m_pGameWorld = null;
+        //--------------------------------------------------------
+        public Framework.State.Runtime.GameWorld GetGameWorld()
+        {
+            return m_pGameWorld;
+        }
         //--------------------------------------------------------
         protected override void OnInit()
         {
-            AddModule<Framework.State.Runtime.GameWorld>();
+            m_pGameWorld = AddModule<Framework.State.Runtime.GameWorld>();
             AddModule<Framework.Db.UserManager>();
  //           ATRegisterInternalHandler.Init();
             GameStateInnerTypeRegistry.Init();
@@ -27,6 +33,7 @@ namespace Framework.Core
         //--------------------------------------------------------
         protected override void OnDestroy()
         {
+            m_pGameWorld = null;
         }
         //--------------------------------------------------------
         protected override void OnStart()

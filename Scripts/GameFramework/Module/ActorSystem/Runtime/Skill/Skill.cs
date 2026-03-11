@@ -149,6 +149,7 @@ namespace Framework.ActorSystem.Runtime
             m_nLevel = nLevel;
         }
         //-----------------------------------------------------
+        [ATMethod("获取配置数据")]
         public IContextData GetConfigData()
         {
             return m_pConfigData;
@@ -202,6 +203,7 @@ namespace Framework.ActorSystem.Runtime
             if(pAT!=null)
             {
                 VariableList argvs = VariableList.Malloc(GetFramework());
+                argvs.AddUserData(GetActor());
                 argvs.AddUserData(this);
                 pAT.ExecuteTask((int)EActorATType.onLockTarget, argvs);
             }
@@ -221,6 +223,7 @@ namespace Framework.ActorSystem.Runtime
             if (pAT != null)
             {
                 VariableList argvs = VariableList.Malloc(GetFramework());
+                argvs.AddUserData(GetActor());
                 argvs.AddUserData(this);
                 pAT.ExecuteTask((int)EActorATType.onPreDoSkillCheck, argvs);
             }

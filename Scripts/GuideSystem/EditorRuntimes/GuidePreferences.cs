@@ -5,10 +5,11 @@
 描    述:	引导编辑器偏好设置
 *********************************************************************/
 #if UNITY_EDITOR
-using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
+using Framework.ED;
 using System;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace Framework.Guide.Editor
 {
@@ -30,7 +31,7 @@ namespace Framework.Guide.Editor
             return $"GuideSystem.{hash}.";
         }
         [System.Serializable]
-        public class Settings : ISerializationCallbackReceiver
+        public class Settings : EditorPreferenceSetting
         {
             public string dataSavePath = "Assets/Res/GuideDatas";
             public string generatorCodePath = "";//"Assets/OpenScripts/GameApp/GuideSystem/Generated";
@@ -90,7 +91,7 @@ namespace Framework.Guide.Editor
                 }
             }
 
-            public void OnAfterDeserialize()
+            public override void OnAfterDeserialize()
             {
                 // Deserialize typeColorsData
                 typeColors = new Dictionary<string, Color>();
@@ -103,9 +104,10 @@ namespace Framework.Guide.Editor
                         typeColors.Add(data[i], col);
                     }
                 }
+                base.OnAfterDeserialize();
             }
 
-            public void OnBeforeSerialize()
+            public override void OnBeforeSerialize()
             {
                 // Serialize typeColors
                 typeColorsData = "";
@@ -113,6 +115,7 @@ namespace Framework.Guide.Editor
                 {
                     typeColorsData += item.Key + "," + ColorUtility.ToHtmlStringRGB(item.Value) + ",";
                 }
+                base.OnBeforeSerialize();
             }
         }
 

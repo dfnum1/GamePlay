@@ -105,6 +105,16 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-717728269,"获取配置数据",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.IContextData))]
+#endif
+		static bool AT_GetConfigData(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.GetConfigData());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-84416733,"获取Buff属性",typeof(Framework.ActorSystem.Runtime.Buff),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"type",false, null,typeof(System.Byte),drawMethod:"DrawAttributePop")]
@@ -142,78 +152,85 @@ namespace Framework.ActorSystem.Runtime
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_HasEffectState((Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_HasEffectState((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1), pAgentTree, pNode);
 			}
 			case 2054004447://AddEffectState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_AddEffectState((Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_AddEffectState((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
 			}
 			case 1654142733://RemoveEffectState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_RemoveEffectState((Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_RemoveEffectState((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
 			}
 			case -1870392312://IsEnd
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_IsEnd((Buff)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_IsEnd((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 1007224019://IsActived
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_IsActived((Buff)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_IsActived((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 1108070059://SetActived
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_SetActived((Buff)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_SetActived((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -631709943://SetLevel
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_SetLevel((Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_SetLevel((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
 			}
 			case 581558488://GetLevel
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_GetLevel((Buff)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetLevel((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -1853761918://GetTickCount
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_GetTickCount((Buff)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetTickCount((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -717728269://GetConfigData
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetConfigData((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -84416733://GetAttr
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_GetAttr((Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetAttr((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			case -1241946103://GetAttrValueType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Buff)) return true;
-				return AT_GetAttrValueType((Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetAttrValueType((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1), pAgentTree, pNode);
 			}
 			}
 			return true;

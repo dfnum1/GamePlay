@@ -4,6 +4,7 @@
 作    者:	HappLI
 描    述:	工具类
 *********************************************************************/
+using Framework.AT.Runtime;
 using Framework.Base;
 using Framework.Core;
 using Framework.Cutscene.Runtime;
@@ -23,6 +24,7 @@ namespace Framework.ActorSystem.Runtime
         World,
         All,
     }
+    [ATInteralExport("Actor系统/工具函数", -11)]
     public class ActorSystemUtil
     {
         public const float GTRAVITY_VALUE = 9.8f;
@@ -33,6 +35,12 @@ namespace Framework.ActorSystem.Runtime
         public static bool HasBindSlot(int flags, ESlotBindBit bind)
         {
             return (flags & (int)bind) != 0;
+        }
+        //-----------------------------------------------------
+        [ATMethod("是否拥有Buff状态"), ATArgvDrawer("flags", "BuffStateDraw"), ATArgvDrawer("buffState", "BuffStateDraw")]
+        public static bool HasBuffState(int flags, int buffState)
+        {
+            return (flags & (int)buffState) != 0;
         }
         //-----------------------------------------------------
         internal static void Register(ActorManager actorMgr)

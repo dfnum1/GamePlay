@@ -33,20 +33,21 @@ namespace Framework.ActorSystem.Runtime
         byte                                    m_SpeedAttrType = 2;
         private List<IActorAttrDirtyCallback>   m_vCallbacks = null;
 
+        protected byte                          m_nActorType = 0;
         protected byte                          m_nAttackGroup = 0;
-        protected int                           m_nGUID = 0;
+        protected uint                          m_nGUID = 0;
         protected uint                          m_nLevel = 1;
         public ActorParameter()
         {
             m_pActor = null;
         }
         //--------------------------------------------------------
-        public void SetGUID(int guid)
+        public void SetGUID(uint guid)
         {
             m_nGUID = guid;
         }
         //--------------------------------------------------------
-        public int GetGUID()
+        public uint GetGUID()
         {
             return m_nGUID;
         }
@@ -59,6 +60,16 @@ namespace Framework.ActorSystem.Runtime
         public uint GetLevel()
         {
             return m_nLevel;
+        }
+        //--------------------------------------------------------
+        public void SetActorType(byte type)
+        {
+            m_nActorType = type;
+        }
+        //--------------------------------------------------------
+        public byte GetActorType()
+        {
+            return m_nActorType;
         }
         //--------------------------------------------------------
         public void SetActor(Actor pActor)
@@ -258,6 +269,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
 
             var argv = VariableList.Malloc(GetFramework());
+            argv.AddUserData(m_pActor);
             argv.AddInt(type);
             argv.AddFloat(oldValue);
             argv.AddFloat(newValue);
@@ -374,6 +386,7 @@ namespace Framework.ActorSystem.Runtime
             m_SpeedAttrType = 2;
             m_pConfigData = null;
             m_nGUID = 0;
+            m_nActorType = 0;
             m_nAttackGroup = 0;
             if (m_vUserDatas != null) m_vUserDatas.Clear();
             if (m_vCallbacks != null) m_vCallbacks.Clear();

@@ -34,6 +34,16 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(246539408,"获取配置数据",typeof(Framework.ActorSystem.Runtime.Skill),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.IContextData))]
+#endif
+		static bool AT_GetConfigData(Skill pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.GetConfigData());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(1656859507,"获取总共触发次数",typeof(Framework.ActorSystem.Runtime.Skill),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
@@ -220,134 +230,141 @@ namespace Framework.ActorSystem.Runtime
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetRuntimeCD((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetRuntimeCD((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 414892563://SetLevel
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetLevel((Skill)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetLevel((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportUint(pNode,1));
+			}
+			case 246539408://GetConfigData
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetConfigData((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 1656859507://GetTriggerCount
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetTriggerCount((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetTriggerCount((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -1512669171://GetContinueTriggerCount
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetContinueTriggerCount((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetContinueTriggerCount((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 1793744141://CanTrigger
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_CanTrigger((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_CanTrigger((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -282211430://AddLockTarget
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_AddLockTarget((Skill)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Actor>(pNode,1),pAgentTree.GetInportBool(pNode,2));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_AddLockTarget((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Actor>(pNode,1),pAgentTree.GetInportBool(pNode,2));
 			}
 			case 1216193890://ClearLockTargets
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_ClearLockTargets((Skill)pUserClass.pPointer);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_ClearLockTargets((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer);
 			}
 			case -129251471://SetPreCanTrigger
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetPreCanTrigger((Skill)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetPreCanTrigger((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
 			}
 			case -2041930942://GetConfigCD
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetConfigCD((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetConfigCD((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -1738200053://SetConfigCD
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetConfigCD((Skill)pUserClass.pPointer,pAgentTree.GetInportLong(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetConfigCD((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportLong(pNode,1));
 			}
 			case 220708757://GetActionType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetActionType((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetActionType((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 1148700247://GetActionTag
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetActionTag((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetActionTag((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 214929596://SetActionTypeAndTag
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 2) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetActionTypeAndTag((Skill)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetActionTypeAndTag((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,(Framework.ActorSystem.Runtime.EActionStateType)pAgentTree.GetInportInt(pNode,1),pAgentTree.GetInportUint(pNode,2));
 			}
 			case 1712241756://GetCostAttrType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetCostAttrType((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetCostAttrType((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -1475328400://SetCostAttrType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetCostAttrType((Skill)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetCostAttrType((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
 			}
 			case -1650170339://SetCostAttrType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetCostAttrType_1((Skill)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetCostAttrType_1((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportFloat(pNode,1));
 			}
 			case 1039273324://GetCostAttrValue
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetCostAttrValue((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetCostAttrValue((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 253184896://GetAttrFormulaType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_GetAttrFormulaType((Skill)pUserClass.pPointer,pAgentTree, pNode);
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_GetAttrFormulaType((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 706527390://SetAttrFormulaType
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
 				if(pNode.GetInportCount() <= 1) return true;
-				if(!(pUserClass.pPointer is Skill)) return true;
-				return AT_SetAttrFormulaType((Skill)pUserClass.pPointer,pAgentTree.GetInportInt(pNode,1));
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
+				return AT_SetAttrFormulaType((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportInt(pNode,1));
 			}
 			}
 			return true;

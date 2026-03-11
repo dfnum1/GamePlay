@@ -16,7 +16,7 @@ namespace Framework.Core
 #if UNITY_EDITOR
         private string m_strRawAssetPath;
 #endif
-        private bool m_bUsed = false;
+        private bool m_bUsed = true;
         private bool m_bPermanent = false;
         private bool m_bAsync = false;
         private int m_nPriority = 0;
@@ -222,7 +222,7 @@ namespace Framework.Core
             m_pUserData2 = null;
             m_pUserData3 = null;
             m_pUserData4 = null;
-            m_bUsed = false;
+            m_bUsed = true;
             m_bPermanent = false;
             m_bAsync = false;
             m_nPriority = 0;

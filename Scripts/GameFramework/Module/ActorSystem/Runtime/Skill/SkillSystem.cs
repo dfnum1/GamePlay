@@ -162,6 +162,7 @@ namespace Framework.ActorSystem.Runtime
                 }
                 Actor pTarget = null;
                 var argvs = VariableList.Malloc(GetFramework());
+                argvs.AddUserData(m_pOwner);
                 var lockTargets = pSkill.GetLockTargets();
                 if (lockTargets.Count > 0)
                 {

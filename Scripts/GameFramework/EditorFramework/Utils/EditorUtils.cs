@@ -22,11 +22,16 @@ namespace Framework.ED
 {
     public class EditorUtils
     {
+        internal struct PreferencteInfo
+        {
+            public string header;
+            public MethodInfo method;
+        }
         const string PACKAGE_NAME = "com.rd1.center.gameplay";
         private static bool ms_LoadUnityPluginCheck = false;
         private static System.Reflection.MethodInfo ms_pLoadUnityPlugin = null;
         private static System.Reflection.MethodInfo ms_pGetAssetPathUnityPlugin = null;
-        private static Dictionary<string, System.Reflection.MethodInfo> ms_vPreferencesGUI = null;
+        private static Dictionary<string, List<PreferencteInfo>> ms_vPreferencesGUI = null;
         //-----------------------------------------------------
         public static bool IsGamePlayInnerType(System.Type type)
         {
@@ -193,11 +198,13 @@ namespace Framework.ED
             return null;
         }
         //-----------------------------------------------------
-        internal static Dictionary<string, MethodInfo> GetPreferencesGUIs()
+        private static Dictionary<string, CustomPreference> m_vCustomPreferences = new Dictionary<string, CustomPreference>();
+        internal static bool DrawCustomPreference(string key, List<CustomPreference> customPreferneces)
         {
+            if (key == null) return false;
             if (ms_vPreferencesGUI == null)
             {
-                ms_vPreferencesGUI = new Dictionary<string, MethodInfo>();
+                ms_vPreferencesGUI = new Dictionary<string, List<PreferencteInfo>>();
                 foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
                 {
                     Type[] types = null;
@@ -228,12 +235,63 @@ namespace Framework.ED
                             if (method == null) continue;
                             if (string.IsNullOrEmpty(attr.header))
                                 attr.header = GetDisplayName(tp);
-                            ms_vPreferencesGUI[attr.header] = method;
+
+                            if(!ms_vPreferencesGUI.TryGetValue(attr.key.ToLower(), out var list))
+                            {
+                                list = new List<PreferencteInfo>();
+                                ms_vPreferencesGUI[attr.key.ToLower()] = list;
+                            }
+                            list.Add(new PreferencteInfo() { header = attr.header, method = method });
                         }
                     }
                 }
             }
-            return ms_vPreferencesGUI;
+            if (ms_vPreferencesGUI.TryGetValue(key.ToLower(), out var preferences))
+            {
+                if (preferences != null && preferences.Count > 0)
+                {
+                    bool bDirty = false;
+                    m_vCustomPreferences.Clear();
+                    foreach (var custom in customPreferneces)
+                    {
+                        m_vCustomPreferences[custom.typeName] = custom;
+                    }
+                    foreach (var db in preferences)
+                    {
+                        EditorGUILayout.Space();
+                        EditorGUILayout.LabelField(db.header, EditorStyles.boldLabel);
+                        string typeName = db.method.DeclaringType.FullName.Replace("+", ".").ToLower();
+                        if (!m_vCustomPreferences.TryGetValue(typeName, out var customPreference))
+                        {
+                            customPreference = new CustomPreference();
+                            customPreference.typeName = typeName;
+                            customPreference.header = db.header;
+                            customPreference.content = "";
+                            customPreferneces.Add(customPreference);
+                            bDirty = true;
+                        }
+                        try
+                        {
+                            if (customPreference.pointer == null)
+                                customPreference.pointer = Activator.CreateInstance(db.method.DeclaringType);
+                            JsonUtility.FromJsonOverwrite(customPreference.content, customPreference.pointer);
+                            EditorGUI.BeginChangeCheck();
+                            db.method.Invoke(customPreference.pointer, null);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                customPreference.content = JsonUtility.ToJson(customPreference.pointer);
+                                bDirty = true;
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    return bDirty;
+                }
+            }
+            return false;
         }
         //-----------------------------------------------------
         public static string PinYin(string chinese)

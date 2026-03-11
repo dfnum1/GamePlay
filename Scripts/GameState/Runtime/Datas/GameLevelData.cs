@@ -9,6 +9,8 @@ using JsonUtility = ExternEngine.JsonUtility;
 #endif
 using Framework.Core;
 using Framework.Base;
+using TagLib.Riff;
+
 
 
 #if UNITY_EDITOR
@@ -26,18 +28,23 @@ namespace Framework.State.Runtime
     public abstract class AGameCfgData : TypeObject
     {
         //------------------------------------------------
-        public virtual bool OnDeserialize(string dataContent)
+        public virtual bool OnDeserialize(TextAsset dataAsset)
         {
-            if (string.IsNullOrEmpty(dataContent))
+            if (dataAsset == null)
                 return false;
 
-            JsonUtility.FromJsonOverwrite(dataContent, this);
+            JsonUtility.FromJsonOverwrite(dataAsset.text, this);
             return true;
+        }
+        //------------------------------------------------
+        public virtual bool OnDeserialize(byte[] byteData)
+        {
+            return false;
         }
         //------------------------------------------------
         public virtual string OnSerialize()
         {
-            return JsonUtility.ToJson(this,true);
+            return "";
         }
 #if UNITY_EDITOR
         private AGameEditor m_pEditor = null;
@@ -254,39 +261,78 @@ namespace Framework.State.Runtime
         public string name;
         public string strDesc = "";
 #endif
-        public int dataType;
-        [SerializeField]
-        private string dataContent;
+        internal int    dataType;
+        public string   linkFile;
 
-        AGameCfgData m_pGameData = null;
+        public System.Collections.Generic.List<int> useATs;
+
+        [System.NonSerialized]
+        AGameCfgData    m_pGameData = null;
         //------------------------------------------------
-        public T GetGameData<T>(AFramework pFramework) where T : AGameCfgData
+        public T GetGameData<T>(AFramework pFramework, System.Action<T> onCallback = null) where T : AGameCfgData
         {
+            if (string.IsNullOrEmpty(linkFile))
+            {
+                Framework.Base.Logger.Warning("当前状态数据中，没有关联关卡文件数据，不能用此接口创建!!!");
+                return null;
+            }
             if(m_pGameData == null)
             {
                 m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework,dataType);
-                if (m_pGameData != null)
+                if (m_pGameData != null && !string.IsNullOrEmpty(linkFile))
                 {
-                    m_pGameData.OnDeserialize(dataContent);
+                    var pOp = pFramework.GetFileSystem().LoadAsset(linkFile, OnLoadLevelData);
+                    if (onCallback != null)
+                        pOp.SetUserData(0, new Callback1Var() { callback = onCallback });
                 }
             }
             return m_pGameData as T;
         }
         //------------------------------------------------
-        public void Deserialize(AFramework pFramework)
+        public T GetGameData<T>(AFramework pFramework, string dataFile, System.Action<T> onCallback = null) where T : AGameCfgData
+        {
+            if (m_pGameData == null)
+            {
+                m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework, dataType);
+                if (m_pGameData != null && !string.IsNullOrEmpty(dataFile))
+                {
+                    var pOp = pFramework.GetFileSystem().LoadAsset(dataFile, OnLoadLevelData);
+                    if (onCallback != null)
+                        pOp.SetUserData(0, new Callback1Var() { callback = onCallback });
+                }
+            }
+            return m_pGameData as T;
+        }
+        //------------------------------------------------
+        void OnLoadLevelData(AssetOperator assetOp, bool check)
+        {
+            if (check)
+            {
+                assetOp.SetUsed(m_pGameData != null);
+                return;
+            }
+            TextAsset pAsset = assetOp.GetObject<TextAsset>();
+            if (pAsset == null) return;
+            m_pGameData.OnDeserialize(pAsset);
+
+            var callbackVar = assetOp.GetUserData<Callback1Var>(0);
+            callbackVar.Invoke<AGameCfgData>(m_pGameData);
+        }
+#if UNITY_EDITOR
+        //------------------------------------------------
+        internal void Deserialize(AFramework pFramework, string file)
         {
             if(m_pGameData!=null) m_pGameData.Free();
             m_pGameData = null;
             if (dataType == 0)
                 return;
             m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework,dataType);
-            if (m_pGameData != null)
+            if (m_pGameData != null && !string.IsNullOrEmpty(file))
             {
-                m_pGameData.OnDeserialize(dataContent);
+                pFramework.GetFileSystem().LoadAsset(file, OnLoadLevelData);
             }
         }
         //------------------------------------------------
-#if UNITY_EDITOR
         internal void SetUserData(AGameCfgData pData)
         {
             m_pGameData = pData;
@@ -297,7 +343,7 @@ namespace Framework.State.Runtime
             if (m_pGameData != null)
             {
                 dataType = StateEditorUtil.GetTypeClassId(m_pGameData.GetType());
-                dataContent = m_pGameData.OnSerialize();
+                linkFile = m_pGameData.OnSerialize();
             }
         }
 #endif

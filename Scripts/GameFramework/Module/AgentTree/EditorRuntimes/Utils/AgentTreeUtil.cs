@@ -46,6 +46,7 @@ namespace Framework.AT.Editor
     internal class MenuTreeNode
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public List<MenuTreeNode> Children { get; set; }
         public object UserData { get; set; } // 可以是AgentTreeAttri或null
         public Texture Icon { get; set; }
@@ -54,6 +55,7 @@ namespace Framework.AT.Editor
         public MenuTreeNode(string name)
         {
             Name = name;
+            DisplayName = name;
             Children = new List<MenuTreeNode>();
             UserData = null;
             Icon = null;
