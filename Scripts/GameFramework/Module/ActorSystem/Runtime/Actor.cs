@@ -109,6 +109,18 @@ namespace Framework.ActorSystem.Runtime
             return GetActorParameter().GetActorType();
         }
         //--------------------------------------------------------
+        [ATMethod("设置Actor类型"), ATArgvDrawer("subType", "ActorSubTypeDraw")]
+        public void SetActorSubType(byte subType)
+        {
+            GetActorParameter().SetActorSubType(subType);
+        }
+        //--------------------------------------------------------
+        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", "ActorSubTypeDraw")]
+        public byte GetActorSubType()
+        {
+            return GetActorParameter().GetActorSubType();
+        }
+        //--------------------------------------------------------
         public void SetContextData(IContextData pData)
         {
             GetActorParameter().SetCfgData(pData);

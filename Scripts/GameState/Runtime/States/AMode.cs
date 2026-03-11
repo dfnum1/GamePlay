@@ -202,6 +202,11 @@ namespace Framework.State.Runtime
             m_pState = null;
         }
         //----------------------------------------------------------------
+        public bool IsDestroyed()
+        {
+            return IsAPIStatus(EAPICallStatus.Destroy);
+        }
+        //----------------------------------------------------------------
         protected virtual void OnAwake() { }
         protected virtual void OnPreStart() { }
         protected virtual void OnStart() { }

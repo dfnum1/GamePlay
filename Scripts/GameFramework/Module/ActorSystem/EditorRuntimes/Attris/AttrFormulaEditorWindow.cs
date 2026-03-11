@@ -10,6 +10,7 @@ using Framework.ED;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using TagLib.Riff;
 using UnityEditor;
 using UnityEngine;
 using static Framework.ActorSystem.Runtime.AActorAttrDatas;
@@ -189,7 +190,7 @@ namespace Framework.ActorSystem.Editor
                     if (EditorUtility.DisplayDialog("提示", "确定要删除吗？", "删除", "取消"))
                     {
                         var list = new List<AttrCoreData.ActorType>(m_Data.vActorTypes);
-                        list.RemoveAt(m_SelectedBuffIndex);
+                        list.RemoveAt(m_SelectedActorTypeIndex);
                         m_Data.vActorTypes = list.ToArray();
                         m_SelectedActorTypeIndex = -1;
                     }
@@ -593,6 +594,60 @@ namespace Framework.ActorSystem.Editor
             }
             attr.name = EditorGUILayout.DelayedTextField("Actor名", attr.name);
             attr.desc = EditorGUILayout.TextField("描述", attr.desc);
+
+
+            if (attr.subTypes == null) attr.subTypes = new List<AttrCoreData.ActorType>();
+            if (attr.subTypes!=null)
+            {
+                float width = (position.width - position.width * 0.4f-30)/2;
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("子类型：");
+                if (GUILayout.Button("新增子类"))
+                {
+                    // 自动分配一个未使用的属性类型
+                    bool bExist = true;
+                    byte newType = 0;
+                    while (bExist)
+                    {
+                        bExist = false;
+                        for (int i = 0; i < attr.subTypes.Count; i++)
+                        {
+                            if (attr.subTypes[i].type == newType)
+                            {
+                                bExist = true;
+                                newType++;
+                                break;
+                            }
+                        }
+                    }
+                    var subType = new AttrCoreData.ActorType() { type = newType, name = "新子类型", desc = "" };
+                    attr.subTypes.Add(subType);
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("子类型", GUILayout.Width(width));
+                GUILayout.Label("名称", GUILayout.Width(width));
+                GUILayout.Label("", GUILayout.Width(width));
+                EditorGUILayout.EndHorizontal();
+                for (int i=0;i<attr.subTypes.Count;++i)
+                {
+                    var subType = attr.subTypes[i];
+                    EditorGUILayout.BeginHorizontal();
+                    subType.type = (byte)EditorGUILayout.IntField("类型", subType.type, GUILayout.Width(width));
+                    subType.name = EditorGUILayout.DelayedTextField("子类名", subType.name, GUILayout.Width(width));
+                    if (GUILayout.Button("-", GUILayout.Width(30)))
+                    {
+                        if (EditorUtility.DisplayDialog("确认删除", "确定要删除该子类型吗？", "删除", "取消"))
+                        {
+                            attr.subTypes.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+
             m_Data.vActorTypes[m_SelectedActorTypeIndex] = attr;
         }
         //-----------------------------------------------------

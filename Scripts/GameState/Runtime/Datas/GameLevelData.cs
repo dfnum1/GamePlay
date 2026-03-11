@@ -266,8 +266,8 @@ namespace Framework.State.Runtime
 
         public System.Collections.Generic.List<int> useATs;
 
-        [System.NonSerialized]
-        AGameCfgData    m_pGameData = null;
+        [System.NonSerialized]AGameCfgData     m_pGameData = null;
+        [System.NonSerialized] string          m_strLoadFile = null;
         //------------------------------------------------
         public T GetGameData<T>(AFramework pFramework, System.Action<T> onCallback = null) where T : AGameCfgData
         {
@@ -276,7 +276,11 @@ namespace Framework.State.Runtime
                 Framework.Base.Logger.Warning("当前状态数据中，没有关联关卡文件数据，不能用此接口创建!!!");
                 return null;
             }
-            if(m_pGameData == null)
+            if (m_pGameData!=null && linkFile.CompareTo(m_strLoadFile) == 0)
+                return m_pGameData as T;
+
+            m_strLoadFile = linkFile;
+            if (m_pGameData == null)
             {
                 m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework,dataType);
                 if (m_pGameData != null && !string.IsNullOrEmpty(linkFile))
@@ -289,14 +293,18 @@ namespace Framework.State.Runtime
             return m_pGameData as T;
         }
         //------------------------------------------------
-        public T GetGameData<T>(AFramework pFramework, string dataFile, System.Action<T> onCallback = null) where T : AGameCfgData
+        public T GetGameData<T>(AFramework pFramework, string dataFile, System.Action<T> onCallback = null, bool bAsync = false) where T : AGameCfgData
         {
             if (m_pGameData == null)
             {
                 m_pGameData = GameWorldHandler.Malloc<AGameCfgData>(pFramework, dataType);
-                if (m_pGameData != null && !string.IsNullOrEmpty(dataFile))
+            }
+            if (m_pGameData != null && !string.IsNullOrEmpty(dataFile))
+            {
+                if(dataFile.CompareTo(m_strLoadFile) !=0)
                 {
-                    var pOp = pFramework.GetFileSystem().LoadAsset(dataFile, OnLoadLevelData);
+                    m_strLoadFile = dataFile;
+                    var pOp = pFramework.GetFileSystem().LoadAsset(dataFile, OnLoadLevelData, bAsync);
                     if (onCallback != null)
                         pOp.SetUserData(0, new Callback1Var() { callback = onCallback });
                 }

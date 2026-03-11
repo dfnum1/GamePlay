@@ -63,6 +63,8 @@ namespace Framework.ActorSystem.Runtime
         private ESpatialIndexType                   m_eSpatialIndexType = ESpatialIndexType.Octree;
         private bool                                m_isSpatialIndexEnabled = true;
         FBounds                                     m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
+
+        private Transform                           m_pActorRoot = null;        
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -261,7 +263,11 @@ namespace Framework.ActorSystem.Runtime
                 if(!string.IsNullOrEmpty(modelFile))
                 {
                     var op = GetFileSystem().SpawnInstance(modelFile, OnSpawnInstance, bAsync);
-                    if(op!=null) op.SetUserData(0, pActor);
+                    if (op != null)
+                    {
+                        op.SetByParent(GetActorSystemRoot());
+                        op.SetUserData(0, pActor);
+                    }
                 }
             }
 
@@ -279,7 +285,7 @@ namespace Framework.ActorSystem.Runtime
                 return;
             }
             var able = instOp.GetInstanceAble();
-            if(able!=null) pActor.SetObjectAble(instOp.GetObject());
+            if(able!=null) pActor.SetObjectAble(able);
             else pActor.SetObjectAble(instOp.GetObject());
         }
         //-----------------------------------------------------
@@ -629,6 +635,24 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
+        public Transform GetActorSystemRoot()
+        {
+            var startUp = GetFramework().gameStartup;
+            if (startUp == null || startUp.IsEditor())
+                return null;
+
+            if (startUp.GetTransform() == null)
+                return null;
+            if(m_pActorRoot == null)
+            {
+                var actorSystem = new GameObject("ActorSystem");
+                BaseUtil.ResetGameObject(actorSystem);
+                m_pActorRoot = actorSystem.transform;
+                m_pActorRoot.SetParent(startUp.GetTransform());
+            }
+            return m_pActorRoot;
+        }
+        //-----------------------------------------------------
         public void DrawDebug(bool bGizmos)
         {
             if (m_isSpatialIndexEnabled && m_pSpatialIndex != null)
@@ -684,6 +708,11 @@ namespace Framework.ActorSystem.Runtime
             }
             
             ActorSystemUtil.Unregister(this);
+            if (m_pActorRoot)
+            {
+                BaseUtil.Desytroy(m_pActorRoot);
+                m_pActorRoot = null;
+            }
         }
         //-----------------------------------------------------        
         public void UpdateActorSpatialIndex(Actor actor)

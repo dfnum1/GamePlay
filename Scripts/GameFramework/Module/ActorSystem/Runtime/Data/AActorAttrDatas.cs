@@ -112,6 +112,8 @@ namespace Framework.ActorSystem.Runtime
             public byte type;
             public string name;
             public string desc;
+
+            public List<ActorType> subTypes;
         }
     }
     //-----------------------------------------------------

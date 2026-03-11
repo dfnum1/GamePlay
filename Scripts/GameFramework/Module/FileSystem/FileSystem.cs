@@ -135,7 +135,7 @@ namespace Framework.Core
             return handler;
         }
         //--------------------------------------------------------
-        public AOperatorHandle SpawnInstance(string strFile, System.Action<InstanceOperator, bool> callback = null, bool bAsync = false)
+        public InstanceOperator SpawnInstance(string strFile, System.Action<InstanceOperator, bool> callback = null, bool bAsync = false)
         {
             if (string.IsNullOrEmpty(strFile)) return null;
             InstanceOperator handler = OperatorHandlerUtil.Malloc<InstanceOperator>(GetFramework());

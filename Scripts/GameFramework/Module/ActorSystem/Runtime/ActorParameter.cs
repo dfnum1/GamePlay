@@ -34,6 +34,7 @@ namespace Framework.ActorSystem.Runtime
         private List<IActorAttrDirtyCallback>   m_vCallbacks = null;
 
         protected byte                          m_nActorType = 0;
+        protected byte                          m_nActorSubType = 0;
         protected byte                          m_nAttackGroup = 0;
         protected uint                          m_nGUID = 0;
         protected uint                          m_nLevel = 1;
@@ -70,6 +71,16 @@ namespace Framework.ActorSystem.Runtime
         public byte GetActorType()
         {
             return m_nActorType;
+        }
+        //--------------------------------------------------------
+        public void SetActorSubType(byte type)
+        {
+            m_nActorSubType = type;
+        }
+        //--------------------------------------------------------
+        public byte GetActorSubType()
+        {
+            return m_nActorSubType;
         }
         //--------------------------------------------------------
         public void SetActor(Actor pActor)
@@ -388,6 +399,7 @@ namespace Framework.ActorSystem.Runtime
             m_nGUID = 0;
             m_nActorType = 0;
             m_nAttackGroup = 0;
+            m_nActorSubType = 0;
             if (m_vUserDatas != null) m_vUserDatas.Clear();
             if (m_vCallbacks != null) m_vCallbacks.Clear();
         }
