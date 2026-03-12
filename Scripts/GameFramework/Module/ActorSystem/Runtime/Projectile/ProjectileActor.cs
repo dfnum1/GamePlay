@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Framework.Base;
+using Framework.Core;
 
 namespace Framework.ActorSystem.Runtime
 {
@@ -87,6 +88,8 @@ namespace Framework.ActorSystem.Runtime
         private Vector3 m_FinalDropPosition = Vector3.zero;
 
         private uint m_nLaunchFlag = 0;
+
+        private InstanceAble m_pWarningEffect = null;
 
         private List<Actor> m_vHoldRoles = null;
         private Dictionary<int, int> m_on_hit_actors = new Dictionary<int, int>(2);
@@ -324,6 +327,28 @@ namespace Framework.ActorSystem.Runtime
             return GetDamageID();
         }
         //------------------------------------------------------
+        internal void OnSpawnInstance(InstanceOperator op, bool check)
+        {
+            if (check)
+            {
+                op.SetUsed(!IsDestroy());
+                return;
+            }
+            SetObjectAble(op.GetInstanceAble());
+        }
+        //------------------------------------------------------
+        internal void OnSpawnWaringInstance(InstanceOperator op, bool check)
+        {
+            if (check)
+            {
+                op.SetUsed(!IsDestroy() && m_HasDropPoint);
+                return;
+            }
+            m_pWarningEffect = op.GetInstanceAble();
+            if (m_pWarningEffect)
+                m_pWarningEffect.SetPosition(m_FinalDropPosition);
+        }
+        //------------------------------------------------------
         protected override void OnFlagDirty(EActorFlag flag, bool bSet)
         {
             if (flag == EActorFlag.Killed || flag == EActorFlag.Destroy)
@@ -340,6 +365,8 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_vHoldRoles != null) m_vHoldRoles.Clear();
             m_fRemainLifeTime = 0;
+            if (m_pWarningEffect) m_pWarningEffect.Destroy();
+            m_pWarningEffect = null;
         }
         //------------------------------------------------------
         public bool IsLaunchFlaged(ELaunchFlag flag)
@@ -675,6 +702,18 @@ namespace Framework.ActorSystem.Runtime
                 m_fRemainLifeTime = 0;
                 m_nRemainHitCount = 0;
                 return;
+            }
+            if(m_pWarningEffect)
+            {
+                if(m_fWaringDuration>0)
+                {
+                    m_fWaringDuration -= fFrameTime;
+                    if(m_fWaringDuration<=0)
+                    {
+                        m_pWarningEffect.Destroy();
+                        m_pWarningEffect = null;
+                    }
+                }
             }
 
             FFloat frameSpeed = 1.0f;

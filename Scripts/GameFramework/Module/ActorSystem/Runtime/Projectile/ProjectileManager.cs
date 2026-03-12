@@ -11,12 +11,8 @@ using FFloat = System.Single;
 using FVector3 = UnityEngine.Vector3;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
 #endif
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Framework.ActorSystem.Runtime;
-using Framework.AT.Runtime;
-using static UnityEngine.GraphicsBuffer;
 using Framework.Base;
 using Framework.Core;
 #if USE_SERVER
@@ -578,28 +574,13 @@ namespace Framework.ActorSystem.Runtime
             if (!string.IsNullOrEmpty(projectileData.waring_effect))
             {
                 pProjectile.TestFinalDropPos(Time.deltaTime);
-             //   m_pActorManager.SpawnInstance(projectileData.waring_effect, (ins) =>
-             //   {
-//
-              //  });
+                var op = GetFileSystem().SpawnInstance(projectileData.waring_effect, pProjectile.OnSpawnWaringInstance, true);
             }
             if (!string.IsNullOrEmpty(projectileData.effect))
             {
-                var op = GetFileSystem().SpawnInstance(projectileData.effect, OnSpawnInstance, true);
-                op.SetUserData(0, pProjectile);
+                var op = GetFileSystem().SpawnInstance(projectileData.effect, pProjectile.OnSpawnInstance, true);
             }
 #endif
-        }
-        //------------------------------------------------------
-        void OnSpawnInstance(InstanceOperator op, bool check)
-        {
-            ProjectileActor pProjectile = op.GetUserData<ProjectileActor>(0);
-            if(check)
-            {
-                op.SetUsed(!pProjectile.IsDestroy());
-                return;
-            }
-            pProjectile.SetObjectAble(op.GetInstanceAble());
         }
         //------------------------------------------------------
         public uint BoundLaunchProjectile(ProjectileActor projectile, Actor pTarget, Actor pHitActor, int boundCnt, byte boundAttackGroup=0xff, bool bImmdeate = true)
