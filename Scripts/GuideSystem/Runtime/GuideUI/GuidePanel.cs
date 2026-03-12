@@ -718,28 +718,25 @@ namespace Framework.Guide
                                 }
                             }
 
-                            if (!bInView)
+                            //! 如果控件不在屏幕内,并且强制引导,则检测失败处理
+                            if (!bInView && !GuideSystem.getInstance().bNoForceDoing)
                             {
-                                //! 如果控件不在屏幕内,并且强制引导,则检测失败处理
-                                if (!GuideSystem.getInstance().bNoForceDoing)
+                                GuideSystem.getInstance().SignCheckFialGo();
+                            }
+                            else if (GuideSystem.getInstance().bNoForceDoing)
+                            {
+                                //! 防止控件动效，需给个时间，如果监听超过时间，则进行检测
+                                //! 如果为非强制引导,并且当前引导控件不可见,则结束引导
+                                if (m_fListenedWidgetTime >= LISTEN_WIDGET_OPTION_OVER_TIME && !GuideSystem.getInstance().SignCheckFialGo())
                                 {
-                                    GuideSystem.getInstance().SignCheckFialGo();
-                                }
-                                else
-                                {
-                                    //! 防止控件动效，需给个时间，如果监听超过时间，则进行检测
-                                    //! 如果为非强制引导,并且当前引导控件不可见,则结束引导
-                                    if (m_fListenedWidgetTime>= LISTEN_WIDGET_OPTION_OVER_TIME && !GuideSystem.getInstance().SignCheckFialGo())
-                                    {
-                                        GuideSystem.getInstance().OverGuide(false);
+                                    GuideSystem.getInstance().OverGuide(false);
 
-                                        if (m_bResetFingerActive)
-                                        {
-                                            ResetFinger();
-                                            m_bResetFingerActive = false;
-                                        }
-                                        return;
+                                    if (m_bResetFingerActive)
+                                    {
+                                        ResetFinger();
+                                        m_bResetFingerActive = false;
                                     }
+                                    return;
                                 }
                             }
                         }
