@@ -34,6 +34,7 @@ namespace Framework.Cutscene.Runtime
         eProjecitle = 20, //弹道剪辑
         eTween = 21,
         ePostProcess = 22,
+        eUnityTimeline = 23,
 
         eCutsomBegin = 1000,
 	}
