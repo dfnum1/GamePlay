@@ -426,6 +426,10 @@ namespace Framework.State.Editor
                             }
                         }, new MenuContextData(bindData, Event.current.mousePosition));
                     }
+                    if(bindData is GameLevelData)
+                    {
+                        GetLevelCfgEditor()?.OnAssetMenu(menu);
+                    }
                 }
             }
             else if(m_eTab == ETab.AgentLibrary)

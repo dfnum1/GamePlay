@@ -15,6 +15,8 @@ namespace Framework.AT.Editor
 {
     public class EditorPreferences
     {
+        public const string PreferenceKey = "Preferences/GamePlay/蓝图偏好设置";
+
         /// <summary> The last key we checked. This should be the one we modify </summary>
         private static string lastKey => GetProjectKeyPrefix() + "Settings";
         private static string GetProjectKeyPrefix()
@@ -150,7 +152,7 @@ namespace Framework.AT.Editor
 //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/蓝图偏好设置", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider(PreferenceKey, SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;
@@ -166,6 +168,14 @@ namespace Framework.AT.Editor
             Settings settings = EditorPreferences.settings[lastKey];
             SystemSettingsGUI(lastKey, settings);
             TypeColorsGUI(lastKey, settings);
+
+            bool bDirty = false;
+            var editorSetting = settings as EditorPreferenceSetting;
+            if (editorSetting != null) bDirty = editorSetting.DrawCustom(PreferenceKey);
+            if (bDirty)
+            {
+                SavePrefs(lastKey, settings);
+            }
             if (GUILayout.Button(new GUIContent("Set Default", "Reset all values to default"), GUILayout.Width(120)))
             {
                 ResetPrefs();

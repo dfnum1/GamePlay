@@ -17,7 +17,7 @@ using UnityEngine;
 namespace Framework.ED
 {
     [System.Serializable]
-    internal class CustomPreference
+    internal class CustomPreferenceData
     {
         public string typeName;
         public string header;
@@ -27,7 +27,7 @@ namespace Framework.ED
     [System.Serializable]
     public class EditorPreferenceSetting : ISerializationCallbackReceiver
     {
-        [SerializeField] internal List<CustomPreference> customPreferences = new List<CustomPreference>();
+        [SerializeField] internal List<CustomPreferenceData> customPreferences = new List<CustomPreferenceData>();
 
         public T GetCustom<T>()
         {
@@ -44,6 +44,11 @@ namespace Framework.ED
             }
             return default;
         }
+
+        public bool DrawCustom(string key)
+        {
+            return EditorUtils.DrawCustomPreference(key, customPreferences);
+        }
         public virtual void OnAfterDeserialize()
         {
         }
@@ -55,6 +60,8 @@ namespace Framework.ED
 
     public class EditorFrameworkPreferences
     {
+        public const string PreferenceKey = "Preferences/GamePlay";
+
         /// <summary> The last key we checked. This should be the one we modify </summary>
         private static string lastKey => GetProjectKeyPrefix() + "Settings";
         private static string GetProjectKeyPrefix()
@@ -86,7 +93,7 @@ namespace Framework.ED
 //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider(PreferenceKey, SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;
@@ -102,9 +109,10 @@ namespace Framework.ED
             Settings settings = EditorFrameworkPreferences.settings[lastKey];
             SystemSettingsGUI(lastKey, settings);
 
-
-            bool bDirty = EditorUtils.DrawCustomPreference("Preferences/GamePlay", settings.customPreferences);
-            if(bDirty)
+            bool bDirty = false;
+            var editorSetting = settings as EditorPreferenceSetting;
+            if (editorSetting != null) bDirty = editorSetting.DrawCustom(PreferenceKey);
+            if (bDirty)
             {
                 SavePrefs(lastKey, settings);
             }
@@ -116,7 +124,7 @@ namespace Framework.ED
 
         public static void OpenUserPreferences()
         {
-            SettingsService.OpenUserPreferences("Preferences/GamePlay");
+            SettingsService.OpenUserPreferences(PreferenceKey);
         }
 
         /// <summary> Load prefs if they exist. Create if they don't </summary>

@@ -15,6 +15,7 @@ namespace Framework.Guide.Editor
 {
     public class GuidePreferences
     {
+        public const string PreferenceKey = "Preferences/GamePlay/引导偏好设置";
         public enum NoodleType { Curve, Line, Angled, Count }
 
         /// <summary> The last key we checked. This should be the one we modify </summary>
@@ -136,13 +137,13 @@ namespace Framework.Guide.Editor
 
         public static void OpenUserPreferences()
         {
-            SettingsService.OpenUserPreferences("Preferences/GamePlay/引导偏好设置");
+            SettingsService.OpenUserPreferences(PreferenceKey);
         }
 
 #if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateNodeSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/引导偏好设置", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider(PreferenceKey, SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
                 keywords = new HashSet<string>(new [] { "enter", "node", "editor", "graph", "connections", "noodles", "ports" })
             };
@@ -167,6 +168,15 @@ namespace Framework.Guide.Editor
             GridSettingsGUI(lastKey, settings);
             SystemSettingsGUI(lastKey, settings);
             TypeColorsGUI(lastKey, settings);
+
+            bool bDirty = false;
+            var editorSetting = settings as EditorPreferenceSetting;
+            if (editorSetting != null) bDirty = editorSetting.DrawCustom(PreferenceKey);
+            if (bDirty)
+            {
+                SavePrefs(lastKey, settings);
+            }
+
             if (GUILayout.Button(new GUIContent("Set Default", "Reset all values to default"), GUILayout.Width(120)))
             {
                 ResetPrefs();

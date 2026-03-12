@@ -372,6 +372,12 @@ namespace Framework.Core
         //------------------------------------------------------
         protected override void DoCallback()
         {
+            if(m_pByParent)
+            {
+                var pObj = GetObject<GameObject>();
+                if (pObj) pObj.transform.SetParent(m_pByParent);
+            }
+
             if (m_OnCallback != null)
             {
                 for (int i = 0; i < m_OnCallback.Count; i++)

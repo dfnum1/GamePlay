@@ -12,20 +12,6 @@ namespace Framework.State.Runtime
 {
     //------------------------------------------------------------
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-    public class StateCustomEditorAttribute : System.Attribute
-    {
-#if UNITY_EDITOR
-        public System.Type type;
-#endif
-        public StateCustomEditorAttribute(System.Type type)
-        {
-#if UNITY_EDITOR
-            this.type = type;
-#endif
-        }
-    }
-    //------------------------------------------------------------
-    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
     public class DecNameAttribute : System.Attribute
     {
 #if UNITY_EDITOR

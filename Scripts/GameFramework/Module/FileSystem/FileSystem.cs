@@ -106,6 +106,30 @@ namespace Framework.Core
             return handler;
         }
         //--------------------------------------------------------
+        public UnityEngine.Object ImmediatelyLoadAsset(string strFile)
+        {
+            if (string.IsNullOrEmpty(strFile)) return null;
+            AssetOperator handler = OperatorHandlerUtil.Malloc<AssetOperator>(GetFramework());
+#if UNITY_EDITOR
+            handler.SetRawAssetPath(BuildAssetFilePath(strFile));
+#endif
+            handler.SetAssetPath(strFile);
+            handler.SetUsed(true);
+            handler.SetAsync(false);
+            handler.DoCallback(true);
+            if (!handler.IsUsed())
+            {
+                handler.Free();
+                return null;
+            }
+            var enumerator = m_pFramework.OnLoadAsset(handler);
+            while (enumerator.MoveNext()) { }
+            var pObj = handler.GetObject();
+            handler.DoCallback(false);
+            handler.Free();
+            return pObj;
+        }
+        //--------------------------------------------------------
         public AssetOperator LoadAssetAsync(string strFile, System.Action<AssetOperator, bool> callback = null)
         {
             if (string.IsNullOrEmpty(strFile)) return null;

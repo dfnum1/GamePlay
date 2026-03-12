@@ -74,15 +74,17 @@ namespace Framework.State.Editor
             return settings[lastKey];
         }
 
+        public const string PreferenceKey = "Preferences/GamePlay/游戏偏好设置";
+
         public static void OpenUserPreferences()
         {
-            SettingsService.OpenUserPreferences("Preferences/GamePlay/游戏偏好设置");
+            SettingsService.OpenUserPreferences(PreferenceKey);
         }
 
         //#if UNITY_2019_1_OR_NEWER
         [SettingsProvider]
         public static SettingsProvider CreateActorSystemSettingsProvider() {
-            SettingsProvider provider = new SettingsProvider("Preferences/GamePlay/游戏偏好设置", SettingsScope.User) {
+            SettingsProvider provider = new SettingsProvider(PreferenceKey, SettingsScope.User) {
                 guiHandler = (searchContext) => { PreferencesGUI(); },
             };
             return provider;
@@ -98,6 +100,13 @@ namespace Framework.State.Editor
             Settings settings = EditorPreferences.settings[lastKey];
             SystemSettingsGUI(lastKey, settings);
             TypeColorsGUI(lastKey, settings);
+            bool bDirty = false;
+            var editorSetting = settings as EditorPreferenceSetting;
+            if (editorSetting != null) bDirty = editorSetting.DrawCustom(PreferenceKey);
+            if (bDirty)
+            {
+                SavePrefs(lastKey, settings);
+            }
             if (GUILayout.Button(new GUIContent("Set Default", "Reset all values to default"), GUILayout.Width(120)))
             {
                 ResetPrefs();

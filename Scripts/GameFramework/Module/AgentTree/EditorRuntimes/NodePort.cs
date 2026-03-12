@@ -31,6 +31,8 @@ namespace Framework.AT.Editor
 
         public EVariableType eEnumType = EVariableType.eInt;
 
+        public System.Action<IVariable> onValueChange = null;
+
         public bool isInput;
         public int slotIndex;// Slot index in the node, used for serialization and deserialization
         public NodePort nodePort;
@@ -132,6 +134,28 @@ namespace Framework.AT.Editor
                 }
                 if (vLinkPorts.Count > 0) nodePort.dummyPorts = vLinkPorts.ToArray();
             }
+        }
+
+        public ArvgPort GetByArgvPort()
+        {
+            string byPortName = null;
+            if(curDummyAttri!=null)
+            {
+                byPortName = curDummyAttri.byPortArgv;
+            }
+            if(attri!=null && string.IsNullOrEmpty(byPortName))
+                byPortName = attri.byPortArgv;
+            if (string.IsNullOrEmpty(byPortName))
+                return null;
+            if (grapNode == null) return null;
+            var argvs = grapNode.GetArvgs();
+            if (argvs == null) return null;
+            for(int i =0; i < argvs.Count; ++i)
+            {
+                if (byPortName.CompareTo(argvs[i].attri.name) == 0)
+                    return argvs[i];
+            }
+            return null;
         }
     }
     /*

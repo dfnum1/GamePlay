@@ -96,6 +96,7 @@ namespace Framework.State.Runtime
             if (IsAPIStatus(EAPICallStatus.PreStart))
                 return;
             EnableAPIStatus(EAPICallStatus.PreStart, true);
+            OnPreStart();
             if (m_vLogics != null)
             {
                 foreach (var db in m_vLogics)
@@ -103,7 +104,6 @@ namespace Framework.State.Runtime
                     db.PreStart();
                 }
             }
-            OnPreStart();
         }
         //----------------------------------------------------------------
         internal void Start()
@@ -111,6 +111,7 @@ namespace Framework.State.Runtime
             if (IsAPIStatus(EAPICallStatus.Start))
                 return;
             EnableAPIStatus(EAPICallStatus.Start, true);
+            OnStart();
             if (m_vLogics != null)
             {
                 foreach (var db in m_vLogics)
@@ -118,7 +119,6 @@ namespace Framework.State.Runtime
                     db.Start();
                 }
             }
-            OnStart();
         }
         //----------------------------------------------------------------
         internal void Active(bool bActive)
@@ -126,6 +126,7 @@ namespace Framework.State.Runtime
             if (IsAPIStatus(EAPICallStatus.Active) == bActive)
                 return;
             EnableAPIStatus(EAPICallStatus.Active, bActive);
+            OnActive(bActive);
             if (m_vLogics != null)
             {
                 foreach (var db in m_vLogics)
@@ -133,7 +134,6 @@ namespace Framework.State.Runtime
                     db.Active(bActive);
                 }
             }
-            OnActive(bActive);
         }
         //----------------------------------------------------------------
         internal void SetState(AState pState)
@@ -173,6 +173,7 @@ namespace Framework.State.Runtime
         {
             if (m_pState == null || !IsAPIStatus(EAPICallStatus.CanUpdateFlag))
                 return;
+            OnUpdate(fFrameTime);
             if (m_vLogics != null)
             {
                 foreach (var db in m_vLogics)
@@ -180,7 +181,6 @@ namespace Framework.State.Runtime
                     db.Update(fFrameTime);
                 }
             }
-            OnUpdate(fFrameTime);
         }
         //----------------------------------------------------------------
         new internal void Destroy()
@@ -190,7 +190,6 @@ namespace Framework.State.Runtime
 
             EnableAPIStatus(EAPICallStatus.Destroy, true);
 
-            OnDestroy();
             if (m_vLogics != null)
             {
                 foreach (var db in m_vLogics)
@@ -199,6 +198,7 @@ namespace Framework.State.Runtime
                 }
                 m_vLogics.Clear();
             }
+            OnDestroy();
             m_pState = null;
         }
         //----------------------------------------------------------------

@@ -23,6 +23,7 @@ namespace Framework.ActorSystem.Editor
     [ATDrawer("BuffStateDraw", "OnBuffStateDraw")]
     [ATDrawer("AttackGroupDraw", "OnAttackGroupDraw")]
     [ATDrawer("ActorTypeDraw", "OnActorTypeDraw")]
+    [ATDrawer("ActorSubTypeDraw", "OnActorSubTypeDraw")]
     public class AttriCustomDrawer
     {
         static List<byte> ms_vAttris = null;
@@ -39,6 +40,8 @@ namespace Framework.ActorSystem.Editor
 
         static List<byte> ms_vActorTypeTypes = null;
         static List<string> ms_vActorTypePops = null;
+        static Dictionary<byte, List<byte>> ms_vActorSubTypeTypes = null;
+        static Dictionary<byte, List<string>> ms_vActorSubTypePops = null;
 
         internal static void Init(bool bForce = false)
         {
@@ -58,7 +61,8 @@ namespace Framework.ActorSystem.Editor
 
             ms_vActorTypePops = new List<string>();
             ms_vActorTypeTypes = new List<byte>();
-
+            ms_vActorSubTypeTypes = new Dictionary<byte, List<byte>>();
+            ms_vActorSubTypePops = new Dictionary<byte, List<string>>();
 
             AActorAttrDatas pData = null;
             string[] guidDatas = AssetDatabase.FindAssets("t:AActorAttrDatas");
@@ -110,6 +114,19 @@ namespace Framework.ActorSystem.Editor
                         var pAttri = pData.vActorTypes[i];
                         ms_vActorTypeTypes.Add(pAttri.type);
                         ms_vActorTypePops.Add(pAttri.name);
+
+                        if(pAttri.subTypes!=null)
+                        {
+                            List<string> names = new List<string>();
+                            List<byte> types = new List<byte>();
+                            foreach (var db in pAttri.subTypes)
+                            {
+                                names.Add(db.name);
+                                types.Add(db.type);
+                            }
+                            ms_vActorSubTypePops[pAttri.type] = names;
+                            ms_vActorSubTypeTypes[pAttri.type] = types;
+                        }
                     }
                 }
             }
@@ -248,6 +265,98 @@ namespace Framework.ActorSystem.Editor
                 if (idx >= 0)
                 {
                     intVar.value = ms_vActorTypeTypes[idx];
+                    onValueChanged?.Invoke(intVar);
+                }
+            });
+
+            return popup;
+        }
+        //----------------------------------------
+        internal static VisualElement OnActorSubTypeDraw(ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            if (portValue == null || portValue.GetVariableType() != EVariableType.eInt)
+                return null;
+            Init();
+            bool canEdit = port.attri.canEdit;
+
+            List<string> vSubTypeNames = null;
+            List<byte> vSubTypes = null;
+            var byPort = port.GetByArgvPort();
+            if(byPort!=null)
+            {
+                var portVar = byPort.GetVariable();
+                if(portVar!=null && portVar.GetVariableType() == EVariableType.eInt)
+                {
+                    var portVal = (AT.Runtime.VariableInt)portVar;
+                    ms_vActorSubTypePops.TryGetValue((byte)portVal.value, out vSubTypeNames);
+                    ms_vActorSubTypeTypes.TryGetValue((byte)portVal.value, out vSubTypes);
+                }
+                byPort.onValueChange += (newVal) =>
+                {
+                    if (newVal != null && newVal.GetVariableType() == EVariableType.eInt)
+                    {
+                        var portVal = (AT.Runtime.VariableInt)newVal;
+                        ms_vActorSubTypePops.TryGetValue((byte)portVal.value, out vSubTypeNames);
+                        ms_vActorSubTypeTypes.TryGetValue((byte)portVal.value, out vSubTypes);
+
+                        if (port.fieldElement != null)
+                        {
+                            port.fieldRoot.Remove(port.fieldElement);
+                        }
+                        var portValue = port.GetVariable();
+                        var intVar = (AT.Runtime.VariableInt)portValue;
+                        int curIndex = vSubTypes.IndexOf((byte)intVar.value);
+                        if (curIndex < 0) curIndex = 0;
+
+                        var popup = new PopupField<string>(vSubTypeNames, curIndex)
+                        {
+                            style =
+                            {
+                                width = width,
+                                marginLeft = 4,
+                                unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                            }
+                        };
+                        popup.SetEnabled(canEdit);
+
+                        popup.RegisterValueChangedCallback(evt =>
+                        {
+                            int idx = vSubTypeNames.IndexOf(evt.newValue);
+                            if (idx >= 0)
+                            {
+                                intVar.value = vSubTypes[idx];
+                                onValueChanged?.Invoke(intVar);
+                            }
+                        });
+                        port.fieldRoot.Add(popup);
+                        port.fieldElement = popup;
+                    }
+                };
+            }
+            if (vSubTypeNames == null || vSubTypes == null)
+                return null;
+
+            var intVar = (AT.Runtime.VariableInt)portValue;
+            int curIndex = vSubTypes.IndexOf((byte)intVar.value);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(vSubTypeNames, curIndex)
+            {
+                style =
+                {
+                    width = width,
+                    marginLeft = 4,
+                    unityTextAlign = UnityEngine.TextAnchor.MiddleRight
+                }
+            };
+            popup.SetEnabled(canEdit);
+
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = vSubTypeNames.IndexOf(evt.newValue);
+                if (idx >= 0)
+                {
+                    intVar.value = vSubTypes[idx];
                     onValueChanged?.Invoke(intVar);
                 }
             });

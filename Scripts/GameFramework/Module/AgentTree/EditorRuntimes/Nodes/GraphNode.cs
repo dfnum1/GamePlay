@@ -643,6 +643,7 @@ namespace Framework.AT.Editor
         {
             if (port == null || port.bindPort == null)
                 return;
+            port.onValueChange?.Invoke(port.GetVariable());
         }
         //------------------------------------------------------
         protected void ClearPortVarEle(ArvgPort port)
@@ -1086,7 +1087,8 @@ namespace Framework.AT.Editor
                     if (CanChangeValue(port))
                     {
                         OnArgvPortChanging(port);
-                        m_pGraphView.UpdateVariable(portVariable);
+                        port.nodePort.pVariable = retObj;
+                        m_pGraphView.UpdateVariable(retObj);
                         OnArgvPortChanged(port);
                     }
                 },120);
@@ -1109,8 +1111,8 @@ namespace Framework.AT.Editor
                         {
                             OnArgvPortChanging(port);
                             intVar.value = v;
-                            OnArgvPortChanged(port);
                             m_pGraphView.UpdateVariable(intVar);
+                            OnArgvPortChanged(port);
                         }
                     },
                      port.attri.canEdit
@@ -1297,8 +1299,8 @@ namespace Framework.AT.Editor
                     {
                         OnArgvPortChanging(port);
                         rayVar.value.origin = evt.newValue;
-                        OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(rayVar);
+                        OnArgvPortChanged(port);
                     }
                 });
                 dirField.RegisterValueChangedCallback(evt =>
@@ -1307,8 +1309,8 @@ namespace Framework.AT.Editor
                     {
                         OnArgvPortChanging(port);
                         rayVar.value.direction = evt.newValue;
-                        OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(rayVar);
+                        OnArgvPortChanged(port);
                     }
                 });
                 container.Add(originField);
@@ -1353,8 +1355,8 @@ namespace Framework.AT.Editor
                     {
                         OnArgvPortChanging(port);
                         boundsVar.value.center = evt.newValue;
-                        OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(boundsVar);
+                        OnArgvPortChanged(port);
                     }
                 });
                 sizeField.RegisterValueChangedCallback(evt =>
@@ -1363,8 +1365,8 @@ namespace Framework.AT.Editor
                     {
                         OnArgvPortChanging(port);
                         boundsVar.value.size = evt.newValue;
-                        OnArgvPortChanged(port);
                         m_pGraphView.UpdateVariable(boundsVar);
+                        OnArgvPortChanged(port);
                     }
                 });
                 container.Add(centerField);
@@ -1422,8 +1424,8 @@ namespace Framework.AT.Editor
                             Matrix4x4 mat = matrixVar.value;
                             SetRow(ref mat, rowIdx, evt.newValue);
                             matrixVar.value = mat;
-                            OnArgvPortChanged(port);
                             m_pGraphView.UpdateVariable(matrixVar);
+                            OnArgvPortChanged(port);
                         }
                     });
                     container.Add(fields[i]);
@@ -1453,8 +1455,8 @@ namespace Framework.AT.Editor
                         {
                             OnArgvPortChanging(port);
                             userVar.value = ATRtti.GetClassTypeId(v);
-                            OnArgvPortChanged(port);
                             m_pGraphView.UpdateVariable(userVar);
+                            OnArgvPortChanged(port);
                         }
                     },
                      port.attri.canEdit
@@ -1659,8 +1661,8 @@ namespace Framework.AT.Editor
                     setValue(field, evt.newValue);
                     var valueField = portVariable.GetType().GetField("value", System.Reflection.BindingFlags.Public| System.Reflection.BindingFlags.Instance| System.Reflection.BindingFlags.NonPublic);
                     valueField?.SetValue(portVariable, evt.newValue);
-                    OnArgvPortChanged(port);
                     m_pGraphView.UpdateVariable(portVariable);
+                    OnArgvPortChanged(port);
                 }
             });
 

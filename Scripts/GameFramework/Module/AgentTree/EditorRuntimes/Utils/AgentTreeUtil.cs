@@ -774,7 +774,7 @@ namespace Framework.AT.Editor
             }
         }
         //-----------------------------------------------------
-        public static VisualElement DrawCustomElement(string drawMethod, ArvgPort port, IVariable portValue, Action<object> onValueChanged, int width)
+        public static VisualElement DrawCustomElement(string drawMethod, ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
         {
             Init();
             if (!ms_CustomDrawPorts.TryGetValue(drawMethod, out var func))

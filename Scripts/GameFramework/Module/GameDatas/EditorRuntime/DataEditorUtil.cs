@@ -319,6 +319,7 @@ namespace Framework.Data.ED
                 if (idx >= 0)
                 {
                     intVar.value = ms_TableHashs[idx];
+                    port.onValueChange?.Invoke(intVar);
                     onValueChanged?.Invoke(intVar);
                 }
             });

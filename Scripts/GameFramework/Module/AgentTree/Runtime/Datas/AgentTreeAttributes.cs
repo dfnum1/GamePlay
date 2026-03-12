@@ -172,6 +172,7 @@ namespace Framework.AT.Runtime
         public bool bShowEdit = true;
         public int ListElementByArgvIndex = -1;
         public string drawMethod = null;
+        public string byPortArgv = null;
 
         internal System.Object defaultValue = null;
         internal bool isExternAttrThis = false;
@@ -179,7 +180,7 @@ namespace Framework.AT.Runtime
         internal bool isDelegateCallValid;
         internal System.Collections.Generic.List<ATFunctionArgvAttribute> vDelegateArgvs;
 #endif
-        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName = "", bool bAutoDestroy = false, Type AlignType = null, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName = "", bool bAutoDestroy = false, Type AlignType = null, Type DisplayType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null, string byPortArgv = null)
         {
 #if UNITY_EDITOR
             this.ArgvType = ArgvType;
@@ -196,9 +197,10 @@ namespace Framework.AT.Runtime
             this.isDelegateCall = false;
             this.isDelegateCallValid = false;
             this.drawMethod = drawMethod;
+            this.byPortArgv = byPortArgv;
 #endif
         }
-        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type DisplayType, Type AlignType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null)
+        public ATFunctionArgvAttribute(Type ArgvType, string DisplayName, object DefauleValue, Type DisplayType, Type AlignType = null, string ToolTips = "", bool bReturn = false, int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, string drawMethod = null, string byPortArgv = null)
         {
 #if UNITY_EDITOR
             this.ArgvType = ArgvType;
@@ -215,12 +217,14 @@ namespace Framework.AT.Runtime
             this.isDelegateCall = false;
             this.isDelegateCallValid = false;
             this.drawMethod = drawMethod;
+            this.byPortArgv = byPortArgv;
+             this.defaultValue = DefauleValue;
 #endif
         }
 #if UNITY_EDITOR
         internal ArgvAttribute ToArgv()
         {
-            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue) { methodDrawer = drawMethod };
+            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue) { methodDrawer = drawMethod, byPortArgv = byPortArgv };
         }
 #endif
     }
@@ -240,8 +244,9 @@ namespace Framework.AT.Runtime
         public byte bPropertySet = 0; //0=none, 1-get,2-set,3-getset
         public int ListElementByArgvIndex = -1;
         public string drawMethod = null;
+        public string byPortArgv = null;
 #endif
-        public ATFunctionReturnAttribute(Type ReturnType, Type AlignType = null, string name = "", bool bAutoDestroy = false, string ToolTips = "", int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null)
+        public ATFunctionReturnAttribute(Type ReturnType, Type AlignType = null, string name = "", bool bAutoDestroy = false, string ToolTips = "", int ListElementByArgvIndex = -1, bool bSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null, string byPortArgv = null)
         {
 #if UNITY_EDITOR
             this.ReturnType = ReturnType;
@@ -254,9 +259,10 @@ namespace Framework.AT.Runtime
             this.bShowEdit = bShowEdit;
             this.bPropertySet = bPropertySet;
             this.drawMethod = drawMethod;
+            this.byPortArgv = byPortArgv;
 #endif
         }
-        public ATFunctionReturnAttribute(Type ReturnType, string name, Type AlignType = null, Type DisplayType = null, string ToolTips = "", int ListElementByArgvIndex = -1, bool lbSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null)
+        public ATFunctionReturnAttribute(Type ReturnType, string name, Type AlignType = null, Type DisplayType = null, string ToolTips = "", int ListElementByArgvIndex = -1, bool lbSeriable = true, bool bShowEdit = true, byte bPropertySet = 0, string drawMethod = null, string byPortArgv = null)
         {
 #if UNITY_EDITOR
             this.ReturnType = ReturnType;
@@ -270,12 +276,13 @@ namespace Framework.AT.Runtime
             this.bShowEdit = bShowEdit;
             this.bPropertySet = bPropertySet;
             this.drawMethod = drawMethod;
+            this.byPortArgv = byPortArgv;
 #endif
         }
 #if UNITY_EDITOR
         internal ReturnAttribute ToArgv()
         {
-            return new ReturnAttribute(Name, DisplayType, AlignType);
+            return new ReturnAttribute(Name, DisplayType, AlignType) { drawMethod = drawMethod, byPortArgv = byPortArgv };
         }
 #endif
     }
@@ -309,12 +316,14 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         public string argv;
         public string drawerMethod;
+        public string byPortArgv;
 #endif
-        public ATArgvDrawerAttribute(string argv, string drawLabel)
+        public ATArgvDrawerAttribute(string argv, string drawLabel,string byPortArgv = null)
         {
 #if UNITY_EDITOR
             this.argv = argv;
             this.drawerMethod = drawLabel;
+            this.byPortArgv = byPortArgv;
 #endif
         }
     }
@@ -396,6 +405,7 @@ namespace Framework.AT.Runtime
         public EVariableType[] limitVarTypes;
 
         public string methodDrawer;
+        public string byPortArgv;
 #endif
         //-----------------------------------------------------
         public ArgvAttribute(string name, System.Type argvType, bool canEdit = false, System.Object defValue = null, params EVariableType[] limitTypes)
@@ -408,6 +418,7 @@ namespace Framework.AT.Runtime
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
             this.methodDrawer = null;
+            this.byPortArgv = null;
 #endif
         }
         //-----------------------------------------------------
@@ -422,6 +433,7 @@ namespace Framework.AT.Runtime
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
             this.methodDrawer = null;
+            this.byPortArgv = null;
 #endif
         }
         //-----------------------------------------------------
@@ -435,6 +447,7 @@ namespace Framework.AT.Runtime
             this.canEdit = canEdit;
             this.limitVarTypes = limitTypes;
             this.methodDrawer = null;
+            this.byPortArgv = null;
 #endif
         }
         //-----------------------------------------------------
@@ -521,6 +534,7 @@ namespace Framework.AT.Runtime
         public System.Type argvType;
         public System.Type displayType;
         public string drawMethod;
+        public string byPortArgv;
 #endif
         public ReturnAttribute(string name, System.Type argvType, System.Type displayType = null,string drawMethod = null)
         {
@@ -530,6 +544,7 @@ namespace Framework.AT.Runtime
             this.displayType = displayType;
             this.argvType = argvType;
             this.drawMethod = drawMethod;
+            this.byPortArgv = null;
 #endif
         }
         //-----------------------------------------------------
@@ -541,6 +556,7 @@ namespace Framework.AT.Runtime
             this.argvType = argvType;
             this.displayType = displayType;
             this.drawMethod = drawMethod;
+            this.byPortArgv = null;
 #endif
         }
     }

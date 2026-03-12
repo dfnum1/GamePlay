@@ -628,13 +628,13 @@ namespace Framework.ActorSystem.Editor
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("子类型", GUILayout.Width(width));
                 GUILayout.Label("名称", GUILayout.Width(width));
-                GUILayout.Label("", GUILayout.Width(width));
+                GUILayout.Label("", GUILayout.Width(30));
                 EditorGUILayout.EndHorizontal();
                 for (int i=0;i<attr.subTypes.Count;++i)
                 {
                     var subType = attr.subTypes[i];
                     EditorGUILayout.BeginHorizontal();
-                    var newType = (byte)EditorGUILayout.IntField("类型", subType.type, GUILayout.Width(width));
+                    var newType = (byte)EditorGUILayout.IntField(subType.type, GUILayout.Width(width));
                     if (newType != subType.type)
                     {
                         bool bExist = false;
@@ -656,7 +656,7 @@ namespace Framework.ActorSystem.Editor
                             subType.type = newType;
                         }
                     }
-                    subType.name = EditorGUILayout.DelayedTextField("子类名", subType.name, GUILayout.Width(width));
+                    subType.name = EditorGUILayout.DelayedTextField(subType.name, GUILayout.Width(width));
                     if (GUILayout.Button("-", GUILayout.Width(30)))
                     {
                         if (EditorUtility.DisplayDialog("确认删除", "确定要删除该子类型吗？", "删除", "取消"))

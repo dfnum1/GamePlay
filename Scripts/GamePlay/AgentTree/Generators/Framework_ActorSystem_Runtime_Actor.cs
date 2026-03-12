@@ -67,6 +67,26 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-1271524605,"设置Actor类型",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"subType",false, null,typeof(System.Byte),drawMethod:"ActorSubTypeDraw")]
+#endif
+		static bool AT_SetActorSubType(Actor pPointerThis,System.Byte subType)
+		{
+			pPointerThis.SetActorSubType(subType);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(2049501487,"获得Actor类型",typeof(Framework.ActorSystem.Runtime.Actor),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Byte),drawMethod:"ActorSubTypeDraw")]
+#endif
+		static bool AT_GetActorSubType(Actor pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportByte(pNode, 0, pPointerThis.GetActorSubType());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(49303774,"获取配置数据",typeof(Framework.ActorSystem.Runtime.Actor),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Actor",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableUserData), "pReturn", null,typeof(Framework.ActorSystem.Runtime.IContextData))]
@@ -1001,6 +1021,20 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Actor)) return true;
 				return AT_GetActorType((Framework.ActorSystem.Runtime.Actor)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1271524605://SetActorSubType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Actor)) return true;
+				return AT_SetActorSubType((Framework.ActorSystem.Runtime.Actor)pUserClass.pPointer,pAgentTree.GetInportByte(pNode,1));
+			}
+			case 2049501487://GetActorSubType
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Actor)) return true;
+				return AT_GetActorSubType((Framework.ActorSystem.Runtime.Actor)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case 49303774://GetContextData
 			{

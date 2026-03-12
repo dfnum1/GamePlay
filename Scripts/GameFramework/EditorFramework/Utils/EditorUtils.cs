@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -25,6 +27,7 @@ namespace Framework.ED
         internal struct PreferencteInfo
         {
             public string header;
+            public System.Type type;
             public MethodInfo method;
         }
         const string PACKAGE_NAME = "com.rd1.center.gameplay";
@@ -198,8 +201,8 @@ namespace Framework.ED
             return null;
         }
         //-----------------------------------------------------
-        private static Dictionary<string, CustomPreference> m_vCustomPreferences = new Dictionary<string, CustomPreference>();
-        internal static bool DrawCustomPreference(string key, List<CustomPreference> customPreferneces)
+        private static Dictionary<string, CustomPreferenceData> m_vCustomPreferences = new Dictionary<string, CustomPreferenceData>();
+        internal static bool DrawCustomPreference(string key, List<CustomPreferenceData> customPreferneces)
         {
             if (key == null) return false;
             if (ms_vPreferencesGUI == null)
@@ -232,7 +235,6 @@ namespace Framework.ED
                         {
                             CustomPreferenceAttribute attr = (CustomPreferenceAttribute)tp.GetCustomAttribute(typeof(CustomPreferenceAttribute));
                             var method = tp.GetMethod(attr.method, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                            if (method == null) continue;
                             if (string.IsNullOrEmpty(attr.header))
                                 attr.header = GetDisplayName(tp);
 
@@ -241,7 +243,7 @@ namespace Framework.ED
                                 list = new List<PreferencteInfo>();
                                 ms_vPreferencesGUI[attr.key.ToLower()] = list;
                             }
-                            list.Add(new PreferencteInfo() { header = attr.header, method = method });
+                            list.Add(new PreferencteInfo() { type = tp, header = attr.header, method = method });
                         }
                     }
                 }
@@ -260,10 +262,10 @@ namespace Framework.ED
                     {
                         EditorGUILayout.Space();
                         EditorGUILayout.LabelField(db.header, EditorStyles.boldLabel);
-                        string typeName = db.method.DeclaringType.FullName.Replace("+", ".").ToLower();
+                        string typeName = db.type.FullName.Replace("+", ".").ToLower();
                         if (!m_vCustomPreferences.TryGetValue(typeName, out var customPreference))
                         {
-                            customPreference = new CustomPreference();
+                            customPreference = new CustomPreferenceData();
                             customPreference.typeName = typeName;
                             customPreference.header = db.header;
                             customPreference.content = "";
@@ -273,10 +275,11 @@ namespace Framework.ED
                         try
                         {
                             if (customPreference.pointer == null)
-                                customPreference.pointer = Activator.CreateInstance(db.method.DeclaringType);
+                                customPreference.pointer = Activator.CreateInstance(db.type);
                             JsonUtility.FromJsonOverwrite(customPreference.content, customPreference.pointer);
                             EditorGUI.BeginChangeCheck();
-                            db.method.Invoke(customPreference.pointer, null);
+                            if (db.method != null) db.method.Invoke(customPreference.pointer, null);
+                            else customPreference.pointer = InspectorDrawUtil.DrawProperty(customPreference.pointer, BindingFlags.Public| BindingFlags.Instance| BindingFlags.NonPublic);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 customPreference.content = JsonUtility.ToJson(customPreference.pointer);
@@ -1277,6 +1280,54 @@ namespace Framework.ED
             }
 
             return true;
+        }
+        //------------------------------------------------------
+        public static string MD5String(string input)
+        {
+            try
+            {
+                input = input.Replace("\\", "/");
+                if (input.EndsWith("/")) input = input.Substring(0, input.Length - 1);
+                MD5 md5 = MD5.Create();
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
+            catch (System.Exception ex)
+            {
+                return null;
+            }
+        }
+        //--------------------------------------------------------
+        public static string MD5File(string file)
+        {
+            try
+            {
+                if (File.Exists(file))
+                {
+                    MD5 md5 = MD5.Create();
+                    byte[] inputBytes = File.ReadAllBytes(file);
+                    byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < hashBytes.Length; i++)
+                    {
+                        sb.Append(hashBytes[i].ToString("x2"));
+                    }
+                    return sb.ToString();
+                }
+                return "";
+            }
+            catch (System.Exception ex)
+            {
+                return "";
+            }
         }
     }
     //------------------------------------------------------

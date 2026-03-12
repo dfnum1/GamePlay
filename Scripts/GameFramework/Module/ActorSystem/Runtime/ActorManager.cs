@@ -786,6 +786,32 @@ namespace Framework.ActorSystem.Runtime
             return vResults;
         }
         //-----------------------------------------------------
+        [ATMethod("统计类型单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw")]
+        public int StatisticsActorCount(byte actorType)
+        {
+            int cnt = 0;
+            foreach (var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetActorType() == actorType)
+                    cnt++;
+            }
+            return cnt;
+        }
+        //-----------------------------------------------------
+        [ATMethod("统计阵营组单位数量"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        public int StatisticsAttackGroupActorCount(byte attackGroup)
+        {
+            int cnt = 0;
+            foreach (var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetAttackGroup() == attackGroup)
+                    cnt++;
+            }
+            return cnt;
+        }
+        //-----------------------------------------------------
         [ATMethod("统计类型和阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
         public int StatisticsActorCount(byte actorType, byte attackGroup)
         {
@@ -795,6 +821,45 @@ namespace Framework.ActorSystem.Runtime
                 if (db.Value.IsDestroy()) continue;
                 if (db.Value.GetActorType() == actorType && db.Value.GetAttackGroup() == attackGroup)
                     cnt++;
+            }
+            return cnt;
+        }
+        //-----------------------------------------------------
+        [ATMethod("统计类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        public int StatisticsActorCount(byte actorType, byte subType, byte attackGroup)
+        {
+            int cnt = 0;
+            foreach (var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetActorType() == actorType && db.Value.GetAttackGroup() == attackGroup && db.Value.GetActorSubType() == subType)
+                    cnt++;
+            }
+            return cnt;
+        }
+        //-----------------------------------------------------
+        [ATMethod("显示隐藏类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        public int ShowActors(bool bShow, byte actorType, byte attackGroup)
+        {
+            int cnt = 0;
+            foreach (var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetActorType() == actorType && db.Value.GetAttackGroup() == attackGroup)
+                    db.Value.SetVisible(bShow);
+            }
+            return cnt;
+        }
+        //-----------------------------------------------------
+        [ATMethod("显示隐藏类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        public int ShowActors(bool bShow, byte actorType, byte subType, byte attackGroup)
+        {
+            int cnt = 0;
+            foreach (var db in m_vNodes)
+            {
+                if (db.Value.IsDestroy()) continue;
+                if (db.Value.GetActorType() == actorType && db.Value.GetAttackGroup() == attackGroup && db.Value.GetActorSubType() == subType)
+                    db.Value.SetVisible(bShow);
             }
             return cnt;
         }

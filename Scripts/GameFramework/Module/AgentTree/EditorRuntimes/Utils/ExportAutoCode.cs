@@ -376,12 +376,12 @@ namespace Framework.AT.Editor
                 hasReturn = true;
             }
 
-            Dictionary<string, string> vDraws = new Dictionary<string, string>();
+            Dictionary<string, ATArgvDrawerAttribute> vDraws = new Dictionary<string, ATArgvDrawerAttribute>();
             if (method.IsDefined(typeof(ATArgvDrawerAttribute)))
             {
                 var drawAttrs = method.GetCustomAttributes<ATArgvDrawerAttribute>();
                 foreach (var db in drawAttrs)
-                    vDraws[db.argv] = db.drawerMethod;
+                    vDraws[db.argv] = db;
             }
 
             string functionName = "AT_" + info.memberName;
@@ -405,6 +405,11 @@ namespace Framework.AT.Editor
                     var paramType = ConvertTypeToATType(parm.ParameterType);
 
                     vDraws.TryGetValue(parm.Name, out var drawMethod);
+                    string byPortArgvs = "";
+                    if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.byPortArgv))
+                    {
+                        byPortArgvs += ",byPortArgv:\"" + drawMethod.byPortArgv + "\"";
+                    }
 
                     if (parm.IsIn || parm.ParameterType.IsByRef) callArgv += "ref ";
                     else if (parm.IsOut) callArgv += "out var ";
@@ -422,8 +427,8 @@ namespace Framework.AT.Editor
 
                     if(parm.IsOut || parm.IsIn || parm.ParameterType.IsByRef)
                     {
-                        if(!string.IsNullOrEmpty(drawMethod))
-                            paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                        if(drawMethod!=null && !string.IsNullOrEmpty(drawMethod.drawerMethod))
+                            paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                         else
                             paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
 
@@ -437,8 +442,8 @@ namespace Framework.AT.Editor
                     }
                     if (!parm.IsOut)
                     {
-                        if(!string.IsNullOrEmpty(drawMethod))
-                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                        if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.drawerMethod))
+                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                         else
                             functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
                     }
@@ -477,11 +482,16 @@ namespace Framework.AT.Editor
                     callArgv += $"{parm.Name}";
 
                     vDraws.TryGetValue(parm.Name, out var drawMethod);
+                    string byPortArgvs = "";
+                    if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.byPortArgv))
+                    {
+                        byPortArgvs += ",byPortArgv:\"" + drawMethod.byPortArgv + "\"";
+                    }
 
                     if (parm.IsOut || parm.IsIn || parm.ParameterType.IsByRef)
                     {
-                        if (!string.IsNullOrEmpty(drawMethod))
-                            paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(parm.ParameterType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                        if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.drawerMethod))
+                            paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(parm.ParameterType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                         else
                             paramOutAttrs += $"\t\t[ATFunctionReturn(typeof({GetTypeName(parm.ParameterType)}), \"{paramName}\", null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
 
@@ -496,8 +506,8 @@ namespace Framework.AT.Editor
                     if(!parm.IsOut)
                     {
                         functionHead += $",{GetTypeName(parm.ParameterType)} {parm.Name}";
-                        if (!string.IsNullOrEmpty(drawMethod))
-                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                        if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.drawerMethod))
+                            functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                         else
                             functionAttributes += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{paramName}\",false, null,typeof({GetTypeName(parm.ParameterType)}))]\r\n";
                     }
@@ -527,8 +537,13 @@ namespace Framework.AT.Editor
             if (hasReturn)
             {
                 vDraws.TryGetValue("#return#", out var drawMethod);
-                if (!string.IsNullOrEmpty(drawMethod))
-                    functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                string byPortArgvs = "";
+                if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.byPortArgv))
+                {
+                    byPortArgvs += ",byPortArgv:\"" + drawMethod.byPortArgv + "\"";
+                }
+                if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.drawerMethod))
+                    functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                 else
                     functionAttributes += $"\t\t[ATFunctionReturn(typeof({GetTypeName(retType)}), \"pReturn\", null,typeof({GetTypeName(method.ReturnType)}))]\r\n";
             }
@@ -641,11 +656,16 @@ namespace Framework.AT.Editor
                 castLabel = "(int)";
             }
 
-            string drawMethod = null;
+            ATArgvDrawerAttribute drawMethod = null;
             if(field.IsDefined(typeof(ATArgvDrawerAttribute)))
             {
                 var methodAttr = field.GetCustomAttribute<ATArgvDrawerAttribute>();
-                drawMethod = methodAttr.drawerMethod;
+                drawMethod = methodAttr;
+            }
+            string byPortArgvs = "";
+            if (drawMethod != null && !string.IsNullOrEmpty(drawMethod.byPortArgv))
+            {
+                byPortArgvs += ",byPortArgv:\"" + drawMethod.byPortArgv + "\"";
             }
 
             string functionCallGet = "";
@@ -656,15 +676,15 @@ namespace Framework.AT.Editor
             string functionHeadSet = "\t\tstatic bool " + functionNameSet + "(";
             if (field.IsStatic)
             {
-                if (string.IsNullOrEmpty(drawMethod))
+                if (drawMethod == null || string.IsNullOrEmpty(drawMethod.drawerMethod))
                 {
                     functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                 }
                 else
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
-                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                 }
 
                 functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(field.FieldType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{field.Name});";
@@ -681,15 +701,15 @@ namespace Framework.AT.Editor
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(export.type)}))]\r\n";
                 }
 
-                if (string.IsNullOrEmpty(drawMethod))
+                if (drawMethod == null || string.IsNullOrEmpty(drawMethod.drawerMethod))
                 {
                     functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}))]\r\n";
                 }
                 else
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
-                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{field.Name}\", null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{field.Name}\",false, null,typeof({GetTypeName(field.FieldType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                 }
 
                 functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(field.FieldType)}(pNode, 0, {castLabel}pPointerThis.{field.Name});";
@@ -819,11 +839,16 @@ namespace Framework.AT.Editor
                 castLabel = "(int)";
             }
 
-            string drawMethod = null;
+            ATArgvDrawerAttribute drawMethod = null;
             if (propField.IsDefined(typeof(ATArgvDrawerAttribute)))
             {
                 var methodAttr = propField.GetCustomAttribute<ATArgvDrawerAttribute>();
-                drawMethod = methodAttr.drawerMethod;
+                drawMethod = methodAttr;
+            }
+            string byPortArgvs = "";
+            if(drawMethod!=null && !string.IsNullOrEmpty(drawMethod.byPortArgv))
+            {
+                byPortArgvs += ",byPortArgv:\"" + drawMethod.byPortArgv + "\"";
             }
 
             bool isStaticGet = false;
@@ -839,15 +864,15 @@ namespace Framework.AT.Editor
             string functionHeadSet = "\t\tstatic bool " + functionNameSet + "(";
             if (isStaticGet|| isStaticSet)
             {
-                if (string.IsNullOrEmpty(drawMethod))
+                if (drawMethod ==null || string.IsNullOrEmpty(drawMethod.drawerMethod))
                 {
                     if(isStaticGet) functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
                     if(isStaticSet) functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
                 }
                 else
                 {
-                    if (isStaticGet) functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
-                    if (isStaticSet) functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    if (isStaticGet) functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
+                    if (isStaticSet) functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                 }
 
                 if (isStaticGet) functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(propField.PropertyType)}(pNode, 0, {castLabel}{GetTypeName(export.type)}.{propField.Name});";
@@ -864,15 +889,15 @@ namespace Framework.AT.Editor
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({typeof(VariableUserData).Name}),\"{export.type.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
                 }
 
-                if (string.IsNullOrEmpty(drawMethod))
+                if (drawMethod == null || string.IsNullOrEmpty(drawMethod.drawerMethod))
                 {
                     functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
                     functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}))]\r\n";
                 }
                 else
                 {
-                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
-                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod}\")]\r\n";
+                    functionAttributesGet += $"\t\t[ATFunctionReturn(typeof({GetTypeName(paramType)}),\"{propField.Name}\", null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
+                    functionAttributesSet += $"\t\t[ATFunctionArgv(typeof({GetTypeName(paramType)}),\"{propField.Name}\",false, null,typeof({GetTypeName(propField.PropertyType)}),drawMethod:\"{drawMethod.drawerMethod}\"{byPortArgvs})]\r\n";
                 }
 
                 functionCallGet += $"\t\t\tpAgentTree.{ConvertTypeToATSetOutPortFunction(propField.PropertyType)}(pNode, 0, {castLabel}pPointerThis.{propField.Name});";

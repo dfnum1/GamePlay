@@ -80,31 +80,31 @@ namespace Framework.Cutscene.Runtime
                 point.scale = p0.scale;
                 point.rot = Quaternion.Euler(p0.eulerAngle);
             }
-            else if(m_vPoints.Length ==2)
-            {
-                var p0 = m_vPoints[0];
-                var p1 = m_vPoints[1];
+            //else if(m_vPoints.Length ==2)
+            //{
+            //    var p0 = m_vPoints[0];
+            //    var p1 = m_vPoints[1];
 
-                Vector3 start = p0.position;
-                Vector3 end = p1.position;
-                Vector3 tan0 = p0.position + p0.outTan;
-                Vector3 tan1 = p1.position + p1.inTan;
+            //    Vector3 start = p0.position;
+            //    Vector3 end = p1.position;
+            //    Vector3 tan0 = p0.position + p0.outTan;
+            //    Vector3 tan1 = p1.position + p1.inTan;
 
-                point.useRot = true;
-                // 贝塞尔插值
-                point.position = Bezier(start, tan0, tan1, end, normalTime);
-                point.scale = Vector3.Lerp(p0.scale, p1.scale, normalTime);
-                point.rot = Quaternion.identity;
-                if (bPathFoward)
-                {
-                    Vector3 nextPos = Bezier(start, tan0, tan1, end, Mathf.Min(normalTime + 0.01f, 1f));
-                    if ((nextPos - point.position).sqrMagnitude > 0.0f)
-                        point.rot = Quaternion.LookRotation(nextPos - point.position, Vector3.up);
-                    else point.useRot = false;
-                }
-                else
-                    point.rot = Quaternion.Lerp(Quaternion.Euler(p0.eulerAngle), Quaternion.Euler(p1.eulerAngle), normalTime);
-            }
+            //    point.useRot = true;
+            //    // 贝塞尔插值
+            //    point.position = Bezier(start, tan0, tan1, end, normalTime);
+            //    point.scale = Vector3.Lerp(p0.scale, p1.scale, normalTime);
+            //    point.rot = Quaternion.identity;
+            //    if (bPathFoward)
+            //    {
+            //        Vector3 nextPos = Bezier(start, tan0, tan1, end, Mathf.Min(normalTime + 0.01f, 1f));
+            //        if ((nextPos - point.position).sqrMagnitude > 0.0f)
+            //            point.rot = Quaternion.LookRotation(nextPos - point.position, Vector3.up);
+            //        else point.useRot = false;
+            //    }
+            //    else
+            //        point.rot = Quaternion.Lerp(Quaternion.Euler(p0.eulerAngle), Quaternion.Euler(p1.eulerAngle), normalTime);
+            //}
             else
             {
                 float targetLen = normalTime * m_TotalLength;
