@@ -100,6 +100,7 @@ namespace Framework.Guide
         float m_fFailSignCheckDelta = 0;
         int m_nTouchID = -1;
         bool m_bPressWidget = false;
+        Vector2 m_TouchBeginPos = Vector2.zero;
         CallbackParam m_CallbackParam = new CallbackParam();
 
         private Dictionary<int,System.UInt64> m_vGuideFlags = new Dictionary<int, ulong>(32);
@@ -220,6 +221,7 @@ namespace Framework.Guide
             m_fFailSignCheckDelta = 0;
             m_CallbackParam.Clear();
             m_bPressWidget = false;
+            m_TouchBeginPos = Vector2.zero;
 
             m_vGuideFlags.Clear();
             //             m_GuideFlag1 = 0;
@@ -1060,6 +1062,7 @@ namespace Framework.Guide
         public void OnTouchBegin(int touchId, Vector2 position, Vector2 deltaPosition)
         {
             m_nTouchID = touchId;
+            m_TouchBeginPos = position;
             if (m_pDoingNode == null || m_fDeltaDelta > 0) return;
             if (!IsValid() || m_fDeltaDelta > 0) return;
 
@@ -1087,13 +1090,34 @@ namespace Framework.Guide
                 m_CallbackParam.touchId = touchId;
                 m_CallbackParam.mousePos = position;
                 m_CallbackParam.deltaMose = deltaPosition;
+                SeqNode pPreNode = m_pDoingNode;
                 if (/* !m_pDoingNode.IsAutoNext() && */ OnNodeSign(m_pDoingNode))
                 {
                     OnNodeSignCompleted();
                     DoNext();
                 }
                 else
-                    SignCheckFialGo();
+                {
+                    if (!SignCheckFialGo())
+                    {
+                        if (m_pDoingNode != null && m_pDoingNode is StepNode)
+                        {
+                            StepNode stepNode = m_pDoingNode as StepNode;
+                            if(stepNode.bOption && stepNode.fOptionDistanceCheck>0)
+                            {
+                                float checkDis = m_GuidePanel != null ? (m_GuidePanel.GetUGUIScaler() * stepNode.fOptionDistanceCheck) : stepNode.fOptionDistanceCheck;
+                                if (bNoForceDoing && (position - m_TouchBeginPos).sqrMagnitude > checkDis * checkDis)
+                                {
+                                    if (pPreNode == m_pDoingNode)
+                                    {
+                                        OverOptionState();
+                                    }
+                                }
+                            }
+      
+                        }
+                    }
+                }
             }
         }
         //------------------------------------------------------
@@ -1129,6 +1153,7 @@ namespace Framework.Guide
                 }
                 m_bPressWidget = false;
                 m_nTouchID = -1;
+                m_TouchBeginPos = Vector2.zero;
             }
         }
         //------------------------------------------------------

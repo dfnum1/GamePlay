@@ -45,6 +45,13 @@ namespace Framework.Guide.Editor
 
             //       pNode.bFireCheck = EditorGUILayout.Toggle("触发检测", pNode.bFireCheck);
             pNode.bOption = EditorGUILayout.Toggle("非强制", pNode.bOption);
+            if(pNode.bOption)
+            {
+                float labelWidthBack = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = 100;
+                pNode.fOptionDistanceCheck = EditorGUILayout.FloatField(new GUIContent("非强制距离检测","当鼠标逻辑移动操作指定距离，则终止引导"), pNode.fOptionDistanceCheck);
+                EditorGUIUtility.labelWidth = labelWidthBack;
+            }
             //if(pNode.guideGroup!=null)
             //{
             //    if (pNode.guideGroup.Tag >= 0 && pNode.guideGroup.Tag < 65535)

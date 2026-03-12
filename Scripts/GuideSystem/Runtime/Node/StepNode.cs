@@ -24,6 +24,10 @@ namespace Framework.Guide
         /// </summary>
         public bool bOption = false;
         /// <summary>
+        /// 非强制下，检距离，超过则结束引导
+        /// </summary>
+        public float fOptionDistanceCheck = 0;
+        /// <summary>
         /// 关键步骤
         /// </summary>
     //    public bool bMaster = false;

@@ -17,6 +17,7 @@ namespace Framework.Guide
         const float LISTEN_WIDGET_COSTTIME_STOP = 20.0f;
         const float LISTEN_WIDGET_OVERTIME = 1.0f;
         const float LISTEN_RAYTEST_OVERTIME = 10.0f;
+        const float LISTEN_WIDGET_OPTION_OVER_TIME = 5;
         public static Vector3 INVAILD_POS = new Vector3(-9000, -9000, -9000);
         static Vector3[] ms_contersArray = new Vector3[4];
         Vector3[] ms_contersArray1 = new Vector3[4];
@@ -69,6 +70,7 @@ namespace Framework.Guide
         private int m_nRaytestListenLastFrame = 0;
         private float m_fListenWidgetCheckTime = 0;
         private float m_fListenWidgetCostTime = 0;
+        private float m_fListenedWidgetTime = 0;
         private Vector3 m_FingerOffset = Vector3.zero;
         private EFingerType m_fingerType = EFingerType.None;
         private bool m_bClickZoom = false;
@@ -343,6 +345,7 @@ namespace Framework.Guide
             m_nRayTestHit = 0;
             m_nListIndex = -1;
             m_nListenLastFrame = 0;
+            m_fListenedWidgetTime = 0;
             m_fListenWidgetCheckTime = 0;
             m_fListenWidgetCostTime = 0;
             m_fingerType = EFingerType.None;
@@ -688,6 +691,7 @@ namespace Framework.Guide
                 m_fListenWidgetCheckTime = 0;
                 if (m_pOriGuideWidget!=null)
                 {
+                    m_fListenedWidgetTime += Time.unscaledDeltaTime;
                     bListenWidgetInView = IsCheckInViewAdnCanHit(m_pOriGuideWidget, m_bRayTest, out var bInView);
                     if(m_nRaytestListenLastFrame<=0) m_nRaytestListenLastFrame = Time.frameCount;
                     if (Time.frameCount- m_nRaytestListenLastFrame>= LISTEN_RAYTEST_OVERTIME)
@@ -720,6 +724,22 @@ namespace Framework.Guide
                                 if (!GuideSystem.getInstance().bNoForceDoing)
                                 {
                                     GuideSystem.getInstance().SignCheckFialGo();
+                                }
+                                else
+                                {
+                                    //! 防止控件动效，需给个时间，如果监听超过时间，则进行检测
+                                    //! 如果为非强制引导,并且当前引导控件不可见,则结束引导
+                                    if (m_fListenedWidgetTime>= LISTEN_WIDGET_OPTION_OVER_TIME && !GuideSystem.getInstance().SignCheckFialGo())
+                                    {
+                                        GuideSystem.getInstance().OverGuide(false);
+
+                                        if (m_bResetFingerActive)
+                                        {
+                                            ResetFinger();
+                                            m_bResetFingerActive = false;
+                                        }
+                                        return;
+                                    }
                                 }
                             }
                         }
@@ -762,6 +782,7 @@ namespace Framework.Guide
                     //! destroyed widget, so relinsten widget
                     m_bListenGuideWidget = true;
                     m_fListenWidgetCostTime = 0;
+                    m_fListenedWidgetTime = 0;
                     m_nListenLastFrame = Time.frameCount;
                 //    if (m_bMaskSelfWidget)
                 //    {
@@ -1299,6 +1320,7 @@ namespace Framework.Guide
             m_bRayTest = bRayTest;
             m_nRayTestHit = 0;
             m_nListenLastFrame = 0;
+            m_fListenedWidgetTime = 0;
             m_fListenWidgetCostTime = 0;
             m_fListenWidgetCheckTime = 0;
             m_nRaytestListenLastFrame = 0;
@@ -1323,6 +1345,7 @@ namespace Framework.Guide
             if(IsEditorPreview)
                 m_nListenLastFrame = 0;
 #endif
+            m_fListenedWidgetTime = 0;
             if (m_nListenLastFrame > 0 && Time.frameCount - m_nListenLastFrame < 5)
                 return;
             m_nListenLastFrame = Time.frameCount;
