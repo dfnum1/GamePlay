@@ -976,9 +976,9 @@ namespace Framework.ED
                         code += "\t\t[Framework.AT.Runtime.ATField]\n";
                     code += "\t\tpublic " + simply.className + space_gap + strSplit[1] + "{\n";
                     code += "\t\t\tget{\r\n";
-                    code += "\t\t\t//#if UNITY_EDITOR\r\n";
-                    code += "\t\t\t\t//if(m_p" + strSplit[1] + "== null) m_p" + strSplit[1] + "=DataEditorUtil.GetTable<" + simply.className + ">();\r\n";
-                    code += "\t\t\t//#endif\r\n";
+                    code += "\t\t\t#if UNITY_EDITOR\r\n";
+                    code += "\t\t\t\tif(m_p" + strSplit[1] + "== null) m_p" + strSplit[1] + "=Framework.Data.ED.DataEditorUtil.GetTable<" + simply.className + ">();\r\n";
+                    code += "\t\t\t#endif\r\n";
                     code += "\t\t\t\treturn m_p" + strSplit[1] + ";\r\n";
                     code += "\t\t\t}\r\n";
                     code += "\t\t\tprivate set{m_p" + strSplit[1] + "=value;}\r\n";

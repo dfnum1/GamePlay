@@ -520,8 +520,11 @@ namespace Framework.ActorSystem.Runtime
                 ActorAgentTree pAT = hitFrame.target_ptr.GetAgent<ActorAgentTree>(false);
                 if (pAT != null)
                     pAT.OnHit(hitFrame);
+
+                hitFrame.target_ptr.GetBuffSystem()?.OnHit(hitFrame);
             }
             OnTaskGlobalAT((int)EActorATType.onHitFrame, hitFrame.attack_ptr,hitFrame.target_ptr, hitFrame);
+
 
             if (m_vCallbacks == null)
                 return false;

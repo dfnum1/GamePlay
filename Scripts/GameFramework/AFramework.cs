@@ -435,6 +435,11 @@ namespace Framework.Core
         protected abstract void OnDestroy();
         #region ModelCallback
         //------------------------------------------------------
+        public virtual void PlaySound(string soundEvent, IUserData pUserData = null)
+        {
+            Debug.LogWarning("业务层没有实现声音播放处理，请联系程序实现业务");
+        }
+        //------------------------------------------------------
         public virtual IEnumerator OnLoadAsset(AssetOperator assetOperator)
         {
 #if UNITY_EDITOR

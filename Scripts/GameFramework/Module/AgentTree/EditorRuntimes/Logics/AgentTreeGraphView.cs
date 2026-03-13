@@ -93,6 +93,11 @@ namespace Framework.AT.Editor
                         BuildGroup();
                     });
                 }
+                evt.menu.AppendSeparator("");
+                evt.menu.AppendAction("自定义事件", (a) =>
+                {
+                    CustomEventEditor.Open();
+                });
             }));
 
             this.RegisterCallback<KeyDownEvent>(evt =>
@@ -456,7 +461,7 @@ namespace Framework.AT.Editor
                 {
                     CustomEvent pAction = new CustomEvent();
                     pAction.type = attri.actionType;
-                    pAction.eventType = attri.cutsceneCusomtType;
+                    pAction.eventType = attri.nCusomtType;
                     pAction.guid = GeneratorGUID();
                     pAction.nextActions = null;
                     newNode = pAction;

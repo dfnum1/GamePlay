@@ -9,6 +9,8 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Framework.Base;
+using Framework.DrawProps;
+
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -43,6 +45,7 @@ namespace Framework.AT.Runtime
             return id != 0;
         }
     }
+    [UnFilter]
     public enum EVariableType : byte
     {
         [DrawProps.Disable]eNone = 0,

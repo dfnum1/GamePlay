@@ -7,6 +7,8 @@
 *********************************************************************/
 using Framework.AT.Runtime;
 using System.Collections.Generic;
+using TagLib.Id3v2;
+
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -96,6 +98,46 @@ namespace Framework.ActorSystem.Runtime
             return 0;
         }
         //-----------------------------------------------------
+        internal void OnAttack(Skill pSkill)
+        {
+            if (pSkill == null) return;
+            if (m_vBuffs == null) return;
+            for (var node = m_vBuffs.First; node != null;)
+            {
+                node.Value.OnAttack(pSkill);
+            }
+        }
+        //-----------------------------------------------------
+        internal void OnHit(HitFrameActor hifFrame)
+        {
+            if (m_vBuffs == null) return;
+            for (var node = m_vBuffs.First; node != null;)
+            {
+                node.Value.OnHit(hifFrame);
+            }
+        }
+        //-----------------------------------------------------
+        internal void OnFlagDirty(EActorFlag flag, bool IsUsed)
+        {
+            if(IsUsed)
+            {
+                if(flag == EActorFlag.Killed)
+                {
+                    if (m_vBuffs != null)
+                    {
+                        for (var node = m_vBuffs.First; node != null;)
+                        {
+                            var next = node.Next;
+                            Buff cur = node.Value;
+                            node = next;
+                            if (cur.IsDieKeep()) continue;
+                            cur.Destroy();
+                        }
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------
         public void Update(FFloat fFrame)
         {
             if (m_vBuffs != null)
@@ -103,9 +145,11 @@ namespace Framework.ActorSystem.Runtime
                 for (var node = m_vBuffs.First; node != null;)
                 {
                     var next = node.Next;
-                    node.Value.Update(fFrame);
+                    bool bDirty = node.Value.Update(fFrame);
+                    if (bDirty) m_bDirty = true;
                     if (node.Value.IsEnd())
                     {
+                        m_bDirty = true;
                         node.Value.Free();
                         m_vBuffs.Remove(node);
                     }

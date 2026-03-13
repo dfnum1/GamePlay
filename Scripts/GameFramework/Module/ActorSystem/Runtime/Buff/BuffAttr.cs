@@ -5,9 +5,6 @@
 作    者:	HappLI
 描    述:	Buff系统
 *********************************************************************/
-using Framework.AT.Runtime;
-using Framework.DrawProps;
-using System.Collections.Generic;
 using Framework.Base;
 
 
@@ -19,6 +16,13 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
+    public enum EBuffTargetType
+    {
+        eAttacker = 0,//施法者
+        eTargeter = 1,//受击者
+        eFriender = 2,//友方单位
+    }
+    //-----------------------------------------------------
     [System.Serializable]
     public struct BuffStateData
     {

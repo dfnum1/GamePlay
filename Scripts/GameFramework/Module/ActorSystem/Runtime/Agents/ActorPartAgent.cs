@@ -36,7 +36,7 @@ namespace Framework.ActorSystem.Runtime
         private Dictionary<InstanceAble, int> m_vInstnaceParts = null;
         private HashSet<int> m_vDeleteQueue = null;
         //--------------------------------------------------------
-        public int AddPart(string partFile, Vector3 offset, Vector3 offsetEulerAngle, Vector3 scale, string bindSlot, int bindFlags = (int)ESlotBindBit.All, bool bKeepDead = false)
+        public int AddPart(string partFile, Vector3 offset, Vector3 offsetEulerAngle, Vector3 scale, string bindSlot, byte bindFlags = (byte)ESlotBindBit.All, bool bKeepDead = false)
         {
             if (m_vParts == null) m_vParts = new Dictionary<int, PartData>(8);
 
@@ -73,9 +73,14 @@ namespace Framework.ActorSystem.Runtime
         {
             if(flag == EActorFlag.Killed)
             {
-                foreach(var db in m_vParts)
+                if(IsUsed)
                 {
-
+                    foreach (var db in m_vParts)
+                    {
+                        if (db.Value.bKeepDead) continue;
+                        if (db.Value.bDestroyed) continue;
+                        DeletePart(db.Key);
+                    }
                 }
             }
         }

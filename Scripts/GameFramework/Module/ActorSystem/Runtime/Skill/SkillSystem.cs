@@ -173,6 +173,7 @@ namespace Framework.ActorSystem.Runtime
 
                 m_pOwner.GetAgent<ActorAgentTree>()?.ExecuteTask((int)EActorATType.onAttack, argvs,false);
                 GetActor().GetActorManager().OnTaskGlobalAT((int)EActorATType.onAttack, GetActor(), pTarget,pSkill);
+                m_pOwner.GetBuffSystem()?.OnAttack(pSkill);
                 argvs.Release();
             }
             return bFind;

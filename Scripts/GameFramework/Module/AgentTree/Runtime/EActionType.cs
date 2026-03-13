@@ -167,7 +167,10 @@ namespace Framework.AT.Runtime
         [Argv("变量名", "程序可根据此名来设置、获取变量。如果变量为空，则不能通过名称来操作", typeof(string), true)]
         [Argv("值", typeof(IVariable), true)]
         [Return("输出", typeof(IVariable))]
-        eMemberVariable = 998,//新建变量
+        eMemberVariable = 600,//新建变量
+
+        [DrawProps.Disable]
+        eCustomEvent = 997,//Cutscene自定义事件
 
         [DrawProps.Disable]
         eCutsceneCustomEvent = 999,//Cutscene自定义事件

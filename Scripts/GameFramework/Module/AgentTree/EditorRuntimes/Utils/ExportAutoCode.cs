@@ -1157,6 +1157,8 @@ namespace Framework.AT.Editor
                     if ((db.Value.exportAttr is ATInteralExportAttribute))
                         continue;
                 }
+                if (db.Value.methods.Count <= 0)
+                    continue;
 
                 string function = "";
                 if(db.Value.type.Namespace!= null)

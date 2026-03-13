@@ -19,8 +19,8 @@ namespace Framework.ActorSystem.Runtime
     [DrawProps.UnFilter]
     public enum EAttrValueType : byte
     {
-        [DrawProps.Display("值类型")] eValue,
-        [DrawProps.Display("率类型", "万分位")] eRate,
+        [DrawProps.Display("值类型")] eValue = 0,
+        [DrawProps.Display("率类型", "万分位")] eRate = 1,
     }
     //-----------------------------------------------------
     //! 属性作用类型
@@ -28,8 +28,8 @@ namespace Framework.ActorSystem.Runtime
     [DrawProps.UnFilter]
     public enum EAttrCalcType : byte
     {
-        [DrawProps.Display("作用基础属性")] eBase,
-        [DrawProps.Display("作用总属性")] eTotal,
+        [DrawProps.Display("作用基础属性")] eBase = 0,
+        [DrawProps.Display("作用总属性")] eTotal = 1,
     }
     //-----------------------------------------------------
     //! Formula Type

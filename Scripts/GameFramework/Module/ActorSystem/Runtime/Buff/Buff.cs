@@ -6,12 +6,8 @@
 描    述:	buff系统-单个buff
 *********************************************************************/
 using Framework.AT.Runtime;
-using Framework.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using Framework.Core;
-using Framework.Base;
-using TagLib.Riff;
 
 
 #if USE_FIXEDMATH
@@ -31,8 +27,10 @@ namespace Framework.ActorSystem.Runtime
             eBegin,
             eTicking,
             eEnd,
+            eOver,
         }
         protected byte                  m_nBuffType = 0;//增益、减益、控制等类型
+        protected EBuffTargetType       m_eBuffTargetType = EBuffTargetType.eTargeter;
         private EStatus                 m_eStatus = EStatus.eNone;
         private uint                    m_nLevel = 0;
         private FFloat                  m_fTickStep = 0;
@@ -40,6 +38,13 @@ namespace Framework.ActorSystem.Runtime
         private FFloat                  m_fTime = 0;
         private FFloat                  m_fTickTime = 0;
         private int                     m_nTickCount = 0;
+        private bool                    m_bInstant = true;  //!<是否即时生效的Buff，非即时生效的Buff在Begin阶段不计算属性等效果，直到Ticking阶段才开始计算属性等效果
+        private bool                    m_bDieKeep = false; //!<是否死亡保留，死亡保留的Buff在单位死亡后仍然保留，直到Buff结束或者复活后才移除
+        private ushort                  m_nLayer = 1;
+        private ushort                  m_nMaxLayer = 1;
+
+        private byte                    m_nAttackFinishCnt = 0;
+        private byte                    m_nHitFinishCnt = 0;
 
         private uint                    m_nEffectStateFlags = 0;
 
@@ -47,20 +52,18 @@ namespace Framework.ActorSystem.Runtime
         private byte[]                  m_arrAttrValueTypes = null;
         private FFloat[]                m_arrAttrValues = null;
 
-        private float                   m_fBeginScale = 1;
+        private int[]                   m_arrBeginEvents = null;
+        private float                   m_fEffectScale = 1;
         private string                  m_strBeginEffect = null;
         private string                  m_strBeginSound = null;
-        private InstanceAble            m_BeginEffect = null;
 
-        private float                   m_fStepScale = 1;
+        private int[]                   m_arrStepEvents = null;
         private string                  m_strStepEffect = null;
         private string                  m_strStepSound = null;
-        private InstanceAble            m_StepEffect = null;
 
-        private float                   m_fEndScale = 1;
+        private int[]                   m_arrEndEvents = null;
         private string                  m_strEndEffect = null;
         private string                  m_strEndSound = null;
-        private InstanceAble            m_EndEffect = null;
 
         private string                  m_strBindSlot = null;
         private Vector3                 m_BindOffset = Vector3.zero;
@@ -71,9 +74,8 @@ namespace Framework.ActorSystem.Runtime
         protected BuffSystem            m_pOwner = null;
         protected bool                  m_bActived = false;
 
-        private AOperatorHandle         m_BeginOpHandler = null;
-        private AOperatorHandle         m_StepOpHandler = null;
-        private AOperatorHandle         m_EndOpHandler = null;
+        private int                     m_BeginEffectId = 0;
+        private int                     m_EndEffceId = 0;
         //-----------------------------------------------------
         public Buff()
         {
@@ -181,37 +183,84 @@ namespace Framework.ActorSystem.Runtime
                     vAttrs[m_arrAttrTypes[i]] = attr;
                 }
                 if(m_arrAttrValueTypes!=null && i < m_arrAttrValueTypes.Length && m_arrAttrValueTypes[i] == (byte)EAttrValueType.eRate)
-                    attr.AddRate(m_arrAttrValues[i]*m_nTickCount);
+                    attr.AddRate(m_arrAttrValues[i]*(int)(m_nTickCount*m_nLayer));
                 else
-                    attr.AddValue(m_arrAttrValues[i] * m_nTickCount);
+                    attr.AddValue(m_arrAttrValues[i] * (int)(m_nTickCount* m_nLayer));
+            }
+        }
+        //-----------------------------------------------------
+        void DoEvent(int[] events)
+        {
+            if (events == null) return;
+            var pAT = GetActor().GetAgent<ActorAgentTree>(true);
+            if (pAT != null)
+            {
+                VariableList vArgvs = VariableList.Malloc(GetFramework());
+                vArgvs.AddUserData(GetActor());
+                vArgvs.AddUserData(this);
+                vArgvs.AddUserData(GetConfigData());
+                for (int i = 0; i < events.Length; ++i)
+                {
+                    pAT.ExecuteEvent(events[i], vArgvs, false);
+                }
+                vArgvs.Release();
+            }
+        }
+        //-----------------------------------------------------
+        internal void OnAttack(Skill pSkill)
+        {
+            if(m_nAttackFinishCnt>0)
+            {
+                m_nAttackFinishCnt--;
+                if(m_nAttackFinishCnt<=0)
+                {
+                    m_eStatus = EStatus.eEnd;
+                }
+            }
+        }
+        //-----------------------------------------------------
+        internal void OnHit(HitFrameActor hifFrame)
+        {
+            if(m_nHitFinishCnt >0)
+            {
+                m_nHitFinishCnt--;
+                if (m_nHitFinishCnt <= 0)
+                {
+                    m_eStatus = EStatus.eEnd;
+                }
             }
         }
         //-----------------------------------------------------
         internal bool Update(FFloat fFrame)
         {
+            bool bDirty = false;
             if (!m_bActived)
-                return true;
+                return false;
 
             switch(m_eStatus)
             {
                 case EStatus.eNone:
                     {
-                        if (m_BeginOpHandler != null) m_BeginOpHandler.Free();
-                        m_BeginOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strBeginEffect, OnInstanceCallback);
-                        m_BeginOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
+#if !USE_SERVER
+                        if(m_BeginEffectId!=0) GetActor().GetAgent<ActorPartAgent>(false)?.DeletePart(m_BeginEffectId);
+                        m_BeginEffectId = GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strBeginEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                        GetFramework().PlaySound(m_strBeginSound, GetActor());
+#endif
+                        DoEvent(m_arrBeginEvents);
                         m_eStatus = EStatus.eBegin;
                     }
                     break;
                 case EStatus.eBegin:
                     {
-                        m_nTickCount = 1;
+                        m_nTickCount = m_bInstant?1:0;
                         m_fTime = 0;
                         m_fTickTime = 0;
-                        if (m_StepOpHandler != null) m_StepOpHandler.Free();
-                        m_StepOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strStepEffect, OnInstanceCallback);
-                        m_StepOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                         m_eStatus = EStatus.eTicking;
-                        OnTick();
+                        if (m_bInstant)
+                        {
+                            bDirty = true;
+                            OnTick();
+                        }
                     }
                     break;
                 case EStatus.eTicking:
@@ -223,10 +272,16 @@ namespace Framework.ActorSystem.Runtime
                             m_fTickTime += fFrame;
                             if(m_fTickTime >= m_fTickStep)
                             {
+                                bDirty = true;
                                 //! Tick todo
                                 m_nTickCount++;
                                 m_fTickTime = 0;
                                 OnTick();
+#if !USE_SERVER
+                                GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strStepEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                                GetFramework().PlaySound(m_strStepSound, GetActor());
+#endif
+                                DoEvent(m_arrStepEvents);
                             }
                         }
                         if(m_fTime >= m_fLife)
@@ -235,27 +290,31 @@ namespace Framework.ActorSystem.Runtime
                         }
                         if (isEnd)
                         {
-                            if (m_EndOpHandler != null) m_EndOpHandler.Free();
-                            m_EndOpHandler = GetFramework().GetFileSystem().SpawnInstance(m_strEndEffect, OnInstanceCallback);
-                            m_EndOpHandler.SetUserData(0, new Value1Var() { intVal = (int)m_eStatus });
                             m_eStatus = EStatus.eEnd;
                         }
                     }
                     break;
                 case EStatus.eEnd:
                     {
-
+#if !USE_SERVER
+                        if (m_EndEffceId != 0) GetActor().GetAgent<ActorPartAgent>(false)?.DeletePart(m_EndEffceId);
+                        m_EndEffceId = GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strEndEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                        GetFramework().PlaySound(m_strEndSound, GetActor());
+#endif
+                        DoEvent(m_arrEndEvents);
+                        m_eStatus = EStatus.eOver;
+                        bDirty = true;
                     }
                     break;
             }
             OnUpdate(fFrame);
-            return true;
+            return bDirty;
         }
         //-----------------------------------------------------
         [ATMethod("是否结束")]
         public bool IsEnd()
         {
-            return m_eStatus == EStatus.eEnd;
+            return m_eStatus == EStatus.eOver;
         }
         //-----------------------------------------------------
         [ATMethod("是否激活")]
@@ -297,6 +356,30 @@ namespace Framework.ActorSystem.Runtime
             return m_nLevel;
         }
         //-----------------------------------------------------
+        [ATMethod("设置层数")]
+        public void SetLayer(ushort nLayer)
+        {
+            m_nLayer = (ushort)Mathf.Min(m_nMaxLayer, nLayer);
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取层数")]
+        public ushort GetLayer()
+        {
+            return m_nLayer;
+        }
+        //-----------------------------------------------------
+        [ATMethod("设置最大层数")]
+        public void SetMaxLayer(ushort nLayer)
+        {
+            m_nMaxLayer = nLayer;
+        }
+        //-----------------------------------------------------
+        [ATMethod("获取最大层数")]
+        public ushort GetmaxLayer()
+        {
+            return m_nMaxLayer;
+        }
+        //-----------------------------------------------------
         [ATMethod("获取Tick次数")]
         public int GetTickCount()
         {
@@ -307,6 +390,18 @@ namespace Framework.ActorSystem.Runtime
         public IContextData GetConfigData()
         {
             return m_pConfigData;
+        }
+        //-----------------------------------------------------
+        [ATMethod("设置死亡保持")]
+        public void SetDieKeep(bool bDieKeep)
+        {
+            m_bDieKeep = bDieKeep;
+        }
+        //-----------------------------------------------------
+        [ATMethod("是否死亡保持")]
+        public bool IsDieKeep()
+        {
+            return m_bDieKeep;
         }
         //-----------------------------------------------------
         protected virtual void OnTick()
@@ -353,27 +448,20 @@ namespace Framework.ActorSystem.Runtime
             m_pOwner = null;
             m_pConfigData = null;
             m_bActived = false;
-            m_eStatus = EStatus.eNone;
-            if(m_BeginOpHandler!=null)
+            m_eStatus = EStatus.eOver;
+            var part = GetActor().GetAgent<ActorPartAgent>();
+            if(part!=null)
             {
-                m_BeginOpHandler.Free(); m_BeginOpHandler = null;
+                part.DeletePart(m_BeginEffectId);
+                part.DeletePart(m_EndEffceId);
+                m_EndEffceId = 0;
+                m_BeginEffectId = 0;
             }
-            if (m_StepOpHandler != null)
-            {
-                m_StepOpHandler.Free(); m_StepOpHandler = null;
-            }
-            if (m_EndOpHandler != null)
-            {
-                m_EndOpHandler.Free(); m_EndOpHandler = null;
-            }
-            if (m_BeginEffect != null) m_BeginEffect.Destroy();
-            m_BeginEffect = null;
-
-            if (m_StepEffect != null) m_StepEffect.Destroy();
-            m_StepEffect = null;
-
-            if (m_EndEffect != null) m_EndEffect.Destroy(10);
-            m_EndEffect = null;
+            m_nLayer = 1;
+            m_nMaxLayer = 1;
+            m_nAttackFinishCnt = 0;
+            m_nHitFinishCnt = 0;
+            m_bDieKeep = false;
         }
         //-----------------------------------------------------
         public override void AddLockTarget(Actor pNode, bool bClear = false)
@@ -387,52 +475,6 @@ namespace Framework.ActorSystem.Runtime
         public override List<Actor> GetLockTargets(bool isEmptyReLock = true)
         {
             return null;
-        }
-        //-----------------------------------------------------
-        void OnInstanceCallback(InstanceOperator pCallback, bool doSignCheck)
-        {
-            if(doSignCheck)
-            {
-                pCallback.SetUsed(IsActived() && m_eStatus != EStatus.eNone);
-                if(!pCallback.IsUsed())
-                {
-                    if (pCallback == m_BeginOpHandler)
-                    {
-                        m_BeginOpHandler = null;
-                    }
-                    else if (pCallback == m_StepOpHandler)
-                    {
-                        m_StepOpHandler = null;
-                    }
-                    else if (pCallback == m_EndOpHandler)
-                    {
-                        m_EndOpHandler = null;
-                    }
-                }
-            }
-            else
-            {
-                EStatus type = (EStatus)pCallback.GetUserData<Value1Var>(0).ToInt();
-                var pAble = pCallback.GetInstanceAble();
-                if (pAble != null)
-                {
-                    if (type == EStatus.eBegin) m_BeginEffect = pAble;
-                    else if (type == EStatus.eTicking) m_StepEffect = pAble;
-                    else if (type == EStatus.eEnd) m_EndEffect = pAble;
-                }
-                if (pCallback == m_BeginOpHandler)
-                {
-                    m_BeginOpHandler = null;
-                }
-                else if (pCallback == m_StepOpHandler)
-                {
-                    m_StepOpHandler = null;
-                }
-                else if (pCallback == m_EndOpHandler)
-                {
-                    m_EndOpHandler = null;
-                }
-            }
         }
     }
 }

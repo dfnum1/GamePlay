@@ -670,7 +670,7 @@ namespace Framework.AT.Runtime
             return GetShort(nodePort.varGuid, defValue);
         }
         //-----------------------------------------------------
-        public int GetInportUshort(BaseNode pNode, ushort index, ushort defValue = 0)
+        public ushort GetInportUshort(BaseNode pNode, ushort index, ushort defValue = 0)
         {
             var inports = pNode.GetInports();
             if (index < 0 || inports == null || index >= inports.Length)

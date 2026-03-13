@@ -14,6 +14,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VariableUtil = Framework.AT.Runtime.VariableUtil;
 
 namespace Framework.AT.Editor
 {
@@ -25,7 +26,7 @@ namespace Framework.AT.Editor
         public string strMenuName;
         public int actionType;
         public bool isCutsceneCustomEvent = false;
-        public int cutsceneCusomtType = 0;
+        public int nCusomtType = 0;
 
         public ATActionAttribute actionAttr;
         public ATIconAttribute iconAttr;
@@ -72,6 +73,7 @@ namespace Framework.AT.Editor
         private static Dictionary<System.Type, System.Type> ms_vEditorNodeTypes = new Dictionary<Type, Type>();
         private static List<string> ms_vPops = new List<string>();
         private static Dictionary<int, System.Type> ms_ATClassTypes = new Dictionary<int, Type>();
+        private static Dictionary<System.Type, int> ms_ATClassTypeIds = new Dictionary<System.Type, int>();
         static string ms_installPath = null;
         static List<MethodInfo> ms_vInitCall = new List<MethodInfo>();
         static MenuTreeNode ms_SearchMenuRoot = new MenuTreeNode("添加节点");
@@ -115,7 +117,7 @@ namespace Framework.AT.Editor
                 ms_vPopCompareOpTypes.Clear();
                 ms_CustomDrawPorts.Clear();
                 ms_ATClassTypes.Clear();
-
+                ms_ATClassTypeIds.Clear();
                 foreach (Enum v in Enum.GetValues(typeof(AT.Runtime.ECompareOpType)))
                 {
                     string strName = Enum.GetName(typeof(ECompareOpType), v);
@@ -237,14 +239,14 @@ namespace Framework.AT.Editor
                             else attr.iconAttr = new ATIconAttribute(atNodeAttr.icon);
                             if (tp.IsDefined(typeof(ATColorAttribute))) attr.colorAttr = tp.GetCustomAttribute<ATColorAttribute>();
 
-                            attr.cutsceneCusomtType = 0;
+                            attr.nCusomtType = 0;
                             attr.isCutsceneCustomEvent = false;
                             attr.actionType = ATRtti.BuildHashCode(tp);
                             attr.nodeType = tp;
                             attr.displayName = atNodeAttr.nodeName;
                             attr.strQueueName = atNodeAttr.nodeName + tp.Name.ToString() + ED.EditorUtils.PinYin(atNodeAttr.nodeName);
                             attr.strMenuName = atNodeAttr.nodeName;
-                            long key = ((long)attr.actionType) << 32 | (long)attr.cutsceneCusomtType;
+                            long key = ((long)attr.actionType) << 32 | (long)attr.nCusomtType;
                             if (ms_Attrs.TryGetValue(key, out var attrD))
                             {
                                 Debug.LogError(tp.Name + " 存在重复定义:" + tp.FullName.ToString());
@@ -295,6 +297,7 @@ namespace Framework.AT.Editor
                                     guid = ATRtti.BuildHashCode(tp);
                                 }
                                 ms_ATClassTypes[guid] = classAT.classType;
+                                ms_ATClassTypeIds[classAT.classType] = guid;
                             }
 
                             var iconAttr = tp.GetCustomAttribute<ATIconAttribute>(false);
@@ -324,7 +327,7 @@ namespace Framework.AT.Editor
                                     if (method.IsDefined(typeof(ATColorAttribute))) attr.colorAttr = method.GetCustomAttribute<ATColorAttribute>();
                                     else attr.colorAttr = colorAttr;
 
-                                    attr.cutsceneCusomtType = 0;
+                                    attr.nCusomtType = 0;
                                     attr.isCutsceneCustomEvent = false;
                                     attr.actionType = atTypeAttr.guid;
                                     attr.displayName = atTypeAttr.DisplayName;
@@ -351,6 +354,7 @@ namespace Framework.AT.Editor
                                                         if(exportAttr.guid!=0) guid = exportAttr.guid;
                                                     }
                                                     ms_ATClassTypes[guid] = argvs[j].DisplayType;
+                                                    ms_ATClassTypeIds[argvs[j].DisplayType] = guid;
                                                 }
                                             }
                                         }
@@ -372,11 +376,12 @@ namespace Framework.AT.Editor
                                                         if (exportAttr.guid != 0) guid = exportAttr.guid;
                                                     }
                                                     ms_ATClassTypes[guid] = returns[j].DisplayType;
+                                                    ms_ATClassTypeIds[returns[j].DisplayType] = guid;
                                                 }
                                             }
                                         }
                                     }
-                                    long key = ((long)attr.actionType) << 32 | (long)attr.cutsceneCusomtType;
+                                    long key = ((long)attr.actionType) << 32 | (long)attr.nCusomtType;
                                     if (vGraphNodeTypes.TryGetValue(key, out var graphNodeType))
                                     {
                                         attr.graphNodeType = graphNodeType;
@@ -430,7 +435,7 @@ namespace Framework.AT.Editor
  
                                     strName = actionAttr.name;
                                 AgentTreeAttri attr = new AgentTreeAttri();
-                                attr.cutsceneCusomtType = 0;
+                                attr.nCusomtType = 0;
                                 attr.atTypeAttr = atTypeAttr;
                                 attr.isCutsceneCustomEvent = false;
                                 attr.actionAttr = actionAttr;
@@ -488,7 +493,7 @@ namespace Framework.AT.Editor
                                         }
                                     }
                                 }
-                                long key = ((long)attr.actionType) << 32 | (long)attr.cutsceneCusomtType;
+                                long key = ((long)attr.actionType) << 32 | (long)attr.nCusomtType;
                                 if (vGraphNodeTypes.TryGetValue(key, out var graphNodeType))
                                 {
                                     attr.graphNodeType = graphNodeType;
@@ -522,6 +527,7 @@ namespace Framework.AT.Editor
                         }
                     }
                 }
+                InnerRefreshEvents();
                 /*
                 //! 添加custom data 自定义的事件
                 var eventLists = CustomAgentUtil.GetEventList();
@@ -593,6 +599,77 @@ namespace Framework.AT.Editor
             }
         }
         //-----------------------------------------------------
+        static void InnerRefreshEvents()
+        {
+            if (ms_Attrs == null)
+                return;
+
+            var eventData = CustomEventEditor.GetCustomEventData();
+            if (eventData != null)
+            {
+                foreach (var db in eventData.vEvents)
+                {
+                    AgentTreeAttri attr = new AgentTreeAttri();
+                    attr.isCutsceneCustomEvent = true;
+                    attr.nCusomtType = (int)db.eventType;
+                    attr.actionAttr = new ATActionAttribute(db.name, false);
+                    attr.actionType = (int)EActionType.eCustomEvent;
+                    attr.displayName = db.name;
+                    attr.strMenuName = "自定义事件/" + db.name;
+                    attr.strQueueName = db.name;
+                    if (db.inputs != null)
+                    {
+                        for (int j = 0; j < db.inputs.Count; ++j)
+                        {
+                            var input = db.inputs[j];
+                            var argvType = VariableUtil.GetVariableCsType(input.type);
+                            if (input.clsId!=0)
+                            {
+                                var clsType = GetATClassType(input.clsId);
+                                if (clsType == null)
+                                    argvType = clsType;
+                            }
+                            attr.argvs.Add(new ArgvAttribute(input.name, argvType, input.canEdit, input.defaultValue));
+                        }
+                    }
+                    if (db.outputs != null)
+                    {
+                        for (int j = 0; j < db.outputs.Count; ++j)
+                        {
+                            var input = db.outputs[j]; 
+                            var argvType = VariableUtil.GetVariableCsType(input.type);
+                            if (input.clsId != 0)
+                            {
+                                var clsType = GetATClassType(input.clsId);
+                                if (clsType == null)
+                                    argvType = clsType;
+                            }
+                            attr.returns.Add(new ArgvAttribute(input.name, argvType, input.canEdit, input.defaultValue));
+                        }
+                    }
+                    long key = ((long)attr.actionType) << 32 | (long)attr.nCusomtType;
+                    if (ms_Attrs.TryGetValue(key, out var attrD))
+                    {
+                        Debug.LogError(db.name + " 存在重复定义:" + attr.nCusomtType);
+                    }
+                    else
+                    {
+                        foreach (var temp in attr.argvs)
+                        {
+                            attr.popArgvs.Add(temp.name);
+                        }
+                        foreach (var temp in attr.returns)
+                        {
+                            attr.popReturns.Add(temp.name);
+                        }
+                        ms_Attrs.Add(key, attr);
+                        ms_vLists.Add(attr);
+                        ms_vPops.Add(attr.displayName);
+                    }
+                }
+            }
+        }
+        //-----------------------------------------------------
         internal static void EditorInit()
         {
             Init();
@@ -633,6 +710,37 @@ namespace Framework.AT.Editor
         {
             Init();
             return ms_ATClassTypes;
+        }
+        //-----------------------------------------------------
+        public static int GetATClassID(System.Type clasType)
+        {
+            Init();
+            if (ms_ATClassTypeIds.TryGetValue(clasType, out var clsId))
+                return clsId;
+            return 0;
+        }
+        //-----------------------------------------------------
+        public static System.Type GetATClassType(int clsId)
+        {
+            Init();
+            if (ms_ATClassTypes.TryGetValue(clsId, out var type))
+                return type;
+            return null;
+        }
+        //-----------------------------------------------------
+        public static string GetATClassTypeDisplayName(int clsId, string defaultName = "")
+        {
+            Init();
+            if (ms_ATClassTypes.TryGetValue(clsId, out var type))
+            {
+                string name = type.Name;
+                if(type.IsDefined(typeof(ATExportAttribute)))
+                {
+                    name = type.GetCustomAttribute<ATExportAttribute>().nodeName;
+                }
+                return name;
+            }
+            return defaultName;
         }
         //-----------------------------------------------------
         public static Dictionary<string,int> GetATClassTypes(int baseTypeId)

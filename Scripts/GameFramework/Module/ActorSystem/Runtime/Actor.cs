@@ -589,6 +589,8 @@ namespace Framework.ActorSystem.Runtime
                     db.DoFlagDirty(flag, IsUsed);
                 }
             }
+            if (m_pBuffSystem != null)
+                m_pBuffSystem.OnFlagDirty(flag, IsUsed);
 
          //   if (m_pServerSync != null) m_pServerSync.OutSyncData(new SvrSyncData((int)EDefaultSyncType.NodeFlag, (int)flag, IsUsed ? 1 : 0));
             switch (flag)

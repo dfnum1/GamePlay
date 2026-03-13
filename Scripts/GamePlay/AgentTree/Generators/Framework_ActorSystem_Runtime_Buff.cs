@@ -95,6 +95,46 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
+		[ATFunction(-1536609792,"设置层数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nLayer",false, null,typeof(System.UInt16))]
+#endif
+		static bool AT_SetLayer(Buff pPointerThis,System.UInt16 nLayer)
+		{
+			pPointerThis.SetLayer(nLayer);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(1553468881,"获取层数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.UInt16))]
+#endif
+		static bool AT_GetLayer(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUshort(pNode, 0, pPointerThis.GetLayer());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1816870611,"设置最大层数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"nLayer",false, null,typeof(System.UInt16))]
+#endif
+		static bool AT_SetMaxLayer(Buff pPointerThis,System.UInt16 nLayer)
+		{
+			pPointerThis.SetMaxLayer(nLayer);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(-1919191452,"获取最大层数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.UInt16))]
+#endif
+		static bool AT_GetmaxLayer(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUshort(pNode, 0, pPointerThis.GetmaxLayer());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-1853761918,"获取Tick次数",typeof(Framework.ActorSystem.Runtime.Buff),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
 		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.Int32))]
@@ -112,6 +152,26 @@ namespace Framework.ActorSystem.Runtime
 		static bool AT_GetConfigData(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
 		{
 			pAgentTree.SetOutportUserData(pNode, 0, pPointerThis.GetConfigData());
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(1117486471,"设置死亡保持",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bDieKeep",false, null,typeof(System.Boolean))]
+#endif
+		static bool AT_SetDieKeep(Buff pPointerThis,System.Boolean bDieKeep)
+		{
+			pPointerThis.SetDieKeep(bDieKeep);
+			return true;
+		}
+#if UNITY_EDITOR
+		[ATFunction(1016707071,"是否死亡保持",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableBool), "pReturn", null,typeof(System.Boolean))]
+#endif
+		static bool AT_IsDieKeep(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportBool(pNode, 0, pPointerThis.IsDieKeep());
 			return true;
 		}
 #if UNITY_EDITOR
@@ -204,6 +264,34 @@ namespace Framework.ActorSystem.Runtime
 				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
 				return AT_GetLevel((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
+			case -1536609792://SetLayer
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_SetLayer((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUshort(pNode,1));
+			}
+			case 1553468881://GetLayer
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetLayer((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case -1816870611://SetMaxLayer
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_SetMaxLayer((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportUshort(pNode,1));
+			}
+			case -1919191452://GetmaxLayer
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetmaxLayer((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case -1853761918://GetTickCount
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
@@ -217,6 +305,20 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
 				return AT_GetConfigData((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
+			case 1117486471://SetDieKeep
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 1) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_SetDieKeep((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree.GetInportBool(pNode,1));
+			}
+			case 1016707071://IsDieKeep
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_IsDieKeep((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
 			}
 			case -84416733://GetAttr
 			{

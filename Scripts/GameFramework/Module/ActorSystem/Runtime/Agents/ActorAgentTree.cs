@@ -111,6 +111,17 @@ namespace Framework.ActorSystem.Runtime
             if (bAutoReleaseAgvs && vArgvs!=null) vArgvs.Release();
         }
         //--------------------------------------------------------
+        public void ExecuteEvent(int eventType, VariableList vArgvs = null, bool bAutoReleaseAgvs = true, EActionType eActionType = EActionType.eCustomEvent)
+        {
+            if (m_pMainAgentTree != null) m_pMainAgentTree.ExecuteEvent(eventType, vArgvs, false, eActionType);
+            if (m_vSubAgentTrees != null)
+            {
+                foreach (var db in m_vSubAgentTrees)
+                    db.ExecuteEvent(eventType, vArgvs, false, eActionType);
+            }
+            if (bAutoReleaseAgvs && vArgvs != null) vArgvs.Release();
+        }
+        //--------------------------------------------------------
         internal void OnHit(HitFrameActor hitFrame)
         {
             var argvs = VariableList.Malloc(GetFramework());

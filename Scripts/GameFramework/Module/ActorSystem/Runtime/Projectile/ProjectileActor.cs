@@ -695,6 +695,7 @@ namespace Framework.ActorSystem.Runtime
                         parCtl.EnableLaunch(true);
                     }
                     SetVisible(true);
+                    GetFramework().PlaySound(m_ProjecileData.sound_launch, this);
                 }
             }
             if (m_ProjecileData == null)

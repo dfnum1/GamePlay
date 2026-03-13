@@ -37,6 +37,8 @@ namespace Framework.AT.Runtime
         LinkedList<BaseNode>                        m_pCurrentExcuting = null;
         bool                                        m_bHasCustomTask = false;
 
+        private Dictionary<long, CustomEvent>        m_vCustomEvents = null;
+
         private Dictionary<int, IUserData>          m_OwnerClass = null;
         private Dictionary<int, IUserData>          m_OwnerParentClass = null;
 
@@ -198,7 +200,16 @@ namespace Framework.AT.Runtime
                     m_pATManager.AddMouseInputTask(this);
                 }
             }
-
+            if (agentTree.events != null && agentTree.events.Length>0)
+            {
+                if (m_vCustomEvents == null) m_vCustomEvents = new Dictionary<long, CustomEvent>(agentTree.events.Length);
+                m_vCustomEvents.Clear();
+                foreach(var db in agentTree.events)
+                {
+                    long key = ((long)db.type) <<32 | (uint)db.eventType;
+                    m_vCustomEvents[key] = db;
+                }
+            }
             return true;
         }
         //-----------------------------------------------------
@@ -254,6 +265,24 @@ namespace Framework.AT.Runtime
         {
             argvType = 0;
             return 0;
+        }
+        //-----------------------------------------------------
+        public bool ExecuteEvent(int eventType, VariableList vArgvs = null, bool bAutoReleaseAgvs = true, EActionType eActionType = EActionType.eCustomEvent)
+        {
+            if (!m_bEnable || m_pData == null || m_vCustomEvents == null)
+            {
+                if (bAutoReleaseAgvs && vArgvs != null) vArgvs.Release();
+                return false;
+            }
+            long key = ((long)eActionType << 32) | (uint)eventType;
+            bool bHasType = false;
+            if (m_vCustomEvents.TryGetValue(key, out var customEvent))
+            {
+                bHasType = true;
+                ExecuteNode(customEvent, vArgvs, false);
+            }
+            if (bAutoReleaseAgvs && vArgvs != null) vArgvs.Release();
+            return bHasType;
         }
         //-----------------------------------------------------
         public bool ExecuteTask(int type, VariableList vArgvs = null, bool bAutoReleaseAgvs = true)
@@ -645,6 +674,7 @@ namespace Framework.AT.Runtime
             if (m_vExecuted != null) m_vExecuted.Clear();
             if (m_vMouseInputTask != null) m_vMouseInputTask.Clear();
             if (m_vKeyListens != null) m_vKeyListens.Clear();
+            if (m_vCustomEvents != null) m_vCustomEvents.Clear();
             m_pExitTask = null;
             m_pTickTask = null;
             m_pStartTask = null;
