@@ -19,7 +19,7 @@ namespace Framework.Cutscene.Runtime
         eActive = 7, //激活剪辑
         eTansCurvePath = 8, //曲线运动动画剪辑
 		eTimeScale = 9, //时间缩放剪辑
-        eCameraShake = 10, //镜头抖动
+        eTransformShake = 10, //对象抖动
         eCameraLerpToGame = 11, //相机插值到游戏视角
         eFollowTo = 12, //跟随目标
         eInstancePrefab = 13, //实例化预制体剪辑
