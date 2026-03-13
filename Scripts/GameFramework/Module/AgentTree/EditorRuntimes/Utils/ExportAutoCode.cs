@@ -1381,20 +1381,7 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         static bool IsUserDataType(System.Type type)
         {
-            if (type.IsClass || type.IsValueType)
-            {
-                if (type.GetInterfaces().Contains(typeof(IUserData)))
-                    return true;
-            }
-            while (type != null)
-            {
-                if (type == typeof(IUserData) || type.GetInterfaces().Contains(typeof(IUserData)))
-                {
-                    return true;
-                }
-                type = type.BaseType;
-            }
-            return false;
+            return AgentTreeUtil.IsUserDataType(type);
         }
         //-----------------------------------------------------
         static System.Type ConvertTypeToATType(System.Type type)

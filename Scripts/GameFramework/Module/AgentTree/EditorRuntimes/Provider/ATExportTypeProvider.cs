@@ -46,6 +46,8 @@ namespace Framework.AT.Editor
                     {
                         continue;
                     }
+                    if (!AgentTreeUtil.IsUserDataType(node.Value))
+                        continue;
                     var atNode = node.Value.GetCustomAttribute<ATExportAttribute>();
                     string name = atNode.nodeName;
                     if (string.IsNullOrEmpty(name)) name = node.Value.Name;

@@ -10,6 +10,7 @@ using Framework.Base;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -828,6 +829,24 @@ namespace Framework.AT.Editor
         public static List<string> GetPopEnumTypeNames()
         {
             return ms_vPopEnumTypeNames;
+        }
+        //-----------------------------------------------------
+        internal static bool IsUserDataType(System.Type type)
+        {
+            if (type.IsClass || type.IsValueType)
+            {
+                if (type.GetInterfaces().Contains(typeof(IUserData)))
+                    return true;
+            }
+            while (type != null)
+            {
+                if (type == typeof(IUserData) || type.GetInterfaces().Contains(typeof(IUserData)))
+                {
+                    return true;
+                }
+                type = type.BaseType;
+            }
+            return false;
         }
         //-----------------------------------------------------
         // 将菜单项添加到树形结构
