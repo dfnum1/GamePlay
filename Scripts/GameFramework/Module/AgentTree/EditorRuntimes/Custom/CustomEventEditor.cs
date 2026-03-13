@@ -204,14 +204,14 @@ namespace Framework.AT.Editor
 
             float width = this.position.width - ms_LeftListWidth-30;
 
-            float varWidth = 300;
-            float argvWidth = (width- varWidth-30-30) / 3;
+            float varWidth = 320;
+            float argvWidth = (width- varWidth-30- 40) / 3;
             Framework.ED.UIDrawUtils.DrawHeader(label);
             GUILayout.BeginHorizontal();
             GUILayout.Label("变量名", GUILayout.Width(argvWidth));
             GUILayout.Label("变量类型", GUILayout.Width(varWidth));
             GUILayout.Label("默认值", GUILayout.Width(argvWidth));
-            GUILayout.Label("是否可编辑", GUILayout.Width(30));
+            GUILayout.Label("可编辑", GUILayout.Width(40));
             if (GUILayout.Button("+", GUILayout.Width(30)))
             {
                 vParams.Add(new CustomEventData.EventParam());
@@ -227,7 +227,7 @@ namespace Framework.AT.Editor
                 if (paramData.type == EVariableType.eUserData)
                 {
                     paramData.type = (EVariableType)Framework.ED.EditorEnumPop.PopEnum(string.Empty, (int)paramData.type, typeof(EVariableType), new GUILayoutOption[] { GUILayout.Width(varWidth / 2) });
-                    if (GUILayout.Button(AgentTreeUtil.GetATClassTypeDisplayName(paramData.clsId), GUILayout.Width(varWidth / 2)))
+                    if (GUILayout.Button(AgentTreeUtil.GetATClassTypeDisplayName(paramData.clsId, "丢失", true), GUILayout.Width(varWidth / 2)))
                     {
                         ATExportTypeProvider.PopSearch((clasType, index) =>
                         {
@@ -240,10 +240,10 @@ namespace Framework.AT.Editor
                 }
                 else
                 {
-                    paramData.type = (EVariableType)Framework.ED.EditorEnumPop.PopEnum(string.Empty, (int)paramData.type, typeof(EVariableType), new GUILayoutOption[] { GUILayout.Width(argvWidth) });
+                    paramData.type = (EVariableType)Framework.ED.EditorEnumPop.PopEnum(string.Empty, (int)paramData.type, typeof(EVariableType), new GUILayoutOption[] { GUILayout.Width(varWidth) });
                     paramData.defaultValue = EditorGUILayout.TextField(paramData.defaultValue, GUILayout.Width(argvWidth));
                 }
-                paramData.canEdit = EditorGUILayout.Toggle(paramData.canEdit, GUILayout.Width(30));
+                paramData.canEdit = EditorGUILayout.Toggle(paramData.canEdit, GUILayout.Width(40));
 
                 if(GUILayout.Button("-", GUILayout.Width(30)))
                 {

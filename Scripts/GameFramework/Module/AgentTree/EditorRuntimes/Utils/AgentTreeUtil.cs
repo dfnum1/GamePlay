@@ -288,14 +288,18 @@ namespace Framework.AT.Editor
                             ATClassAttribute classAT = tp.GetCustomAttribute<ATClassAttribute>();
                             if (classAT.classType == null)
                                 continue;
-                            if (classAT.classType.IsDefined(typeof(ATExportAttribute), false))
+                            if (!classAT.classType.IsDefined(typeof(ATExportAttribute), false))
+                            {
+                                continue;
+                            }
                             {
                                 var exportAttr = classAT.classType.GetCustomAttribute<ATExportAttribute>();
                                 int guid = exportAttr.guid;
                                 if (guid == 0)
                                 {
-                                    guid = ATRtti.BuildHashCode(tp);
+                                    guid = ATRtti.BuildHashCode(classAT.classType);
                                 }
+                                classAT.displayName = exportAttr.nodeName;
                                 ms_ATClassTypes[guid] = classAT.classType;
                                 ms_ATClassTypeIds[classAT.classType] = guid;
                             }
@@ -337,6 +341,7 @@ namespace Framework.AT.Editor
                                     {
                                         attr.actionAttr.hasInput = false;
                                     }
+
                                     if (method.IsDefined(typeof(ATFunctionArgvAttribute), false))
                                     {
                                         ATFunctionArgvAttribute[] argvs = (ATFunctionArgvAttribute[])method.GetCustomAttributes<ATFunctionArgvAttribute>();
@@ -626,7 +631,7 @@ namespace Framework.AT.Editor
                             if (input.clsId!=0)
                             {
                                 var clsType = GetATClassType(input.clsId);
-                                if (clsType == null)
+                                if (clsType != null)
                                     argvType = clsType;
                             }
                             attr.argvs.Add(new ArgvAttribute(input.name, argvType, input.canEdit, input.defaultValue));
@@ -641,7 +646,7 @@ namespace Framework.AT.Editor
                             if (input.clsId != 0)
                             {
                                 var clsType = GetATClassType(input.clsId);
-                                if (clsType == null)
+                                if (clsType != null)
                                     argvType = clsType;
                             }
                             attr.returns.Add(new ArgvAttribute(input.name, argvType, input.canEdit, input.defaultValue));
@@ -728,7 +733,7 @@ namespace Framework.AT.Editor
             return null;
         }
         //-----------------------------------------------------
-        public static string GetATClassTypeDisplayName(int clsId, string defaultName = "")
+        public static string GetATClassTypeDisplayName(int clsId, string defaultName = "", bool bShort = false)
         {
             Init();
             if (ms_ATClassTypes.TryGetValue(clsId, out var type))
@@ -737,6 +742,11 @@ namespace Framework.AT.Editor
                 if(type.IsDefined(typeof(ATExportAttribute)))
                 {
                     name = type.GetCustomAttribute<ATExportAttribute>().nodeName;
+                    if (bShort)
+                    {
+                        var splitNames = name.Split("/");
+                        if (splitNames.Length > 0) name = splitNames[splitNames.Length - 1];
+                    }
                 }
                 return name;
             }

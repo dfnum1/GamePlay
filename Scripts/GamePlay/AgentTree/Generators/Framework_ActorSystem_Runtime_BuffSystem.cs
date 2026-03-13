@@ -9,7 +9,7 @@ using FFloat=UnityEngine.Float;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.ActorSystem.Runtime.BuffSystem),"Actor系统/Buff系统")]
+	[ATClass(typeof(Framework.ActorSystem.Runtime.BuffSystem))]
 #endif
 	public class Framework_ActorSystem_Runtime_BuffSystem
 	{

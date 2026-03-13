@@ -35,7 +35,8 @@ namespace Framework.AT.Editor
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             var tree = new List<SearchTreeEntry>();
-            tree.Add(new SearchTreeGroupEntry(new GUIContent("选择游状态")));
+            HashSet<string> vNames = new HashSet<string>();
+            tree.Add(new SearchTreeGroupEntry(new GUIContent("选择蓝图对象")));
             var nodes = AgentTreeUtil.GetATClassTypes();
             if (nodes != null)
             {
@@ -48,20 +49,31 @@ namespace Framework.AT.Editor
                     var atNode = node.Value.GetCustomAttribute<ATExportAttribute>();
                     string name = atNode.nodeName;
                     if (string.IsNullOrEmpty(name)) name = node.Value.Name;
-                    var menus = name.Split('/');
-                    for (int i = 0; i < menus.Length; ++i)
+                    var nameDots = name.Split('/');
+                    if(nameDots.Length>0)
                     {
-                        if (i == menus.Length - 1)
+                        var useName = nameDots[nameDots.Length - 1];
+                        if (vNames.Contains(useName))
                         {
-                            tree.Add(new SearchTreeEntry(new GUIContent(menus[i]))
+                            for (int i = nameDots.Length - 1; i >= 0; --i)
                             {
-                                level = 1 + i,
-                                userData = node
-                            });
+                                useName = nameDots[i] + "/" + useName;
+                                if (!vNames.Contains(useName))
+                                {
+                                    name = useName;
+                                    break;
+                                }
+                            }
                         }
-                        else
-                            tree.Add(new SearchTreeGroupEntry(new GUIContent(menus[i])) { level = 1 + i });
+                        else name = useName;
                     }
+   
+                    vNames.Add(name);
+                    tree.Add(new SearchTreeEntry(new GUIContent(name))
+                    {
+                        level = 1,
+                        userData = node
+                    });
                 }
             }
             return tree;

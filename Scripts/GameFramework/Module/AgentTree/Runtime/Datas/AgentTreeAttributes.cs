@@ -98,7 +98,7 @@ namespace Framework.AT.Runtime
         public string displayName;
         public System.Type classType;
 #endif
-        public ATClassAttribute(System.Type classType, string className)
+        public ATClassAttribute(System.Type classType, string className = null)
         {
 #if UNITY_EDITOR
             this.classType = classType;

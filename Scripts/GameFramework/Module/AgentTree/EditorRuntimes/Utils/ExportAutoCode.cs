@@ -296,7 +296,7 @@ namespace Framework.AT.Editor
                 code.AppendLine("{");
             }
             code.AppendLine("#if UNITY_EDITOR");
-            code.AppendLine($"\t[ATClass(typeof({GetTypeName(export.type)}),\"{export.exportAttr.nodeName}\")]");
+            code.AppendLine($"\t[ATClass(typeof({GetTypeName(export.type)}))]");
             code.AppendLine("#endif");
             code.AppendLine($"\tpublic class {typeClassName}");
             code.AppendLine("\t{");

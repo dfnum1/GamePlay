@@ -12,7 +12,7 @@ using FMatrix4x4=UnityEngine.Matrix4x4;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.ActorSystem.Runtime.Actor),"Actor系统/Actor")]
+	[ATClass(typeof(Framework.ActorSystem.Runtime.Actor))]
 #endif
 	public class Framework_ActorSystem_Runtime_Actor
 	{

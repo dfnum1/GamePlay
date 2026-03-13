@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.State.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.State.Runtime.GameWorld),"游戏世界")]
+	[ATClass(typeof(Framework.State.Runtime.GameWorld))]
 #endif
 	public class Framework_State_Runtime_GameWorld
 	{

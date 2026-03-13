@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.ActorSystem.Runtime.SkillSystem),"Actor系统/技能系统")]
+	[ATClass(typeof(Framework.ActorSystem.Runtime.SkillSystem))]
 #endif
 	public class Framework_ActorSystem_Runtime_SkillSystem
 	{

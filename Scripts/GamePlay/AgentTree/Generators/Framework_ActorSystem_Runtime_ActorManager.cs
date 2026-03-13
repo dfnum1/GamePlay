@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.ActorSystem.Runtime
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.ActorSystem.Runtime.ActorManager),"Actor系统/管理器")]
+	[ATClass(typeof(Framework.ActorSystem.Runtime.ActorManager))]
 #endif
 	public class Framework_ActorSystem_Runtime_ActorManager
 	{

@@ -9,7 +9,7 @@ using Framework.Data;
 using Framework.Core;
 namespace TopGame.Data
 {
-	[Framework.AT.Runtime.ATExport("配置数据系统/#CLASS_NAME#", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
+	[Framework.AT.Runtime.ATExport("配置数据系统/#CLASS_NAME#表", "pAgentTree.GetModule<Framework.Data.ADataManager>()?.GetCsvData<CsvData_#CLASS_NAME#>()")]
     public partial class CsvData_#CLASS_NAME# : Data_Base
     {
 		Dictionary<#DATA_KEY#, ProjectileData> m_vData = new Dictionary<#DATA_KEY#, ProjectileData>();

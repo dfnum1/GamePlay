@@ -3,7 +3,7 @@ using Framework.AT.Runtime;
 namespace Framework.Data
 {
 #if UNITY_EDITOR
-	[ATClass(typeof(Framework.Data.ADataManager),"配置数据系统/管理器")]
+	[ATClass(typeof(Framework.Data.ADataManager))]
 #endif
 	public class Framework_Data_ADataManager
 	{

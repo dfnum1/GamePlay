@@ -18,7 +18,7 @@ using FFloat = System.Single;
 
 namespace Framework.ActorSystem.Runtime
 {
-    [ATInteralExport("Actor系统/Buff", -10, "ActorSystem/actor_buff")]
+    [ATInteralExport("Actor系统/Buff对象", -10, "ActorSystem/actor_buff")]
     public class Buff : AActorStateInfo
     {
         enum EStatus : byte
