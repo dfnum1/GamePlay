@@ -10,20 +10,18 @@ using Framework.AT.Editor;
 using Framework.AT.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Framework.ActorSystem.Editor
 {
-    [ATDrawer("DrawAttributePop", "OnDrawAttributePop")]
-    [ATDrawer("DrawFormulaTypePop", "OnDrawFormulaTypePop")]
-    [ATDrawer("BuffStateDraw", "OnBuffStateDraw")]
-    [ATDrawer("AttackGroupDraw", "OnAttackGroupDraw")]
-    [ATDrawer("ActorTypeDraw", "OnActorTypeDraw")]
-    [ATDrawer("ActorSubTypeDraw", "OnActorSubTypeDraw")]
+    [ATDrawer(BaseATDrawerKey.Key_DrawAttributePop, "OnDrawAttributePop")]
+    [ATDrawer(BaseATDrawerKey.Key_DrawFormulaTypePop, "OnDrawFormulaTypePop")]
+    [ATDrawer(BaseATDrawerKey.Key_BuffStateDraw, "OnBuffStateDraw")]
+    [ATDrawer(BaseATDrawerKey.Key_AttackGroupDraw, "OnAttackGroupDraw")]
+    [ATDrawer(BaseATDrawerKey.Key_ActorTypeDraw, "OnActorTypeDraw")]
+    [ATDrawer(BaseATDrawerKey.Key_ActorSubTypeDraw, "OnActorSubTypeDraw")]
     public class AttriCustomDrawer
     {
         static List<byte> ms_vAttris = null;

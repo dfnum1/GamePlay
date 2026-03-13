@@ -74,26 +74,6 @@ namespace Framework.ActorSystem.Runtime
 			return true;
 		}
 #if UNITY_EDITOR
-		[ATFunction(-282211430,"添加索敌目标",typeof(Framework.ActorSystem.Runtime.Skill),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableUserData),"pNode",false, null,typeof(Framework.ActorSystem.Runtime.Actor))]
-		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bClear",false, null,typeof(System.Boolean))]
-#endif
-		static bool AT_AddLockTarget(Skill pPointerThis,Framework.ActorSystem.Runtime.Actor pNode,System.Boolean bClear)
-		{
-			pPointerThis.AddLockTarget(pNode,bClear);
-			return true;
-		}
-#if UNITY_EDITOR
-		[ATFunction(1216193890,"清理索敌目标",typeof(Framework.ActorSystem.Runtime.Skill),false)]
-		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
-#endif
-		static bool AT_ClearLockTargets(Skill pPointerThis)
-		{
-			pPointerThis.ClearLockTargets();
-			return true;
-		}
-#if UNITY_EDITOR
 		[ATFunction(-129251471,"更新前置触发判定标志",typeof(Framework.ActorSystem.Runtime.Skill),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Skill",false, null,typeof(Framework.ActorSystem.Runtime.Skill))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableBool),"bCanTrigger",false, null,typeof(System.Boolean))]
@@ -267,20 +247,6 @@ namespace Framework.ActorSystem.Runtime
 				if(pNode.GetInportCount() <= 0) return true;
 				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
 				return AT_CanTrigger((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree, pNode);
-			}
-			case -282211430://AddLockTarget
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 2) return true;
-				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
-				return AT_AddLockTarget((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer,pAgentTree.GetInportUserData<Framework.ActorSystem.Runtime.Actor>(pNode,1),pAgentTree.GetInportBool(pNode,2));
-			}
-			case 1216193890://ClearLockTargets
-			{
-				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
-				if(pNode.GetInportCount() <= 0) return true;
-				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Skill)) return true;
-				return AT_ClearLockTargets((Framework.ActorSystem.Runtime.Skill)pUserClass.pPointer);
 			}
 			case -129251471://SetPreCanTrigger
 			{

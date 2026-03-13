@@ -24,6 +24,7 @@ namespace Framework.ActorSystem.Runtime
         private Actor                       m_pOwner = null;
         protected LinkedList<Buff>          m_vBuffs = null;
 
+        private uint                        m_nBuffEffctStateFlag = 0;
         private bool                        m_bDirty = false;
         private Dictionary<byte, BuffAttr>  m_vBuffAttrs = null;
         private Dictionary<byte, BuffAttr>  m_vLastBuffAttrs = null;
@@ -62,6 +63,11 @@ namespace Framework.ActorSystem.Runtime
             return null;
         }
         //-----------------------------------------------------
+        public bool HasBuffEffectState(uint nBuffStateFlag)
+        {
+            return (m_nBuffEffctStateFlag&nBuffStateFlag)!=0;
+        }
+        //-----------------------------------------------------
         [ATMethod("添加Buff")]
         public void AddBuff(Buff pBuff)
         {
@@ -76,7 +82,7 @@ namespace Framework.ActorSystem.Runtime
             m_vBuffs.AddLast(pBuff);
         }
         //-----------------------------------------------------
-        [ATMethod("获取Buff属性值"),ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("获取Buff属性值"),ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public FFloat GetAttrValue(byte type)
         {
             if (m_vTempBuffAttrs == null) m_vTempBuffAttrs = m_vBuffAttrs;
@@ -87,7 +93,7 @@ namespace Framework.ActorSystem.Runtime
             return 0;
         }
         //-----------------------------------------------------
-        [ATMethod("获取Buff属性率"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("获取Buff属性率"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public FFloat GetAttrRate(byte type)
         {
             if (m_vTempBuffAttrs == null) m_vTempBuffAttrs = m_vBuffAttrs;
@@ -142,6 +148,7 @@ namespace Framework.ActorSystem.Runtime
         {
             if (m_vBuffs != null)
             {
+                uint nBuffState = 0;
                 for (var node = m_vBuffs.First; node != null;)
                 {
                     var next = node.Next;
@@ -153,8 +160,13 @@ namespace Framework.ActorSystem.Runtime
                         node.Value.Free();
                         m_vBuffs.Remove(node);
                     }
+                    else
+                    {
+                        nBuffState |= node.Value.GetEffectState();
+                    }
                     node = next;
                 }
+                m_nBuffEffctStateFlag = nBuffState;
             }
             if(m_bDirty)
             {
@@ -214,7 +226,8 @@ namespace Framework.ActorSystem.Runtime
             if (m_vBuffAttrs != null) m_vBuffAttrs.Clear();
             m_vTempBuffAttrs = null;
             m_bDirty = false;
-            if(m_vBuffs!=null)
+            m_nBuffEffctStateFlag = 0;
+            if (m_vBuffs!=null)
             {
                 for (var node = m_vBuffs.First; node != null; node = node.Next)
                 {

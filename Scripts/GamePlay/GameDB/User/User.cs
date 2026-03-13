@@ -67,7 +67,7 @@ namespace Framework.Db
             OnDirtyDB?.Invoke(db);
         }
         //------------------------------------------------------
-        [ATMethod("获取Db数据"), ATArgvDrawer("type", "DrawProxyDbTypePop")]
+        [ATMethod("获取Db数据"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawProxyDbTypePop)]
         public AProxyDB GetProxyDB(int type)
         {
             if (m_vProxyDBs == null) return null;

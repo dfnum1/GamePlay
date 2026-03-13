@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Framework.Base;
+using UnityEditor.VersionControl;
+
 
 #if USE_FIXEDMATH
 using ExternEngine;
@@ -97,25 +99,25 @@ namespace Framework.ActorSystem.Runtime
             return GetActorParameter().GetGUID();
         }
         //--------------------------------------------------------
-        [ATMethod("设置Actor类型"), ATArgvDrawer("type", "ActorTypeDraw")]
+        [ATMethod("设置Actor类型"), ATArgvDrawer("type", BaseATDrawerKey.Key_ActorTypeDraw)]
         public void SetActorType(byte type)
         {
             GetActorParameter().SetActorType(type);
         }
         //--------------------------------------------------------
-        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", "ActorTypeDraw")]
+        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_ActorTypeDraw)]
         public byte GetActorType()
         {
             return GetActorParameter().GetActorType();
         }
         //--------------------------------------------------------
-        [ATMethod("设置Actor类型"), ATArgvDrawer("subType", "ActorSubTypeDraw")]
+        [ATMethod("设置Actor类型"), ATArgvDrawer("subType", BaseATDrawerKey.Key_ActorSubTypeDraw)]
         public void SetActorSubType(byte subType)
         {
             GetActorParameter().SetActorSubType(subType);
         }
         //--------------------------------------------------------
-        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", "ActorSubTypeDraw")]
+        [ATMethod("获得Actor类型"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_ActorSubTypeDraw)]
         public byte GetActorSubType()
         {
             return GetActorParameter().GetActorSubType();
@@ -311,13 +313,13 @@ namespace Framework.ActorSystem.Runtime
             m_pPrev = pNode;
         }
         //------------------------------------------------------
-        [ATMethod("获取攻击组"), ATArgvDrawer("#return#", "AttackGroupDraw")]
+        [ATMethod("获取攻击组"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_AttackGroupDraw)]
         public byte GetAttackGroup()
         {
             return GetActorParameter().GetAttackGroup();
         }
         //------------------------------------------------------
-        [ATMethod("设置攻击组"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("设置攻击组"), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public void SetAttackGroup(byte attackGroup)
         {
             GetActorParameter().SetAttackGroup(attackGroup);
@@ -1007,19 +1009,19 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SetAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("设置属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("设置属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public void SetAttr(byte type, FFloat value)
         {
             GetActorParameter().SetAttr(type, value);
         }
         //--------------------------------------------------------
-        [ATMethod("获取属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("获取属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public FFloat GetAttr(byte type, float defVal = 0)
         {
             return GetActorParameter().GetAttr(type, defVal);
         }
         //--------------------------------------------------------
-        [ATMethod("移除属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("移除属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public void RemoveAttr(byte type)
         {
             GetActorParameter().RemoveAttr(type);
@@ -1030,7 +1032,7 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().AppendAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("添加属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("添加属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public void AppendAttr(byte type, FFloat value)
         {
             GetActorParameter().AppendAttr(type, value);
@@ -1041,7 +1043,7 @@ namespace Framework.ActorSystem.Runtime
             GetActorParameter().SubAttrs(attiTypes, values);
         }
         //--------------------------------------------------------
-        [ATMethod("减少属性"), ATArgvDrawer("type","DrawAttributePop")]
+        [ATMethod("减少属性"), ATArgvDrawer("type",BaseATDrawerKey.Key_DrawAttributePop)]
         public void SubAttr(byte type, FFloat value, bool bLowerZero = false)
         {
             GetActorParameter().SubAttr(type, value, bLowerZero);

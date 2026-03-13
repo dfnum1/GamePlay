@@ -37,6 +37,8 @@ namespace Framework.ActorSystem.Runtime
         protected int               m_nContinueTriggerCount = 0;
         protected int               m_nAttrFormulaType = 0;
 
+        protected uint              m_nForbidBuffEffectStateFlag = 0;
+
         protected byte              m_nCostAttrType = 0;
         protected FFloat            m_CostAttrValue = 0;
 
@@ -60,7 +62,7 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         protected virtual void OnConfigData() { }
         //-----------------------------------------------------
-        public Actor GetActor()
+        public override Actor GetOwner()
         {
             if (m_pOwner != null)
                 return m_pOwner.GetActor();
@@ -93,6 +95,16 @@ namespace Framework.ActorSystem.Runtime
         public void SetActived(bool bActive)
         {
             m_bActived = bActive;
+        }
+        //-----------------------------------------------------
+        public uint GetForbidBuffEffectStateFlag()
+        {
+            return m_nForbidBuffEffectStateFlag;
+        }
+        //-----------------------------------------------------
+        public void SetForbidBuffEffectStateFlag(uint nForbidBuffStateFlag)
+        {
+            m_nForbidBuffEffectStateFlag = nForbidBuffStateFlag;
         }
         //-----------------------------------------------------
         public ActorManager GetActorManager()
@@ -175,35 +187,37 @@ namespace Framework.ActorSystem.Runtime
             if (m_pOwner == null) return false;
             var attrValue = m_pOwner.GetActor().GetAttr(m_nCostAttrType,0);
             if (attrValue<GetCostAttrValue()) return false;
+
+            if (m_nForbidBuffEffectStateFlag != 0 && GetOwner().GetBuffSystem().HasBuffEffectState(m_nForbidBuffEffectStateFlag))
+                return false;
+
             return CheckCanTrigger();
         }
         //-----------------------------------------------------
-        [ATMethod("添加索敌目标")]
         public override void AddLockTarget(Actor pNode, bool bClear = false)
         {
             m_pOwner.AddLockTarget(pNode,bClear);
         }
         //-----------------------------------------------------
-        [ATMethod("清理索敌目标")]
         public override void ClearLockTargets()
         {
             m_pOwner.ClearLockTargets();
         }
         //------------------------------------------------------
-        public override List<Actor> GetLockTargets( bool isEmptyReLock = true)
+        public override List<Actor> GetLockTargets( bool isNullCreate = true)
         {
-            return m_pOwner.GetLockTargets(isEmptyReLock);
+            return m_pOwner.GetLockTargets(isNullCreate);
         }
         //------------------------------------------------------
         public virtual bool DoLockTargets()
         {
-            Actor pOwner = GetActor();
+            Actor pOwner = GetOwner();
             if (pOwner == null) return false;
             ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
             if(pAT!=null)
             {
                 VariableList argvs = VariableList.Malloc(GetFramework());
-                argvs.AddUserData(GetActor());
+                argvs.AddUserData(GetOwner());
                 argvs.AddUserData(this);
                 pAT.ExecuteTask((int)EActorATType.onLockTarget, argvs);
             }
@@ -217,13 +231,13 @@ namespace Framework.ActorSystem.Runtime
         protected virtual bool CheckCanTrigger() 
         {
             m_bPreCanTrigger = true;
-            Actor pOwner = GetActor();
+            Actor pOwner = GetOwner();
             if (pOwner == null) return false;
             ActorAgentTree pAT = pOwner.GetAgent<ActorAgentTree>();
             if (pAT != null)
             {
                 VariableList argvs = VariableList.Malloc(GetFramework());
-                argvs.AddUserData(GetActor());
+                argvs.AddUserData(GetOwner());
                 argvs.AddUserData(this);
                 pAT.ExecuteTask((int)EActorATType.onPreDoSkillCheck, argvs);
             }
@@ -267,13 +281,13 @@ namespace Framework.ActorSystem.Runtime
             m_nActionTag = nTag;
         }
         //-----------------------------------------------------
-        [ATMethod("获取消耗属性"), ATArgvDrawer("#return#", "DrawAttributePop")]
+        [ATMethod("获取消耗属性"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_DrawAttributePop)]
         public byte GetCostAttrType()
         {
             return m_nCostAttrType;
         }
         //-----------------------------------------------------
-        [ATMethod("设置消耗属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("设置消耗属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public void SetCostAttrType(byte type)
         {
             m_nCostAttrType = type;
@@ -291,13 +305,13 @@ namespace Framework.ActorSystem.Runtime
             return m_CostAttrValue;
         }
         //-----------------------------------------------------
-        [ATMethod("获取属性计算公式"), ATArgvDrawer("#return#", "DrawFormulaTypePop")]
+        [ATMethod("获取属性计算公式"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_DrawFormulaTypePop)]
         public override int GetAttrFormulaType()
         {
             return m_nAttrFormulaType;
         }
         //-----------------------------------------------------
-        [ATMethod("设置属性计算公式"), ATArgvDrawer("type", "DrawFormulaTypePop")]
+        [ATMethod("设置属性计算公式"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawFormulaTypePop)]
         public void SetAttrFormulaType(int type)
         {
             m_nAttrFormulaType = type;

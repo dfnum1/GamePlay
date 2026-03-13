@@ -224,7 +224,8 @@ namespace Framework.AT.Runtime
 #if UNITY_EDITOR
         internal ArgvAttribute ToArgv()
         {
-            return new ArgvAttribute(DisplayName, ArgvType, DisplayType, bShowEdit, defaultValue) { methodDrawer = drawMethod, byPortArgv = byPortArgv };
+            if (DisplayType == null) DisplayType = ArgvType;
+            return new ArgvAttribute(DisplayName, DisplayType, DisplayType, bShowEdit, defaultValue) { methodDrawer = drawMethod, byPortArgv = byPortArgv };
         }
 #endif
     }

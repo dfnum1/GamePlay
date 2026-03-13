@@ -92,7 +92,7 @@ namespace Framework.ActorSystem.Runtime
         //-----------------------------------------------------
         protected virtual void OnConfigData() { }
         //-----------------------------------------------------
-        public Actor GetActor()
+        public override Actor GetOwner()
         {
             if (m_pOwner != null)
                 return m_pOwner.GetActor();
@@ -127,14 +127,20 @@ namespace Framework.ActorSystem.Runtime
             m_nEffectStateFlags = 0;
         }
         //-----------------------------------------------------
-        [ATMethod("是有拥有Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        [ATMethod("获取Buff状态"), ATArgvDrawer("#return#", BaseATDrawerKey.Key_BuffStateDraw)]
+        public uint GetEffectState()
+        {
+            return m_nEffectStateFlags;
+        }
+        //-----------------------------------------------------
+        [ATMethod("是有拥有Buff状态"), ATArgvDrawer("effectState", BaseATDrawerKey.Key_BuffStateDraw)]
         public bool HasEffectState(uint effectState)
         {
             if (effectState >= 32) return false;
             return (m_nEffectStateFlags & (1u << (int)effectState)) != 0;
         }
         //-----------------------------------------------------
-        [ATMethod("添加Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        [ATMethod("添加Buff状态"), ATArgvDrawer("effectState", BaseATDrawerKey.Key_BuffStateDraw)]
         public void AddEffectState(uint effectState)
         {
             if (effectState >= 32) return;
@@ -144,7 +150,7 @@ namespace Framework.ActorSystem.Runtime
             if (last != m_nEffectStateFlags)
             {
                 var agrvs = VariableList.Malloc(GetFramework());
-                agrvs.AddUserData(GetActor());
+                agrvs.AddUserData(GetOwner());
                 agrvs.AddUserData(this);
                 agrvs.AddInt((int)effectState);
                 GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onAddBuffState, agrvs, false);
@@ -152,7 +158,7 @@ namespace Framework.ActorSystem.Runtime
             }
         }
         //-----------------------------------------------------
-        [ATMethod("移除Buff状态"), ATArgvDrawer("effectState", "BuffStateDraw")]
+        [ATMethod("移除Buff状态"), ATArgvDrawer("effectState", BaseATDrawerKey.Key_BuffStateDraw)]
         public void RemoveEffectState(uint effectState)
         {
             if (effectState >= 32) return;
@@ -161,7 +167,7 @@ namespace Framework.ActorSystem.Runtime
             if(last != m_nEffectStateFlags)
             {
                 var agrvs = VariableList.Malloc(GetFramework());
-                agrvs.AddUserData(GetActor());
+                agrvs.AddUserData(GetOwner());
                 agrvs.AddUserData(this);
                 agrvs.AddInt((int)effectState);
                 GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onRemoveBuffState, agrvs, false);
@@ -192,11 +198,11 @@ namespace Framework.ActorSystem.Runtime
         void DoEvent(int[] events)
         {
             if (events == null) return;
-            var pAT = GetActor().GetAgent<ActorAgentTree>(true);
+            var pAT = GetOwner().GetAgent<ActorAgentTree>(true);
             if (pAT != null)
             {
                 VariableList vArgvs = VariableList.Malloc(GetFramework());
-                vArgvs.AddUserData(GetActor());
+                vArgvs.AddUserData(GetOwner());
                 vArgvs.AddUserData(this);
                 vArgvs.AddUserData(GetConfigData());
                 for (int i = 0; i < events.Length; ++i)
@@ -242,9 +248,9 @@ namespace Framework.ActorSystem.Runtime
                 case EStatus.eNone:
                     {
 #if !USE_SERVER
-                        if(m_BeginEffectId!=0) GetActor().GetAgent<ActorPartAgent>(false)?.DeletePart(m_BeginEffectId);
-                        m_BeginEffectId = GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strBeginEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
-                        GetFramework().PlaySound(m_strBeginSound, GetActor());
+                        if(m_BeginEffectId!=0) GetOwner().GetAgent<ActorPartAgent>(false)?.DeletePart(m_BeginEffectId);
+                        m_BeginEffectId = GetOwner().GetAgent<ActorPartAgent>(true).AddPart(m_strBeginEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                        GetFramework().PlaySound(m_strBeginSound, GetOwner());
 #endif
                         DoEvent(m_arrBeginEvents);
                         m_eStatus = EStatus.eBegin;
@@ -278,8 +284,8 @@ namespace Framework.ActorSystem.Runtime
                                 m_fTickTime = 0;
                                 OnTick();
 #if !USE_SERVER
-                                GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strStepEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
-                                GetFramework().PlaySound(m_strStepSound, GetActor());
+                                GetOwner().GetAgent<ActorPartAgent>(true).AddPart(m_strStepEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                                GetFramework().PlaySound(m_strStepSound, GetOwner());
 #endif
                                 DoEvent(m_arrStepEvents);
                             }
@@ -297,9 +303,9 @@ namespace Framework.ActorSystem.Runtime
                 case EStatus.eEnd:
                     {
 #if !USE_SERVER
-                        if (m_EndEffceId != 0) GetActor().GetAgent<ActorPartAgent>(false)?.DeletePart(m_EndEffceId);
-                        m_EndEffceId = GetActor().GetAgent<ActorPartAgent>(true).AddPart(m_strEndEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
-                        GetFramework().PlaySound(m_strEndSound, GetActor());
+                        if (m_EndEffceId != 0) GetOwner().GetAgent<ActorPartAgent>(false)?.DeletePart(m_EndEffceId);
+                        m_EndEffceId = GetOwner().GetAgent<ActorPartAgent>(true).AddPart(m_strEndEffect, m_BindOffset, m_BindRotateOffset, Vector3.one * m_fEffectScale, m_strBindSlot, m_nBindBit, m_bDieKeep);
+                        GetFramework().PlaySound(m_strEndSound, GetOwner());
 #endif
                         DoEvent(m_arrEndEvents);
                         m_eStatus = EStatus.eOver;
@@ -331,7 +337,7 @@ namespace Framework.ActorSystem.Runtime
 
             m_bActived = bActive;
             var agrvs = VariableList.Malloc(GetFramework());
-            agrvs.AddUserData(GetActor());
+            agrvs.AddUserData(GetOwner());
             agrvs.AddUserData(this);
             agrvs.AddBool(m_bActived);
             GetActorManager()?.OnTaskGlobalAT((int)EActorATType.onActiveBuff, agrvs,true);
@@ -409,7 +415,7 @@ namespace Framework.ActorSystem.Runtime
 
         }
         //-----------------------------------------------------
-        [ATMethod("获取Buff属性"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("获取Buff属性"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public virtual FFloat GetAttr(byte type)
         {
             if (m_arrAttrTypes == null || m_arrAttrValues == null) return 0;
@@ -424,7 +430,7 @@ namespace Framework.ActorSystem.Runtime
             return FFloat.zero;
         }
         //-----------------------------------------------------
-        [ATMethod("获取Buff属性值类型"), ATArgvDrawer("type", "DrawAttributePop")]
+        [ATMethod("获取Buff属性值类型"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
         public EAttrValueType GetAttrValueType(byte type)
         {
             if (m_arrAttrTypes == null || m_arrAttrValueTypes == null) return EAttrValueType.eValue;
@@ -449,7 +455,7 @@ namespace Framework.ActorSystem.Runtime
             m_pConfigData = null;
             m_bActived = false;
             m_eStatus = EStatus.eOver;
-            var part = GetActor().GetAgent<ActorPartAgent>();
+            var part = GetOwner().GetAgent<ActorPartAgent>();
             if(part!=null)
             {
                 part.DeletePart(m_BeginEffectId);

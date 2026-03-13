@@ -167,7 +167,7 @@ namespace Framework.Data
             }
         }
         //-------------------------------------------
-        [ATMethod("获取配置数据"),ATArgvDrawer("table", "DrawCsvTablePop")]
+        [ATMethod("获取配置数据"),ATArgvDrawer("table", BaseATDrawerKey.Key_DrawCsvTablePop)]
         public Data_Base GetCsvData(int table)
         {
             if (m_vHashDatas.TryGetValue(table, out var data))

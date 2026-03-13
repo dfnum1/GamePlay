@@ -37,6 +37,7 @@ namespace Framework.ActorSystem.Runtime
         Skill m_pCurrentSkill = null;
         byte m_nNoActionSkillClear = 0;
         Skill m_pNoActionCurrentSkill = null;
+        private LockTargetUtil m_LockTargetData = null;
         //-----------------------------------------------------
         public SkillSystem()
         {
@@ -68,8 +69,9 @@ namespace Framework.ActorSystem.Runtime
             return m_pOwner.GetActorManager().GetRunTime();
         }
         //-----------------------------------------------------
-        public List<Actor> GetLockTargets(bool isEmptyReLock = true)
+        public List<Actor> GetLockTargets(bool isNullCreate = true)
         {
+            if (isNullCreate && m_vLockTargets == null) m_vLockTargets = new List<Actor>(2);
             return m_vLockTargets;
         }
         //-----------------------------------------------------

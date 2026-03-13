@@ -20,7 +20,7 @@ using UnityEngine.UIElements;
 namespace Framework.Db
 {
     [EditorInitOnload]
-    [ATDrawer("DrawProxyDbTypePop", "OnDrawProxyDbTypePop")]
+    [ATDrawer(BaseATDrawerKey.Key_DrawProxyDbTypePop, "OnDrawProxyDbTypePop")]
     class ProxyDbEditor
     {
         class ClassBinaryCode

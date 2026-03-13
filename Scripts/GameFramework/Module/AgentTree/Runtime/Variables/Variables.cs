@@ -1011,7 +1011,8 @@ namespace Framework.AT.Runtime
                 if(pVar is VariableUserData)
                 {
                     VariableUserData pUserData = (VariableUserData)pVar;
-                    pUserData.value = ATRtti.GetClassTypeId(attri.argvType);
+                    pUserData.value = 0;
+                    if (attri.displayType != null) pUserData.value = ATRtti.GetClassTypeId(attri.displayType);
                     return pUserData;
                 }
                 return pVar;

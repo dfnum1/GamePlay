@@ -64,7 +64,7 @@ namespace Framework.ActorSystem.Runtime
         private bool                                m_isSpatialIndexEnabled = true;
         FBounds                                     m_SpatialBounds = SpatialIndexFactory.DefaultWorldBounds;
 
-        private Transform                           m_pActorRoot = null;        
+        private Transform                           m_pActorRoot = null;
         //-----------------------------------------------------
         public bool IsEditorMode()
         {
@@ -80,6 +80,11 @@ namespace Framework.ActorSystem.Runtime
         protected override void OnStart()
         {
             BuildAgentTrees();
+        }
+        //-----------------------------------------------------        
+        internal Dictionary<int,Actor> GetActors()
+        {
+            return m_vNodes;
         }
         //-----------------------------------------------------        
         public AttrCoreData.AttrFormula GetAttrFormula(int formula)
@@ -789,7 +794,7 @@ namespace Framework.ActorSystem.Runtime
             return vResults;
         }
         //-----------------------------------------------------
-        [ATMethod("统计类型单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw")]
+        [ATMethod("统计类型单位数量"), ATArgvDrawer("actorType", BaseATDrawerKey.Key_ActorTypeDraw)]
         public int StatisticsActorCount(byte actorType)
         {
             int cnt = 0;
@@ -802,7 +807,7 @@ namespace Framework.ActorSystem.Runtime
             return cnt;
         }
         //-----------------------------------------------------
-        [ATMethod("统计阵营组单位数量"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("统计阵营组单位数量"), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public int StatisticsAttackGroupActorCount(byte attackGroup)
         {
             int cnt = 0;
@@ -815,7 +820,7 @@ namespace Framework.ActorSystem.Runtime
             return cnt;
         }
         //-----------------------------------------------------
-        [ATMethod("统计类型和阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("统计类型和阵营组单位数量"), ATArgvDrawer("actorType", BaseATDrawerKey.Key_ActorTypeDraw), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public int StatisticsActorCount(byte actorType, byte attackGroup)
         {
             int cnt = 0;
@@ -828,7 +833,7 @@ namespace Framework.ActorSystem.Runtime
             return cnt;
         }
         //-----------------------------------------------------
-        [ATMethod("统计类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("统计类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", BaseATDrawerKey.Key_ActorTypeDraw), ATArgvDrawer("subType", BaseATDrawerKey.Key_ActorSubTypeDraw, "actorType"), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public int StatisticsActorCount(byte actorType, byte subType, byte attackGroup)
         {
             int cnt = 0;
@@ -841,7 +846,7 @@ namespace Framework.ActorSystem.Runtime
             return cnt;
         }
         //-----------------------------------------------------
-        [ATMethod("显示隐藏类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("显示隐藏类型_阵营组单位数量"), ATArgvDrawer("actorType", BaseATDrawerKey.Key_ActorTypeDraw), ATArgvDrawer("subType", BaseATDrawerKey.Key_ActorSubTypeDraw, "actorType"), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public int ShowActors(bool bShow, byte actorType, byte attackGroup)
         {
             int cnt = 0;
@@ -854,7 +859,7 @@ namespace Framework.ActorSystem.Runtime
             return cnt;
         }
         //-----------------------------------------------------
-        [ATMethod("显示隐藏类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", "ActorTypeDraw"), ATArgvDrawer("subType", "ActorSubTypeDraw", "actorType"), ATArgvDrawer("attackGroup", "AttackGroupDraw")]
+        [ATMethod("显示隐藏类型_子类型_阵营组单位数量"), ATArgvDrawer("actorType", BaseATDrawerKey.Key_ActorTypeDraw), ATArgvDrawer("subType", BaseATDrawerKey.Key_ActorSubTypeDraw, "actorType"), ATArgvDrawer("attackGroup", BaseATDrawerKey.Key_AttackGroupDraw)]
         public int ShowActors(bool bShow, byte actorType, byte subType, byte attackGroup)
         {
             int cnt = 0;

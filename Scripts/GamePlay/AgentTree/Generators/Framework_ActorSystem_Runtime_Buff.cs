@@ -14,6 +14,16 @@ namespace Framework.ActorSystem.Runtime
 	public class Framework_ActorSystem_Runtime_Buff
 	{
 #if UNITY_EDITOR
+		[ATFunction(1394729232,"获取Buff状态",typeof(Framework.ActorSystem.Runtime.Buff),false)]
+		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
+		[ATFunctionReturn(typeof(Framework.AT.Runtime.VariableInt), "pReturn", null,typeof(System.UInt32),drawMethod:"BuffStateDraw")]
+#endif
+		static bool AT_GetEffectState(Buff pPointerThis,AgentTree pAgentTree, BaseNode pNode)
+		{
+			pAgentTree.SetOutportUint(pNode, 0, pPointerThis.GetEffectState());
+			return true;
+		}
+#if UNITY_EDITOR
 		[ATFunction(-1315645697,"是有拥有Buff状态",typeof(Framework.ActorSystem.Runtime.Buff),false)]
 		[ATFunctionArgv(typeof(VariableUserData),"Buff",false, null,typeof(Framework.ActorSystem.Runtime.Buff))]
 		[ATFunctionArgv(typeof(Framework.AT.Runtime.VariableInt),"effectState",false, null,typeof(System.UInt32),drawMethod:"BuffStateDraw")]
@@ -208,6 +218,13 @@ namespace Framework.ActorSystem.Runtime
 			int actionType = pNode.type;
 			switch(actionType)
 			{
+			case 1394729232://GetEffectState
+			{
+				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;
+				if(pNode.GetInportCount() <= 0) return true;
+				if(!(pUserClass.pPointer is Framework.ActorSystem.Runtime.Buff)) return true;
+				return AT_GetEffectState((Framework.ActorSystem.Runtime.Buff)pUserClass.pPointer,pAgentTree, pNode);
+			}
 			case -1315645697://HasEffectState
 			{
 				if(!CheckUserClassPointer(ref pUserClass, pAgentTree, pNode)) return true;

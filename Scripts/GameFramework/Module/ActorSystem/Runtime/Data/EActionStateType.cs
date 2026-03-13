@@ -93,7 +93,7 @@ namespace Framework.ActorSystem.Runtime
 
         [AT.Runtime.ATAction("回调/属性变更", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_attr")]
         [Return("单位", typeof(Actor))]
-        [Return("属性", typeof(byte), drawMethod: "DrawAttributePop")]
+        [Return("属性", typeof(byte), drawMethod: BaseATDrawerKey.Key_DrawAttributePop)]
         [Return("之前值", typeof(FFloat))]
         [Return("新值", typeof(FFloat))]
         onDirtyAttribute,
@@ -101,13 +101,13 @@ namespace Framework.ActorSystem.Runtime
         [AT.Runtime.ATAction("回调/移除Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
         [Return("单位", typeof(Actor))]
         [Return("Buff", typeof(Buff))]
-        [Return("移除状态", typeof(uint),drawMethod: "BuffStateDraw")]
+        [Return("移除状态", typeof(uint),drawMethod: BaseATDrawerKey.Key_BuffStateDraw)]
         onRemoveBuffState,
 
         [AT.Runtime.ATAction("回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]
         [Return("单位", typeof(Actor))]
         [Return("Buff", typeof(Buff))]
-        [Return("新增状态", typeof(uint), drawMethod: "BuffStateDraw")]
+        [Return("新增状态", typeof(uint), drawMethod: BaseATDrawerKey.Key_BuffStateDraw)]
         onAddBuffState,
 
         [AT.Runtime.ATAction("回调/新增Buff状态", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_buff")]

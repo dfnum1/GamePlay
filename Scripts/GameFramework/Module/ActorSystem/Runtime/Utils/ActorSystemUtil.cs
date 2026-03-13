@@ -37,7 +37,7 @@ namespace Framework.ActorSystem.Runtime
             return (flags & (int)bind) != 0;
         }
         //-----------------------------------------------------
-        [ATMethod("ÊÇ·ñÓµÓÐBuff×´Ì¬"), ATArgvDrawer("flags", "BuffStateDraw"), ATArgvDrawer("buffState", "BuffStateDraw")]
+        [ATMethod("ÊÇ·ñÓµÓÐBuff×´Ì¬"), ATArgvDrawer("flags", BaseATDrawerKey.Key_BuffStateDraw), ATArgvDrawer("buffState", BaseATDrawerKey.Key_BuffStateDraw)]
         public static bool HasBuffState(int flags, int buffState)
         {
             return (flags & (int)buffState) != 0;

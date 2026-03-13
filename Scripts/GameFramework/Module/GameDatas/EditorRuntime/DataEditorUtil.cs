@@ -16,7 +16,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 namespace Framework.Data.ED
 {
-    [ATDrawer("DrawCsvTablePop", "OnDrawCsvTablePop")]
+    [ATDrawer(BaseATDrawerKey.Key_DrawCsvTablePop, "OnDrawCsvTablePop")]
     public class DataEditorUtil
     {
         private static System.IO.MemoryStream m_pMemoryStream = null;

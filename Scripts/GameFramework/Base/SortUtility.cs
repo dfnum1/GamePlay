@@ -19,6 +19,8 @@ namespace Framework.Base
     {
         public delegate int CompareFunction<T>(T left, T right) where T : IUserData;
         public delegate int CompareFunctionVar<T>(T left, T right) where T : System.IComparable;
+        public delegate int CompareTypeFunction<T>(int userType, T left, T right) where T : IUserData;
+        public delegate int CompareUserDataFunction<T>(IUserData userData, T left, T right) where T : IUserData;
         //------------------------------------------------------
         public static void Swap<T>(ref List<T> vList, int left, int right) where T : IUserData
         {
@@ -76,6 +78,86 @@ namespace Framework.Base
             }
         }
         //------------------------------------------------------
+        public static void QuickSort<T>(ref List<T> vList, CompareTypeFunction<T> function, int userType, int start = -1, int end = -1) where T : IUserData
+        {
+            if (vList == null || vList.Count <= 1) return;
+            if (start == -1) start = 0;
+            if (end == -1) end = vList.Count - 1;
+
+            if (end <= start || start < 0 || end < 0)
+                return;
+            if (end - start == 1)
+            {
+                if (function(userType,vList[start], vList[end]) > 0)
+                    Swap(ref vList, start, end);
+                return;
+            }
+
+            int i;
+            {
+                i = start - 1;
+                int j = end;
+                T v = vList[end];
+                for (;;)
+                {
+                    while (i < end && function(userType,vList[++i], v) < 0) ;
+                    while (j > start && function(userType, vList[--j], v) > 0) ;
+                    if (i >= j) break;
+                    Swap(ref vList, i, j);
+                }
+                Swap(ref vList, i, end);
+            }
+            if (i > start)
+            {
+                QuickSort(ref vList, function, userType, start, i - 1);
+            }
+
+            if (i < end)
+            {
+                QuickSort(ref vList, function, userType, i + 1, end);
+            }
+        }
+        //------------------------------------------------------
+        public static void QuickSort<T>(ref List<T> vList, CompareUserDataFunction<T> function, IUserData pUser, int start = -1, int end = -1) where T : IUserData
+        {
+            if (vList == null || vList.Count <= 1) return;
+            if (start == -1) start = 0;
+            if (end == -1) end = vList.Count - 1;
+
+            if (end <= start || start < 0 || end < 0)
+                return;
+            if (end - start == 1)
+            {
+                if (function(pUser, vList[start], vList[end]) > 0)
+                    Swap(ref vList, start, end);
+                return;
+            }
+
+            int i;
+            {
+                i = start - 1;
+                int j = end;
+                T v = vList[end];
+                for (; ; )
+                {
+                    while (i < end && function(pUser, vList[++i], v) < 0) ;
+                    while (j > start && function(pUser, vList[--j], v) > 0) ;
+                    if (i >= j) break;
+                    Swap(ref vList, i, j);
+                }
+                Swap(ref vList, i, end);
+            }
+            if (i > start)
+            {
+                QuickSort(ref vList, function, pUser, start, i - 1);
+            }
+
+            if (i < end)
+            {
+                QuickSort(ref vList, function, pUser, i + 1, end);
+            }
+        }
+        //------------------------------------------------------
         public static void QuickSortVar<T>(ref List<T> vList, CompareFunctionVar<T> function, int start = -1, int end = -1) where T : System.IComparable
         {
             if (vList == null || vList.Count <= 1) return;
@@ -96,7 +178,7 @@ namespace Framework.Base
                 i = start - 1;
                 int j = end;
                 T v = vList[end];
-                for (;;)
+                for (; ; )
                 {
                     while (i < end && function(vList[++i], v) < 0) ;
                     while (j > start && function(vList[--j], v) > 0) ;
