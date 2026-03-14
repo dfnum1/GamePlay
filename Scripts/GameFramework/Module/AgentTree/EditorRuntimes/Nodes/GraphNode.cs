@@ -974,10 +974,10 @@ namespace Framework.AT.Editor
             bool hasDummy = (port.nodePort.dummyPorts != null && port.nodePort.dummyPorts.Length > 0);
             if (port.fieldRoot!=null)
             {
-                if (hasDummy || !port.attri.canEdit)
-                    port.fieldRoot.SetEnabled(false);
-                else
-                    port.fieldRoot.SetEnabled(true);
+                //if (hasDummy || !port.attri.canEdit)
+                //    port.fieldRoot.SetEnabled(false);
+                //else
+                //    port.fieldRoot.SetEnabled(true);
             }
 
             if (attri.argvType == typeof(AT.Runtime.IVariable))
@@ -1557,7 +1557,7 @@ namespace Framework.AT.Editor
             placeholder.Add(img);
 
             // 可点击区域
-            var label = new Label("");
+            var label = new Label("标志");
             label.style.unityTextAlign = TextAnchor.MiddleLeft;
             label.style.flexGrow = 1;
             placeholder.Add(label);
