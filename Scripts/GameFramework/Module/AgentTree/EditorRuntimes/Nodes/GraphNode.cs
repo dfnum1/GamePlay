@@ -1102,35 +1102,43 @@ namespace Framework.AT.Editor
 
             if (portVariable is AT.Runtime.VariableInt && attri.argvType.IsEnum)
             {
-                var intVar = (AT.Runtime.VariableInt)portVariable;
-                var popup = CreateEnumPopupFieldWithDisplay(
-                    attri.argvType,
-                    intVar.value,
-                    v => {
-                        if (CanChangeValue(port))
-                        {
-                            OnArgvPortChanging(port);
-                            intVar.value = v;
-                            m_pGraphView.UpdateVariable(intVar);
-                            OnArgvPortChanged(port);
-                        }
-                    },
-                     port.attri.canEdit
-                );
-
-                // 设置运行时变量的值
-                var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
-                if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
+                if(attri.argvType.IsDefined(typeof(EnumFlagsAttribute)))
                 {
-                    int idx = popup.choices.IndexOf(
-                        Framework.ED.EditorUtils.GetEnumDisplayName(attri.argvType, runtimeInt.value)
-                    );
-                    if (idx >= 0)
-                        popup.index = idx;
+                    DrawEnumFlagsElement(attri.argvType, port, portVariable, (newVar) => { }, width)
                 }
+                else
+                {
+                    var intVar = (AT.Runtime.VariableInt)portVariable;
+                    var popup = CreateEnumPopupFieldWithDisplay(
+                        attri.argvType,
+                        intVar.value,
+                        v =>
+                        {
+                            if (CanChangeValue(port))
+                            {
+                                OnArgvPortChanging(port);
+                                intVar.value = v;
+                                m_pGraphView.UpdateVariable(intVar);
+                                OnArgvPortChanged(port);
+                            }
+                        },
+                         port.attri.canEdit
+                    );
 
-                port.fieldRoot.Add(popup);
-                port.fieldElement = popup;
+                    // 设置运行时变量的值
+                    var runtimeVar = portVariable;// m_pGraphView.GetRuntimeVariable(port);
+                    if (runtimeVar != null && runtimeVar is AT.Runtime.VariableInt runtimeInt)
+                    {
+                        int idx = popup.choices.IndexOf(
+                            Framework.ED.EditorUtils.GetEnumDisplayName(attri.argvType, runtimeInt.value)
+                        );
+                        if (idx >= 0)
+                            popup.index = idx;
+                    }
+
+                    port.fieldRoot.Add(popup);
+                    port.fieldElement = popup;
+                }
             }
             else if (portVariable is AT.Runtime.VariableInt intVar)
             {
@@ -1482,6 +1490,155 @@ namespace Framework.AT.Editor
             }
         }
         //-----------------------------------------------------
+        public static VisualElement DrawEnumFlagsElement(System.Type enumType, ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
+        {
+            Array enumValues = Enum.GetValues(enumType);
+            List<string> displayNames = new List<string>();
+            List<int> valueList = new List<int>();
+            foreach (var val in enumValues)
+            {
+                string name = Enum.GetName(enumType, val);
+                FieldInfo fi = enumType.GetField(name);
+                string displayName = name;
+                if (fi != null && fi.IsDefined(typeof(DisplayAttribute), false))
+                {
+                    var attr = fi.GetCustomAttribute<DisplayAttribute>();
+                    if (!string.IsNullOrEmpty(attr.displayName))
+                        displayName = attr.displayName;
+                }
+                displayNames.Add(displayName);
+                valueList.Add(Convert.ToInt32(val));
+            }
+
+            EnumFlagsAttribute enumFlags = enumType.GetCustomAttribute<EnumFlagsAttribute>();
+            // 控制展开/收起
+            bool isExpanded = false;
+
+            var container = new VisualElement();
+            container.style.flexDirection = FlexDirection.Column;
+            container.style.width = width;
+
+            // 占位和折叠按钮
+            var placeholder = new VisualElement();
+            placeholder.style.height = 25;
+            placeholder.style.flexGrow = 0;
+            placeholder.style.flexDirection = FlexDirection.Row;
+            placeholder.style.alignItems = Align.Center;
+
+            // 图标
+            var img = new Image
+            {
+                image = AgentTreeUtil.LoadIcon("Node/foldout"), // 默认收起
+                style =
+                {
+                    width = 16,
+                    height = 16,
+                    marginRight = 4,
+                    marginTop = 2,
+                    marginLeft = 2,
+                }
+            };
+            placeholder.Add(img);
+
+            // 可点击区域
+            var label = new Label("");
+            label.style.unityTextAlign = TextAnchor.MiddleLeft;
+            label.style.flexGrow = 1;
+            placeholder.Add(label);
+
+            container.Add(placeholder);
+
+            // 展开/收起事件
+            placeholder.RegisterCallback<MouseDownEvent>(evt =>
+            {
+                isExpanded = !isExpanded;
+                if (isExpanded)
+                {
+                    // 多选内容
+                    var multiSelectContainer = new VisualElement();
+                    multiSelectContainer.style.flexDirection = FlexDirection.Column;
+                    multiSelectContainer.style.display = DisplayStyle.None; // 默认隐藏
+
+                    void RefreshMultiSelect()
+                    {
+                        multiSelectContainer.Clear();
+                        for (int i = 0; i < displayNames.Count; ++i)
+                        {
+                            bool isChecked = (curValue & (1 << i)) != 0;
+
+                            var row = new VisualElement();
+                            row.style.flexDirection = FlexDirection.Row;
+                            row.style.alignItems = Align.Center;
+                            row.style.justifyContent = Justify.SpaceBetween;
+                            row.style.marginTop = 1;
+                            row.style.marginBottom = 1;
+
+                            var stateLabel = new Label(displayNames[i]);
+                            stateLabel.style.flexGrow = 1;
+                            stateLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
+                            stateLabel.style.marginRight = 4;
+
+                            var toggle = new Toggle()
+                            {
+                                value = isChecked
+                            };
+                            toggle.style.flexGrow = 0;
+                            toggle.style.width = 18;
+                            toggle.SetEnabled(canEdit);
+
+                            int bitIndex = i;
+                            toggle.RegisterValueChangedCallback(evt =>
+                            {
+                                if (enumFlags.offset)
+                                {
+                                    if (evt.newValue)
+                                        curValue |= (1 << bitIndex);
+                                    else
+                                        curValue &= ~(1 << bitIndex);
+                                }
+                                else
+                                {
+                                    if (evt.newValue)
+                                        curValue |= (1 << bitIndex);
+                                    else
+                                        curValue &= ~(1 << bitIndex);
+                                }
+
+                                onValueChanged?.Invoke(curValue);
+                            });
+
+                            row.Add(stateLabel);
+                            row.Add(toggle);
+                            multiSelectContainer.Add(row);
+                        }
+                    }
+
+                    RefreshMultiSelect();
+                    container.Add(multiSelectContainer);
+                    multiSelectContainer.style.display = isExpanded ? DisplayStyle.Flex : DisplayStyle.None;
+
+                    float height = (valueList.Count) * 35;
+                    port.bindPort.style.marginTop = height / 2;
+                    port.bindPort.style.marginBottom = 5;
+                    multiSelectContainer.style.minHeight = height;
+                    img.transform.rotation = Quaternion.Euler(0, 0, 90);
+                }
+                else
+                {
+                    img.transform.rotation = Quaternion.identity;
+                    //删除multiSelectContainer
+                    if (container.childCount > 1)
+                        container.RemoveAt(1);
+                    port.bindPort.style.marginTop = 0;
+                    port.bindPort.style.marginBottom = 0;
+
+                }
+                evt.StopPropagation();
+            });
+
+            return container;
+        }
+        //-----------------------------------------------------
         public static PopupField<string> CreateEnumPopupFieldWithDisplay(
         Type enumType,
         int curValue,
@@ -1507,167 +1664,30 @@ namespace Framework.AT.Editor
                 valueList.Add(Convert.ToInt32(val));
             }
 
-            EnumFlagsAttribute enumFlags = null;
-            if(enumType.IsDefined(typeof(EnumFlagsAttribute)))
+            int curIndex = valueList.IndexOf(curValue);
+            if (curIndex < 0) curIndex = 0;
+
+            var popup = new PopupField<string>(displayNames, curIndex)
             {
-                enumFlags = enumType.GetCustomAttribute<EnumFlagsAttribute>();
-            }
-            if (enumFlags!=null)
-            {
-                // 控制展开/收起
-                bool isExpanded = false;
-
-                var container = new VisualElement();
-                container.style.flexDirection = FlexDirection.Column;
-                container.style.width = width;
-
-                // 占位和折叠按钮
-                var placeholder = new VisualElement();
-                placeholder.style.height = 25;
-                placeholder.style.flexGrow = 0;
-                placeholder.style.flexDirection = FlexDirection.Row;
-                placeholder.style.alignItems = Align.Center;
-
-                // 图标
-                var img = new Image
-                {
-                    image = AgentTreeUtil.LoadIcon("Node/foldout"), // 默认收起
-                    style =
-                {
-                    width = 16,
-                    height = 16,
-                    marginRight = 4,
-                    marginTop = 2,
-                    marginLeft = 2,
-                }
-                };
-                placeholder.Add(img);
-
-                // 可点击区域
-                var label = new Label("");
-                label.style.unityTextAlign = TextAnchor.MiddleLeft;
-                label.style.flexGrow = 1;
-                placeholder.Add(label);
-
-                container.Add(placeholder);
-
-                // 展开/收起事件
-                placeholder.RegisterCallback<MouseDownEvent>(evt =>
-                {
-                    isExpanded = !isExpanded;
-                    if (isExpanded)
-                    {
-                        // 多选内容
-                        var multiSelectContainer = new VisualElement();
-                        multiSelectContainer.style.flexDirection = FlexDirection.Column;
-                        multiSelectContainer.style.display = DisplayStyle.None; // 默认隐藏
-
-                        void RefreshMultiSelect()
-                        {
-                            multiSelectContainer.Clear();
-                            for (int i = 0; i < displayNames.Count; ++i)
-                            {
-                                bool isChecked = (curValue & (1 << i)) != 0;
-
-                                var row = new VisualElement();
-                                row.style.flexDirection = FlexDirection.Row;
-                                row.style.alignItems = Align.Center;
-                                row.style.justifyContent = Justify.SpaceBetween;
-                                row.style.marginTop = 1;
-                                row.style.marginBottom = 1;
-
-                                var stateLabel = new Label(displayNames[i]);
-                                stateLabel.style.flexGrow = 1;
-                                stateLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
-                                stateLabel.style.marginRight = 4;
-
-                                var toggle = new Toggle()
-                                {
-                                    value = isChecked
-                                };
-                                toggle.style.flexGrow = 0;
-                                toggle.style.width = 18;
-                                toggle.SetEnabled(canEdit);
-
-                                int bitIndex = i;
-                                toggle.RegisterValueChangedCallback(evt =>
-                                {
-                                    if(enumFlags.offset)
-                                    {
-                                        if (evt.newValue)
-                                            curValue |= (1 << bitIndex);
-                                        else
-                                            curValue &= ~(1 << bitIndex);
-                                    }
-                                    else
-                                    {
-                                        if (evt.newValue)
-                                            curValue |= (1 << bitIndex);
-                                        else
-                                            curValue &= ~(1 << bitIndex);
-                                    }
-
-                                        onValueChanged?.Invoke(curValue);
-                                });
-
-                                row.Add(stateLabel);
-                                row.Add(toggle);
-                                multiSelectContainer.Add(row);
-                            }
-                        }
-
-                        RefreshMultiSelect();
-                        container.Add(multiSelectContainer);
-                        multiSelectContainer.style.display = isExpanded ? DisplayStyle.Flex : DisplayStyle.None;
-
-                        float height = (valueList.Count) * 35;
-                        port.bindPort.style.marginTop = height / 2;
-                        port.bindPort.style.marginBottom = 5;
-                        multiSelectContainer.style.minHeight = height;
-                        img.transform.rotation = Quaternion.Euler(0, 0, 90);
-                    }
-                    else
-                    {
-                        img.transform.rotation = Quaternion.identity;
-                        //删除multiSelectContainer
-                        if (container.childCount > 1)
-                            container.RemoveAt(1);
-                        port.bindPort.style.marginTop = 0;
-                        port.bindPort.style.marginBottom = 0;
-
-                    }
-                    evt.StopPropagation();
-                });
-
-                return container;
-            }
-            else 
-            {
-                int curIndex = valueList.IndexOf(curValue);
-                if (curIndex < 0) curIndex = 0;
-
-                var popup = new PopupField<string>(displayNames, curIndex)
-                {
-                    style =
+                style =
                     {
                         width = width,
                         marginLeft = 4,
                         unityTextAlign = UnityEngine.TextAnchor.MiddleRight
                     }
-                };
-                popup.SetEnabled(canEdit);
+            };
+            popup.SetEnabled(canEdit);
 
-                popup.RegisterValueChangedCallback(evt =>
+            popup.RegisterValueChangedCallback(evt =>
+            {
+                int idx = displayNames.IndexOf(evt.newValue);
+                if (idx >= 0)
                 {
-                    int idx = displayNames.IndexOf(evt.newValue);
-                    if (idx >= 0)
-                    {
-                        onValueChanged?.Invoke(valueList[idx]);
-                    }
-                });
+                    onValueChanged?.Invoke(valueList[idx]);
+                }
+            });
 
-                return popup;
-            }
+            return popup;
         }
         //-----------------------------------------------------
         VisualElement CreateClassPopupFieldWithDisplay(
