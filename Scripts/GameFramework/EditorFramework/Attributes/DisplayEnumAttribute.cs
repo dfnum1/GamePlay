@@ -79,4 +79,17 @@ namespace Framework.DrawProps
         }
 #endif
     }
+    //--------------------------------------------------------
+    public class EnumFlagsAttribute : System.FlagsAttribute
+    {
+#if UNITY_EDITOR
+        public bool offset;
+#endif
+        public EnumFlagsAttribute(bool offset = false)
+        {
+#if UNITY_EDITOR
+            this.offset = offset;
+#endif
+        }
+    }
 }

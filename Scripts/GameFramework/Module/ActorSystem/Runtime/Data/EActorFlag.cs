@@ -5,6 +5,7 @@
 描    述:	
 *********************************************************************/
 using Framework.DrawProps;
+using System;
 
 namespace Framework.ActorSystem.Runtime
 {
@@ -21,6 +22,7 @@ namespace Framework.ActorSystem.Runtime
         [Display("加载完成")] Loaded,
     }
 
+    [EnumFlags(true)]
     public enum EActorFlag
     {
         [Display("激活")]Active = 1 << 0,
