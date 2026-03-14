@@ -134,8 +134,8 @@ namespace Framework.ActorSystem.Runtime
                                 FFloat result = 0f;
                                 switch (lambda.type)
                                 {
-                                    case EAttrFormulaType.eFloor: result = Math.Floor((float)a); break;
-                                    case EAttrFormulaType.eCeil: result = Math.Ceiling((float)a); break;
+                                    case EAttrFormulaType.eFloor: result = (float)Math.Floor((float)a); break;
+                                    case EAttrFormulaType.eCeil: result = (float)Math.Ceiling((float)a); break;
                                     case EAttrFormulaType.eAbs: result = Math.Abs(a); break;
                                 }
                                 ms_FormulaStack.Push(result);

@@ -7,8 +7,6 @@
 using System.Collections.Generic;
 #if USE_FIXEDMATH
 using ExternEngine;
-using Framework.AT.Runtime;
-using Framework.Base;
 #else
 using UnityEngine;
 using FFloat = System.Single;
@@ -17,6 +15,8 @@ using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
 #endif
+using Framework.AT.Runtime;
+using Framework.Base;
 namespace Framework.ActorSystem.Runtime
 {
     public interface IActorAttrDirtyCallback
@@ -177,7 +177,7 @@ namespace Framework.ActorSystem.Runtime
                 FFloat finalVal = val;
                 FFloat rateVal = m_pActor.GetBuffSystem().GetAttrRate(type);
                 AttrCoreData.AttrInfo attrInfo = AttrCoreData.AttrInfo.DEF;
-                if(rateVal!=FFloat.zero)
+                if(rateVal!=0.0f)
                 {
                     attrInfo = m_pActor.GetActorManager().GetAttrInfo(type);
                     if(attrInfo.IsValid())
@@ -189,7 +189,7 @@ namespace Framework.ActorSystem.Runtime
                     }
                 }
                 finalVal += m_pActor.GetBuffSystem().GetAttrValue(type);
-                if (rateVal != FFloat.zero)
+                if (rateVal != 0.0f)
                 {
                     attrInfo = m_pActor.GetActorManager().GetAttrInfo(type);
                     if (attrInfo.IsValid())

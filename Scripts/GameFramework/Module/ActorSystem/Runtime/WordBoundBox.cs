@@ -11,9 +11,11 @@ using Framework.Base;
 using ExternEngine;
 #else
 using FFloat = System.Single;
+using FBounds = UnityEngine.Bounds;
 using FVector3 = UnityEngine.Vector3;
 using FQuaternion = UnityEngine.Quaternion;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FRay = UnityEngine.Ray;
 #endif
 namespace Framework.ActorSystem.Runtime
 {

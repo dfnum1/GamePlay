@@ -4,10 +4,18 @@
 作    者:	HappLI
 描    述:	基于Sprite的序列帧动画管理类
 *********************************************************************/
+#if USE_FIXEDMATH
 using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 using Framework.Core;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Framework.SpriteSeq
 {

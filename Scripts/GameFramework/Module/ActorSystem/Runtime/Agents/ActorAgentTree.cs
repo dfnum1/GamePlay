@@ -4,12 +4,19 @@
 作    者:	HappLI
 描    述:	行为树逻辑Agent
 *********************************************************************/
+#if USE_FIXEDMATH
 using ExternEngine;
+#else
+using UnityEngine;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 using Framework.AT.Runtime;
 using Framework.Base;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine.Playables;
 namespace Framework.ActorSystem.Runtime
 {
     public class ActorAgentTree : AActorAgent
@@ -28,7 +35,7 @@ namespace Framework.ActorSystem.Runtime
                 return null;
             if (m_pMainAgentTree != null && m_pMainAgentTree.GetData() == atData)
             {
-                Logger.Warning("已经为该Actor 的主蓝图了,不能添加!");
+                Base.Logger.Warning("已经为该Actor 的主蓝图了,不能添加!");
                 return null;
             }
             if(m_vSubAgentTrees!=null)
@@ -37,7 +44,7 @@ namespace Framework.ActorSystem.Runtime
                 {
                     if (db.GetData() == atData)
                     {
-                        Logger.Warning("该Actor已经包含该蓝图了!");
+                        Base.Logger.Warning("该Actor已经包含该蓝图了!");
                         return db;
                     }
                 }

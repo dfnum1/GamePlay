@@ -4,14 +4,19 @@
 作    者:	HappLI
 描    述:	单位部件逻辑
 *********************************************************************/
-using ExternEngine;
-using Framework.AT.Runtime;
 using Framework.Base;
 using Framework.Core;
 using System.Collections.Generic;
-using System.IO;
+#if USE_FIXEDMATH
+using ExternEngine;
+#else
 using UnityEngine;
-using UnityEngine.Playables;
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 namespace Framework.ActorSystem.Runtime
 {
     public class ActorPartAgent : AActorAgent, IInstanceAbleCallback

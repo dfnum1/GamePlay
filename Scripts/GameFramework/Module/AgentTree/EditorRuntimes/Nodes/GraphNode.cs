@@ -1104,7 +1104,20 @@ namespace Framework.AT.Editor
             {
                 if(attri.argvType.IsDefined(typeof(EnumFlagsAttribute)))
                 {
-                    DrawEnumFlagsElement(attri.argvType, port, portVariable, (newVar) => { }, width)
+                    var drawElement = DrawEnumFlagsElement(attri.argvType, port, portVariable, (newVar) => {
+                        if (CanChangeValue(port))
+                        {
+                            OnArgvPortChanging(port);
+                            port.nodePort.pVariable = newVar;
+                            m_pGraphView.UpdateVariable(newVar);
+                            OnArgvPortChanged(port);
+                        }
+                    }, 120);
+                    if (drawElement != null)
+                    {
+                        port.fieldRoot.Add(drawElement);
+                        port.fieldElement = drawElement;
+                    }
                 }
                 else
                 {
@@ -1492,6 +1505,9 @@ namespace Framework.AT.Editor
         //-----------------------------------------------------
         public static VisualElement DrawEnumFlagsElement(System.Type enumType, ArvgPort port, IVariable portValue, Action<IVariable> onValueChanged, int width)
         {
+            var portVal = (AT.Runtime.VariableInt)portValue;
+            int curValue = portVal.value;
+            bool canEdit = port.attri.canEdit;
             Array enumValues = Enum.GetValues(enumType);
             List<string> displayNames = new List<string>();
             List<int> valueList = new List<int>();
@@ -1603,8 +1619,9 @@ namespace Framework.AT.Editor
                                     else
                                         curValue &= ~(1 << bitIndex);
                                 }
+                                portVal.value = curValue;
 
-                                onValueChanged?.Invoke(curValue);
+                                onValueChanged?.Invoke(portVal);
                             });
 
                             row.Add(stateLabel);

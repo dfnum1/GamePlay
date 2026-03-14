@@ -5,7 +5,11 @@
 作    者:	HappLI
 描    述:	Actor 逻辑行为基类
 *********************************************************************/
+#if USE_FIXEDMATH
 using ExternEngine;
+#else
+using FFloat = System.Single;
+#endif
 using Framework.Core;
 using UnityEngine;
 

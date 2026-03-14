@@ -4,17 +4,23 @@
 作    者:	HappLI
 描    述:	文件操作系统
 *********************************************************************/
+#if USE_FIXEDMATH
 using ExternEngine;
+#else
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+using FVector4 = UnityEngine.Vector4;
+using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
+#endif
 using Framework.Base;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using UnityEditor;
-using UnityEditor.Build.Content;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.Networking;
 namespace Framework.Core
 {
     public class FileSystem : AModule
@@ -312,7 +318,7 @@ namespace Framework.Core
                 if (!Application.isPlaying || !AFramework.isStartup)
                 {
                     m_pEditorCoroutine = CoroutinesUpdateLoad();
-                    EditorApplication.update += EditorCoroutineUpdate;
+                    UnityEditor.EditorApplication.update += EditorCoroutineUpdate;
                     return;
                 }
 #endif
@@ -325,7 +331,7 @@ namespace Framework.Core
         {
             if (m_pEditorCoroutine == null)
             {
-                EditorApplication.update -= EditorCoroutineUpdate;
+                UnityEditor.EditorApplication.update -= EditorCoroutineUpdate;
                 m_bCoroutining = false;
                 return;
             }
@@ -356,7 +362,7 @@ namespace Framework.Core
 
             if (m_EditorCoroutineStack.Count == 0)
             {
-                EditorApplication.update -= EditorCoroutineUpdate;
+                UnityEditor.EditorApplication.update -= EditorCoroutineUpdate;
                 m_bCoroutining = false;
                 m_pEditorCoroutine = null;
             }

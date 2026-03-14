@@ -20,8 +20,10 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FVector4 = UnityEngine.Vector4;
 using FBounds = UnityEngine.Bounds;
 using FRay = UnityEngine.Ray;
+using FRect = UnityEngine.Rect;
 #endif
 namespace Framework.AT.Runtime
 {

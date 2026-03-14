@@ -16,8 +16,10 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FVector4 = UnityEngine.Vector4;
 using FBounds = UnityEngine.Bounds;
 using FRay = UnityEngine.Ray;
+using FRect = UnityEngine.Rect;
 #endif
 namespace Framework.AT.Runtime
 {
@@ -1861,7 +1863,7 @@ namespace Framework.AT.Runtime
             }
             else if (varNode.GetVariableType() == EVariableType.eVec4)
             {
-                GetRuntimeVariable().SetVec4(guid, vecValue);
+                GetRuntimeVariable().SetVec4(guid, new FVector4(vecValue.x, vecValue.y,0,0));
             }
             else if (varNode.GetVariableType() == EVariableType.eFloat)
             {
@@ -1917,7 +1919,7 @@ namespace Framework.AT.Runtime
             }
             else if (varNode.GetVariableType() == EVariableType.eVec4)
             {
-                GetRuntimeVariable().SetVec4(guid, vecValue);
+                GetRuntimeVariable().SetVec4(guid, new FVector4(vecValue.x, vecValue.y, vecValue.z,0));
             }
             else if (varNode.GetVariableType() == EVariableType.eFloat)
             {

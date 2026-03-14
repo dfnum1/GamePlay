@@ -6,10 +6,6 @@
 *********************************************************************/
 #if USE_FIXEDMATH
 using ExternEngine;
-using Framework.AT.Runtime;
-using Framework.Base;
-
-
 #else
 using FFloat = System.Single;
 using FMatrix4x4 = UnityEngine.Matrix4x4;
@@ -17,6 +13,8 @@ using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
 #endif
+using Framework.AT.Runtime;
+using Framework.Base;
 using Framework.Core;
 using System.Collections.Generic;
 using UnityEngine;

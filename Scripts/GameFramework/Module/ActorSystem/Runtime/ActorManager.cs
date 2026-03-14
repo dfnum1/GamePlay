@@ -11,8 +11,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Framework.Base;
 using System.IO;
-
-
 #if USE_FIXEDMATH
 using ExternEngine;
 #else
@@ -21,7 +19,9 @@ using FMatrix4x4 = UnityEngine.Matrix4x4;
 using FQuaternion = UnityEngine.Quaternion;
 using FVector2 = UnityEngine.Vector2;
 using FVector3 = UnityEngine.Vector3;
+using FVector4 = UnityEngine.Vector4;
 using FBounds = UnityEngine.Bounds;
+using FRay = UnityEngine.Ray;
 #endif
 namespace Framework.ActorSystem.Runtime
 {

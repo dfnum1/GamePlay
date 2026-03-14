@@ -4,9 +4,16 @@
 作    者:	HappLI
 描    述:	输入模块
 *********************************************************************/
+#if USE_FIXEDMATH
 using ExternEngine;
+#else
 using UnityEngine;
-
+using FFloat = System.Single;
+using FMatrix4x4 = UnityEngine.Matrix4x4;
+using FQuaternion = UnityEngine.Quaternion;
+using FVector2 = UnityEngine.Vector2;
+using FVector3 = UnityEngine.Vector3;
+#endif
 namespace Framework.Core
 {
     public class TouchInput : AModule

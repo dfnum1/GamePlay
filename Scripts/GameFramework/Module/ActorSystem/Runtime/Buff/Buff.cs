@@ -427,7 +427,7 @@ namespace Framework.ActorSystem.Runtime
                         return m_arrAttrValues[i]*m_nTickCount;
                 }
             }
-            return FFloat.zero;
+            return 0.0f;
         }
         //-----------------------------------------------------
         [ATMethod("获取Buff属性值类型"), ATArgvDrawer("type", BaseATDrawerKey.Key_DrawAttributePop)]
