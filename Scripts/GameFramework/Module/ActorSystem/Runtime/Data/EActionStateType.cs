@@ -91,6 +91,12 @@ namespace Framework.ActorSystem.Runtime
         [Return("单位", typeof(Actor))]
         onGround,
 
+        [AT.Runtime.ATAction("回调/标志变更", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_diryflag")]
+        [Return("单位", typeof(Actor))]
+        [Return("标志", typeof(EActorFlag))]
+        [Return("开关", typeof(bool))]
+        onDirtyFlag,
+
         [AT.Runtime.ATAction("回调/属性变更", true, false, true), AT.Runtime.ATIcon("ActorSystem/on_dirty_attr")]
         [Return("单位", typeof(Actor))]
         [Return("属性", typeof(byte), drawMethod: BaseATDrawerKey.Key_DrawAttributePop)]

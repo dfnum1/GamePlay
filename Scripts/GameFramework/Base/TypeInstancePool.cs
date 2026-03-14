@@ -111,6 +111,10 @@ namespace Framework.Base
         internal static void CheckLegal(System.Type type)
         {
             Debug.Assert(ms_MallocInnter == type, "禁止使用new " + type.Name + " 创建实例,请使用TypeInstancePool.Malloc<"+ type.Name + ">(pFramewrok) 创建!!!");
+            if (ms_MallocInnter != type)
+            {
+                UnityEngine.Debug.Break();
+            }
         }
 #endif
     }

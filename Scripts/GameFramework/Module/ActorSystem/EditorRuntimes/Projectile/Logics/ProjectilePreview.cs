@@ -17,6 +17,8 @@ using Framework.ED;
 using Framework.Data;
 using Framework.ActorSystem.Runtime;
 using UnityEngine.UIElements;
+using Framework.Base;
+
 
 
 
@@ -287,7 +289,7 @@ namespace Framework.ProjectileSystem.Editor
             {
                 for (int i = 0; i < pData.speedLows.Length; ++i)
                 {
-                    ProjectileActor pProjectile = new ProjectileActor();
+                    ProjectileActor pProjectile = TypeInstancePool.Malloc<ProjectileActor>(GetFramework());
                     pProjectile.SetActorManager(GetOwner<ProjectileEditor>().GetActorManager());
                     pProjectile.SetContextData(pData);
 
@@ -311,7 +313,7 @@ namespace Framework.ProjectileSystem.Editor
                 }
                 for (int i = 0; i < pData.speedUppers.Length; ++i)
                 {
-                    ProjectileActor pProjectile = new ProjectileActor();
+                    ProjectileActor pProjectile = TypeInstancePool.Malloc<ProjectileActor>(GetFramework());
                     pProjectile.SetActorManager(GetOwner<ProjectileEditor>().GetActorManager());
                     pProjectile.SetContextData(pData);
 
@@ -336,7 +338,7 @@ namespace Framework.ProjectileSystem.Editor
             }
             else if (pData.life_time > 0)
             {
-                ProjectileActor pProjectile = new ProjectileActor();
+                ProjectileActor pProjectile =TypeInstancePool.Malloc<ProjectileActor>(GetFramework());
                 pProjectile.SetActorManager(GetOwner<ProjectileEditor>().GetActorManager());
                 pProjectile.SetContextData(pData);
 

@@ -370,7 +370,7 @@ namespace Framework.Db
             int curIndex = ms_vClsIds.IndexOf(intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_vClsNames, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_vClsNames, curIndex)
             {
                 style =
                 {

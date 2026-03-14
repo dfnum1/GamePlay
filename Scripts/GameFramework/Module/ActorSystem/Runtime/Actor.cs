@@ -855,7 +855,7 @@ namespace Framework.ActorSystem.Runtime
                 if (m_mTypeAgents.TryGetValue(typeof(T), out var pAgentThis))
                     return pAgentThis as T;
             }
-            T pAgent = new T();
+            T pAgent = TypeInstancePool.Malloc<T>(GetFramework());
             pAgent.SetActor(this);
             m_vAgents.Add(pAgent);
             m_mTypeAgents[pAgent.GetType()] = pAgent;

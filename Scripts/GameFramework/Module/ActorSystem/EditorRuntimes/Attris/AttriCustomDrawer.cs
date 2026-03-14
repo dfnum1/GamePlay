@@ -141,7 +141,7 @@ namespace Framework.ActorSystem.Editor
             int curIndex = ms_vAttris.IndexOf((byte)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_vAttriPops, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_vAttriPops, curIndex)
             {
                 style =
                 {
@@ -176,7 +176,7 @@ namespace Framework.ActorSystem.Editor
             int curIndex = ms_vAttris.IndexOf((byte)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_vFormulaTypePops, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_vFormulaTypePops, curIndex)
             {
                 style =
                 {
@@ -211,7 +211,7 @@ namespace Framework.ActorSystem.Editor
             int curIndex = ms_vAttackGroupTypes.IndexOf((byte)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_vAttackGroupPops, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_vAttackGroupPops, curIndex)
             {
                 style =
                 {
@@ -246,7 +246,7 @@ namespace Framework.ActorSystem.Editor
             int curIndex = ms_vActorTypeTypes.IndexOf((byte)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_vActorTypePops, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_vActorTypePops, curIndex)
             {
                 style =
                 {
@@ -306,7 +306,7 @@ namespace Framework.ActorSystem.Editor
                         int curIndex = vSubTypes.IndexOf((byte)intVar.value);
                         if (curIndex < 0) curIndex = 0;
 
-                        var popup = new PopupField<string>(vSubTypeNames, curIndex)
+                        var popup = new UnityEditor.UIElements.PopupField<string>(vSubTypeNames, curIndex)
                         {
                             style =
                             {
@@ -338,7 +338,7 @@ namespace Framework.ActorSystem.Editor
             int curIndex = vSubTypes.IndexOf((byte)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(vSubTypeNames, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(vSubTypeNames, curIndex)
             {
                 style =
                 {

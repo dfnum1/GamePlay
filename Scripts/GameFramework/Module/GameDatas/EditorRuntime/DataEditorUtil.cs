@@ -302,7 +302,7 @@ namespace Framework.Data.ED
             int curIndex = ms_TableHashs.IndexOf((int)intVar.value);
             if (curIndex < 0) curIndex = 0;
 
-            var popup = new PopupField<string>(ms_TableNamePops, curIndex)
+            var popup = new UnityEditor.UIElements.PopupField<string>(ms_TableNamePops, curIndex)
             {
                 style =
                 {
